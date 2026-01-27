@@ -10,10 +10,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const registerSchema = z.object({
-  // Champs de notre formulaire
   id: z.number().optional(),
   username: z.string(),
   password: z.string(),
+  role: z.enum(["ADMIN", "JURY", "PRODUCER"]).default("PRODUCER"),
 });
 
 function Users() {
@@ -26,8 +26,9 @@ function Users() {
     });
   }, []);
 
-  const { register, handleSubmit, setValue } = useForm({
+  const { register, handleSubmit, setValue, watch } = useForm({
     resolver: zodResolver(registerSchema),
+    defaultValues: { role: "PRODUCER" },
   });
 
   const registerMutation = useMutation({
@@ -71,6 +72,7 @@ function Users() {
     setValue("id", user.id);
     setValue("username", user.username);
     setValue("password", user.password);
+    setValue("role", user.role || "PRODUCER");
     setModeEdit(true);
   }
 
@@ -78,6 +80,7 @@ function Users() {
     setValue("id", undefined);
     setValue("username", "");
     setValue("password", "");
+    setValue("role", "PRODUCER");
     setModeEdit(false);
   }
 
@@ -107,7 +110,7 @@ function Users() {
         <form
           onSubmit={modeEdit ? handleSubmit(onUpdate) : handleSubmit(onSubmit)}
         >
-          <input type="hidden" id="id" {...register("id")} />
+          <input type="hidden" id="id" {...register("id" )} />
           <label
             htmlFor="username"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -135,6 +138,18 @@ function Users() {
             {...register("password")}
             required
           />
+
+          <label htmlFor="role" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Role
+          </label>
+          <select id="role" {...register("role")}
+            defaultValue="PRODUCER"
+          >
+            <option value="PRODUCER">PRODUCER</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="JURY">JURY</option>
+          </select>
+
           {modeEdit && (
             <button type="button" onClick={handleReset}>
               Annuler la modification
