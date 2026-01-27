@@ -1,5 +1,13 @@
+import { useEffect, useState } from "react";
+
 export function RoleGuard({ allowedRoles, children }) {
-  const userRole = localStorage.getItem("role");
+  const [userRole, setUserRole] = useState(() => localStorage.getItem("role"));
+
+  useEffect(() => {
+    const onStorage = () => setUserRole(localStorage.getItem("role"));
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   if (allowedRoles.includes(userRole)) {
     return children;

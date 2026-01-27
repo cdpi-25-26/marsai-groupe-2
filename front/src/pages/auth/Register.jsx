@@ -10,6 +10,7 @@ import * as z from "zod";
 const registerSchema = z.object({
   username: z.string(),
   password: z.string(),
+  role: z.enum(["PRODUCER", "ADMIN"]).default("PRODUCER"),
 });
 
 export function Register() {
@@ -26,8 +27,9 @@ export function Register() {
 
   let navigate = useNavigate();
 
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, watch } = useForm({
     resolver: zodResolver(registerSchema),
+    defaultValues: { role: "PRODUCER" },
   });
 
   const registerMutation = useMutation({
@@ -48,6 +50,7 @@ export function Register() {
   return (
     <>
       <h1 className="text-2xl">Register</h1>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" id="id" {...register("id")} />
         <label
@@ -77,6 +80,9 @@ export function Register() {
           {...register("password")}
           required
         />
+
+
+        <input type="hidden" {...register("role") } value="PRODUCER" />
 
         <button type="submit">Register</button>
       </form>
