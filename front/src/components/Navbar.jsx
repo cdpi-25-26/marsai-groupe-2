@@ -9,7 +9,7 @@ export default function Navbar() {
     localStorage.removeItem("role");
     localStorage.removeItem("token");
     // Notifica anche altri tab/browser
-    localStorage.setItem("logout", Date.now());
+  
     window.location.reload();
   }
 
