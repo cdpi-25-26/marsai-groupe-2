@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
+
 import { deleteUser, getUsers, updateUser } from "../../api/users.js";
 import { useMutation } from "@tanstack/react-query";
-
-import { createUser } from "../../api/users.js";
+import { signIn } from "../../api/auth.js";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -33,10 +33,14 @@ function Users() {
 
   const registerMutation = useMutation({
     mutationFn: async (newUser) => {
-      return await createUser(newUser);
+      return await signIn(newUser);
     },
     onSuccess: (data, variables, context) => {
+      alert(data.data?.message || "Utilisateur créé");
       window.location.reload();
+    },
+    onError: (error) => {
+      alert(error.response?.data?.error || "Erreur lors de la création de l'utilisateur");
     },
   });
 
@@ -115,7 +119,7 @@ function Users() {
             htmlFor="username"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Username
+            Nom d'utilisateur
           </label>
           <input
             id="username"
@@ -129,7 +133,7 @@ function Users() {
             htmlFor="password"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Password
+            Mot de passe
           </label>
           <input
             id="password"
@@ -140,14 +144,13 @@ function Users() {
           />
 
           <label htmlFor="role" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Role
+            Rôle
           </label>
           <select id="role" {...register("role")}
-            defaultValue="PRODUCER"
           >
-            <option value="PRODUCER">PRODUCER</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="JURY">JURY</option>
+            <option value="PRODUCER">Producteur</option>
+            <option value="ADMIN">Administrateur</option>
+            <option value="JURY">Jury</option>
           </select>
 
           {modeEdit && (
