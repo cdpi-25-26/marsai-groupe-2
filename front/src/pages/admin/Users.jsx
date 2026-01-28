@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
 
-import { deleteUser, getUsers, updateUser } from "../../api/users.js";
+import { deleteUser, getUsers, updateUser, createUser } from "../../api/users.js";
 import { useMutation } from "@tanstack/react-query";
-import { signIn } from "../../api/auth.js";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -33,7 +32,7 @@ function Users() {
 
   const registerMutation = useMutation({
     mutationFn: async (newUser) => {
-      return await signIn(newUser);
+      return await createUser(newUser);
     },
     onSuccess: (data, variables, context) => {
       alert(data.data?.message || "Utilisateur créé");
