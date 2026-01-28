@@ -1,8 +1,8 @@
 export default function ProducerHome() {
   return (
     <div>
-      <h1 className="text-2xl font-bold">Benvenuto Producer</h1>
-      <p>Questa è la tua area riservata. Qui potrai vedere i tuoi video, statistiche o altre funzionalità dedicate ai producer.</p>
+      <h1 className="text-2xl font-bold">Bienvenue Producteur</h1>
+      <p>Voici votre espace réservé. Ici, vous pourrez voir vos vidéos, statistiques ou d'autres fonctionnalités dédiées aux producteurs.</p>
     </div>
   );
 }
