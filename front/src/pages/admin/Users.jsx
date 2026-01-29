@@ -18,6 +18,7 @@ const registerSchema = z.object({
 function Users() {
   const [users, setUsers] = useState([]);
   const [modeEdit, setModeEdit] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     getUsers().then((data) => {
@@ -26,7 +27,7 @@ function Users() {
   }, []);
 
   const { register, handleSubmit, setValue, watch } = useForm({
-    resolver: zodResolver(registerSchema),
+    //resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER" },
   });
 
@@ -35,11 +36,11 @@ function Users() {
       return await createUser(newUser);
     },
     onSuccess: (data, variables, context) => {
-      alert(data.data?.message || "Utilisateur créé");
-      window.location.reload();
+      setMessage(data.data?.message || "Utilisateur créé");
+      setTimeout(() => window.location.reload(), 1500);
     },
     onError: (error) => {
-      alert(error.response?.data?.error || "Erreur lors de la création de l'utilisateur");
+      setMessage(error.response?.data?.error || "Erreur lors de la création de l'utilisateur");
     },
   });
 
@@ -95,6 +96,9 @@ function Users() {
   return (
     <section>
       <div className="border-b pb-4 mb-4">
+        {message && (
+          <div className="mb-2 p-2 border rounded text-red-600 bg-red-100">{message}</div>
+        )}
         <h2 className="text-2xl font-bold mb-4">Liste des utilisateurs</h2>
         {users.length > 0 &&
           users.map((user) => (
