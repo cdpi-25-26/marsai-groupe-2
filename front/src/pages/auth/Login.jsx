@@ -17,9 +17,9 @@ export function Login() {
     return (
       <>
         <h1 className="text-2xl">
-          You are already logged in as {localStorage.getItem("username")}
+          Vous êtes déjà connecté en tant que {localStorage.getItem("username")}
         </h1>
-        <Link to="/">Go to Home</Link>
+        <Link to="/">Aller à l'accueil</Link>
       </>
     );
   }
@@ -45,7 +45,10 @@ export function Login() {
           navigate("/admin");
           break;
         case "JURY":
-          navigate("/");
+          navigate("/jury");
+          break;
+        case "PRODUCER":
+          navigate("/producer");
           break;
         default:
           navigate("/");
@@ -53,7 +56,7 @@ export function Login() {
       }
     },
     onError: (error, variables, context) => {
-      alert(error.response?.data?.error);
+      alert(error.response?.data?.error || "Erreur de connexion");
     },
   });
 

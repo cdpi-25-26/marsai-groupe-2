@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 
-import { deleteUser, getUsers, updateUser } from "../../api/users.js";
-import { useMutation } from "@tanstack/react-query";
 
-import { createUser } from "../../api/users.js";
+import { deleteUser, getUsers, updateUser, createUser } from "../../api/users.js";
+import { useMutation } from "@tanstack/react-query";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const registerSchema = z.object({
-  // Champs de notre formulaire
   id: z.number().optional(),
   username: z.string(),
   password: z.string(),
+  role: z.enum(["ADMIN", "JURY", "PRODUCER"]).default("PRODUCER"),
 });
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [modeEdit, setModeEdit] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     getUsers().then((data) => {
@@ -26,8 +26,9 @@ function Users() {
     });
   }, []);
 
-  const { register, handleSubmit, setValue } = useForm({
-    resolver: zodResolver(registerSchema),
+  const { register, handleSubmit, setValue, watch } = useForm({
+    //resolver: zodResolver(registerSchema),
+    defaultValues: { role: "PRODUCER" },
   });
 
   const registerMutation = useMutation({
@@ -35,7 +36,11 @@ function Users() {
       return await createUser(newUser);
     },
     onSuccess: (data, variables, context) => {
-      window.location.reload();
+      setMessage(data.data?.message || "Utilisateur créé");
+      setTimeout(() => window.location.reload(), 1500);
+    },
+    onError: (error) => {
+      setMessage(error.response?.data?.error || "Erreur lors de la création de l'utilisateur");
     },
   });
 
@@ -71,6 +76,7 @@ function Users() {
     setValue("id", user.id);
     setValue("username", user.username);
     setValue("password", user.password);
+    setValue("role", user.role || "PRODUCER");
     setModeEdit(true);
   }
 
@@ -78,6 +84,7 @@ function Users() {
     setValue("id", undefined);
     setValue("username", "");
     setValue("password", "");
+    setValue("role", "PRODUCER");
     setModeEdit(false);
   }
 
@@ -89,6 +96,9 @@ function Users() {
   return (
     <section>
       <div className="border-b pb-4 mb-4">
+        {message && (
+          <div className="mb-2 p-2 border rounded text-red-600 bg-red-100">{message}</div>
+        )}
         <h2 className="text-2xl font-bold mb-4">Liste des utilisateurs</h2>
         {users.length > 0 &&
           users.map((user) => (
@@ -107,12 +117,12 @@ function Users() {
         <form
           onSubmit={modeEdit ? handleSubmit(onUpdate) : handleSubmit(onSubmit)}
         >
-          <input type="hidden" id="id" {...register("id")} />
+          <input type="hidden" id="id" {...register("id" )} />
           <label
             htmlFor="username"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Username
+            Nom d'utilisateur
           </label>
           <input
             id="username"
@@ -126,7 +136,7 @@ function Users() {
             htmlFor="password"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Password
+            Mot de passe
           </label>
           <input
             id="password"
@@ -135,6 +145,17 @@ function Users() {
             {...register("password")}
             required
           />
+
+          <label htmlFor="role" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Rôle
+          </label>
+          <select id="role" {...register("role")}
+          >
+            <option value="PRODUCER">Producteur</option>
+            <option value="ADMIN">Administrateur</option>
+            <option value="JURY">Jury</option>
+          </select>
+
           {modeEdit && (
             <button type="button" onClick={handleReset}>
               Annuler la modification

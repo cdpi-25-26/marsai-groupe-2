@@ -1,6 +1,10 @@
-import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize("marsai", "root", "root", {
+import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const sequelize = new Sequelize("marsai", "root", "rootroot", {
   host: "localhost",
   port: 3306,
   dialect: "mysql",
