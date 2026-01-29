@@ -8,6 +8,8 @@ export default function Navbar() {
     localStorage.removeItem("username");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
+    // Notifica anche altri tab/browser
+  
     window.location.reload();
   }
 
