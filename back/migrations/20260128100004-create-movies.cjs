@@ -1,59 +1,59 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Films', {
-      id_film: {
+    await queryInterface.createTable('movies', {
+      id_movie: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      titre: {
-        type: Sequelize.STRING,
+      title: {
+        type: Sequelize.STRING(255),
         allowNull: false
       },
       description: {
         type: Sequelize.TEXT,
         allowNull: true
       },
-      duree: {
+      duration: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      langue_principale: {
-        type: Sequelize.STRING,
+      main_language: {
+        type: Sequelize.STRING(20),
         allowNull: true
       },
-      annee_sortie: {
+      release_year: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
-      nationalite: {
+      nationality: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
+      display_picture: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
+      picture1: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      image_affiche: {
+      picture2: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      image1: {
+      picture3: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      image2: {
+      trailer: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      image3: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      video_bande_annonce: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      lien_youtube: {
-        type: Sequelize.STRING,
+      youtube_link: {
+        type: Sequelize.STRING(255),
         allowNull: true
       },
       production: {
@@ -61,7 +61,7 @@ module.exports = {
         allowNull: true
       },
       workshop: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(255),
         allowNull: true
       },
       createdAt: {
@@ -77,6 +77,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Films');
+    await queryInterface.dropTable('movies');
   }
 };

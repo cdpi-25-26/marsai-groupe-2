@@ -1,31 +1,28 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Evenements', {
-      id_evenement: {
+    await queryInterface.createTable('collaborators', {
+      id_collaborator: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nom: {
+      first_name: {
+        type: Sequelize.STRING(150),
+        allowNull: false
+      },
+      last_name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true
+      email: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        unique: true
       },
-      date_debut: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      date_fin: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      lieu: {
-        type: Sequelize.STRING,
+      job: {
+        type: Sequelize.STRING(100),
         allowNull: true
       },
       createdAt: {
@@ -38,9 +35,13 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       }
-    });
+    },
+{
+        engine: 'InnoDB' // 
+      }
+    );
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Evenements');
+    await queryInterface.dropTable('collaborators');
   }
 };
