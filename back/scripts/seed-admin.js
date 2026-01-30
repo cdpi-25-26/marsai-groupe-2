@@ -1,5 +1,9 @@
+
+import dotenv from "dotenv";
+dotenv.config({ path: "../.env" });
 import bcrypt from "bcrypt";
 import db from "../src/models/index.js";
+
 
 async function createAdmin() {
   await db.sequelize.sync();

@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
+const Evenement = (sequelize, DataTypes) => {
   const Evenement = sequelize.define('Evenement', {
     id_evenement: {
       primaryKey: true,
@@ -12,12 +11,13 @@ module.exports = (sequelize, DataTypes) => {
     date_fin: DataTypes.DATE,
     lieu: DataTypes.STRING
   }, {});
-  
+
   Evenement.associate = function(models) {
     Evenement.hasMany(models.Reservation, {
       foreignKey: 'id_evenement'
     });
   };
-  
+
   return Evenement;
 };
+export default Evenement;

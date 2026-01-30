@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
+const Collaborateur = (sequelize, DataTypes) => {
   const Collaborateur = sequelize.define('Collaborateur', {
     id_collaborateur: {
       primaryKey: true,
@@ -11,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     profession: DataTypes.STRING
   }, {});
-  
+
   Collaborateur.associate = function(models) {
     Collaborateur.belongsToMany(models.Film, {
       through: 'Collaborateur_Films',
@@ -19,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: 'id_film'
     });
   };
-  
+
   return Collaborateur;
 };
+export default Collaborateur;

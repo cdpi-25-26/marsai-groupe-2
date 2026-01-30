@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
+const Categorie = (sequelize, DataTypes) => {
   const Categorie = sequelize.define('Categorie', {
     id_categorie: {
       primaryKey: true,
@@ -8,15 +7,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     nom: DataTypes.STRING
   }, {});
-  
+
   Categorie.associate = function(models) {
-    // Les associations (relations) ici
+    // Associations (relations) here
     Categorie.belongsToMany(models.Film, {
       through: 'Film_Categories',
       foreignKey: 'id_categorie',
       otherKey: 'id_film'
     });
   };
-  
+
   return Categorie;
 };
+export default Categorie;

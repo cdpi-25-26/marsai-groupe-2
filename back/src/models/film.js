@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = (sequelize, DataTypes) => {
+const Film = (sequelize, DataTypes) => {
   const Film = sequelize.define('Film', {
     id_film: {
       primaryKey: true,
@@ -47,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 'soumis'
     },
 
-    id_utilisateur: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false
     }
@@ -77,11 +75,12 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: 'id_collaborateur'
     });
 
-    // RELATION AVEC UTILISATEUR
-    Film.belongsTo(models.Utilisateur, {
-      foreignKey: 'id_utilisateur'
+    // RELATION CON USER
+    Film.belongsTo(models.User, {
+      foreignKey: 'userId'
     });
   };
 
   return Film;
 };
+export default Film;
