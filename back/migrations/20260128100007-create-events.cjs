@@ -1,41 +1,36 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Utilisateurs', {
-      id_utilisateur: {
+    await queryInterface.createTable('events', {
+      id_event: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nom: {
-        type: Sequelize.STRING,
+      name: {
+        type: Sequelize.STRING(100),
         allowNull: false
       },
-      prenom: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      telephone: {
-        type: Sequelize.STRING,
+      description: {
+        type: Sequelize.TEXT,
         allowNull: true
       },
-      adresse: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      date_inscription: {
+      start_date: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+        allowNull: false
+      },
+      end_date: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
+      location: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      event_type: {
+        type: Sequelize.ENUM('CONFERENCE', 'WORKSHOP', 'MEETUP', 'WEBINAR'),
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -50,6 +45,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Utilisateurs');
+    await queryInterface.dropTable('events');
   }
 };

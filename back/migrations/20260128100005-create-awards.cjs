@@ -1,32 +1,26 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Collaborateur_Films', {
-      id_collaborateur_film: {
+    await queryInterface.createTable('awards', {
+      id_award: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_collaborateur: {
+      id_movie: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Collaborateurs',
-          key: 'id_collaborateur'
+          model: 'movies',
+          key: 'id_movie'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      id_film: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Films',
-          key: 'id_film'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+      award_name: {
+        type: Sequelize.STRING(100),
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -41,6 +35,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Collaborateur_Films');
+    await queryInterface.dropTable('awards');
   }
 };
