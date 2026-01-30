@@ -1,4 +1,4 @@
-import User from "../models/User.js";
+import User from "../models/user.js";
 import { comparePassword } from "../utils/password.js";
 import UserController from "./UserController.js";
 import jwt from "jsonwebtoken";
@@ -12,13 +12,13 @@ function login(req, res) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Functions utilisateurs
+    // User functions
     comparePassword(password, user.password).then((isMatch) => {
       if (!isMatch) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
-      // jwt librairie
+      // jwt library
       const token = jwt.sign({ username }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN || "1h",
       });
@@ -36,7 +36,7 @@ function login(req, res) {
 
 function register(req, res) {
   UserController.createUser(req, res);
-  // Envoi d'email
+  // Email sending (optional)
 }
 
 export default { login, register };
