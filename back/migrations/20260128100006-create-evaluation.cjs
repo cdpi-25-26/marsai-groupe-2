@@ -2,13 +2,13 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Evaluations', {
-      id_evaluation: {
+      evaluationId: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_film: {
+      filmId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -18,21 +18,21 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      id_utilisateur: {
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Utilisateurs',
-          key: 'id_utilisateur'
+          model: 'Users',
+          key: 'userId'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      note: {
+      rating: {
         type: Sequelize.FLOAT,
         allowNull: false
       },
-      commentaire: {
+      comment: {
         type: Sequelize.TEXT,
         allowNull: true
       },
