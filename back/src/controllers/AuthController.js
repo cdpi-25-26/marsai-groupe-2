@@ -1,4 +1,5 @@
-import User from "../models/user.js";
+import db from "../models/index.js";
+const User = db.User;
 import { comparePassword } from "../utils/password.js";
 import UserController from "./UserController.js";
 import jwt from "jsonwebtoken";
