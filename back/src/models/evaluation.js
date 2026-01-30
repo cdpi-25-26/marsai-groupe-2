@@ -1,25 +1,25 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Evaluation = sequelize.define('Evaluation', {
-    id_evaluation: {
+    evaluationId: {
       primaryKey: true,
       autoIncrement: true,
       type: DataTypes.INTEGER
     },
-    id_film: DataTypes.INTEGER,
-    id_utilisateur: DataTypes.INTEGER,
-    note: DataTypes.FLOAT,
-    commentaire: DataTypes.TEXT
+    filmId: DataTypes.INTEGER,
+    userId: DataTypes.INTEGER,
+    rating: DataTypes.FLOAT,
+    comment: DataTypes.TEXT
   }, {});
-  
+
   Evaluation.associate = function(models) {
     Evaluation.belongsTo(models.Film, {
-      foreignKey: 'id_film'
+      foreignKey: 'filmId'
     });
-    Evaluation.belongsTo(models.Utilisateur, {
-      foreignKey: 'id_utilisateur'
+    Evaluation.belongsTo(models.User, {
+      foreignKey: 'userId'
     });
   };
-  
+
   return Evaluation;
 };
