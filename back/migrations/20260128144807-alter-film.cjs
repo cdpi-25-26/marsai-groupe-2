@@ -39,12 +39,12 @@ module.exports = {
       defaultValue: 'soumis'
     });
 
-    await queryInterface.addColumn('Films', 'id_utilisateur', {
+    await queryInterface.addColumn('Films', 'userId', {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
-        model: 'Utilisateurs',
-        key: 'id_utilisateur'
+        model: 'Users',
+        key: 'userId'
       },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE'
@@ -52,7 +52,7 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeColumn('Films', 'id_utilisateur');
+    await queryInterface.removeColumn('Films', 'userId');
     await queryInterface.removeColumn('Films', 'statut_selection');
     await queryInterface.removeColumn('Films', 'vignette');
     await queryInterface.removeColumn('Films', 'outil_ia');
