@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
+const Prix = (sequelize, DataTypes) => {
   const Prix = sequelize.define('Prix', {
     id_prix: {
       primaryKey: true,
@@ -9,12 +8,13 @@ module.exports = (sequelize, DataTypes) => {
     id_film: DataTypes.INTEGER,
     prix: DataTypes.DECIMAL(10, 2)
   }, {});
-  
+
   Prix.associate = function(models) {
     Prix.belongsTo(models.Film, {
       foreignKey: 'id_film'
     });
   };
-  
+
   return Prix;
 };
+export default Prix;

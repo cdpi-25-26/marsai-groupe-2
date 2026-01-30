@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
+const Evaluation = (sequelize, DataTypes) => {
   const Evaluation = sequelize.define('Evaluation', {
     evaluationId: {
       primaryKey: true,
@@ -23,3 +22,4 @@ module.exports = (sequelize, DataTypes) => {
 
   return Evaluation;
 };
+export default Evaluation;

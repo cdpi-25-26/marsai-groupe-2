@@ -1,5 +1,4 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
+const Reservation = (sequelize, DataTypes) => {
   const Reservation = sequelize.define('Reservation', {
     id_reservation: {
       primaryKey: true,
@@ -13,12 +12,13 @@ module.exports = (sequelize, DataTypes) => {
     nombre_places: DataTypes.INTEGER,
     date_reservation: DataTypes.DATE
   }, {});
-  
+
   Reservation.associate = function(models) {
     Reservation.belongsTo(models.Evenement, {
       foreignKey: 'id_evenement'
     });
   };
-  
+
   return Reservation;
 };
+export default Reservation;

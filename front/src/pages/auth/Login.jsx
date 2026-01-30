@@ -8,18 +8,18 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const loginSchema = z.object({
-  username: z.string(),
+  email: z.string().email(),
   password: z.string(),
 });
 
 export function Login() {
-  if (localStorage.getItem("username")) {
+  if (localStorage.getItem("email")) {
     return (
       <>
         <h1 className="text-2xl">
-          Vous êtes déjà connecté en tant que {localStorage.getItem("username")}
+          You are already logged in as {localStorage.getItem("email")}
         </h1>
-        <Link to="/">Aller à l'accueil</Link>
+        <Link to="/">Go to home</Link>
       </>
     );
   }
@@ -36,7 +36,7 @@ export function Login() {
     },
     onSuccess: (response, variables, context) => {
       // If you are logged
-      localStorage.setItem("username", response.data?.username);
+      localStorage.setItem("email", response.data?.email);
       localStorage.setItem("role", response.data?.role);
       localStorage.setItem("token", response.data?.token);
 
@@ -69,17 +69,18 @@ export function Login() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" id="id" {...register("id")} />
+
         <label
-          htmlFor="username"
+          htmlFor="email"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Username
+          Email
         </label>
         <input
-          id="username"
-          type="text"
-          placeholder="Votre nom d'utilisateur"
-          {...register("username")}
+          id="email"
+          type="email"
+          placeholder="Your email"
+          {...register("email")}
           required
         />
 

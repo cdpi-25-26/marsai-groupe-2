@@ -14,18 +14,18 @@ function createUser(req, res) {
     return res.status(400).json({ error: "Missing data" });
   }
 
-  const { username, password, role } = req.body;
+  const { email, password, role } = req.body;
 
-  if (!username || !password || !role) {
+  if (!email || !password || !role) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  User.findOne({ where: { username } }).then(async (user) => {
+  User.findOne({ where: { email } }).then(async (user) => {
     if (user) {
       res.json({ message: "User already exists", user });
     } else {
       const hash = await hashPassword(password);
-      User.create({ username: username, password: hash, role: role }).then(
+      User.create({ email: email, password: hash, role: role }).then(
         (newUser) => {
           res.status(201).json({ message: "User created", newUser });
         },
@@ -45,11 +45,11 @@ function deleteUser(req, res) {
 // Update
 function updateUser(req, res) {
   const { id } = req.params;
-  const { username, password, role } = req.body;
+  const { email, password, role } = req.body;
 
   User.findOne({ where: { id } }).then((user) => {
     if (user) {
-      user.username = username || user.username;
+      user.email = email || user.email;
       user.password = password || user.password;
       user.role = role || user.role;
 
@@ -74,9 +74,10 @@ function getUserById(req, res) {
   });
 }
 
-function findUserByUsername(username) {
-  return User.findOne({ where: { username } });
+function findUserByEmail(email) {
+  return User.findOne({ where: { email } });
 }
+
 
 export default {
   getUsers,
@@ -84,5 +85,5 @@ export default {
   deleteUser,
   updateUser,
   getUserById,
-  findUserByUsername,
+  findUserByEmail
 };
