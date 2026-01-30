@@ -1,32 +1,42 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Film_Categories', {
-      id_film_categorie: {
+    await queryInterface.createTable('reservations', {
+      id_reservation: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_film: {
+      id_event: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Films',
-          key: 'id_film'
+          model: 'events',
+          key: 'id_event'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      id_categorie: {
+      first_name: {
+        type: Sequelize.STRING(100),
+        allowNull: false
+      },
+      last_name: {
+        type: Sequelize.STRING(100),
+        allowNull: false
+      },
+      email: {
+        type: Sequelize.STRING(255),
+        allowNull: false
+      },
+      number_seats: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Categories',
-          key: 'id_categorie'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        allowNull: false
+      },
+      reservation_date: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('NOW')
       },
       createdAt: {
         allowNull: false,
@@ -41,6 +51,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Film_Categories');
+    await queryInterface.dropTable('reservations');
   }
 };
