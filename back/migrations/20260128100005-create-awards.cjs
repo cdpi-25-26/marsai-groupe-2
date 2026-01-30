@@ -1,29 +1,26 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Collaborateurs', {
-      id_collaborateur: {
+    await queryInterface.createTable('awards', {
+      id_award: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nom: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      prenom: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      email: {
-        type: Sequelize.STRING,
+      id_movie: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true
+        references: {
+          model: 'movies',
+          key: 'id_movie'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      profession: {
-        type: Sequelize.STRING,
-        allowNull: true
+      award_name: {
+        type: Sequelize.STRING(100),
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -35,13 +32,9 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       }
-    },
-{
-        engine: 'InnoDB' // 
-      }
-    );
+    });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Collaborateurs');
+    await queryInterface.dropTable('awards');
   }
 };

@@ -1,25 +1,15 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Reservations', {
-      id_reservation: {
+    await queryInterface.createTable('Utilisateurs', {
+      id_utilisateur: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_evenement: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Evenements',
-          key: 'id_evenement'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      nom: {
-        type: Sequelize.STRING,
+      name: {
+        type: Sequelize.STRING(100),
         allowNull: false
       },
       prenom: {
@@ -28,13 +18,22 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+      },
+      password: {
+        type: Sequelize.STRING,
         allowNull: false
       },
-      nombre_places: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+      telephone: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      date_reservation: {
+      adresse: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      date_inscription: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       },
@@ -51,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Reservations');
+    await queryInterface.dropTable('Utilisateurs');
   }
 };

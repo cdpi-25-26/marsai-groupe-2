@@ -1,40 +1,32 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Evaluations', {
-      evaluationId: {
+    await queryInterface.createTable('movies_Categories', {
+      id_movie_categorie: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      filmId: {
+      id_movie: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Films',
-          key: 'id_film'
+          model: 'movies',
+          key: 'id_movie'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      userId: {
+      id_categorie: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'userId'
+          model: 'categories',
+          key: 'id_categorie'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
-      },
-      rating: {
-        type: Sequelize.FLOAT,
-        allowNull: false
-      },
-      comment: {
-        type: Sequelize.TEXT,
-        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -49,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Evaluations');
+    await queryInterface.dropTable('movies_categories');
   }
 };
