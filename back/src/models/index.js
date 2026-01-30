@@ -1,16 +1,19 @@
 
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Sequelize } from 'sequelize';
 import process from 'process';
-import { createRequire } from 'module';
 
-const require = createRequire(import.meta.url);
-const basename = path.basename(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require('../../config/config.cjs')[env];
+const configModule = await import('../../config/config.cjs');
+const config = configModule.default ? configModule.default[env] : configModule[env];
 const db = {};
+
 
 let sequelize;
 if (config.use_env_variable) {
