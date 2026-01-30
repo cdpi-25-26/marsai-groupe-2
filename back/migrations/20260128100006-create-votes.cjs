@@ -1,42 +1,42 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Reservations', {
-      id_reservation: {
+    await queryInterface.createTable('votes', {
+      id_vote: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_evenement: {
+      id_movie: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Evenements',
-          key: 'id_evenement'
+          model: 'movies',
+          key: 'id_movie'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      nom: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      prenom: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      nombre_places: {
+      id_user: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id_user'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
-      date_reservation: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW')
+      evaluation: {
+       type: Sequelize.ENUM('YES', 'NO', 'TI DISCUSS'),
+        allowNull: false,
+      },
+
+      
+      comments: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -51,6 +51,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Reservations');
+    await queryInterface.dropTable('votes');
   }
 };
