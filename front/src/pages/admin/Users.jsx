@@ -29,7 +29,7 @@ function Users() {
   }, []);
 
   const { register, handleSubmit, setValue, watch } = useForm({
-    //resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER" },
   });
 
