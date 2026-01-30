@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../models/User.js";
 import { hashPassword } from "../utils/password.js";
 
 // List
@@ -14,9 +14,9 @@ function createUser(req, res) {
     return res.status(400).json({ error: "Missing data" });
   }
 
-  const { email, password, role } = req.body;
+  const { first_name, last_name, email, password, role } = req.body;
 
-  if (!email || !password || !role) {
+  if (!first_name || !last_name || !email || !password || !role) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -25,7 +25,7 @@ function createUser(req, res) {
       res.json({ message: "User already exists", user });
     } else {
       const hash = await hashPassword(password);
-      User.create({ email: email, password: hash, role: role }).then(
+      User.create({ first_name, last_name, email, password: hash, role }).then(
         (newUser) => {
           res.status(201).json({ message: "User created", newUser });
         },
@@ -36,21 +36,25 @@ function createUser(req, res) {
 
 // Delete
 function deleteUser(req, res) {
-  const { id } = req.params;
-  User.destroy({ where: { id } }).then(() => {
+  const { id_user } = req.params;
+  User.destroy({ where: { id_user } }).then(() => {
     res.status(204).json({ message: "User deleted" });
   });
 }
 
 // Update
 function updateUser(req, res) {
-  const { id } = req.params;
-  const { email, password, role } = req.body;
+  const { id_user } = req.params;
+  const { first_name, last_name, email, password, role } = req.body;
 
-  User.findOne({ where: { id } }).then((user) => {
+  User.findOne({ where: { id_user } }).then(async (user) => {
     if (user) {
+      user.first_name = first_name || user.first_name;
+      user.last_name = last_name || user.last_name;
       user.email = email || user.email;
-      user.password = password || user.password;
+      if (password) {
+        user.password = await hashPassword(password);
+      }
       user.role = role || user.role;
 
       user.save().then((updatedUser) => {
@@ -64,8 +68,8 @@ function updateUser(req, res) {
 
 // Get user by ID
 function getUserById(req, res) {
-  const { id } = req.params;
-  User.findOne({ where: { id } }).then((user) => {
+  const { id_user } = req.params;
+  User.findOne({ where: { id_user } }).then((user) => {
     if (user) {
       res.json(user);
     } else {

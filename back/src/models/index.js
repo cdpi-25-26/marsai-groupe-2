@@ -1,15 +1,14 @@
-'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const process = require('process');
-const basename = path.basename(__filename);
-
-const env = process.env.NODE_ENV || 'development';
-// Importa config.cjs (CommonJS) in ES module
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Sequelize } from 'sequelize';
+import process from 'process';
 import { createRequire } from 'module';
+
 const require = createRequire(import.meta.url);
+const basename = path.basename(fileURLToPath(import.meta.url));
+const env = process.env.NODE_ENV || 'development';
 const config = require('../../config/config.cjs')[env];
 const db = {};
 
@@ -45,4 +44,4 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-module.exports = db;
+export default db;
