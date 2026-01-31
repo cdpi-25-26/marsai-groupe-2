@@ -36,9 +36,13 @@ export function Login() {
     },
     onSuccess: (response, variables, context) => {
       // If you are logged
+
       localStorage.setItem("email", response.data?.email);
       localStorage.setItem("role", response.data?.role);
       localStorage.setItem("token", response.data?.token);
+      if (response.data?.first_name) {
+        localStorage.setItem("username", response.data.first_name);
+      }
 
       switch (response.data?.role) {
         case "ADMIN":

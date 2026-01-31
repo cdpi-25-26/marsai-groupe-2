@@ -1,48 +1,70 @@
-# Copilot Instructions for MarsAI Project
+# Copilot Instructions – MarsAI Project
 
-## Architettura e Componenti
+## Architettura generale
 
-- **Monorepo**: Due cartelle principali:
+- **Monorepo**: due cartelle principali:
   - `back/` (Node.js/Express, REST API, Sequelize/MySQL)
   - `front/` (React + Vite, Tailwind CSS)
-- **Backend**: Entry point `back/index.js`. Tutte le rotte sono registrate in `back/src/routes/index.js`. Modelli Sequelize in `back/src/models/`. Autenticazione JWT (vedi `back/src/middlewares/AuthMiddleware.js`, `back/src/utils/password.js`).
-- **Frontend**: App React con pagine in `front/src/pages/`, componenti riusabili in `front/src/components/`, layouts in `front/src/layouts/`. Chiamate API centralizzate in `front/src/api/` tramite Axios, con token JWT da `localStorage`.
+
+### Backend
+
+- Entry point: `back/index.js`
+- Tutte le rotte sono registrate in `back/src/routes/index.js`
+- Modelli Sequelize: `back/src/models/`
+- Autenticazione JWT: vedi `back/src/middlewares/AuthMiddleware.js` e `back/src/utils/password.js`
+- Migrazioni: `back/migrations/` (timestamp nel nome file)
+- Configurazione DB: `back/config/config.cjs` e `back/config/config.json`
+
+### Frontend
+
+- App React (Vite): pagine in `front/src/pages/`, componenti in `front/src/components/`, layouts in `front/src/layouts/`
+- Chiamate API centralizzate in `front/src/api/` tramite Axios (`front/src/api/config.js` gestisce token JWT da `localStorage`)
+- Protezione ruoli: `front/src/middlewares/RoleGuard.jsx`
+- Stili: Tailwind CSS in `front/src/index.css`
 
 ## Flussi di lavoro principali
 
-- **Installazione**: `npm install` nella root installa tutte le dipendenze (front e back). In alternativa, eseguire `npm install` in `back/` e `front/` separatamente.
-- **Avvio backend**: `npm run back` dalla root, oppure `cd back && npm start`.
-- **Avvio frontend**: `npm run front` dalla root, oppure `cd front && npm run dev`.
-- **Ambiente**: Il backend usa `.env` (caricato con `dotenv`). Il frontend si aspetta il backend su `http://localhost:3000`.
+- **Installazione**: `npm install` nella root installa tutte le dipendenze (front e back)
+- **Avvio backend**: `npm run back` dalla root, oppure `cd back && npm start`
+- **Avvio frontend**: `npm run front` dalla root, oppure `cd front && npm run dev`
+- **Ambiente**: backend su `http://localhost:3000`, frontend su `http://localhost:5173` (default Vite)
+- **Migrazioni**: gestite con Sequelize CLI, file in `back/migrations/`
 
 ## Convenzioni e pattern
 
-- **Backend**:
-  - Rotte in `back/src/routes/`, controller in `back/src/controllers/`, modelli in `back/src/models/`.
-  - Middleware di autenticazione in `back/src/middlewares/`.
-  - Migrazioni Sequelize in `back/migrations/`.
-  - Configurazione DB in `back/config/config.cjs` e `back/config/config.json`.
-- **Frontend**:
-  - Pagine in `front/src/pages/`, componenti in `front/src/components/`, layouts in `front/src/layouts/`.
-  - Chiamate API tramite moduli in `front/src/api/` (es. `users.js`, `auth.js`).
-  - Protezione ruoli in `front/src/middlewares/RoleGuard.jsx`.
-  - Stili con Tailwind CSS (`front/src/index.css`).
+### Backend
+
+- Rotte: `back/src/routes/` (es. `Movie.route.js`), controller: `back/src/controllers/`, modelli: `back/src/models/`
+- Middleware di autenticazione: `back/src/middlewares/`
+- Ogni nuova rotta va registrata in `back/src/routes/index.js`
+
+### Frontend
+
+- Pagine: `front/src/pages/`, componenti: `front/src/components/`, layouts: `front/src/layouts/`
+- Chiamate API: moduli in `front/src/api/` (es. `users.js`, `auth.js`)
+- Protezione ruoli: `front/src/middlewares/RoleGuard.jsx`
 
 ## Integrazione & comunicazione
 
-- **Autenticazione**: Il token JWT è salvato in `localStorage` e aggiunto a tutte le richieste API tramite Axios interceptor (`front/src/api/config.js`).
-- **Data flow**: Il frontend comunica solo tramite REST API; il backend gestisce la logica e l’accesso ai dati MySQL.
-- **Migrazioni**: Le migrazioni Sequelize sono in `back/migrations/` e seguono la convenzione di timestamp nel nome file.
-- **Testing**: Attualmente non sono presenti script di test automatici; aggiungere test dove necessario.
+- **Autenticazione**: token JWT in `localStorage`, aggiunto alle richieste API tramite Axios interceptor (`front/src/api/config.js`)
+- **Data flow**: solo REST API tra frontend e backend
+- **Migrazioni**: file timestamp in `back/migrations/`, eseguite con Sequelize
 
 ## Esempi pratici
 
-- **Aggiungere una rotta backend**: crea un controller in `back/src/controllers/`, aggiungi un file di rotta in `back/src/routes/`, registra la rotta in `back/src/routes/index.js`.
-- **Chiamare un’API dal frontend**: aggiungi una funzione in `front/src/api/`, usa l’istanza Axios configurata in `front/src/api/config.js`.
+- **Aggiungere una rotta backend**:
+  1. Crea controller in `back/src/controllers/`
+  2. Crea file rotta in `back/src/routes/`
+  3. Registra la rotta in `back/src/routes/index.js`
+- **Chiamare un’API dal frontend**:
+  1. Aggiungi funzione in `front/src/api/`
+  2. Usa l’istanza Axios configurata in `front/src/api/config.js`
 
-## Riferimenti e approfondimenti
+## Riferimenti
 
-- Vedi [README.md](../../README.md), [back/README.md](../back/README.md), [front/README.md](../front/README.md) per dettagli su setup e uso.
+- [README.md](../../README.md)
+- [back/README.md](../back/README.md)
+- [front/README.md](../front/README.md)
 
 ---
 

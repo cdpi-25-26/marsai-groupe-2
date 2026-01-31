@@ -26,4 +26,10 @@ async function getUserById(id) {
   // http://localhost:3000/users/1; fetch method GET
 }
 
+// Aggiorna il profilo dell’utente autenticato
+async function updateCurrentUser(updatedUser) {
+  return await instance.put("users/me", updatedUser);
+}
+
 export { getUsers, createUser, updateUser, deleteUser, getUserById };
+export { updateCurrentUser };
