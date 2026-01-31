@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 function login(req, res) {
   const { email, password } = req.body;
 
+  console.log("[LOGIN] JWT_SECRET:", process.env.JWT_SECRET);
   User.findOne({ where: { email } }).then((user) => {
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });

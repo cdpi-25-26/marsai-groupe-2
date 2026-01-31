@@ -14,9 +14,9 @@ userRouter.delete("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["A
 userRouter.put("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), UserController.updateUser);
 
 // Endpoint per utente autenticato (Producer, Jury, Admin)
-userRouter.get("/me", UserController.getCurrentUser);
+userRouter.get("/me", (req, res, next) => AuthMiddleware(req, res, next), UserController.getCurrentUser);
 
 // Endpoint per aggiornare il proprio profilo (Producer, Jury, Admin)
-userRouter.put("/me", UserController.updateCurrentUser);
+userRouter.put("/me", (req, res, next) => AuthMiddleware(req, res, next), UserController.updateCurrentUser);
 
 export default userRouter;
