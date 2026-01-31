@@ -18,12 +18,12 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      id_utilisateur: {
+      id_user: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Utilisateurs',
-          key: 'id_utilisateur'
+          model: 'Users',
+          key: 'id_user'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'

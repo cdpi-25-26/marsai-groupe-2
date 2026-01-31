@@ -177,7 +177,7 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: 'id_collaborator'
     });
 
-    // RELATION AVEC UTILISATEUR
+    // RELATION CON USER
     movie.belongsTo(models.user, {
       foreignKey: 'id_user'
     });
