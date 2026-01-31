@@ -90,9 +90,6 @@ export function Register() {
         localStorage.setItem("email", loginRes.data?.email);
         localStorage.setItem("role", loginRes.data?.role);
         localStorage.setItem("token", loginRes.data?.token);
-        if (loginRes.data?.first_name) {
-          localStorage.setItem("username", loginRes.data.first_name);
-        }
         navigate("/producer");
       } catch (err) {
         alert("Registration successful, but automatic login failed. Please log in manually.");
