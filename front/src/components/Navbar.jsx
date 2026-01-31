@@ -8,8 +8,7 @@ export default function Navbar() {
     localStorage.removeItem("username");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
-    // Notifica anche altri tab/browser
-  
+    localStorage.removeItem("email");
     window.location.reload();
   }
 
@@ -38,11 +37,11 @@ export default function Navbar() {
       <div>
         {username ? (
           <>
-            <span className="mr-4">Bonjour, {username}</span>
-            <button onClick={handleLogout}>Se déconnecter</button>
+            <span className="mr-4">Hello, {username}</span>
+            <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
-          <Link to="/auth/login">Se connecter</Link>
+          <Link to="/auth/login">Login</Link>
         )}
       </div>
     </div>
