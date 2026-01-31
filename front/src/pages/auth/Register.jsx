@@ -8,19 +8,21 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const registerSchema = z.object({
-  username: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
   password: z.string(),
   role: z.string().optional().default("PRODUCER"),
 });
 
 export function Register() {
-  if (localStorage.getItem("username")) {
+  if (localStorage.getItem("email")) {
     return (
       <>
         <h1 className="text-2xl">
-          You are already logged in as {localStorage.getItem("username")}
+          Vous êtes déjà connecté en tant que {localStorage.getItem("email")}
         </h1>
-        <Link to="/">Go to Home</Link>
+        <Link to="/">Aller à l'accueil</Link>
       </>
     );
   }
@@ -34,11 +36,16 @@ export function Register() {
 
   const registerMutation = useMutation({
     mutationFn: async (data) => {
-      return await signIn(data);
+      // Adatta i dati per il backend
+      return await signIn({
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        password: data.password,
+        role: data.role
+      });
     },
     onSuccess: (data, variables, context) => {
-      // If you are logged
-      //
       alert(data.data?.message);
       navigate("/auth/login");
     },
@@ -49,45 +56,26 @@ export function Register() {
   }
   return (
     <>
-      <h1 className="text-2xl">Register</h1>
-
+      <h1 className="text-2xl">Inscription</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" id="id" {...register("id")} />
-        <label
-          htmlFor="username"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Username
-        </label>
-        <input
-          id="username"
-          type="text"
-          placeholder="Votre nom d'utilisateur"
-          {...register("username")}
-          required
-        />
+        <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
+        <input id="firstName" type="text" placeholder="Prénom" {...register("firstName")} required />
 
-        <label
-          htmlFor="password"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          placeholder="Votre mot de passe"
-          {...register("password")}
-          required
-        />
+        <label htmlFor="lastName" className="text-sm font-medium">Nom</label>
+        <input id="lastName" type="text" placeholder="Nom" {...register("lastName")} required />
 
+        <label htmlFor="email" className="text-sm font-medium">Email</label>
+        <input id="email" type="email" placeholder="Votre email" {...register("email")} required />
 
-        <input type="hidden" {...register("role") } value="PRODUCER" />
+        <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
+        <input id="password" type="password" placeholder="Votre mot de passe" {...register("password")} required />
 
-        <button type="submit">Register</button>
+        <input type="hidden" {...register("role")} value="PRODUCER" />
+
+        <button type="submit">S'inscrire</button>
       </form>
-
-      <Link to="/auth/login">Already have an account? Login</Link>
+      <Link to="/auth/login">Vous avez déjà un compte ? Se connecter</Link>
     </>
   );
 }
