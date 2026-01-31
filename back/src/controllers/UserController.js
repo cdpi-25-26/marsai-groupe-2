@@ -1,29 +1,22 @@
 // Update current user (by JWT)
-function updateCurrentUser(req, res) {
+async function updateCurrentUser(req, res) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: "No token provided" });
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const email = decoded.email;
-    User.findOne({ where: { email } }).then(async (user) => {
-      if (!user) return res.status(404).json({ error: "User not found" });
-      // Aggiorna solo i campi consentiti
-      const updatableFields = [
-        "first_name", "last_name", "phone", "mobile", "birth_date", "street", "postal_code", "city", "country", "biography", "job", "portfolio", "youtube", "instagram", "linkedin", "facebook", "tiktok", "known_by_mars_ai"
-      ];
-      updatableFields.forEach(field => {
-        if (field in req.body) user[field] = req.body[field];
-      });
-      if (req.body.password) {
-        user.password = await hashPassword(req.body.password);
-      }
-      user.save().then(updatedUser => {
-        res.json(updatedUser);
-      });
+    const user = req.user;
+    if (!user) return res.status(404).json({ error: "User not found" });
+    // Aggiorna solo i campi consentiti
+    const updatableFields = [
+      "first_name", "last_name", "phone", "mobile", "birth_date", "street", "postal_code", "city", "country", "biography", "job", "portfolio", "youtube", "instagram", "linkedin", "facebook", "tiktok", "known_by_mars_ai"
+    ];
+    updatableFields.forEach(field => {
+      if (field in req.body) user[field] = req.body[field];
     });
+    if (req.body.password) {
+      user.password = await hashPassword(req.body.password);
+    }
+    const updatedUser = await user.save();
+    res.json(updatedUser);
   } catch (err) {
-    res.status(401).json({ error: "Invalid token" });
+    res.status(500).json({ error: "Error updating user" });
   }
 }
 // Get current user (by JWT)
@@ -31,20 +24,16 @@ import jwt from "jsonwebtoken";
 
 function getCurrentUser(req, res) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).json({ error: "No token provided" });
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const email = decoded.email;
-    User.findOne({ where: { email } }).then((user) => {
-      if (user) {
-        res.json(user);
-      } else {
-        res.status(404).json({ error: "User not found" });
-      }
-    });
+    const user = req.user;
+    if (user) {
+      // Rimuovi password/hash dalla risposta
+      const { password, ...safeUser } = user.toJSON();
+      res.json(safeUser);
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
   } catch (err) {
-    res.status(401).json({ error: "Invalid token" });
+    res.status(500).json({ error: "Error retrieving user" });
   }
 }
 import db from "../models/index.js";
