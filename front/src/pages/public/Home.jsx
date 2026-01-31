@@ -5,7 +5,7 @@ function Home() {
   return (
     <>
 
-      Bienvenue !
+      Bienvenue sur la plateforme du festival !
     </>
   );
 }

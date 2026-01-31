@@ -105,53 +105,53 @@ function Users() {
         {message && (
           <div className="mb-2 p-2 border rounded text-red-600 bg-red-100">{message}</div>
         )}
-        <h2 className="text-2xl font-bold mb-4">Lista utenti</h2>
+        <h2 className="text-2xl font-bold mb-4">Liste des utilisateurs</h2>
         {users.length > 0 &&
           users.map((user) => (
             <div key={user.userId} className="flex gap-2">
               <span>{user.firstName} {user.lastName}</span>
               <span>{user.email}</span>
               <span>{user.role}</span>
-              <button onClick={() => handleEdit(user)}>Modifica</button>
-              <button onClick={() => handleDelete(user.userId)}>Elimina</button>
+              <button onClick={() => handleEdit(user)}>Modifier</button>
+              <button onClick={() => handleDelete(user.userId)}>Supprimer</button>
             </div>
           ))}
-        {users.length === 0 && <div>Nessun utente trovato.</div>}
+        {users.length === 0 && <div>Aucun utilisateur trouvé.</div>}
       </div>
 
       <div className="border-b pb-4 mb-4">
-        <h2 className="text-2xl font-bold mb-4">Crea un utente</h2>
+        <h2 className="text-2xl font-bold mb-4">Créer un utilisateur</h2>
         <form
           onSubmit={modeEdit ? handleSubmit(onUpdate) : handleSubmit(onSubmit)}
         >
           <input type="hidden" id="id" {...register("id" )} />
-          <label htmlFor="firstName" className="text-sm font-medium">Nome</label>
-          <input id="firstName" type="text" placeholder="Nome" {...register("firstName")} required />
+          <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
+          <input id="firstName" type="text" placeholder="Prénom" {...register("firstName")} required />
 
-          <label htmlFor="lastName" className="text-sm font-medium">Cognome</label>
-          <input id="lastName" type="text" placeholder="Cognome" {...register("lastName")} required />
+          <label htmlFor="lastName" className="text-sm font-medium">Nom</label>
+          <input id="lastName" type="text" placeholder="Nom" {...register("lastName")} required />
 
           <label htmlFor="email" className="text-sm font-medium">Email</label>
           <input id="email" type="email" placeholder="Email" {...register("email")} required />
 
-          <label htmlFor="password" className="text-sm font-medium">Password</label>
-          <input id="password" type="password" placeholder="Password" {...register("password")} required />
+          <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
+          <input id="password" type="password" placeholder="Mot de passe" {...register("password")} required />
 
-          <label htmlFor="role" className="text-sm font-medium">Ruolo</label>
+          <label htmlFor="role" className="text-sm font-medium">Rôle</label>
           <select id="role" {...register("role")}
           >
-            <option value="PRODUCER">Produttore</option>
-            <option value="ADMIN">Amministratore</option>
-            <option value="JURY">Giuria</option>
+            <option value="PRODUCER">Producteur</option>
+            <option value="ADMIN">Administrateur</option>
+            <option value="JURY">Jury</option>
           </select>
 
           {modeEdit && (
             <button type="button" onClick={handleReset}>
-              Annulla modifica
+              Annuler la modification
             </button>
           )}
           <button type="submit">
-            {modeEdit ? "Aggiorna" : "Crea utente"}
+            {modeEdit ? "Mettre à jour" : "Créer l'utilisateur"}
           </button>
         </form>
       </div>

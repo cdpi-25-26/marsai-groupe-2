@@ -17,9 +17,9 @@ export function Login() {
     return (
       <>
         <h1 className="text-2xl">
-          You are already logged in as {localStorage.getItem("email")}
+          Vous êtes déjà connecté en tant que {localStorage.getItem("email")}
         </h1>
-        <Link to="/">Go to home</Link>
+        <Link to="/">Aller à l'accueil</Link>
       </>
     );
   }
@@ -65,7 +65,7 @@ export function Login() {
   }
   return (
     <>
-      <h1 className="text-2xl">Login</h1>
+      <h1 className="text-2xl">Connexion</h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" id="id" {...register("id")} />
@@ -79,7 +79,7 @@ export function Login() {
         <input
           id="email"
           type="email"
-          placeholder="Your email"
+          placeholder="Votre email"
           {...register("email")}
           required
         />
@@ -88,7 +88,7 @@ export function Login() {
           htmlFor="password"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Password
+          Mot de passe
         </label>
         <input
           id="password"
@@ -98,10 +98,10 @@ export function Login() {
           required
         />
 
-        <button type="submit">Login</button>
+        <button type="submit">Se connecter</button>
       </form>
 
-      <Link to="/auth/register">No account yet? Register</Link>
+      <Link to="/auth/register">Pas encore de compte ? S'inscrire</Link>
     </>
   );
 }

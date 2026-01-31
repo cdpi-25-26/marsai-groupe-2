@@ -38,11 +38,11 @@ export default function Navbar() {
       <div>
         {username ? (
           <>
-            <span className="mr-4">Hello, {username}</span>
-            <button onClick={handleLogout}>Logout</button>
+            <span className="mr-4">Bonjour, {username}</span>
+            <button onClick={handleLogout}>Se déconnecter</button>
           </>
         ) : (
-          <Link to="/auth/login">Login</Link>
+          <Link to="/auth/login">Se connecter</Link>
         )}
       </div>
     </div>
