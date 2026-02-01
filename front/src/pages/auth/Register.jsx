@@ -47,7 +47,7 @@ export function Register() {
   let navigate = useNavigate();
 
 
-  const { register, handleSubmit, watch } = useForm({
+  const { register, handleSubmit } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER", job: "PRODUCER" },
   });
@@ -177,7 +177,7 @@ export function Register() {
           <option value="NO">Non</option>
         </select>
 
-        <input type="hidden" {...register("role")} value="PRODUCER" />
+        <input type="hidden" {...register("role")} defaultValue="PRODUCER" />
 
         <button type="submit">S'inscrire</button>
       </form>

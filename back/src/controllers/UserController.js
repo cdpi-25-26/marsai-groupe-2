@@ -81,6 +81,10 @@ function createUser(req, res) {
     role
   } = req.body;
 
+  if (!role) {
+    role = "PRODUCER";
+  }
+
   // Se birth_date è vuoto o non valido, impostalo a null
   if (!birth_date || birth_date === '' || birth_date === 'Invalid date') {
     birth_date = null;
