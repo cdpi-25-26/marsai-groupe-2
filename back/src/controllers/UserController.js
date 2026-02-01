@@ -53,10 +53,6 @@ function createUser(req, res) {
     return res.status(400).json({ error: "Missing data" });
   }
 
-  // DEBUG: logga il body ricevuto
-  console.log("[REGISTER] req.body:", req.body);
-
-
   let {
     first_name,
     last_name,
@@ -126,7 +122,6 @@ function createUser(req, res) {
         res.status(201).json({ message: "User created", newUser });
       })
       .catch((err) => {
-        console.error("[REGISTER] Sequelize error:", err);
         res.status(500).json({ error: "DB error", details: err.message });
       });
     }
