@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { updateCurrentUser } from "../../api/users";
-import instance from "../../api/config";
+import { getCurrentUser, updateCurrentUser } from "../../api/users";
 
 export default function ProducerHome() {
   const [user, setUser] = useState(null);
@@ -14,26 +13,26 @@ export default function ProducerHome() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("Not authenticated");
+      setError("Non authentifié");
       setLoading(false);
       return;
     }
-    instance.get("/users/me")
+    getCurrentUser()
       .then(res => {
         setUser(res.data);
         setForm(res.data);
         setLoading(false);
       })
-      .catch(e => {
-        setError("Error retrieving user data");
+      .catch(() => {
+        setError("Erreur lors de la récupération des données utilisateur");
         setLoading(false);
       });
   }, []);
 
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Chargement...</div>;
   if (error) return <div>{error}</div>;
-  if (!user) return <div>User not found</div>;
+  if (!user) return <div>Utilisateur introuvable</div>;
 
   function handleEditChange(e) {
     const { name, value } = e.target;
@@ -50,38 +49,38 @@ export default function ProducerHome() {
       const res = await updateCurrentUser(toSend);
       setUser(res.data);
       setEditMode(false);
-      setSuccess("Profile updated successfully.");
+      setSuccess("Profil mis à jour avec succès.");
       if (res.data.first_name) localStorage.setItem("username", res.data.first_name);
     } catch (err) {
-      setError("Error updating profile");
+      setError("Erreur lors de la mise à jour du profil");
     }
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Welcome Producer {user.first_name} {user.last_name}</h1>
-      <h2 className="text-xl mb-2">Your personal information</h2>
+      <h1 className="text-2xl font-bold mb-4">Bienvenue Producteur {user.first_name} {user.last_name}</h1>
+      <h2 className="text-xl mb-2">Vos informations personnelles</h2>
       {success && <div className="text-green-600 mb-2">{success}</div>}
       {editMode ? (
         <form onSubmit={handleSave} className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-          <label>First name<input name="first_name" value={form.first_name || ""} onChange={handleEditChange} required /></label>
-          <label>Last name<input name="last_name" value={form.last_name || ""} onChange={handleEditChange} required /></label>
-          <label>Phone<input name="phone" value={form.phone || ""} onChange={handleEditChange} /></label>
+          <label>Prénom<input name="first_name" value={form.first_name || ""} onChange={handleEditChange} required /></label>
+          <label>Nom<input name="last_name" value={form.last_name || ""} onChange={handleEditChange} required /></label>
+          <label>Téléphone<input name="phone" value={form.phone || ""} onChange={handleEditChange} /></label>
           <label>Mobile<input name="mobile" value={form.mobile || ""} onChange={handleEditChange} /></label>
-          <label>Birth date<input name="birth_date" type="date" value={form.birth_date ? form.birth_date.substring(0,10) : ""} onChange={handleEditChange} /></label>
-          <label>Street<input name="street" value={form.street || ""} onChange={handleEditChange} /></label>
-          <label>Postal code<input name="postal_code" value={form.postal_code || ""} onChange={handleEditChange} /></label>
-          <label>City<input name="city" value={form.city || ""} onChange={handleEditChange} /></label>
-          <label>Country<input name="country" value={form.country || ""} onChange={handleEditChange} /></label>
-          <label>Biography<textarea name="biography" value={form.biography || ""} onChange={handleEditChange} /></label>
-          <label>Job
+          <label>Date de naissance<input name="birth_date" type="date" value={form.birth_date ? form.birth_date.substring(0,10) : ""} onChange={handleEditChange} /></label>
+          <label>Rue<input name="street" value={form.street || ""} onChange={handleEditChange} /></label>
+          <label>Code postal<input name="postal_code" value={form.postal_code || ""} onChange={handleEditChange} /></label>
+          <label>Ville<input name="city" value={form.city || ""} onChange={handleEditChange} /></label>
+          <label>Pays<input name="country" value={form.country || ""} onChange={handleEditChange} /></label>
+          <label>Biographie<textarea name="biography" value={form.biography || ""} onChange={handleEditChange} /></label>
+          <label>Profession
             <select name="job" value={form.job || ""} onChange={handleEditChange}>
               <option value="">-</option>
-              <option value="PRODUCER">Producer</option>
-              <option value="ACTOR">Actor</option>
-              <option value="DIRECTOR">Director</option>
-              <option value="WRITER">Writer</option>
-              <option value="OTHER">Other</option>
+              <option value="PRODUCER">Producteur</option>
+              <option value="ACTOR">Acteur</option>
+              <option value="DIRECTOR">Réalisateur</option>
+              <option value="WRITER">Scénariste</option>
+              <option value="OTHER">Autre</option>
             </select>
           </label>
           <label>Portfolio<input name="portfolio" value={form.portfolio || ""} onChange={handleEditChange} /></label>
@@ -90,38 +89,38 @@ export default function ProducerHome() {
           <label>LinkedIn<input name="linkedin" value={form.linkedin || ""} onChange={handleEditChange} /></label>
           <label>Facebook<input name="facebook" value={form.facebook || ""} onChange={handleEditChange} /></label>
           <label>TikTok<input name="tiktok" value={form.tiktok || ""} onChange={handleEditChange} /></label>
-          <label>Known by MarsAI
+          <label>Connu par MarsAI ?
             <select name="known_by_mars_ai" value={form.known_by_mars_ai || ""} onChange={handleEditChange}>
               <option value="">-</option>
-              <option value="YES">Yes</option>
-              <option value="NO">No</option>
+              <option value="YES">Oui</option>
+              <option value="NO">Non</option>
             </select>
           </label>
-          <label>Password (change only if needed)<input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" /></label>
+          <label>Mot de passe (changer uniquement si nécessaire)<input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" /></label>
           <div className="col-span-2 flex gap-2 mt-2">
-            <button type="submit" className="bg-blue-500 text-white px-4 py-1 rounded">Save</button>
-            <button type="button" className="bg-gray-300 px-4 py-1 rounded" onClick={() => { setEditMode(false); setForm(user); setSuccess(null); }}>Cancel</button>
+            <button type="submit" className="bg-blue-500 text-white px-4 py-1 rounded">Enregistrer</button>
+            <button type="button" className="bg-gray-300 px-4 py-1 rounded" onClick={() => { setEditMode(false); setForm(user); setSuccess(null); }}>Annuler</button>
           </div>
         </form>
       ) : (
         <>
           <ul className="mb-4">
             <li><b>Email:</b> {user.email}</li>
-            <li><b>Phone:</b> {user.phone || "-"}</li>
+            <li><b>Téléphone:</b> {user.phone || "-"}</li>
             <li><b>Mobile:</b> {user.mobile || "-"}</li>
-            <li><b>Birth date:</b> {user.birth_date ? user.birth_date.substring(0,10) : "-"}</li>
-            <li><b>Address:</b> {user.street || "-"}, {user.postal_code || "-"} {user.city || "-"}, {user.country || "-"}</li>
-            <li><b>Biography:</b> {user.biography || "-"}</li>
-            <li><b>Job:</b> {user.job || "-"}</li>
+            <li><b>Date de naissance:</b> {user.birth_date ? user.birth_date.substring(0,10) : "-"}</li>
+            <li><b>Adresse:</b> {user.street || "-"}, {user.postal_code || "-"} {user.city || "-"}, {user.country || "-"}</li>
+            <li><b>Biographie:</b> {user.biography || "-"}</li>
+            <li><b>Profession:</b> {user.job || "-"}</li>
             <li><b>Portfolio:</b> {user.portfolio || "-"}</li>
             <li><b>YouTube:</b> {user.youtube || "-"}</li>
             <li><b>Instagram:</b> {user.instagram || "-"}</li>
             <li><b>LinkedIn:</b> {user.linkedin || "-"}</li>
             <li><b>Facebook:</b> {user.facebook || "-"}</li>
             <li><b>TikTok:</b> {user.tiktok || "-"}</li>
-            <li><b>Known by MarsAI:</b> {user.known_by_mars_ai || "-"}</li>
+            <li><b>Connu par MarsAI:</b> {user.known_by_mars_ai || "-"}</li>
           </ul>
-          <button className="bg-blue-500 text-white px-4 py-1 rounded" onClick={() => setEditMode(true)}>Edit profile</button>
+          <button className="bg-blue-500 text-white px-4 py-1 rounded" onClick={() => setEditMode(true)}>Modifier le profil</button>
         </>
       )}
     </div>
