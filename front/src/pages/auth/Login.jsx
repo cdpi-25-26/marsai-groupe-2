@@ -38,6 +38,7 @@ export function Login() {
       // If you are logged
 
       localStorage.setItem("email", response.data?.email);
+      localStorage.setItem("firstName", response.data?.first_name || "");
       localStorage.setItem("role", response.data?.role);
       localStorage.setItem("token", response.data?.token);
 

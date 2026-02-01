@@ -20,6 +20,7 @@ const registerSchema = z.object({
 function Users() {
   const [users, setUsers] = useState([]);
   const [modeEdit, setModeEdit] = useState(false);
+  const [editUserId, setEditUserId] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -35,7 +36,8 @@ function Users() {
 
   const registerMutation = useMutation({
     mutationFn: async (newUser) => {
-      return await createUser(newUser);
+      const { id, ...userData } = newUser;
+      return await createUser(userData);
     },
     onSuccess: (data, variables, context) => {
       setMessage(data.data?.message || "Utilisateur créé");
@@ -67,7 +69,7 @@ function Users() {
 
   const updateMutation = useMutation({
     mutationFn: async (updatedUser) => {
-      return await updateUser(updatedUser.id, updatedUser);
+      return await updateUser(editUserId, updatedUser);
     },
     onSuccess: (data, variables, context) => {
       window.location.reload();
@@ -75,7 +77,7 @@ function Users() {
   });
 
   function handleEdit(user) {
-    setValue("id", user.userId);
+    setEditUserId(user.userId);
     setValue("firstName", user.firstName);
     setValue("lastName", user.lastName);
     setValue("email", user.email);
@@ -85,7 +87,7 @@ function Users() {
   }
 
   function handleReset() {
-    setValue("id", undefined);
+    setEditUserId(null);
     setValue("firstName", "");
     setValue("lastName", "");
     setValue("email", "");

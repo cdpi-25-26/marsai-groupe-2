@@ -25,6 +25,7 @@ function login(req, res) {
       return res.status(200).json({
         message: "Login successful",
         email: user.email,
+        first_name: user.first_name,
         role: user.role,
         token,
       });
