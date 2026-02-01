@@ -53,16 +53,21 @@ function createUser(req, res) {
     return res.status(400).json({ error: "Missing data" });
   }
 
+  // Mapping da camelCase a snake_case per compatibilità con il frontend
   let {
     first_name,
+    firstName,
     last_name,
+    lastName,
     email,
     password,
     phone,
     mobile,
     birth_date,
+    birthDate,
     street,
     postal_code,
+    postalCode,
     city,
     country,
     biography,
@@ -74,8 +79,16 @@ function createUser(req, res) {
     facebook,
     tiktok,
     known_by_mars_ai,
+    knownByMarsAi,
     role
   } = req.body;
+
+  // Converti camelCase a snake_case
+  first_name = first_name || firstName;
+  last_name = last_name || lastName;
+  birth_date = birth_date || birthDate;
+  postal_code = postal_code || postalCode;
+  known_by_mars_ai = known_by_mars_ai || knownByMarsAi;
 
   if (!role) {
     role = "PRODUCER";
@@ -139,24 +152,42 @@ function deleteUser(req, res) {
 // Update
 function updateUser(req, res) {
   const id_user = req.params.id;
-  const { first_name, last_name, email, password, role } = req.body;
+  
+  // Mapping da camelCase a snake_case
+  let {
+    first_name,
+    firstName,
+    last_name,
+    lastName,
+    email,
+    password,
+    role
+  } = req.body;
+
+  // Converti camelCase a snake_case
+  first_name = first_name || firstName;
+  last_name = last_name || lastName;
 
   User.findOne({ where: { id_user } }).then(async (user) => {
     if (user) {
       user.first_name = first_name || user.first_name;
       user.last_name = last_name || user.last_name;
       user.email = email || user.email;
-      if (password) {
+      if (password && password.trim()) {
         user.password = await hashPassword(password);
       }
       user.role = role || user.role;
 
       user.save().then((updatedUser) => {
         res.json(updatedUser);
+      }).catch((err) => {
+        res.status(500).json({ error: "DB error", details: err.message });
       });
     } else {
       res.status(404).json({ error: "User not found" });
     }
+  }).catch((err) => {
+    res.status(500).json({ error: "DB error", details: err.message });
   });
 }
 
