@@ -5,9 +5,10 @@ export default function ProducerLayout() {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("email");
+    localStorage.removeItem("firstName");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
-    navigate("/auth/login");
+    window.location.href = "/auth/login";
   };
   const isLogged = !!localStorage.getItem("email");
   return (

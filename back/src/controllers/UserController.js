@@ -135,7 +135,7 @@ function createUser(req, res) {
 
 // Delete
 function deleteUser(req, res) {
-  const { id_user } = req.params;
+  const id_user = req.params.id;
   User.destroy({ where: { id_user } }).then(() => {
     res.status(204).json({ message: "User deleted" });
   });
@@ -143,7 +143,7 @@ function deleteUser(req, res) {
 
 // Update
 function updateUser(req, res) {
-  const { id_user } = req.params;
+  const id_user = req.params.id;
   const { first_name, last_name, email, password, role } = req.body;
 
   User.findOne({ where: { id_user } }).then(async (user) => {
@@ -167,7 +167,7 @@ function updateUser(req, res) {
 
 // Get user by ID
 function getUserById(req, res) {
-  const { id_user } = req.params;
+  const id_user = req.params.id;
   User.findOne({ where: { id_user } }).then((user) => {
     if (user) {
       res.json(user);
