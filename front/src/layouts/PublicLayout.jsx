@@ -11,12 +11,12 @@ import Navbar from "../components/Navbar";
  */
 export default function PublicLayout() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main>
+      <main className="flex-1 pt-4 px-6">
         <Outlet />
       </main>
-      <footer>Pied de page</footer>
+      <footer className="bg-gray-100 text-center py-4">Pied de page</footer>
     </div>
   );
 }
