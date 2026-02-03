@@ -1,58 +1,94 @@
-
+/**
+ * Modèle Movie (Film)
+ * Représente un film soumis à la plateforme du festival
+ * Gère les informations du film, son statut de sélection, et ses relations
+ * avec les utilisateurs (producteur), les votes et les prix
+ * 
+ * Champs principales:
+ * - Identité: title, description, duration, release_year, nationality
+ * - Médias: poster_image, image1-3, trailer_video, thumbnail
+ * - Technique: main_language, subtitle, ai_tool, workshop, production
+ * - Statut: selection_status (submitted, refused, to_discuss, selected, finalist)
+ * - Propriétaire: id_user (producteur qui a soumis le film)
+ * 
+ * Associations:
+ * - belongsTo User: Chaque film appartient à un utilisateur (producteur)
+ * - hasMany Award: Un film peut recevoir plusieurs prix
+ * - hasMany Vote: Un film peut recevoir plusieurs votes du jury
+ */
 
 'use strict';
 
 export default (sequelize, DataTypes) => {
+  /**
+   * Définition du modèle Movie
+   * Crée une table 'movies' avec les colonnes définies ci-dessous
+   */
   const Movie = sequelize.define('Movie', {
+    // Identifiant unique et clé primaire
     id_movie: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
 
+    // Titre du film (requis)
     title: {
       type: DataTypes.STRING,
       allowNull: false
     },
 
+    // Description/synopsis du film
     description: DataTypes.TEXT,
+    
+    // Durée du film en minutes
     duration: DataTypes.INTEGER,
+    
+    // Langue principale du film
     main_language: DataTypes.STRING,
+    
+    // Année de sortie du film
     release_year: DataTypes.INTEGER,
+    
+    // Nationalité/pays d'origine
     nationality: DataTypes.STRING,
 
+    // Images du film (affiche et visuels)
     poster_image: DataTypes.STRING,
     image1: DataTypes.STRING,
     image2: DataTypes.STRING,
     image3: DataTypes.STRING,
 
+    // Vidéos du film
     trailer_video: DataTypes.STRING,
     youtube_link: DataTypes.STRING(255),
+    
+    // Informations de production
     production: DataTypes.STRING,
     workshop: DataTypes.STRING(255),
 
-//  mes NOUVEAUX CHAMPS (alter-movie)
-    translation: DataTypes.STRING(255),
-    synopsis: DataTypes.TEXT,
-    synopsis_anglais: DataTypes.TEXT,
-    subtitle: DataTypes.STRING(255),
-    ai_tool: DataTypes.STRING(255),
-    thumbnail: DataTypes.STRING(255),
+    // Champs ajoutés pour améliorer les métadonnées
+    translation: DataTypes.STRING(255),      // Langue de traduction
+    synopsis: DataTypes.TEXT,                // Synopsis en français
+    synopsis_anglais: DataTypes.TEXT,        // Synopsis en anglais
+    subtitle: DataTypes.STRING(255),         // Langue des sous-titres
+    ai_tool: DataTypes.STRING(255),          // Outil IA utilisé
+    thumbnail: DataTypes.STRING(255),        // Image thumbnail
 
+    // Statut de sélection du film dans le processus de jury
     selection_status: {
       type: DataTypes.ENUM(
-        'submitted',
-        'refused',
-        'to_discuss',
-        'selected',
-        'finalist'
+        'submitted',   // Soumis (état initial)
+        'refused',     // Rejeté par le jury
+        'to_discuss',  // À discuter par le jury
+        'selected',    // Sélectionné
+        'finalist'     // Film finaliste
       ),
       allowNull: false,
       defaultValue: 'submitted'
     },
 
-
-
+    // Clé étrangère: Producteur qui a soumis le film
     id_user: {
       type: DataTypes.INTEGER,
       allowNull: false
@@ -60,20 +96,30 @@ export default (sequelize, DataTypes) => {
 
   }, {
     tableName: 'movies',
-    timestamps: true
+    timestamps: true  // Ajoute createdAt et updatedAt automatiquement
   });
 
+  /**
+   * Définition des associations du modèle Movie
+   * Établit les relations avec d'autres modèles
+   * @param {Object} models - Objet contenant tous les modèles
+   */
   Movie.associate = function(models) {
 
-    // UTILISER LES BONS NOMS DE MODELS
+    // Relation: Un film appartient à un utilisateur (producteur)
+    // La clé étrangère id_user relie le film à son créateur
     Movie.belongsTo(models.User, {
       foreignKey: 'id_user'
     });
 
+    // Relation: Un film peut avoir plusieurs prix (Awards)
+    // Un film peut remporter plusieurs prix différents
     Movie.hasMany(models.Award, {
       foreignKey: 'id_movie'
     });
 
+    // Relation: Un film peut recevoir plusieurs votes du jury
+    // Chaque membre du jury peut voter sur ce film
     Movie.hasMany(models.Vote, {
       foreignKey: 'id_movie'
     });

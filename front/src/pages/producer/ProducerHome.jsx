@@ -1,15 +1,36 @@
 
+/**
+ * Composant ProducerHome (Accueil Producteur)
+ * Page permettant aux producteurs de voir et modifier leur profil complet
+ * Fonctionnalités: 
+ * - Affichage des informations utilisateur (18 champs optionnels)
+ * - Mode édition pour modifier les informations
+ * - Appel API getCurrentUser pour récupérer les données
+ * - Validation et mise à jour via updateCurrentUser
+ * @returns {JSX.Element} La page d'accueil du producteur avec formulaire de profil
+ */
+
 import { useEffect, useState } from "react";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
 
 export default function ProducerHome() {
+  // État pour stocker les données utilisateur
   const [user, setUser] = useState(null);
+  // État pour indiquer si les données sont en cours de chargement
   const [loading, setLoading] = useState(true);
+  // État pour gérer les messages d'erreur
   const [error, setError] = useState(null);
+  // État pour basculer entre mode lecture et mode édition
   const [editMode, setEditMode] = useState(false);
+  // État pour stocker les données du formulaire d'édition
   const [form, setForm] = useState({});
+  // État pour afficher les messages de succès
   const [success, setSuccess] = useState(null);
 
+  /**
+   * Effect - Récupère les données utilisateur au chargement du composant
+   * Vérifie que l'utilisateur est authentifié avant de faire l'appel API
+   */
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,23 +55,37 @@ export default function ProducerHome() {
   if (error) return <div>{error}</div>;
   if (!user) return <div>Utilisateur introuvable</div>;
 
+  /**
+   * Fonction handleEditChange
+   * Met à jour le state form lors de chaque modification de champ
+   * @param {Event} e - L'événement du champ modifié
+   */
   function handleEditChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  /**
+   * Fonction handleSave
+   * Envoie les données modifiées au serveur via updateCurrentUser
+   * Supprime les champs email et role car ils ne peuvent pas être modifiés
+   * Met à jour le localStorage avec le nouveau prénom
+   * @param {Event} e - L'événement du formulaire
+   */
   async function handleSave(e) {
     e.preventDefault();
     setSuccess(null);
     try {
       const toSend = { ...form };
+      // Les champs email et role sont protégés et ne doivent pas être modifiés par l'utilisateur
       delete toSend.email;
       delete toSend.role;
       const res = await updateCurrentUser(toSend);
       setUser(res.data);
       setEditMode(false);
       setSuccess("Profil mis à jour avec succès.");
-      if (res.data.first_name) localStorage.setItem("username", res.data.first_name);
+      // Mise à jour du prénom dans le localStorage pour l'affichage dans la navbar
+      if (res.data.first_name) localStorage.setItem("firstName", res.data.first_name);
     } catch (err) {
       setError("Erreur lors de la mise à jour du profil");
     }

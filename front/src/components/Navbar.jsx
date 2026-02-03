@@ -1,20 +1,36 @@
 import { Link } from "react-router";
 import Button from "./Button";
 
+/**
+ * Composant Navbar (Barre de navigation)
+ * Affiche le logo, le message de bienvenue et le bouton de déconnexion
+ * Récupère le firstName du localStorage pour le salut personnalisé
+ * @returns {JSX.Element} La barre de navigation
+ */
 export default function Navbar() {
+  // Récupérer le prénom de l'utilisateur authentifié depuis localStorage
   const firstName = localStorage.getItem("firstName");
 
+  /**
+   * Fonction de déconnexion (Logout)
+   * Nettoie tous les données de session du localStorage
+   * et recharge la page pour revenir à la page de connexion
+   */
   function handleLogout() {
+    // Supprimer toutes les données de session
     localStorage.removeItem("email");
     localStorage.removeItem("firstName");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
+    
+    // Recharger la page pour revenir au login
     window.location.reload();
   }
 
   return (
     <div className="flex justify-between items-center ">
       <div>
+        {/* Logo MarsAI */}
         <svg viewBox="0 0 176 21" className="h-5">
           <path
             className="fill-sky-400"

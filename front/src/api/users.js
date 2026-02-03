@@ -1,37 +1,78 @@
 import instance from "./config.js";
 
+/**
+ * Récupère la liste de tous les utilisateurs
+ * Endpoint: GET /users
+ * Requiert: Rôle ADMIN
+ * @returns {Promise<Object>} Array de tous les utilisateurs
+ */
 async function getUsers() {
   return await instance.get("users");
-  // http://localhost:3000/users; fetch method GET
 }
 
+/**
+ * Crée un nouvel utilisateur
+ * Endpoint: POST /users
+ * @param {Object} newUser - Données de l'utilisateur à créer
+ *                           { firstName, lastName, email, password, role }
+ * @returns {Promise<Object>} L'utilisateur créé avec ses données
+ */
 async function createUser(newUser) {
   return await instance.post("users", newUser);
-  // http://localhost:3000/users; fetch method POST
 }
 
 
+/**
+ * Met à jour un utilisateur spécifique (Admin modifiant un autre utilisateur)
+ * Endpoint: PUT /users/:id
+ * Requiert: Rôle ADMIN
+ * @param {number} id - L'ID de l'utilisateur à mettre à jour
+ * @param {Object} updatedUser - Les données à mettre à jour
+ * @returns {Promise<Object>} L'utilisateur mis à jour
+ */
 async function updateUser(id, updatedUser) {
   return await instance.put(`users/${id}`, updatedUser);
-  // http://localhost:3000/users/1; fetch method PUT
 }
 
+/**
+ * Supprime un utilisateur
+ * Endpoint: DELETE /users/:id
+ * Requiert: Rôle ADMIN
+ * @param {number} id - L'ID de l'utilisateur à supprimer
+ * @returns {Promise<Object>} Réponse de suppression
+ */
 async function deleteUser(id) {
   return await instance.delete(`users/${id}`);
-  // http://localhost:3000/users/1; fetch method DELETE
 }
 
+/**
+ * Récupère un utilisateur spécifique par son ID
+ * Endpoint: GET /users/:id
+ * Requiert: Rôle ADMIN
+ * @param {number} id - L'ID de l'utilisateur à récupérer
+ * @returns {Promise<Object>} Les données de l'utilisateur
+ */
 async function getUserById(id) {
   return await instance.get(`users/${id}`);
-  // http://localhost:3000/users/1; fetch method GET
 }
 
-// Ottiene il profilo dell’utente autenticato
+/**
+ * Récupère le profil de l'utilisateur actuellement authentifié
+ * Endpoint: GET /users/me
+ * Requiert: Token JWT valide
+ * @returns {Promise<Object>} Données de l'utilisateur authentifié
+ */
 async function getCurrentUser() {
   return await instance.get("users/me");
 }
 
-// Aggiorna il profilo dell’utente autenticato
+/**
+ * Met à jour le profil de l'utilisateur actuellement authentifié
+ * Endpoint: PUT /users/me
+ * Requiert: Token JWT valide
+ * @param {Object} updatedUser - Les champs à mettre à jour
+ * @returns {Promise<Object>} Le profil utilisateur mis à jour
+ */
 async function updateCurrentUser(updatedUser) {
   return await instance.put("users/me", updatedUser);
 }

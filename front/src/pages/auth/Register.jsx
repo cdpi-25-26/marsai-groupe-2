@@ -1,18 +1,19 @@
 import { Link, useNavigate } from "react-router";
-
 import { signIn, login } from "../../api/auth.js";
 import { useMutation } from "@tanstack/react-query";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-
+/**
+ * Schéma de validation pour le formulaire d'enregistrement
+ * Valide tous les champs du profil utilisateur
+ */
 const registerSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  password: z.string(),
+  firstName: z.string().min(1, "Le prénom est requis"),
+  lastName: z.string().min(1, "Le nom est requis"),
+  email: z.string().email("Format d'email invalide"),
+  password: z.string().min(6, "Au moins 6 caractères"),
   phone: z.string().optional(),
   mobile: z.string().optional(),
   birthDate: z.string().optional(),
@@ -32,7 +33,14 @@ const registerSchema = z.object({
   role: z.string().optional().default("PRODUCER"),
 });
 
+/**
+ * Composant Register (Page d'enregistrement)
+ * Formulaire complet d'enregistrement pour les nouveaux utilisateurs
+ * Après enregistrement réussi, auto-login automatique
+ * @returns {JSX.Element} La page d'enregistrement
+ */
 export function Register() {
+  // Si déjà connecté, afficher un message
   if (localStorage.getItem("email")) {
     return (
       <>
@@ -44,18 +52,21 @@ export function Register() {
     );
   }
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
-
+  // Configuration du formulaire avec react-hook-form et Zod
   const { register, handleSubmit } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER", job: "PRODUCER" },
   });
 
-
+  /**
+   * Mutation pour envoyer les données d'enregistrement au backend
+   * Après succès, effectue un auto-login automatique
+   */
   const registerMutation = useMutation({
     mutationFn: async (data) => {
-      // Adatta i dati per il backend
+      // Mapper les champs camelCase du frontend en snake_case pour le backend
       return await signIn({
         first_name: data.firstName,
         last_name: data.lastName,
@@ -80,19 +91,23 @@ export function Register() {
         role: data.role || "PRODUCER"
       });
     },
-    onSuccess: async (data, variables, context) => {
-      // Dopo la registrazione, login automatico
+    onSuccess: async (data, variables) => {
+      // Après enregistrement réussi, effectuer un login automatique
       try {
         const loginRes = await login({
           email: variables.email,
           password: variables.password
         });
+        // Sauvegarder les données de session
         localStorage.setItem("email", loginRes.data?.email);
+        localStorage.setItem("firstName", loginRes.data?.first_name || "");
         localStorage.setItem("role", loginRes.data?.role);
         localStorage.setItem("token", loginRes.data?.token);
+        
+        // Redirection vers le tableau de bord du producteur
         navigate("/producer");
       } catch (err) {
-        alert("Registration successful, but automatic login failed. Please log in manually.");
+        alert("Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.");
         navigate("/auth/login");
       }
     },
