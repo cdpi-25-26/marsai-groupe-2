@@ -28,7 +28,7 @@ export default function Navbar() {
   }
 
   return (
-    <div className="flex justify-between items-center ">
+    <div className="flex justify-between items-center">
       <div>
         <svg viewBox="0 0 176 21" className="h-5">
           <path
@@ -50,9 +50,9 @@ export default function Navbar() {
         </svg>
       </div>
       <div>
-        {username ? (
+        {firstName ? (
           <>
-            <span className="mr-4">Hello, {username}</span>
+            <span className="mr-4">Hello, {firstName}</span>
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
@@ -60,7 +60,5 @@ export default function Navbar() {
         )}
       </div>
     </div>
-    
-  </div>
   );
 }
