@@ -2,34 +2,26 @@ import express from "express";
 import UserController from "../controllers/UserController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
+
+
 const userRouter = express.Router();
 
-/**
- * ===== ROUTES POUR L'UTILISATEUR AUTHENTIFIÉ =====
- * Accessible par tous les rôles (ADMIN, JURY, PRODUCER)
- */
 
-/**
- * GET /users/me
- * Récupère le profil de l'utilisateur actuellement authentifié
- * Header requis: Authorization: Bearer [token JWT]
- * Response: Données utilisateur (sans mot de passe)
- */
-userRouter.get("/me", (req, res, next) => AuthMiddleware(req, res, next), UserController.getCurrentUser);
+// Applica il middleware per autenticazione a tutti i ruoli per le route /me
+userRouter.get(
+	"/me",
+	(req, res, next) => AuthMiddleware(req, res, next, ["ADMIN", "JURY", "PRODUCER"]),
+	UserController.getCurrentUser
+);
+userRouter.put(
+	"/me",
+	(req, res, next) => AuthMiddleware(req, res, next, ["ADMIN", "JURY", "PRODUCER"]),
+	UserController.updateCurrentUser
+);
 
-/**
- * PUT /users/me
- * Met à jour le profil de l'utilisateur actuellement authentifié
- * Header requis: Authorization: Bearer [token JWT]
- * Body: Champs à mettre à jour (first_name, last_name, email, password, etc.)
- * Response: Utilisateur mis à jour
- */
-userRouter.put("/me", (req, res, next) => AuthMiddleware(req, res, next), UserController.updateCurrentUser);
+// Applica il middleware solo per ADMIN alle route seguenti
+userRouter.use((req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]));
 
-/**
- * ===== ROUTES RÉSERVÉES AUX ADMINISTRATEURS =====
- * Nécessitent un rôle ADMIN pour accéder
- */
 
 /**
  * GET /users
@@ -38,7 +30,7 @@ userRouter.put("/me", (req, res, next) => AuthMiddleware(req, res, next), UserCo
  * Header requis: Authorization: Bearer [token JWT]
  * Response: Array de tous les utilisateurs
  */
-userRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), UserController.getUsers);
+userRouter.get("/",  UserController.getUsers);
 
 /**
  * GET /users/:id
@@ -48,7 +40,7 @@ userRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]
  * Header requis: Authorization: Bearer [token JWT]
  * Response: Données de l'utilisateur
  */
-userRouter.get("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), UserController.getUserById);
+userRouter.get("/:id", UserController.getUserById);
 
 /**
  * POST /users
@@ -67,7 +59,7 @@ userRouter.post("/", UserController.createUser);
  * Header requis: Authorization: Bearer [token JWT]
  * Response: Status 204 No Content
  */
-userRouter.delete("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), UserController.deleteUser);
+userRouter.delete("/:id",  UserController.deleteUser);
 
 /**
  * PUT /users/:id
@@ -78,6 +70,6 @@ userRouter.delete("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["A
  * Header requis: Authorization: Bearer [token JWT]
  * Response: Utilisateur mis à jour
  */
-userRouter.put("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), UserController.updateUser);
+userRouter.put("/:id", UserController.updateUser);
 
 export default userRouter;
