@@ -1,24 +1,27 @@
 import * as bcrypt from "bcrypt";
 
+// Nombre de rounds de salt pour bcrypt (plus élevé = plus sécurisé mais plus lent)
 const SALT_ROUNDS = 10;
 
 /**
- * Hashes a password using bcrypt
- * @param password The plain text password to hash
- * @returns Promise<string> The hashed password
+ * Hache un mot de passe en clair avec bcrypt
+ * Utilisation: Stockage sécurisé du mot de passe en base de données
+ * @param {string} password - Le mot de passe en clair à hacher
+ * @returns {Promise<string>} Le mot de passe hashé (ex: $2b$10$...)
  */
 async function hashPassword(password) {
   return bcrypt.hash(password, SALT_ROUNDS);
 }
 
 /**
- * Compares a plain text password with a hashed password
- * @param password The plain text password to check
- * @param encryptedPassword The hashed password to compare against
- * @returns Promise<boolean> True if passwords match, false otherwise
+ * Compare un mot de passe en clair avec un hash bcrypt
+ * Utilisation: Vérification lors de la connexion
+ * @param {string} password - Le mot de passe en clair fourni par l'utilisateur
+ * @param {string} hashedPassword - Le hash stocké en base de données
+ * @returns {Promise<boolean>} true si les mots de passe correspondent, false sinon
  */
-async function comparePassword(password, encryptedPassword) {
-  return bcrypt.compare(password, encryptedPassword);
+async function comparePassword(password, hashedPassword) {
+  return bcrypt.compare(password, hashedPassword);
 }
 
 export { hashPassword, comparePassword };

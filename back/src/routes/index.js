@@ -5,8 +5,12 @@ import authRouter from "./Auth.route.js";
 
 const router = express.Router();
 
-router.use("/auth", authRouter);
-router.use("/users", userRouter);
-router.use("/videos", movieRouter);
+/**
+ * Enregistrement de toutes les routes principales
+ * Chaque groupe de routes est préfixé par son chemin
+ */
+router.use("/auth", authRouter);      // Routes d'authentification
+router.use("/users", userRouter);     // Routes de gestion utilisateurs
+router.use("/videos", movieRouter);   // Routes de gestion films/vidéos
 
 export default router;

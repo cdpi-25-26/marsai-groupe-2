@@ -1,14 +1,14 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('votes', {
-      id_vote: {
+    await queryInterface.createTable('Evaluations', {
+      id_evaluation: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_movie: {
+      id_film: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -28,13 +28,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      evaluation: {
-       type: Sequelize.ENUM('YES', 'NO', 'TI DISCUSS'),
-        allowNull: false,
+      note: {
+        type: Sequelize.FLOAT,
+        allowNull: false
       },
-
-      
-      comments: {
+      commentaire: {
         type: Sequelize.TEXT,
         allowNull: true
       },
