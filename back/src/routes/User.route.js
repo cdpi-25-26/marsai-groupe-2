@@ -6,13 +6,33 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const userRouter = express.Router();
 
+/**
+ * ===== ROUTES POUR L'UTILISATEUR AUTHENTIFIÉ =====
+ * Accessible par tous les rôles (ADMIN, JURY, PRODUCER)
+ */
 
+/**
+ * GET /users/me
+ * Récupère le profil de l'utilisateur actuellement authentifié
+ * Header requis: Authorization: Bearer [token JWT]
+ * Response: Données utilisateur (sans mot de passe)
+ * Accessible par tous les rôles authentifiés (ADMIN, JURY, PRODUCER)
+ */
 // Applica il middleware per autenticazione a tutti i ruoli per le route /me
 userRouter.get(
 	"/me",
 	(req, res, next) => AuthMiddleware(req, res, next, ["ADMIN", "JURY", "PRODUCER"]),
 	UserController.getCurrentUser
 );
+
+/**
+ * PUT /users/me
+ * Met à jour le profil de l'utilisateur actuellement authentifié
+ * Header requis: Authorization: Bearer [token JWT]
+ * Body: Champs à mettre à jour (first_name, last_name, email, password, etc.)
+ * Response: Utilisateur mis à jour
+ * Accessible par tous les rôles authentifiés (ADMIN, JURY, PRODUCER)
+ */
 userRouter.put(
 	"/me",
 	(req, res, next) => AuthMiddleware(req, res, next, ["ADMIN", "JURY", "PRODUCER"]),
