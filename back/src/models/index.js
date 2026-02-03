@@ -5,6 +5,67 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Sequelize from 'sequelize';
 import process from 'process';
+import configFile from '../config/config.cjs';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+const basename = path.basename(filename);
+const env = process.env.NODE_ENV || 'development';
+const config = configFile[env];
+
+const db = {};
+
+const sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  config
+);
+
+const files = fs.readdirSync(dirname)
+  .filter(file =>
+    file.indexOf('.') !== 0 &&
+    file !== basename &&
+    file.endsWith('.js')
+  );
+
+for (const file of files) {
+  const { default: modelDefiner } = await import(
+    path.join(dirname, file)
+  );
+  const model = modelDefiner(sequelize, Sequelize.DataTypes);
+  db[model.name] = model;
+}
+
+Object.values(db).forEach(model => {
+  if (model.associate) {
+    model.associate(db);
+  }
+});
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+export default db;
+
+
+
+
+
+
+
+
+
+
+
+
+/*'use strict';
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Sequelize from 'sequelize';
+import process from 'process';
 import configFile from '../config/config.json' assert { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,7 +118,11 @@ await loadModels();
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-export default db;
+export default db;*/
+
+
+
+
 
 
 
