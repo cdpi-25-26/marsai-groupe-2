@@ -1,10 +1,18 @@
 import { Outlet } from "react-router";
+import Navbar from "../components/Navbar";
 
+/**
+ * AdminLayout (Layout Administrateur)
+ * Template pour les pages d'administration
+ * Contient: Navbar, barre latérale
+ * Accessible uniquement par les administrateurs
+ * @returns {JSX.Element} Layout avec Navbar et Outlet pour les pages enfants
+ */
 export default function AdminLayout() {
   return (
     <div>
-      <div>Navbar</div>
-      <aside>Sidebar</aside>
+      <Navbar />
+      <aside>Barre latérale</aside>
       <main>
         <Outlet />
       </main>

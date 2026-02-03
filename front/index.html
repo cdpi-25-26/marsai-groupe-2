@@ -1,13 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
+    <!-- Déclaration du charset UTF-8 pour l'encodage des caractères -->
     <meta charset="UTF-8" />
+    <!-- Icône du site (favicon) -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <!-- Configuration du viewport pour la réactivité mobile -->
+    <!-- width=device-width: Utilise la largeur réelle de l'appareil -->
+    <!-- initial-scale=1.0: Aucun zoom initial -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>front</title>
+    <!-- Titre de la page (affiché dans l'onglet du navigateur) -->
+    <title>MarsAI - Festival des Films</title>
   </head>
   <body>
+    <!-- 
+      Point d'ancrage principal pour le rendu de l'application React
+      Le fichier /src/main.jsx injecte toute l'application ici
+      via createRoot(document.getElementById("root")).render(...)
+    -->
     <div id="root"></div>
+    <!-- 
+      Point d'entrée de l'application React
+      type="module" active le support des modules ES6 (import/export)
+      Vite traite ce fichier et l'optimise automatiquement lors du build
+    -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
