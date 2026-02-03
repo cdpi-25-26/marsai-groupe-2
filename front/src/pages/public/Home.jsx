@@ -4,6 +4,7 @@
  * Affiche un message de bienvenue sur la plateforme du festival
  * @returns {JSX.Element} La page d'accueil avec le message de bienvenue
  */
+import { Link } from "react-router";
 import Button from "../../components/Button";
 import "./Home.css";
 
@@ -18,6 +19,11 @@ function Home() {
     <>
       {/* Titre de bienvenue sur la plateforme du festival */}
       Bienvenue sur la plateforme du festival !
+      <div className="mt-4">
+        <Link to="/auth/login">
+          <Button>Se connecter</Button>
+        </Link>
+      </div>
     </>
   );
 }
