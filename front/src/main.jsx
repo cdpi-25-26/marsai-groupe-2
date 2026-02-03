@@ -1,3 +1,16 @@
+/**
+ * Point d'entrée principal de l'application React (main.jsx)
+ * Configure le routage avec React Router et TanStack Query pour la gestion d'état
+ * Définit tous les chemins de routes (publics et protégés par rôle)
+ * Utilise RoleGuard pour protéger les routes selon le rôle de l'utilisateur
+ * 
+ * Structure des routes:
+ * - / (publique): Accueil, Login, Register
+ * - /admin (ADMIN uniquement): Dashboard, utilisateurs, vidéos
+ * - /producer (PRODUCER uniquement): Page d'accueil producteur
+ * - /jury (JURY uniquement): Page d'accueil jury
+ */
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -6,6 +19,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
 
+// Importation des pages publiques et privées
 import Home from "./pages/public/Home.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
@@ -18,6 +32,11 @@ import { Login } from "./pages/auth/Login.jsx";
 import { Register } from "./pages/auth/Register.jsx";
 import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 
+/**
+ * Configuration de TanStack Query
+ * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
+ * Les données doivent être actualisées manuellement via une mutation ou une invalidation
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -26,19 +45,34 @@ const queryClient = new QueryClient({
   },
 });
 
+/**
+ * Rendu de l'application principale
+ * Utilise StrictMode pour détecter les problèmes potentiels en développement
+ * Enveloppe l'application avec:
+ * 1. BrowserRouter: Fournit le routage côté client
+ * 2. QueryClientProvider: Fournit le client TanStack Query à toute l'app
+ * 3. Routes: Définit toutes les routes de l'application
+ */
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          {/* Routes publiques */}
+          {/* ========================================
+              ROUTES PUBLIQUES (Accessible à tous)
+              ======================================== */}
           <Route path="/" element={<PublicLayout />}>
+            {/* Page d'accueil du festival */}
             <Route index element={<Home />} />
+            {/* Page de connexion */}
             <Route path="/auth/login" element={<Login />} />
+            {/* Page d'inscription */}
             <Route path="/auth/register" element={<Register />} />
           </Route>
 
-          {/* Route privata ADMIN */}
+          {/* ========================================
+              ROUTES ADMIN (Rôle ADMIN uniquement)
+              ======================================== */}
           <Route
             path="admin"
             element={
@@ -47,10 +81,15 @@ createRoot(document.getElementById("root")).render(
               </RoleGuard>
             }
           >
+            {/* Dashboard administrateur */}
             <Route index element={<Dashboard />} />
+            {/* Gestion des utilisateurs sera ajoutée ici */}
+            {/* Gestion des vidéos sera ajoutée ici */}
           </Route>
 
-          {/* Route privata PRODUCER */}
+          {/* ========================================
+              ROUTES PRODUCTEUR (Rôle PRODUCER)
+              ======================================== */}
           <Route
             path="producer"
             element={
@@ -59,10 +98,13 @@ createRoot(document.getElementById("root")).render(
               </RoleGuard>
             }
           >
+            {/* Page d'accueil et profil du producteur */}
             <Route index element={<ProducerHome />} />
           </Route>
 
-          {/* Route privata JURY */}
+          {/* ========================================
+              ROUTES JURY (Rôle JURY)
+              ======================================== */}
           <Route
             path="jury"
             element={
@@ -71,6 +113,7 @@ createRoot(document.getElementById("root")).render(
               </RoleGuard>
             }
           >
+            {/* Page d'accueil du jury */}
             <Route index element={<JuryHome />} />
           </Route>
         </Routes>

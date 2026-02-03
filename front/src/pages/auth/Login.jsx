@@ -1,45 +1,62 @@
 import { Link, useNavigate } from "react-router";
-
 import { login } from "../../api/auth.js";
 import { useMutation } from "@tanstack/react-query";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+/**
+ * Schéma de validation pour le formulaire de connexion
+ * Valide: email et password
+ */
 const loginSchema = z.object({
-  username: z.string(),
-  password: z.string(),
+  email: z.string().email("Format d'email invalide"),
+  password: z.string().min(1, "Le mot de passe est requis"),
 });
 
+/**
+ * Composant Login (Page de connexion)
+ * Affiche un formulaire de connexion pour les utilisateurs existants
+ * Après connexion réussie, stocke le JWT et redirige selon le rôle
+ * @returns {JSX.Element} La page de connexion
+ */
 export function Login() {
-  if (localStorage.getItem("username")) {
+  // Si déjà connecté, afficher un message
+  if (localStorage.getItem("email")) {
     return (
       <>
         <h1 className="text-2xl">
-          Vous êtes déjà connecté en tant que {localStorage.getItem("username")}
+          Vous êtes déjà connecté en tant que {localStorage.getItem("email")}
         </h1>
         <Link to="/">Aller à l'accueil</Link>
       </>
     );
   }
 
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
+  // Configuration du formulaire avec react-hook-form et Zod
   const { register, handleSubmit } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
+  /**
+   * Mutation pour envoyer les données de connexion au backend
+   * Stocke le token et les données utilisateur en localStorage
+   * Redirige vers le dashboard selon le rôle
+   */
   const loginMutation = useMutation({
     mutationFn: async (data) => {
       return await login(data);
     },
-    onSuccess: (response, variables, context) => {
-      // If you are logged
-      localStorage.setItem("username", response.data?.username);
+    onSuccess: (response) => {
+      // Sauvegarder le token et les infos utilisateur
+      localStorage.setItem("email", response.data?.email);
+      localStorage.setItem("firstName", response.data?.first_name || "");
       localStorage.setItem("role", response.data?.role);
       localStorage.setItem("token", response.data?.token);
 
+      // Redirection basée sur le rôle
       switch (response.data?.role) {
         case "ADMIN":
           navigate("/admin");
@@ -55,31 +72,36 @@ export function Login() {
           break;
       }
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       alert(error.response?.data?.error || "Erreur de connexion");
     },
   });
 
+  /**
+   * Gère la soumission du formulaire de connexion
+   * @param {Object} data - { email, password }
+   */
   function onSubmit(data) {
     return loginMutation.mutate(data);
   }
   return (
     <>
-      <h1 className="text-2xl">Login</h1>
+      <h1 className="text-2xl">Connexion</h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" id="id" {...register("id")} />
+
         <label
-          htmlFor="username"
+          htmlFor="email"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Username
+          Email
         </label>
         <input
-          id="username"
-          type="text"
-          placeholder="Votre nom d'utilisateur"
-          {...register("username")}
+          id="email"
+          type="email"
+          placeholder="Votre email"
+          {...register("email")}
           required
         />
 
@@ -87,7 +109,7 @@ export function Login() {
           htmlFor="password"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Password
+          Mot de passe
         </label>
         <input
           id="password"
@@ -97,10 +119,10 @@ export function Login() {
           required
         />
 
-        <button type="submit">Login</button>
+        <button type="submit">Se connecter</button>
       </form>
 
-      <Link to="/auth/register">No account yet? Register</Link>
+      <Link to="/auth/register">Pas encore de compte ? S'inscrire</Link>
     </>
   );
 }
