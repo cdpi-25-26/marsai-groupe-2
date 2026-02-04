@@ -1,5 +1,6 @@
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 /**
  * AdminLayout (Layout Administrateur)
@@ -16,6 +17,7 @@ export default function AdminLayout() {
       <main>
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }
