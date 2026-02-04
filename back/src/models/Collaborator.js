@@ -8,8 +8,8 @@ export default (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    firstname: DataTypes.STRING(150),
-    lastname: DataTypes.STRING(150),
+    first_name: DataTypes.STRING(150),
+    last_name: DataTypes.STRING(150),
     job: DataTypes.STRING(100)
   }, {
     tableName: 'collaborators',
@@ -18,7 +18,7 @@ export default (sequelize, DataTypes) => {
 
   Collaborator.associate = function(models) {
     Collaborator.belongsToMany(models.Movie, {
-      through: 'collaborator_movies',
+      through: 'collaborators_movies',
       foreignKey: 'id_collaborator',
       otherKey: 'id_movie'
     });

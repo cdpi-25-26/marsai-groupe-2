@@ -1,14 +1,66 @@
+
 import express from "express";
 import MovieController from "../controllers/MovieController.js";
+import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
-const movieRouter = express.Router();
+const router = express.Router();
 
-movieRouter.get("/", MovieController.getMovies); // Admin
-movieRouter.post("/", MovieController.createMovie); // Admin
+/ ////////////////////////////////////////////////////////////////////////// Voir tous les films
+ // Public (ex: page sélection officielle)
 
-movieRouter.post("/upload", (req, res) => {
-  // Code à faire
-  res.send("Upload de vidéo");
-}); // User
+router.get(
+  "/",
+  MovieController.getMovies
+);
 
-export default movieRouter;
+
+///////////////////////////////////////////////////////////////////////// Voir un film par ID
+// Public
+
+router.get(
+  "/:id",
+  MovieController.getMovieById
+);
+
+
+//////////////////////////////////////////////////////////////////////// Soumettre un film
+ // Seulement pour PRODUCER connecté
+
+router.post(
+  "/",
+  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER"]),
+  MovieController.createMovie
+);
+
+
+/////////////////////////////////////////////////////////////////////////// Modifier un film
+//Seulement le propriétaire ou ADMIN
+
+/*router.put(
+  "/:id",
+  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER"]),
+  MovieController.updateMovie
+);*/
+
+
+///////////////////////////////////////////////////////////////////////// Supprimer un film
+// ADMIN uniquement
+router.delete(
+  "/:id",
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
+  MovieController.deleteMovie
+);
+
+export default router;
+
+
+
+
+
+
+
+
+/****** 
+const authorize = (roles = []) =>
+  (req, res, next) => AuthMiddleware(req, res, next, roles);
+*****/
