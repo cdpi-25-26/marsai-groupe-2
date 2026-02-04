@@ -20,7 +20,7 @@ dotenv.config();
  * - Port: 3306 (port par défaut MySQL)
  * - Dialect: mysql (type de base de données)
  */
-const sequelize = new Sequelize("marsai", "marsai", "Root_2026", {
+const sequelize = new Sequelize("mars_ai_db", "root", "josantos", {
   host: "localhost",
   port: 3306,
   dialect: "mysql",

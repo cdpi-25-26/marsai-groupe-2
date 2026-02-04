@@ -18,6 +18,9 @@ import { fileURLToPath } from 'url';
 import { Sequelize } from 'sequelize';
 import process from 'process';
 
+import { pathToFileURL } from 'url';
+
+
 /**
  * Obtient le répertoire courant du module
  * Nécessaire car les modules ES ne ont pas __dirname par défaut
@@ -75,11 +78,26 @@ const files = fs.readdirSync(__dirname)
  * Charge dynamiquement chaque modèle
  * Chaque modèle définit une fonction qui retourne un model Sequelize
  */
+// for (const file of files) {
+//   const modelModule = await import(path.join(__dirname, file));
+//   const model = modelModule.default ? modelModule.default(sequelize, Sequelize.DataTypes) : modelModule(sequelize, Sequelize.DataTypes);
+//   db[model.name] = model;
+// }
+
 for (const file of files) {
-  const modelModule = await import(path.join(__dirname, file));
-  const model = modelModule.default ? modelModule.default(sequelize, Sequelize.DataTypes) : modelModule(sequelize, Sequelize.DataTypes);
+  const fileUrl = pathToFileURL(path.join(__dirname, file)).href;
+  const modelModule = await import(fileUrl);
+
+  const model = modelModule.default
+    ? modelModule.default(sequelize, Sequelize.DataTypes)
+    : modelModule(sequelize, Sequelize.DataTypes);
+
   db[model.name] = model;
 }
+
+
+
+
 
 /**
  * Établit les associations entre modèles
