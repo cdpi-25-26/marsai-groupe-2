@@ -20,11 +20,16 @@ dotenv.config();
  * - Port: 3306 (port par défaut MySQL)
  * - Dialect: mysql (type de base de données)
  */
-const sequelize = new Sequelize("marsai_db", "marsai", "Mars2026!", {
-  host: "localhost",
-  port: 3306,
-  dialect: "mysql",
-});
+const sequelize = new Sequelize(
+  process.env.DB_NAME || "marsai_db",
+  process.env.DB_USER || "marsai",
+  process.env.DB_PASSWORD || "Mars2026!",
+  {
+    host: process.env.DB_HOST || "127.0.0.1",
+    port: Number(process.env.DB_PORT) || 3306,
+    dialect: "mysql",
+  }
+);
 
 /**
  * Commenté: Synchronisation automatique des modèles avec la base de données
