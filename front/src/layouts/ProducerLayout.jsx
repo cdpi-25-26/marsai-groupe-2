@@ -1,39 +1,23 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+
 
 /**
  * ProducerLayout (Layout Producteur)
  * Template pour les pages des producteurs de films
- * Contient: Navbar, bouton logout
+ * Contient: Navbar
  * Accessible uniquement par les producteurs
  * @returns {JSX.Element} Layout avec Navbar et Outlet pour les pages enfants
  */
 export default function ProducerLayout() {
-  const navigate = useNavigate();
-  
-  /**
-   * Fonction de déconnexion (Logout)
-   * Nettoie le localStorage et redirige vers la page de connexion
-   */
-  const handleLogout = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("role");
-    localStorage.removeItem("token");
-    window.location.href = "/auth/login";
-  };
-  
-  // Vérifier si l'utilisateur est connecté
-  const isLogged = !!localStorage.getItem("email");
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      {isLogged && (
-        <button onClick={handleLogout} style={{position:'absolute',top:10,right:10}}>Se déconnecter</button>
-      )}
-      <main>
+      <main className="flex-1 pt-4 px-6">
         <Outlet />
-      </main>
+      </main> 
+      <Footer />
     </div>
   );
 }
