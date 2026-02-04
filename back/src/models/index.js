@@ -1,4 +1,16 @@
-'use strict';
+/**
+ * Chargeur automatique de modèles Sequelize
+ * Ce fichier charge dynamiquement tous les modèles du répertoire /models
+ * Crée les associations entre modèles et initialise Sequelize
+ * 
+ * Processus:
+ * 1. Détermine l'environnement (development/test/production)
+ * 2. Charge la configuration depuis config.cjs
+ * 3. Initialise l'instance Sequelize
+ * 4. Charge dynamiquement tous les fichiers .js (modèles)
+ * 5. Établit les associations entre modèles
+ * 6. Exporte l'objet db avec tous les modèles et l'instance Sequelize
+ */
 
 import fs from 'fs';
 import path from 'path';
@@ -19,69 +31,18 @@ const basename = path.basename(__filename);
  * Par défaut: 'development' si non spécifié
  */
 const env = process.env.NODE_ENV || 'development';
-const config = configFile[env];
 
-const db = {};
+/**
+ * Importe la configuration depuis config.cjs
+ * Obtient les paramètres de connexion MySQL pour l'environnement actuel
+ */
+const configModule = await import('../../config/config.cjs');
+const config = configModule.default ? configModule.default[env] : configModule[env];
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
-}
-
-async function loadModels() {
-  const files = fs.readdirSync(__dirname)
-    .filter(file =>
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.endsWith('.js')
-    );
-
-  for (const file of files) {
-    const { default: modelDefiner } = await import(
-      path.join(__dirname, file)
-    );
-
-    const model = modelDefiner(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  }
-
-  Object.keys(db).forEach(modelName => {
-    if (db[modelName].associate) {
-      db[modelName].associate(db);
-    }
-  });
-}
-
-await loadModels();
-
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-
-export default db;
-
-
-
-
-
-
-
-
-/*'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const process = require('process');
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+/**
+ * Objet qui contiendra tous les modèles Sequelize
+ * Structure: { User: Model, Film: Model, ... }
+ */
 const db = {};
 
 /**
