@@ -1,22 +1,43 @@
 
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 /**
  * PublicLayout (Layout Public)
  * Template pour les pages accessibles à tous
- * Contient: Navbar, footer
+ * Contient: Navbar, bouton logout (si connecté), footer
  * Accessible par tous les utilisateurs (authentifiés ou non)
  * @returns {JSX.Element} Layout avec Navbar, Outlet et footer
  */
 export default function PublicLayout() {
+  const navigate = useNavigate();
+  
+  /**
+   * Fonction de déconnexion (Logout)
+   * Nettoie le localStorage et redirige vers la page de connexion
+   */
+  const handleLogout = () => {
+    localStorage.removeItem("email");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("role");
+    localStorage.removeItem("token");
+    navigate("/auth/login");
+  };
+  
+  // Vérifier si l'utilisateur est connecté
+  const isLogged = !!localStorage.getItem("email");
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="m-0 p-0 w-full"
+>
       <Navbar />
-      <main className="flex-1 pt-4 px-6">
+      {isLogged && (
+        <button onClick={handleLogout} style={{position:'absolute',top:10,right:10}}>Se déconnecter</button>
+      )}
+      <main>
         <Outlet />
       </main>
-      <footer className="bg-gray-100 text-center py-4">Pied de page</footer>
+      <Footer />
     </div>
   );
 }
