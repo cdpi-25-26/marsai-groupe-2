@@ -118,7 +118,7 @@ export function Register() {
     return registerMutation.mutate(data);
   }
   return (
-    <div className="min-h-screen bg-black text-white font-light py-20 px-4">
+    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
       <div className="max-w-4xl mx-auto">
         {/* En-tête */}
         <div className="text-center mb-12">
