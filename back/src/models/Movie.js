@@ -54,13 +54,13 @@ export default (sequelize, DataTypes) => {
     nationality: DataTypes.STRING,
 
     // Images du film (affiche et visuels)
-    poster_image: DataTypes.STRING,
-    image1: DataTypes.STRING,
-    image2: DataTypes.STRING,
-    image3: DataTypes.STRING,
+    display_picture: DataTypes.STRING,
+    picture1: DataTypes.STRING,
+    picture2: DataTypes.STRING,
+    picture3: DataTypes.STRING,
 
     // Vidéos du film
-    trailer_video: DataTypes.STRING,
+    trailer: DataTypes.STRING,
     youtube_link: DataTypes.STRING(255),
     
     // Informations de production
@@ -131,7 +131,7 @@ export default (sequelize, DataTypes) => {
     });
 
     Movie.belongsToMany(models.Collaborator, {
-      through: 'collaborator_movies',
+      through: 'collaborators_movies',
       foreignKey: 'id_movie',
       otherKey: 'id_collaborator'
     });
