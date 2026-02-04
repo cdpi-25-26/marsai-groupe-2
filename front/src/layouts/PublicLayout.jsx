@@ -1,6 +1,7 @@
 
 import { Outlet, useNavigate } from "react-router";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 /**
  * PublicLayout (Layout Public)
@@ -27,7 +28,8 @@ export default function PublicLayout() {
   // Vérifier si l'utilisateur est connecté
   const isLogged = !!localStorage.getItem("email");
   return (
-    <div>
+    <div className="m-0 p-0 w-full"
+>
       <Navbar />
       {isLogged && (
         <button onClick={handleLogout} style={{position:'absolute',top:10,right:10}}>Se déconnecter</button>
@@ -35,7 +37,7 @@ export default function PublicLayout() {
       <main>
         <Outlet />
       </main>
-      <footer>Pied de page</footer>
+      <Footer />
     </div>
   );
 }
