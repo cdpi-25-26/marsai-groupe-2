@@ -17,13 +17,20 @@ import "./Home.css";
 function Home() {
   return (
     <>
-      {/* Titre de bienvenue sur la plateforme du festival */}
+      {/* Titre de bienvenue sur la plateforme du festival 
       Bienvenue sur la plateforme du festival !
       <div className="mt-4">
         <Link to="/auth/login">
           <Button>Se connecter</Button>
         </Link>
-      </div>
+      </div>*/}
+      <div className="relative w-full h-190 overflow-hidden"> 
+        <video className="absolute top-0 left-0 w-full h-full object-cover" autoPlay loop muted playsInline > 
+          <source src="./src/assets/videos/accueil_marsai.mp4" type="video/mp4" /> </video>
+
+          {/* overlay sombre */} 
+          <div className="absolute inset-0 bg-black/40 z-5"></div>
+          </div>
     </>
   );
 }
