@@ -1,15 +1,18 @@
 import { Link } from "react-router";
 
 export default function Navbar() {
-  const username = localStorage.getItem("username");
+  const firstName = localStorage.getItem("firstName");
+  const lastName = localStorage.getItem("lastName");
 
   function handleLogout() {
-    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
-    // Notifica anche altri tab/browser
-  
-    window.location.reload();
+    
+    // Redirect alla home pubblica
+    window.location.href = "/";
   }
 
   return (
@@ -49,16 +52,28 @@ export default function Navbar() {
 
 
       <div className=" mr-3">
-        {username ? (
+        {firstName ? (
           <>
-            <span className="mr-4">Hello, {username}</span>
+            <span className="mr-4">Hello, {firstName}{lastName && ` ${lastName}`}</span>
             <button onClick={handleLogout}>Logout</button>
           </>
         ) : (
-          <Link to="/auth/login"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-</svg>
-</Link>
+          <Link to="/auth/login">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth="1.5" 
+              stroke="currentColor" 
+              className="w-8 h-8 hover:opacity-80 transition-opacity"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" 
+              />
+            </svg>
+          </Link>
         )}
       </div>
     </div>
