@@ -4,7 +4,7 @@ import Newletter from "./Newletter";
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-black text-white font-light fixed bottom-0 m-auto text-base">
+    <footer className="w-full bg-black text-white font-light bottom-0 m-auto text-base">
       {/* Section principale */}
       <div className="w-full px-8 py-16 grid grid-cols-1 md:grid-cols-3 gap-16 items-start">
         
