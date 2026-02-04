@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import Button from "./Button";
 
 export default function Navbar() {
   const username = localStorage.getItem("username");
