@@ -5,7 +5,7 @@
  * 
  * Processus:
  * 1. Détermine l'environnement (development/test/production)
- * 2. Charge la configuration depuis config.cjs
+ * 2. Charge la configuration depuis config.json
  * 3. Initialise l'instance Sequelize
  * 4. Charge dynamiquement tous les fichiers .js (modèles)
  * 5. Établit les associations entre modèles
@@ -20,7 +20,7 @@ import process from 'process';
 
 /**
  * Obtient le répertoire courant du module
- * Nécessaire car les modules ES ne ont pas __dirname par défaut
+ * Nécessaire car les modules ES n'ont pas __dirname par défaut
  */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,10 +31,22 @@ const basename = path.basename(__filename);
  * Par défaut: 'development' si non spécifié
  */
 const env = process.env.NODE_ENV || 'development';
+
+/**
+ * Charge la configuration depuis le fichier config.json
+ */
+const configFile = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../config/config.json'), 'utf8')
+);
 const config = configFile[env];
 
 const db = {};
 
+/**
+ * Initialise l'instance Sequelize
+ * Crée la connexion à la base de données MySQL
+ * Utilise soit une variable d'environnement, soit les paramètres directs
+ */
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
@@ -47,7 +59,14 @@ if (config.use_env_variable) {
   );
 }
 
+/**
+ * Fonction asynchrone pour charger tous les modèles
+ */
 async function loadModels() {
+  /**
+   * Lit tous les fichiers du répertoire courant (/models)
+   * Filtre pour obtenir uniquement les fichiers .js (sauf ce fichier)
+   */
   const files = fs.readdirSync(__dirname)
     .filter(file =>
       file.indexOf('.') !== 0 &&
@@ -55,15 +74,22 @@ async function loadModels() {
       file.endsWith('.js')
     );
 
+  /**
+   * Charge dynamiquement chaque modèle
+   * Chaque modèle définit une fonction qui retourne un model Sequelize
+   */
   for (const file of files) {
-    const { default: modelDefiner } = await import(
-      path.join(__dirname, file)
-    );
-
+    const modelModule = await import(path.join(__dirname, file));
+    const modelDefiner = modelModule.default;
     const model = modelDefiner(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   }
 
+  /**
+   * Établit les associations entre modèles
+   * Si un modèle a une méthode associate(), l'appelle pour définir les relations
+   * Exemple: User.associate(db) définit les relations User -> Film, User -> Evaluation, etc.
+   */
   Object.keys(db).forEach(modelName => {
     if (db[modelName].associate) {
       db[modelName].associate(db);
@@ -71,77 +97,10 @@ async function loadModels() {
   });
 }
 
+/**
+ * Charge les modèles et initialise les associations
+ */
 await loadModels();
-
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-
-export default db;
-
-
-
-
-
-
-
-
-/*'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const process = require('process');
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
-const db = {};
-
-/**
- * Initialise l'instance Sequelize
- * Crée la connexion à la base de données MySQL
- * Utilise soit une variable d'environnement, soit les paramètres directs
- */
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
-
-/**
- * Lit tous les fichiers du répertoire courant (/models)
- * Filtre pour obtenir uniquement les fichiers .js (sauf tests)
- */
-const files = fs.readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&              // Ignore les fichiers cachés
-      file !== basename &&                    // Ignore ce fichier (index.js)
-      file.slice(-3) === '.js' &&             // Inclut uniquement les .js
-      file.indexOf('.test.js') === -1         // Ignore les fichiers de test
-    );
-  });
-
-/**
- * Charge dynamiquement chaque modèle
- * Chaque modèle définit une fonction qui retourne un model Sequelize
- */
-for (const file of files) {
-  const modelModule = await import(path.join(__dirname, file));
-  const model = modelModule.default ? modelModule.default(sequelize, Sequelize.DataTypes) : modelModule(sequelize, Sequelize.DataTypes);
-  db[model.name] = model;
-}
-
-/**
- * Établit les associations entre modèles
- * Si un modèle a une méthode associate(), l'appelle pour définir les relations
- * Exemple: User.associate(db) définit les relations User -> Film, User -> Evaluation, etc.
- */
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
 
 /**
  * Ajoute l'instance Sequelize et la classe Sequelize à l'objet db
@@ -150,5 +109,4 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-// Exporte l'objet db contenant tous les modèles et l'instance Sequelize
 export default db;
