@@ -1,8 +1,8 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Evaluations', {
-      id_evaluation: {
+    await queryInterface.createTable('votes', {
+      id_vote: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
