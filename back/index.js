@@ -51,7 +51,6 @@ async function startServer() {
 
     // Démarrage du serveur
     app.listen(PORT, () => {
-      console.log(`✓ Serveur backend démarré sur le port ${PORT}`);
       console.log(`✓ API disponible sur http://localhost:${PORT}`);
     });
   } catch (error) {
