@@ -1,5 +1,7 @@
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+
 
 /**
  * ProducerLayout (Layout Producteur)
@@ -14,7 +16,8 @@ export default function ProducerLayout() {
       <Navbar />
       <main>
         <Outlet />
-      </main>
+      </main> 
+      <Footer />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar";
-
+import Footer from "../components/Footer";
 /**
  * JuryLayout (Layout Jury)
  * Template pour les pages du jury d'évaluation des films
@@ -15,6 +15,7 @@ export default function JuryLayout() {
       <main>
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }
