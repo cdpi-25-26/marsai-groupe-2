@@ -55,7 +55,7 @@ export function Register() {
   const navigate = useNavigate();
 
   // Configuration du formulaire avec react-hook-form et Zod
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER", job: "PRODUCER" },
   });
@@ -101,6 +101,7 @@ export function Register() {
         // Sauvegarder les données de session
         localStorage.setItem("email", loginRes.data?.email);
         localStorage.setItem("firstName", loginRes.data?.first_name || "");
+        localStorage.setItem("lastName", loginRes.data?.last_name || "");
         localStorage.setItem("role", loginRes.data?.role);
         localStorage.setItem("token", loginRes.data?.token);
         
@@ -117,86 +118,376 @@ export function Register() {
     return registerMutation.mutate(data);
   }
   return (
-    <>
-      <h1 className="text-2xl">Inscription</h1>
+    <div className="min-h-screen bg-black text-white font-light py-20 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* En-tête */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-2">
+            <span className="text-white">Créer un compte</span>
+          </h1>
+          <p className="text-gray-400 text-lg mb-8">
+            Rejoignez la plateforme MarsAI en tant que producteur
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="hidden" id="id" {...register("id")} />
-        <label htmlFor="firstName" className="text-sm font-medium">Prénom</label>
-        <input id="firstName" type="text" placeholder="Prénom" {...register("firstName")} required />
+        {/* Formulaire dans une table grigio scuro */}
+        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            
+            {/* Informazioni personali */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="text-[#AD46FF]">●</span> Informazioni personali
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Prénom */}
+                <div className="flex flex-col">
+                  <label htmlFor="firstName" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Prénom *
+                  </label>
+                  <input
+                    id="firstName"
+                    type="text"
+                    placeholder="Votre prénom"
+                    {...register("firstName")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                  {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName.message}</p>}
+                </div>
 
-        <label htmlFor="lastName" className="text-sm font-medium">Nom</label>
-        <input id="lastName" type="text" placeholder="Nom" {...register("lastName")} required />
+                {/* Nom */}
+                <div className="flex flex-col">
+                  <label htmlFor="lastName" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Nom *
+                  </label>
+                  <input
+                    id="lastName"
+                    type="text"
+                    placeholder="Votre nom"
+                    {...register("lastName")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                  {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>}
+                </div>
 
-        <label htmlFor="email" className="text-sm font-medium">Email</label>
-        <input id="email" type="email" placeholder="Votre email" {...register("email")} required />
+                {/* Email */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Email *
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="votre.email@example.com"
+                    {...register("email")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+                </div>
 
-        <label htmlFor="password" className="text-sm font-medium">Mot de passe</label>
-        <input id="password" type="password" placeholder="Votre mot de passe" {...register("password")} required />
+                {/* Mot de passe */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Mot de passe *
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="Minimum 6 caractères"
+                    {...register("password")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                  {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>}
+                </div>
 
-        <label htmlFor="phone" className="text-sm font-medium">Téléphone</label>
-        <input id="phone" type="text" placeholder="Téléphone" {...register("phone")} />
+                {/* Téléphone */}
+                <div className="flex flex-col">
+                  <label htmlFor="phone" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Téléphone
+                  </label>
+                  <input
+                    id="phone"
+                    type="text"
+                    placeholder="Téléphone fixe"
+                    {...register("phone")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="mobile" className="text-sm font-medium">Mobile</label>
-        <input id="mobile" type="text" placeholder="Mobile" {...register("mobile")} />
+                {/* Mobile */}
+                <div className="flex flex-col">
+                  <label htmlFor="mobile" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Mobile
+                  </label>
+                  <input
+                    id="mobile"
+                    type="text"
+                    placeholder="Téléphone mobile"
+                    {...register("mobile")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="birthDate" className="text-sm font-medium">Date de naissance</label>
-        <input id="birthDate" type="date" {...register("birthDate")} />
+                {/* Date di nascita */}
+                <div className="flex flex-col">
+                  <label htmlFor="birthDate" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Date de naissance
+                  </label>
+                  <input
+                    id="birthDate"
+                    type="date"
+                    {...register("birthDate")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="street" className="text-sm font-medium">Rue</label>
-        <input id="street" type="text" placeholder="Rue" {...register("street")} />
+                {/* Profession */}
+                <div className="flex flex-col">
+                  <label htmlFor="job" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Profession
+                  </label>
+                  <select
+                    id="job"
+                    {...register("job")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  >
+                    <option value="PRODUCER">Producteur</option>
+                    <option value="ACTOR">Acteur</option>
+                    <option value="DIRECTOR">Réalisateur</option>
+                    <option value="WRITER">Scénariste</option>
+                    <option value="OTHER">Autre</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-        <label htmlFor="postalCode" className="text-sm font-medium">Code postal</label>
-        <input id="postalCode" type="text" placeholder="Code postal" {...register("postalCode")} />
+            {/* Indirizzo */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="text-[#F6339A]">●</span> Adresse
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Rue */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="street" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Rue
+                  </label>
+                  <input
+                    id="street"
+                    type="text"
+                    placeholder="Adresse"
+                    {...register("street")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="city" className="text-sm font-medium">Ville</label>
-        <input id="city" type="text" placeholder="Ville" {...register("city")} />
+                {/* Code postal */}
+                <div className="flex flex-col">
+                  <label htmlFor="postalCode" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Code postal
+                  </label>
+                  <input
+                    id="postalCode"
+                    type="text"
+                    placeholder="Code postal"
+                    {...register("postalCode")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="country" className="text-sm font-medium">Pays</label>
-        <input id="country" type="text" placeholder="Pays" {...register("country")} />
+                {/* Ville */}
+                <div className="flex flex-col">
+                  <label htmlFor="city" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Ville
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    placeholder="Ville"
+                    {...register("city")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="biography" className="text-sm font-medium">Biographie</label>
-        <textarea id="biography" placeholder="Biographie" {...register("biography")} />
+                {/* Paese */}
+                <div className="flex flex-col">
+                  <label htmlFor="country" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Pays
+                  </label>
+                  <input
+                    id="country"
+                    type="text"
+                    placeholder="Pays"
+                    {...register("country")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
+              </div>
+            </div>
 
-        <label htmlFor="job" className="text-sm font-medium">Profession</label>
-        <select id="job" {...register("job")}> 
-          <option value="PRODUCER">Producteur</option>
-          <option value="ACTOR">Acteur</option>
-          <option value="DIRECTOR">Réalisateur</option>
-          <option value="WRITER">Scénariste</option>
-          <option value="OTHER">Autre</option>
-        </select>
+            {/* Professionnel */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="text-[#AD46FF]">●</span> Profil professionnel
+              </h2>
+              
+              <div className="space-y-6">
+                {/* Biographie */}
+                <div className="flex flex-col">
+                  <label htmlFor="biography" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Biographie
+                  </label>
+                  <textarea
+                    id="biography"
+                    placeholder="Parlez-nous de vous..."
+                    rows="4"
+                    {...register("biography")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                  />
+                </div>
 
-        <label htmlFor="portfolio" className="text-sm font-medium">Portfolio</label>
-        <input id="portfolio" type="text" placeholder="Portfolio" {...register("portfolio")} />
+                {/* Portfolio */}
+                <div className="flex flex-col">
+                  <label htmlFor="portfolio" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Portfolio (URL)
+                  </label>
+                  <input
+                    id="portfolio"
+                    type="text"
+                    placeholder="https://votre-portfolio.com"
+                    {...register("portfolio")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
+              </div>
+            </div>
 
-        <label htmlFor="youtube" className="text-sm font-medium">YouTube</label>
-        <input id="youtube" type="text" placeholder="YouTube" {...register("youtube")} />
+            {/* Réseaux sociaux */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="text-[#F6339A]">●</span> Réseaux sociaux
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* YouTube */}
+                <div className="flex flex-col">
+                  <label htmlFor="youtube" className="text-white font-semibold mb-2 text-sm uppercase">
+                    YouTube
+                  </label>
+                  <input
+                    id="youtube"
+                    type="text"
+                    placeholder="Chaîne YouTube"
+                    {...register("youtube")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="instagram" className="text-sm font-medium">Instagram</label>
-        <input id="instagram" type="text" placeholder="Instagram" {...register("instagram")} />
+                {/* Instagram */}
+                <div className="flex flex-col">
+                  <label htmlFor="instagram" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Instagram
+                  </label>
+                  <input
+                    id="instagram"
+                    type="text"
+                    placeholder="@instagram"
+                    {...register("instagram")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="linkedin" className="text-sm font-medium">LinkedIn</label>
-        <input id="linkedin" type="text" placeholder="LinkedIn" {...register("linkedin")} />
+                {/* LinkedIn */}
+                <div className="flex flex-col">
+                  <label htmlFor="linkedin" className="text-white font-semibold mb-2 text-sm uppercase">
+                    LinkedIn
+                  </label>
+                  <input
+                    id="linkedin"
+                    type="text"
+                    placeholder="Profil LinkedIn"
+                    {...register("linkedin")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="facebook" className="text-sm font-medium">Facebook</label>
-        <input id="facebook" type="text" placeholder="Facebook" {...register("facebook")} />
+                {/* Facebook */}
+                <div className="flex flex-col">
+                  <label htmlFor="facebook" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Facebook
+                  </label>
+                  <input
+                    id="facebook"
+                    type="text"
+                    placeholder="Profil Facebook"
+                    {...register("facebook")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="tiktok" className="text-sm font-medium">TikTok</label>
-        <input id="tiktok" type="text" placeholder="TikTok" {...register("tiktok")} />
+                {/* TikTok */}
+                <div className="flex flex-col">
+                  <label htmlFor="tiktok" className="text-white font-semibold mb-2 text-sm uppercase">
+                    TikTok
+                  </label>
+                  <input
+                    id="tiktok"
+                    type="text"
+                    placeholder="@tiktok"
+                    {...register("tiktok")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
 
-        <label htmlFor="knownByMarsAi" className="text-sm font-medium">Connu par MarsAI ?</label>
-        <select id="knownByMarsAi" {...register("knownByMarsAi")}> 
-          <option value="">--</option>
-          <option value="YES">Oui</option>
-          <option value="NO">Non</option>
-        </select>
+                {/* Connu par MarsAI */}
+                <div className="flex flex-col">
+                  <label htmlFor="knownByMarsAi" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Connu par MarsAI ?
+                  </label>
+                  <select
+                    id="knownByMarsAi"
+                    {...register("knownByMarsAi")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  >
+                    <option value="">-- Sélectionner --</option>
+                    <option value="YES">Oui</option>
+                    <option value="NO">Non</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-        <input type="hidden" {...register("role")} defaultValue="PRODUCER" />
+            {/* Hidden role field */}
+            <input type="hidden" {...register("role")} defaultValue="PRODUCER" />
 
-        <button type="submit">S'inscrire</button>
-      </form>
-      <Link to="/auth/login">Vous avez déjà un compte ? Se connecter</Link>
-    </>
+            {/* Boutons d'action */}
+            <div className="flex flex-col gap-4 pt-8 border-t border-gray-700">
+              <button
+                type="submit"
+                disabled={registerMutation.isPending}
+                className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+              >
+                {registerMutation.isPending ? "Inscription en cours..." : "S'inscrire"}
+              </button>
+
+              <p className="text-center text-gray-400">
+                Vous avez déjà un compte ?{" "}
+                <Link to="/auth/login" className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition">
+                  Se connecter
+                </Link>
+              </p>
+            </div>
+
+            {registerMutation.isError && (
+              <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg">
+                Erreur lors de l'inscription. Veuillez réessayer.
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }
