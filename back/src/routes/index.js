@@ -11,6 +11,6 @@ const router = express.Router();
  */
 router.use("/auth", authRouter);      // Routes d'authentification
 router.use("/users", userRouter);     // Routes de gestion utilisateurs
-router.use("/videos", movieRouter);   // Routes de gestion films/vidéos
+router.use("/movies", movieRouter);   // Routes de gestion films/vidéos
 
 export default router;
