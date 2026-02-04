@@ -4,7 +4,8 @@
     "password": "Mars2026!",
     "database": "marsai_db",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "logging": false
   },
   "test": {
     "username": "marsai",

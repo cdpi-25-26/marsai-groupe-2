@@ -11,7 +11,7 @@ import Footer from "../components/Footer";
  */
 export default function AdminLayout() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       <aside>Barre latérale</aside>
       <main>
