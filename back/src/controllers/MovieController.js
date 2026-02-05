@@ -226,10 +226,68 @@ async function deleteMovie(req, res) {
   }
 }
 
+
+
+////////////////////////////////////////////////////////////////// Assigner des jurys à un film (ADMIN uniquement)
+
+async function assignJuriesToMovie(req, res) {
+  try {
+    const { id } = req.params; // id du film
+    const { juryIds } = req.body; // tableau d'id users
+
+    // Vérification ADMIN
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        error: "Seul un administrateur peut assigner des jurys"
+      });
+    }
+
+    // Vérifier que juryIds est un tableau valide
+    if (!Array.isArray(juryIds) || juryIds.length === 0 || juryIds.length > 3) {
+      return res.status(400).json({
+        error: "Un film doit être assigné à 1 à 3 jurys"
+      });
+    }
+
+    const movie = await Movie.findByPk(id);
+
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    // Vérifier que les users sont bien des JURY
+    const juries = await User.findAll({
+      where: {
+        id_user: juryIds,
+        role: "JURY"
+      }
+    });
+
+    if (juries.length !== juryIds.length) {
+      return res.status(400).json({
+        error: "Un ou plusieurs utilisateurs ne sont pas des jurys"
+      });
+    }
+
+    // Assigner via table movies_juries
+    await movie.setUsers(juries);
+
+    res.status(200).json({
+      message: "Jurys assignés avec succès"
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 export default {
   getMovies,
   getMovieById,
   createMovie,
   updateMovie,
-  deleteMovie
+  deleteMovie,
+  assignJuriesToMovie
+
 };
