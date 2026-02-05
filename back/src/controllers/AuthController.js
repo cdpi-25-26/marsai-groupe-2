@@ -117,6 +117,17 @@ async function registerWithFilm(req, res) {
       return res.status(400).json({ error: "Champs utilisateur obligatoires manquants" });
     }
 
+    const durationNumber = Number(durationSeconds);
+    if (!filmTitleOriginal || !durationSeconds || Number.isNaN(durationNumber)) {
+      await transaction.rollback();
+      return res.status(400).json({ error: "Le titre du film et la durée sont obligatoires" });
+    }
+
+    if (durationNumber > 120) {
+      await transaction.rollback();
+      return res.status(400).json({ error: "La durée maximale est de 120 secondes" });
+    }
+
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       await transaction.rollback();
@@ -159,7 +170,7 @@ async function registerWithFilm(req, res) {
     const newMovie = await Movie.create({
       title: filmTitleOriginal,
       description: synopsisOriginal,
-      duration: durationSeconds || null,
+      duration: durationNumber,
       main_language: filmLanguage,
       release_year: releaseYear || null,
       nationality,
@@ -195,7 +206,9 @@ async function registerWithFilm(req, res) {
 
     if (collaborators.length) {
       const collaboratorRecords = await Promise.all(
-        collaborators.map(async (collab) => {
+        collaborators
+          .filter(collab => collab?.email)
+          .map(async (collab) => {
           const [record] = await Collaborator.findOrCreate({
             where: { email: collab.email },
             defaults: {
@@ -221,8 +234,12 @@ async function registerWithFilm(req, res) {
       movie: { id_movie: newMovie.id_movie, title: newMovie.title }
     });
   } catch (error) {
+    console.error("registerWithFilm error:", error);
     await transaction.rollback();
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      error: error.message,
+      details: error?.original?.message || error?.errors?.[0]?.message || null
+    });
   }
 }
 
