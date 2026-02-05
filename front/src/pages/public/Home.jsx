@@ -7,6 +7,7 @@
 import { Link } from "react-router";
 import Button from "../../components/Button";
 import Hero from "../../components/home/Hero";
+import Reassure from "../../components/home/Reassure";
 import "./Home.css";
 
 /**
@@ -26,6 +27,7 @@ function Home() {
         </Link>
       </div>*/}
       <Hero />
+      <Reassure />
     </>
   );
 }
