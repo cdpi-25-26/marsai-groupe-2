@@ -802,12 +802,6 @@ export function Register() {
                 {registerMutation.isPending ? "Soumission en cours..." : "Soumettre ma candidature"}
               </button>
 
-              <p className="text-center text-gray-400">
-                Vous avez déjà un compte ?{" "}
-                <Link to="/auth/login" className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition">
-                  Se connecter
-                </Link>
-              </p>
             </div>
 
             {registerMutation.isError && (
