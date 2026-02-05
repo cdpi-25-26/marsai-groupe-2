@@ -11,12 +11,12 @@
 import express from "express";
 import getAdminStats from "../controllers/DashboardController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
-
+ 
 const router = express.Router();
 
 router.get(
   "/admin",
-  (req, res, next) => AuthMiddleware(req, res, next, ["admin"]),
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
   getAdminStats
 );
 

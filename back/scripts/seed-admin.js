@@ -1,74 +1,28 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
-
 import bcrypt from "bcrypt";
 import db from "../src/models/index.js";
 
-const { User, Movie } = db;
 
-async function seedDemo() {
-  try {
-    /* -------------------------
-       USERS
-    ------------------------- */
-    const passwordHash = await bcrypt.hash("password123", 10);
-
-    const [producer] = await User.findOrCreate({
-      where: { email: "producer@example.com" },
-      defaults: {
-        first_name: "Producer",
-        last_name: "User",
-        email: "producer@example.com",
-        password: passwordHash,
-        phone: "0202020202",
-        role: "PRODUCER"
-      }
-    });
-
-    const [jury] = await User.findOrCreate({
-      where: { email: "jury@example.com" },
-      defaults: {
-        first_name: "Jury",
-        last_name: "Member",
-        email: "jury@example.com",
-        password: passwordHash,
-        phone: "0101010101",
-        role: "JURY"
-      }
-    });
-
-    /* -------------------------
-       MOVIES (id_user REQUIRED)
-    ------------------------- */
-    await Movie.bulkCreate([
-      {
-        title: "AI Dreams",
-        description: "Short film generated with AI tools",
-        duration: 12,
-        main_language: "EN",
-        release_year: 2025,
-        nationality: "France",
-        production: "MarsAI Studio",
-        id_user: producer.id_user
-      },
-      {
-        title: "Synthetic Mars",
-        description: "Sci-fi AI movie",
-        duration: 24,
-        main_language: "EN",
-        release_year: 2026,
-        nationality: "USA",
-        production: "Red Planet Lab",
-        id_user: producer.id_user
-      }
-    ]);
-
-    console.log("✅ Demo seed completed successfully");
-  } catch (error) {
-    console.error("❌ Demo seed failed:", error);
-  } finally {
-    await db.sequelize.close();
+async function createAdmin() {
+  const hash = await bcrypt.hash("admin123", 10);
+  const [admin, created] = await db.User.findOrCreate({
+    where: { email: "admin@example.com" },
+    defaults: {
+      first_name: "Admin",
+      last_name: "User",
+      email: "admin@example.com",
+      password: bcrypt.hash("admin123", 10),
+      phone: "0000000000",
+      role: "ADMIN"
+    }
+  });
+  if (created) {
+    console.log("Admin user created:", admin.email);
+  } else {
+    console.log("Admin user already exists:", admin.email);
   }
+  await db.sequelize.close();
 }
 
-seedDemo();
+createAdmin().catch(console.error);

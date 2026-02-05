@@ -1,3 +1,43 @@
+// import db from "../models/index.js";
+
+// const { User, Movie, Vote, Award } = db;
+
+// const getAdminStats = async (req, res) => {
+//   try {
+//     const [
+//       users,
+//       movies,
+//       votes:,
+//       awards,
+//       jury
+//     ] = await Promise.all([
+//       User.count(),
+//       Movie.count(),
+//       Vote.count(),
+//       Award.count(),
+//       User.count({ where: { role: "JURY" } })
+//     ]);
+
+//     res.json({
+//       users,
+//       movies,
+//       jury,
+//       votes:
+//       awards:
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       error: "Failed to load admin dashboard stats"
+//     });
+//   }
+// };
+
+// export default getAdminStats;
+
+
+// 
+
 import db from "../models/index.js";
 
 const { User, Movie, Vote, Award } = db;
@@ -15,7 +55,7 @@ const getAdminStats = async (req, res) => {
       Movie.count(),
       Vote.count(),
       Award.count(),
-      User.count({ where: { role: "jury" } })
+      User.count({ where: { role: "JURY" } })
     ]);
 
     res.json({
@@ -25,8 +65,9 @@ const getAdminStats = async (req, res) => {
       votes,
       awards
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("Dashboard error:", error);
     res.status(500).json({
       error: "Failed to load admin dashboard stats"
     });
