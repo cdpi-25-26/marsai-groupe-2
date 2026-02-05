@@ -36,7 +36,7 @@ export function Login() {
   const navigate = useNavigate();
 
   // Configuration du formulaire avec react-hook-form et Zod
-  const { register, handleSubmit } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
@@ -85,44 +85,71 @@ export function Login() {
     return loginMutation.mutate(data);
   }
   return (
-    <>
-      <h1 className="text-2xl">Connexion</h1>
+    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+      <div className="max-w-xl mx-auto">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold mb-2">Connexion</h1>
+          <p className="text-gray-400">Accédez à votre espace MarsAI</p>
+        </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="hidden" id="id" {...register("id")} />
+        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <input type="hidden" id="id" {...register("id")} />
 
-        <label
-          htmlFor="email"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          placeholder="Votre email"
-          {...register("email")}
-          required
-        />
+            <div className="flex flex-col">
+              <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Votre email"
+                {...register("email")}
+                className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                required
+              />
+              {errors.email && (
+                <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
+              )}
+            </div>
 
-        <label
-          htmlFor="password"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Mot de passe
-        </label>
-        <input
-          id="password"
-          type="password"
-          placeholder="Votre mot de passe"
-          {...register("password")}
-          required
-        />
+            <div className="flex flex-col">
+              <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
+                Mot de passe
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Votre mot de passe"
+                {...register("password")}
+                className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                required
+              />
+              {errors.password && (
+                <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+              )}
+            </div>
 
-        <button type="submit">Se connecter</button>
-      </form>
+            <button
+              type="submit"
+              disabled={loginMutation.isPending}
+              className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+            >
+              {loginMutation.isPending ? "Connexion..." : "Se connecter"}
+            </button>
 
-      <Link to="/auth/register">Pas encore de compte ? S'inscrire</Link>
-    </>
+            <p className="text-center text-gray-400">
+              Pas encore de compte ?{" "}
+              <Link
+                to="/auth/register"
+                className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition"
+              >
+                S'inscrire
+              </Link>
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }
