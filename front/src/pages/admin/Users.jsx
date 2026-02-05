@@ -219,52 +219,53 @@ function Users() {
 
 
   return (
-    <section className="p-6">
+    <section className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+      <div className="max-w-6xl mx-auto">
       {/* Affichage des messages de succès/erreur */}
       {message && (
-        <div className="mb-4 p-3 border rounded bg-blue-50 text-blue-700">
+        <div className="mb-6 p-3 border border-gray-700 rounded-lg bg-gray-900 text-gray-200">
           {message}
         </div>
       )}
 
       {/* En-tête avec titre et bouton de création */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Gestion des utilisateurs</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h2 className="text-3xl font-bold">Gestion des utilisateurs</h2>
         <button 
           onClick={() => setShowCreateModal(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition"
         >
           + Créer un utilisateur
         </button>
       </div>
 
       {/* Tableau affichant la liste des utilisateurs */}
-      <div className="border rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="border border-gray-800 rounded-xl overflow-hidden bg-gray-900">
+        <table className="min-w-full divide-y divide-gray-800">
           {/* En-tête du tableau avec colonnes */}
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-900">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prénom</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rôle</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Prénom</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Nom</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Rôle</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Actions</th>
             </tr>
           </thead>
           {/* Corps du tableau avec les données des utilisateurs */}
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-gray-950 divide-y divide-gray-800">
             {users.length > 0 ? (
               users.map((user) => (
                 <tr key={user.id_user}>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.first_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.last_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-200">{user.first_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-200">{user.last_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-200">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {/* Affichage du rôle avec couleur distincte selon le rôle */}
                     <span className={`px-2 py-1 text-xs rounded ${
-                      user.role === 'ADMIN' ? 'bg-red-100 text-red-800' :
-                      user.role === 'JURY' ? 'bg-purple-100 text-purple-800' :
-                      'bg-green-100 text-green-800'
+                      user.role === 'ADMIN' ? 'bg-red-900/40 text-red-200' :
+                      user.role === 'JURY' ? 'bg-purple-900/40 text-purple-200' :
+                      'bg-green-900/40 text-green-200'
                     }`}>
                       {user.role}
                     </span>
@@ -273,13 +274,13 @@ function Users() {
                     {/* Boutons d'actions: Modifier et Supprimer */}
                     <button 
                       onClick={() => handleEdit(user)}
-                      className="text-blue-600 hover:text-blue-800 mr-3"
+                      className="text-[#AD46FF] hover:text-[#F6339A] mr-3"
                     >
                       Modifier
                     </button>
                     <button 
                       onClick={() => handleDelete(user.id_user)}
-                      className="text-red-600 hover:text-red-800"
+                      className="text-red-300 hover:text-red-400"
                     >
                       Supprimer
                     </button>
@@ -299,17 +300,17 @@ function Users() {
 
       {/* Modal de création d'utilisateur */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Créer un nouvel utilisateur</h3>
             <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
               {/* Champ: Prénom */}
               <div>
-                <label className="block text-sm font-medium mb-1">Prénom</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Prénom</label>
                 <input 
                   type="text" 
                   {...createForm.register("firstName")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {createForm.formState.errors.firstName && (
                   <p className="text-red-500 text-xs mt-1">{createForm.formState.errors.firstName.message}</p>
@@ -318,11 +319,11 @@ function Users() {
 
               {/* Champ: Nom */}
               <div>
-                <label className="block text-sm font-medium mb-1">Nom</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Nom</label>
                 <input 
                   type="text" 
                   {...createForm.register("lastName")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {createForm.formState.errors.lastName && (
                   <p className="text-red-500 text-xs mt-1">{createForm.formState.errors.lastName.message}</p>
@@ -331,11 +332,11 @@ function Users() {
 
               {/* Champ: Email */}
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Email</label>
                 <input 
                   type="email" 
                   {...createForm.register("email")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {createForm.formState.errors.email && (
                   <p className="text-red-500 text-xs mt-1">{createForm.formState.errors.email.message}</p>
@@ -344,11 +345,11 @@ function Users() {
 
               {/* Champ: Mot de passe */}
               <div>
-                <label className="block text-sm font-medium mb-1">Mot de passe</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Mot de passe</label>
                 <input 
                   type="password" 
                   {...createForm.register("password")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {createForm.formState.errors.password && (
                   <p className="text-red-500 text-xs mt-1">{createForm.formState.errors.password.message}</p>
@@ -357,10 +358,10 @@ function Users() {
 
               {/* Champ: Rôle */}
               <div>
-                <label className="block text-sm font-medium mb-1">Rôle</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Rôle</label>
                 <select 
                   {...createForm.register("role")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 >
                   <option value="PRODUCER">Producteur</option>
                   <option value="JURY">Jury</option>
@@ -376,13 +377,13 @@ function Users() {
                     setShowCreateModal(false);
                     createForm.reset();
                   }}
-                  className="px-4 py-2 border rounded hover:bg-gray-100"
+                  className="px-4 py-2 border border-gray-700 rounded hover:bg-gray-800"
                 >
                   Annuler
                 </button>
                 <button 
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded hover:opacity-90"
                 >
                   Créer
                 </button>
@@ -394,17 +395,17 @@ function Users() {
 
       {/* Modal de modification d'utilisateur */}
       {showEditModal && editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Modifier l'utilisateur</h3>
             <form onSubmit={editForm.handleSubmit(onUpdateSubmit)} className="space-y-4">
               {/* Champ: Prénom */}
               <div>
-                <label className="block text-sm font-medium mb-1">Prénom</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Prénom</label>
                 <input 
                   type="text" 
                   {...editForm.register("firstName")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {editForm.formState.errors.firstName && (
                   <p className="text-red-500 text-xs mt-1">{editForm.formState.errors.firstName.message}</p>
@@ -413,11 +414,11 @@ function Users() {
 
               {/* Champ: Nom */}
               <div>
-                <label className="block text-sm font-medium mb-1">Nom</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Nom</label>
                 <input 
                   type="text" 
                   {...editForm.register("lastName")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {editForm.formState.errors.lastName && (
                   <p className="text-red-500 text-xs mt-1">{editForm.formState.errors.lastName.message}</p>
@@ -426,11 +427,11 @@ function Users() {
 
               {/* Champ: Email */}
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Email</label>
                 <input 
                   type="email" 
                   {...editForm.register("email")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 />
                 {editForm.formState.errors.email && (
                   <p className="text-red-500 text-xs mt-1">{editForm.formState.errors.email.message}</p>
@@ -439,11 +440,11 @@ function Users() {
 
               {/* Champ: Mot de passe (optionnel pour ne pas changer) */}
               <div>
-                <label className="block text-sm font-medium mb-1">Mot de passe (laisser vide pour ne pas changer)</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Mot de passe (laisser vide pour ne pas changer)</label>
                 <input 
                   type="password" 
                   {...editForm.register("password")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                   placeholder="Laisser vide pour conserver l'ancien"
                 />
                 {editForm.formState.errors.password && (
@@ -453,10 +454,10 @@ function Users() {
 
               {/* Champ: Rôle */}
               <div>
-                <label className="block text-sm font-medium mb-1">Rôle</label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Rôle</label>
                 <select 
                   {...editForm.register("role")} 
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded px-3 py-2"
                 >
                   <option value="PRODUCER">Producteur</option>
                   <option value="JURY">Jury</option>
@@ -473,13 +474,13 @@ function Users() {
                     setEditingUser(null);
                     editForm.reset();
                   }}
-                  className="px-4 py-2 border rounded hover:bg-gray-100"
+                  className="px-4 py-2 border border-gray-700 rounded hover:bg-gray-800"
                 >
                   Annuler
                 </button>
                 <button 
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded hover:opacity-90"
                 >
                   Mettre à jour
                 </button>
@@ -488,6 +489,7 @@ function Users() {
           </div>
         </div>
       )}
+      </div>
     </section>
   );
 }
