@@ -8,6 +8,7 @@ import { Link } from "react-router";
 import Button from "../../components/Button";
 import Hero from "../../components/home/Hero";
 import Reassure from "../../components/home/Reassure";
+import Goals from "../../components/home/Goals";
 import "./Home.css";
 
 /**
@@ -28,6 +29,7 @@ function Home() {
       </div>*/}
       <Hero />
       <Reassure />
+      <Goals />
     </>
   );
 }
