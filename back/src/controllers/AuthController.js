@@ -1,6 +1,9 @@
 import db from "../models/index.js";
 const User = db.User;
+const Movie = db.Movie;
+const Collaborator = db.Collaborator;
 import { comparePassword } from "../utils/password.js";
+import { hashPassword } from "../utils/password.js";
 import UserController from "./UserController.js";
 import jwt from "jsonwebtoken";
 
@@ -54,4 +57,173 @@ function register(req, res) {
   UserController.createUser(req, res);
 }
 
-export default { login, register };
+/**
+ * Enregistrement d'un producteur + soumission de film avec fichiers
+ * Crée l'utilisateur, puis le film rattaché au compte
+ */
+async function registerWithFilm(req, res) {
+  const transaction = await db.sequelize.transaction();
+  try {
+    const {
+      first_name,
+      firstName,
+      last_name,
+      lastName,
+      email,
+      password,
+      phone,
+      mobile,
+      birth_date,
+      birthDate,
+      street,
+      postal_code,
+      postalCode,
+      city,
+      country,
+      biography,
+      job,
+      portfolio,
+      youtube,
+      instagram,
+      linkedin,
+      facebook,
+      tiktok,
+      known_by_mars_ai,
+      knownByMarsAi,
+      role,
+      filmTitleOriginal,
+      durationSeconds,
+      filmLanguage,
+      releaseYear,
+      nationality,
+      translation,
+      youtubeLink,
+      synopsisOriginal,
+      synopsisEnglish,
+      aiClassification,
+      aiStack,
+      aiMethodology
+    } = req.body;
+
+    const userFirstName = first_name || firstName;
+    const userLastName = last_name || lastName;
+    const userBirthDate = birth_date || birthDate || null;
+    const userPostalCode = postal_code || postalCode;
+    const userKnownByMarsAi = known_by_mars_ai || knownByMarsAi;
+    const userRole = role || "PRODUCER";
+
+    if (!userFirstName || !userLastName || !email || !password) {
+      await transaction.rollback();
+      return res.status(400).json({ error: "Champs utilisateur obligatoires manquants" });
+    }
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      await transaction.rollback();
+      return res.status(409).json({ error: "Cet utilisateur existe déjà" });
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    const newUser = await User.create({
+      first_name: userFirstName,
+      last_name: userLastName,
+      email,
+      password: hashedPassword,
+      phone,
+      mobile,
+      birth_date: userBirthDate,
+      street,
+      postal_code: userPostalCode,
+      city,
+      country,
+      biography,
+      job,
+      portfolio,
+      youtube,
+      instagram,
+      linkedin,
+      facebook,
+      tiktok,
+      known_by_mars_ai: userKnownByMarsAi,
+      role: userRole
+    }, { transaction });
+
+    const files = req.files || {};
+    const filmFile = files.filmFile?.[0]?.filename || null;
+    const thumb1 = files.thumbnail1?.[0]?.filename || null;
+    const thumb2 = files.thumbnail2?.[0]?.filename || null;
+    const thumb3 = files.thumbnail3?.[0]?.filename || null;
+    const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
+
+    const newMovie = await Movie.create({
+      title: filmTitleOriginal,
+      description: synopsisOriginal,
+      duration: durationSeconds || null,
+      main_language: filmLanguage,
+      release_year: releaseYear || null,
+      nationality,
+      translation,
+      youtube_link: youtubeLink,
+      synopsis: synopsisOriginal,
+      synopsis_anglais: synopsisEnglish,
+      ai_tool: aiStack,
+      workshop: aiMethodology,
+      production: aiClassification,
+      trailer: filmFile,
+      subtitle: subtitleFile,
+      picture1: thumb1,
+      picture2: thumb2,
+      picture3: thumb3,
+      thumbnail: thumb1,
+      id_user: newUser.id_user
+    }, { transaction });
+
+    const collaboratorsRaw = req.body.collaborators;
+    let collaborators = [];
+    if (collaboratorsRaw) {
+      if (typeof collaboratorsRaw === "string") {
+        try {
+          collaborators = JSON.parse(collaboratorsRaw);
+        } catch (parseError) {
+          collaborators = [];
+        }
+      } else if (Array.isArray(collaboratorsRaw)) {
+        collaborators = collaboratorsRaw;
+      }
+    }
+
+    if (collaborators.length) {
+      const collaboratorRecords = await Promise.all(
+        collaborators.map(async (collab) => {
+          const [record] = await Collaborator.findOrCreate({
+            where: { email: collab.email },
+            defaults: {
+              first_name: collab.first_name || "",
+              last_name: collab.last_name || "",
+              email: collab.email,
+              job: collab.job || null
+            },
+            transaction
+          });
+          return record;
+        })
+      );
+
+      await newMovie.setCollaborators(collaboratorRecords, { transaction });
+    }
+
+    await transaction.commit();
+
+    return res.status(201).json({
+      message: "Candidature créée avec succès",
+      user: { id_user: newUser.id_user, email: newUser.email },
+      movie: { id_movie: newMovie.id_movie, title: newMovie.title }
+    });
+  } catch (error) {
+    await transaction.rollback();
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+export default { login, register, registerWithFilm };

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { signIn, login } from "../../api/auth.js";
+import { signInWithFilm, login } from "../../api/auth.js";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 
 /**
@@ -67,9 +67,14 @@ export function Register() {
   };
 
   // Configuration du formulaire avec react-hook-form et Zod
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, control, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER", job: "PRODUCER" },
+  });
+
+  const { fields: collaboratorFields, append: appendCollaborator, remove: removeCollaborator } = useFieldArray({
+    control,
+    name: "collaborators"
   });
 
   /**
@@ -78,30 +83,60 @@ export function Register() {
    */
   const registerMutation = useMutation({
     mutationFn: async (data) => {
-      // Mapper les champs camelCase du frontend en snake_case pour le backend
-      return await signIn({
-        first_name: data.firstName,
-        last_name: data.lastName,
-        email: data.email,
-        password: data.password,
-        phone: data.phone,
-        mobile: data.mobile,
-        birth_date: data.birthDate,
-        street: data.street,
-        postal_code: data.postalCode,
-        city: data.city,
-        country: data.country,
-        biography: data.biography,
-        job: data.job,
-        portfolio: data.portfolio,
-        youtube: data.youtube,
-        instagram: data.instagram,
-        linkedin: data.linkedin,
-        facebook: data.facebook,
-        tiktok: data.tiktok,
-        known_by_mars_ai: data.knownByMarsAi,
-        role: data.role || "PRODUCER"
-      });
+      const formData = new FormData();
+
+      formData.append("first_name", data.firstName || "");
+      formData.append("last_name", data.lastName || "");
+      formData.append("email", data.email || "");
+      formData.append("password", data.password || "");
+      formData.append("phone", data.phone || "");
+      formData.append("mobile", data.mobile || "");
+      formData.append("birth_date", data.birthDate || "");
+      formData.append("street", data.street || "");
+      formData.append("postal_code", data.postalCode || "");
+      formData.append("city", data.city || "");
+      formData.append("country", data.country || "");
+      formData.append("biography", data.biography || "");
+      formData.append("job", data.job || "PRODUCER");
+      formData.append("portfolio", data.portfolio || "");
+      formData.append("youtube", data.youtube || "");
+      formData.append("instagram", data.instagram || "");
+      formData.append("linkedin", data.linkedin || "");
+      formData.append("facebook", data.facebook || "");
+      formData.append("tiktok", data.tiktok || "");
+      formData.append("known_by_mars_ai", data.knownByMarsAi || "");
+      formData.append("role", data.role || "PRODUCER");
+
+      formData.append("filmTitleOriginal", data.filmTitleOriginal || "");
+      formData.append("durationSeconds", data.durationSeconds || "");
+      formData.append("filmLanguage", data.filmLanguage || "");
+      formData.append("releaseYear", data.releaseYear || "");
+      formData.append("nationality", data.nationality || "");
+      formData.append("translation", data.translation || "");
+      formData.append("youtubeLink", data.youtubeLink || "");
+      formData.append("synopsisOriginal", data.synopsisOriginal || "");
+      formData.append("synopsisEnglish", data.synopsisEnglish || "");
+      formData.append("aiClassification", data.aiClassification || "");
+      formData.append("aiStack", data.aiStack || "");
+      formData.append("aiMethodology", data.aiMethodology || "");
+
+      const collaboratorsPayload = (data.collaborators || [])
+        .filter(collab => collab?.first_name || collab?.last_name || collab?.email || collab?.job)
+        .map(collab => ({
+          first_name: collab.first_name || "",
+          last_name: collab.last_name || "",
+          email: collab.email || "",
+          job: collab.job || ""
+        }));
+      formData.append("collaborators", JSON.stringify(collaboratorsPayload));
+
+      if (data.filmFile?.[0]) formData.append("filmFile", data.filmFile[0]);
+      if (data.thumbnail1?.[0]) formData.append("thumbnail1", data.thumbnail1[0]);
+      if (data.thumbnail2?.[0]) formData.append("thumbnail2", data.thumbnail2[0]);
+      if (data.thumbnail3?.[0]) formData.append("thumbnail3", data.thumbnail3[0]);
+      if (data.subtitlesSrt?.[0]) formData.append("subtitlesSrt", data.subtitlesSrt[0]);
+
+      return await signInWithFilm(formData);
     },
     onSuccess: async (data, variables) => {
       // Après enregistrement réussi, effectuer un login automatique
@@ -184,6 +219,58 @@ export function Register() {
                     type="text"
                     placeholder="LANGUE"
                     {...register("filmLanguage")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="releaseYear" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Année de sortie
+                  </label>
+                  <input
+                    id="releaseYear"
+                    type="number"
+                    placeholder="2026"
+                    {...register("releaseYear")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="nationality" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Nationalité
+                  </label>
+                  <input
+                    id="nationality"
+                    type="text"
+                    placeholder="NATIONALITÉ"
+                    {...register("nationality")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="translation" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Traduction du titre
+                  </label>
+                  <input
+                    id="translation"
+                    type="text"
+                    placeholder="TRADUCTION"
+                    {...register("translation")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="youtubeLink" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Lien YouTube (public / non-répertorié)
+                  </label>
+                  <input
+                    id="youtubeLink"
+                    type="text"
+                    placeholder="HTTPS://WWW.YOUTUBE.COM/WATCH?V=..."
+                    {...register("youtubeLink")}
                     className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
@@ -483,18 +570,6 @@ export function Register() {
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="countryOfBirth" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Pays de naissance *
-                  </label>
-                  <input
-                    id="countryOfBirth"
-                    type="text"
-                    placeholder="PAYS"
-                    {...register("countryOfBirth")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
 
                 <div className="flex flex-col">
                   <label htmlFor="city" className="text-white font-semibold mb-2 text-sm uppercase">
@@ -603,73 +678,88 @@ export function Register() {
               </div>
             </section>
 
-            {/* 03. Composition de l'Équipe */}
             <section>
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="text-[#AD46FF]">●</span> Composition de l'Équipe
+                <span className="text-[#AD46FF]">●</span> Collaborateurs
               </h2>
 
-              <button
-                type="button"
-                className="mb-6 inline-flex items-center gap-2 border border-gray-700 text-white px-4 py-2 rounded-lg hover:border-[#AD46FF] transition"
-              >
-                + Ajouter un membre
-              </button>
+              <div className="flex flex-col gap-6">
+                {collaboratorFields.map((field, index) => (
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-gray-800/50 border border-gray-700 rounded-xl p-4">
+                    <div className="flex flex-col">
+                      <label htmlFor={`collaborators.${index}.first_name`} className="text-white font-semibold mb-2 text-sm uppercase">
+                        Prénom
+                      </label>
+                      <input
+                        id={`collaborators.${index}.first_name`}
+                        type="text"
+                        placeholder="PRÉNOM"
+                        {...register(`collaborators.${index}.first_name`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                      />
+                    </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="flex flex-col">
-                  <label htmlFor="teamRole" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Rôle *
-                  </label>
-                  <input
-                    id="teamRole"
-                    type="text"
-                    placeholder="DIRECTEUR"
-                    {...register("teamRole")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
+                    <div className="flex flex-col">
+                      <label htmlFor={`collaborators.${index}.last_name`} className="text-white font-semibold mb-2 text-sm uppercase">
+                        Nom
+                      </label>
+                      <input
+                        id={`collaborators.${index}.last_name`}
+                        type="text"
+                        placeholder="NOM"
+                        {...register(`collaborators.${index}.last_name`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                      />
+                    </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="teamName" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Prénom & Nom
-                  </label>
-                  <input
-                    id="teamName"
-                    type="text"
-                    placeholder="EX: ALEXANDRE"
-                    {...register("teamName")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
+                    <div className="flex flex-col">
+                      <label htmlFor={`collaborators.${index}.email`} className="text-white font-semibold mb-2 text-sm uppercase">
+                        Email
+                      </label>
+                      <input
+                        id={`collaborators.${index}.email`}
+                        type="email"
+                        placeholder="EMAIL"
+                        {...register(`collaborators.${index}.email`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                      />
+                    </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="teamFirstName" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Prénom *
-                  </label>
-                  <input
-                    id="teamFirstName"
-                    type="text"
-                    placeholder="PRÉNOM"
-                    {...register("teamFirstName")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
+                    <div className="flex flex-col">
+                      <label htmlFor={`collaborators.${index}.job`} className="text-white font-semibold mb-2 text-sm uppercase">
+                        Rôle
+                      </label>
+                      <input
+                        id={`collaborators.${index}.job`}
+                        type="text"
+                        placeholder="RÔLE"
+                        {...register(`collaborators.${index}.job`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                      />
+                    </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="teamEmail" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Email *
-                  </label>
-                  <input
-                    id="teamEmail"
-                    type="email"
-                    placeholder="EMAIL"
-                    {...register("teamEmail")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
+                    <div className="lg:col-span-4 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removeCollaborator(index)}
+                        className="text-sm text-red-300 hover:text-red-400 transition"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => appendCollaborator({ first_name: "", last_name: "", email: "", job: "" })}
+                  className="inline-flex items-center gap-2 border border-gray-700 text-white px-4 py-2 rounded-lg hover:border-[#AD46FF] transition"
+                >
+                  + Ajouter un collaborateur
+                </button>
               </div>
             </section>
+
 
             {/* Certificat de Propriété */}
             <section className="bg-gray-800/40 border border-gray-700 rounded-2xl p-6">
