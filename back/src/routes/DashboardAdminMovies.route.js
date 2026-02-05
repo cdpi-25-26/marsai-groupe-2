@@ -2,7 +2,8 @@ import express from "express";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 import {
   getAllMovies,
-  getMovieById
+  getMovieById,
+  updateMovieStatus
 } from "../controllers/DashboardAdminMoviesController.js";
 
 const router = express.Router();
@@ -18,5 +19,13 @@ router.get(
   (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
   getMovieById
 );
+
+router.put(
+  "/movies/:id/status",
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
+  updateMovieStatus
+);
+
+
 
 export default router;
