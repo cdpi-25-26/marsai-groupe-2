@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export default function Hero() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -74,8 +76,8 @@ export default function Hero() {
 
           {/* Bouton */}
           <div className="flex justify-center pt-2 mt-6">
-            <a
-              href="#"
+            <Link
+              to="/auth/register"
               className="
                 px-6 py-3 md:px-8 md:py-3 
                 rounded-full font-semibold 
@@ -88,7 +90,7 @@ export default function Hero() {
               "
             >
               inscrivez votre film ➝
-            </a>
+            </Link>
           </div>
 
         </div>
