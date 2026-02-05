@@ -3,6 +3,7 @@ import userRouter from "./User.route.js";
 import movieRouter from "./Movie.route.js";
 import authRouter from "./Auth.route.js";
 import categorieRouter from "./Categorie.route.js";
+//import collaboratorRouter from "./Collaborator.route.js";
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use("/auth", authRouter);      // Routes d'authentification
 router.use("/users", userRouter);     // Routes de gestion utilisateurs
 router.use("/movies", movieRouter);   // Routes de gestion films/vidéos
 router.use("/categories", categorieRouter); // Routes de gestion catégories
+//router.use("/collaborators", collaboratorRouter); // Routes de gestion collaborateurs
 
 export default router;
