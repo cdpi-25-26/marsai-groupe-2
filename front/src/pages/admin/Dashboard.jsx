@@ -9,9 +9,9 @@ import Videos from "./Videos.jsx";
  */
 function Dashboard() {
   return (
-    <>
+    <div className="bg-black text-white">
       <Users />
-    </>
+    </div>
   );
 }
 
