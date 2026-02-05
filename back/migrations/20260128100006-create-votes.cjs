@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_film: {
+      id_movie: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -29,10 +29,10 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       note: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.ENUM("YES","NO", "TO DISCUSS"),
         allowNull: false
       },
-      commentaire: {
+      comments: {
         type: Sequelize.TEXT,
         allowNull: true
       },
