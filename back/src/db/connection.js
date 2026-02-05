@@ -21,9 +21,9 @@ dotenv.config();
  * - Dialect: mysql (type de base de données)
  */
 const sequelize = new Sequelize(
-  process.env.DB_NAME || "marsai_db",
-  process.env.DB_USER || "marsai",
-  process.env.DB_PASSWORD || "Mars2026!",
+  process.env.DB_NAME || "marsai_migrate",
+  process.env.DB_USER || "root",
+  process.env.DB_PASSWORD || "1234",
   {
     host: process.env.DB_HOST || "127.0.0.1",
     port: Number(process.env.DB_PORT) || 3306,
