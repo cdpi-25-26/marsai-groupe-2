@@ -15,6 +15,12 @@ const registerSchema = z.object({
   lastName: z.string().min(1, "Le nom est requis"),
   email: z.string().email("Format d'email invalide"),
   password: z.string().min(6, "Au moins 6 caractères"),
+  filmTitleOriginal: z.string().min(1, "Le titre du film est requis"),
+  durationSeconds: z.coerce
+    .number()
+    .int("La durée doit être un nombre entier")
+    .min(1, "La durée est obligatoire")
+    .max(120, "La durée maximale est de 120 secondes"),
   phone: z.string().optional(),
   mobile: z.string().optional(),
   birthDate: z.string().optional(),
@@ -193,8 +199,12 @@ export function Register() {
                     type="text"
                     placeholder="TITRE ORIGINAL"
                     {...register("filmTitleOriginal")}
+                    required
                     className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
+                  {errors.filmTitleOriginal && (
+                    <p className="text-red-400 text-sm mt-1">{errors.filmTitleOriginal.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col">
@@ -206,8 +216,14 @@ export function Register() {
                     type="number"
                     placeholder="EX: 60"
                     {...register("durationSeconds")}
+                    required
+                    max={120}
                     className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
+                  <p className="text-xs text-gray-400 mt-2">Durée maximale : 2 minutes (120 secondes).</p>
+                  {errors.durationSeconds && (
+                    <p className="text-red-400 text-sm mt-1">{errors.durationSeconds.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col">
@@ -796,7 +812,9 @@ export function Register() {
 
             {registerMutation.isError && (
               <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg">
-                Erreur lors de la soumission. Veuillez réessayer.
+                {registerMutation.error?.response?.data?.error
+                  || registerMutation.error?.message
+                  || "Erreur lors de la soumission. Veuillez réessayer."}
               </div>
             )}
           </form>
