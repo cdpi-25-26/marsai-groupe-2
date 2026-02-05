@@ -1,0 +1,24 @@
+{
+	"development": {
+		"username": "marsai",
+		"password": "Mars2026!",
+		"database": "marsai_db",
+		"host": "127.0.0.1",
+		"dialect": "mysql",
+		"logging": false
+	},
+	"test": {
+		"username": "marsai",
+		"password": "Mars2026!",
+		"database": "marsai_db",
+		"host": "127.0.0.1",
+		"dialect": "mysql"
+	},
+	"production": {
+		"username": "marsai",
+		"password": "Mars2026!",
+		"database": "marsai_db",
+		"host": "127.0.0.1",
+		"dialect": "mysql"
+	}
+}
