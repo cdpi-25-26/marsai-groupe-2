@@ -79,7 +79,7 @@ async function loadModels() {
    * Chaque modèle définit une fonction qui retourne un model Sequelize
    */
   for (const file of files) {
-    const modelModule = await import(path.join(__dirname, file));
+    const modelModule = await import(new URL(file, import.meta.url));
     const modelDefiner = modelModule.default;
     const model = modelDefiner(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
