@@ -3,6 +3,7 @@ import userRouter from "./User.route.js";
 import movieRouter from "./Movie.route.js";
 import authRouter from "./Auth.route.js";
 import awardRouter from "./Award.route.js";
+import voteRouter from "./Vote.route.js";
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ const router = express.Router();
 router.use("/auth", authRouter);      // Routes d'authentification
 router.use("/users", userRouter);     // Routes de gestion utilisateurs
 router.use("/movies", movieRouter);   // Routes de gestion films/vidéos
-router.use("/awards", awardRouter);  // Routes de gestion awards(a corriger, le id du film est géré dans body au lieu de param)
+router.use("/awards", awardRouter);  // Routes de gestion awards
+router.use("/votes", voteRouter); // Routes de gestion votes
 
 export default router;

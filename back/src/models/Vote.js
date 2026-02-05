@@ -16,8 +16,12 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    evalution:  DataTypes.ENUM('YES', 'NO', 'TI DISCUSS'),
-    comments: DataTypes.TEXT
+    note: {
+      type: DataTypes.ENUM("YES", "NO", "TO DISCUSS")
+    },
+    comments: {
+      type: DataTypes.TEXT
+    } 
   }, 
   {
     tableName: 'votes',
