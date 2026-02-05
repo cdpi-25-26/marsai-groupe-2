@@ -1,7 +1,42 @@
 export default function Reassure() {
   return (
-    <div>
-        <h2 className="text-2xl font-bold text-center mt-12 mb-6"> réassure </h2>
+    <div className="pt-12 pb-12 w-full place-items-center grid grid-cols-1 md:grid-cols-4 ">
+
+      <div className="w-100 h-50 bg-[rgba(255,255,255,0.05)] rounded-[40px] border border-[rgba(194,122,255,0.40)]
+ flex flex-col items-center justify-center hover:shadow-[0_0_40px_rgba(173,70,255,0.7)] hover:border hover:border-[#C27AFF]" >
+        <h2 className="text-2xl font-bold text-center text-[#C27AFF] uppercase">1 MINUTE</h2>
+        <p className="text-gray-300 text-left text-base uppercase pt-6 pl-9 pr-9">
+          Format ultra-court
+          pour un impact maximum
+        </p>
+      </div>
+   
+
+        <div className="w-100 h-50 bg-[rgba(255,255,255,0.05)] rounded-[40px] border border-[rgba(0,212,146,0.40)] flex flex-col items-center justify-center 
+        hover:shadow-[0_0_40px_rgba(0,212,146,0.7)] hover:border hover:border-[#00D492]">
+        <h2 className="text-2xl font-bold text-center text-[#00D492] uppercase">GRATUITé</h2>
+        <p className="text-gray-300 text-left text-base pt-6 pl-9 pr-9 uppercase">
+          Conférences et workshops accessibles.
+        </p>
+      </div>
+
+        <div className="w-100 h-50 bg-[rgba(255,255,255,0.05)] rounded-[40px] border border-[rgba(251,100,182,0.40)] flex flex-col items-center justify-center
+        hover:shadow-[0_0_40px_rgba(251,100,182,0.7)] hover:border hover:border-[#FB64B6]">
+        <h2 className="text-2xl font-bold text-center text-[#FB64B6] uppercase">POUR TOUS</h2>
+        <p className="text-gray-300 text-left text-base uppercase pt-6 pl-9 pr-9">
+          Professionnels, étudiants et curieux.
+        </p>
+      </div>
+
+              <div className="w-100 h-50 bg-[rgba(255,255,255,0.05)] rounded-[40px] border border-[rgba(43,127,255,0.40)] flex flex-col items-center justify-center
+              hover:shadow-[0_0_40px_rgba(43,127,255,0.7)] hover:border hover:border-[#2B7FFF]">
+        <h2 className="text-2xl font-bold text-center text-[#2B7FFF] uppercase">EXPERTISE</h2>
+        <p className="text-gray-300 text-left text-base uppercase pt-6 pl-9 pr-9">
+          Leaders mondiaux de l'IA générative.
+        </p>
+      </div>
+
     </div>
+    
   );
 }
