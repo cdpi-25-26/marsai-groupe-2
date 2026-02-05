@@ -58,6 +58,19 @@ router.delete(
   MovieController.deleteMovie
 );
 
+
+ //-6- assigner un film à des juries(ADMIN uniquement)
+ 
+
+router.post(
+  "/:id/assign-juries",
+  authorize(["ADMIN"]),
+  MovieController.assignJuriesToMovie
+);
+
+
+
+
 export default router;
 
 

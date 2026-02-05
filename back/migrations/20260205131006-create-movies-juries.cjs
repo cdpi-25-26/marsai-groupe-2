@@ -1,14 +1,18 @@
 'use strict';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('votes', {
-      id_vote: {
+
+    await queryInterface.createTable('movies_juries', {
+
+      id_movie_jury: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_film: {
+
+      id_movie: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -18,6 +22,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
+
       id_user: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -28,27 +33,32 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      note: {
-        type: Sequelize.ENUM('YES', 'NO', 'TO DISCUSS'),
-        allowNull: false
-      },
-      comments: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       },
+
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW')
       }
+
     });
+
+    // Empêche qu’un même jury soit assigné 2 fois au même film
+    await queryInterface.addConstraint('movies_juries', {
+      fields: ['id_movie', 'id_user'],
+      type: 'unique',
+      name: 'unique_movies_jury'
+    });
+
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('votes');
+    await queryInterface.dropTable('movies_juries');
   }
 };
+
