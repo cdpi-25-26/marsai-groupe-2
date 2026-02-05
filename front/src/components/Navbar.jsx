@@ -36,8 +36,8 @@ export default function Navbar() {
 
         
         <button className=" bg-linear-to-br from-[#2B7FFF] to-[#9810FA] text-white px-8 py-3 rounded-full uppercase font-bold hover:from-blue-600 hover:to-purple-700 transition-colors duration-300">
-        <Link to="/">
-        Soumettre
+        <Link to="/auth/register">
+        Candidater au festival
         </Link>
         </button>
         
