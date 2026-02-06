@@ -24,7 +24,14 @@ async function getMovies(req, res) {
         },
         {
           model: User,
+          as: "Producer",
           attributes: ["id_user", "first_name", "last_name"]
+        },
+        {
+          model: User,
+          as: "Juries",
+          attributes: ["id_user", "first_name", "last_name", "email", "role"],
+          through: { attributes: [] }
         }
       ]
     });
@@ -32,7 +39,12 @@ async function getMovies(req, res) {
     res.json(movies);
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("getMovies error:", error);
+    res.status(500).json({
+      error: error.message,
+      name: error.name,
+      detail: error?.parent?.sqlMessage || error?.original?.message
+    });
   }
 }
 
@@ -76,7 +88,13 @@ async function getMovieById(req, res) {
         { model: Collaborator,
           through: { attributes: [] } 
          },
-        { model: User, attributes: ["id_user", "first_name", "last_name"] }
+        { model: User, as: "Producer", attributes: ["id_user", "first_name", "last_name"] },
+        {
+          model: User,
+          as: "Juries",
+          attributes: ["id_user", "first_name", "last_name", "email", "role"],
+          through: { attributes: [] }
+        }
       ]
     });
 
@@ -342,6 +360,139 @@ async function updateMovieStatus(req, res) {
   }
 }
 
+///////////////////////////////////////////////////////////////////////// Films assignés à un jury
+
+async function getAssignedMovies(req, res) {
+  try {
+    const id_user = req.user.id_user;
+
+    const movies = await Movie.findAll({
+      include: [
+        {
+          model: Categorie,
+          through: { attributes: [] }
+        },
+        {
+          model: Collaborator,
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: "Producer",
+          attributes: ["id_user", "first_name", "last_name"]
+        },
+        {
+          model: User,
+          as: "Juries",
+          attributes: ["id_user", "first_name", "last_name", "email", "role"],
+          through: { attributes: [] },
+          where: { id_user }
+        }
+      ]
+    });
+
+    res.json(movies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+///////////////////////////////////////////////////////////////////////// Assigner des catégories (ADMIN)
+
+async function updateMovieCategories(req, res) {
+  try {
+    const { id } = req.params;
+    let { categories } = req.body;
+
+    if (typeof categories === "string") {
+      try {
+        categories = JSON.parse(categories);
+      } catch (parseError) {
+        categories = [];
+      }
+    }
+
+    if (!Array.isArray(categories)) {
+      categories = [];
+    }
+
+    const categoryIds = categories
+      .map((value) => Number(value))
+      .filter((value) => Number.isInteger(value));
+
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    await movie.setCategories(categoryIds);
+
+    const updatedMovie = await Movie.findByPk(id, {
+      include: [
+        { model: Categorie, through: { attributes: [] } }
+      ]
+    });
+
+    res.json({ message: "Catégories mises à jour", movie: updatedMovie });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+///////////////////////////////////////////////////////////////////////// Assigner des jurys (ADMIN)
+
+async function updateMovieJuries(req, res) {
+  try {
+    const { id } = req.params;
+    let { juryIds } = req.body;
+
+    if (typeof juryIds === "string") {
+      try {
+        juryIds = JSON.parse(juryIds);
+      } catch (parseError) {
+        juryIds = [];
+      }
+    }
+
+    if (!Array.isArray(juryIds)) {
+      juryIds = [];
+    }
+
+    const normalizedIds = juryIds
+      .map((value) => Number(value))
+      .filter((value) => Number.isInteger(value));
+
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    const juries = await User.findAll({
+      where: {
+        id_user: normalizedIds,
+        role: "JURY"
+      }
+    });
+
+    await movie.setJuries(juries);
+
+    const updatedMovie = await Movie.findByPk(id, {
+      include: [
+        {
+          model: User,
+          as: "Juries",
+          attributes: ["id_user", "first_name", "last_name", "email", "role"],
+          through: { attributes: [] }
+        }
+      ]
+    });
+
+    res.json({ message: "Jurys assignés", movie: updatedMovie });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export default {
   getMovies,
   getMyMovies,
@@ -349,5 +500,8 @@ export default {
   createMovie,
   updateMovie,
   deleteMovie,
-  updateMovieStatus
+  updateMovieStatus,
+  getAssignedMovies,
+  updateMovieCategories,
+  updateMovieJuries
 };

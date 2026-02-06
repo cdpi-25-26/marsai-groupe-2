@@ -40,6 +40,15 @@ router.get(
 );
 
 
+//////////////////////////////////////////////////////////////////////// Films assignés (JURY)
+
+router.get(
+  "/assigned",
+  (req, res, next) => AuthMiddleware(req, res, next, ["JURY"]),
+  MovieController.getAssignedMovies
+);
+
+
 ///////////////////////////////////////////////////////////////////////// Voir un film par ID
 // Public
 
@@ -71,6 +80,20 @@ router.put(
   "/:id/status",
   (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
   MovieController.updateMovieStatus
+);
+
+///////////////////////////////////////////////////////////////////////// Assigner catégories (ADMIN)
+router.put(
+  "/:id/categories",
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
+  MovieController.updateMovieCategories
+);
+
+///////////////////////////////////////////////////////////////////////// Assigner jurys (ADMIN)
+router.put(
+  "/:id/juries",
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
+  MovieController.updateMovieJuries
 );
 
 /////////////////////////////////////////////////////////////////////////// Modifier un film
