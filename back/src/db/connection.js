@@ -22,7 +22,7 @@ dotenv.config();
  */
 const sequelize = new Sequelize(
   process.env.DB_NAME || "marsai",
-  process.env.DB_USER || "marsai",
+  process.env.DB_USER || "theoa",
   process.env.DB_PASSWORD || "Root_2026",
   {
     host: process.env.DB_HOST || "127.0.0.1",
