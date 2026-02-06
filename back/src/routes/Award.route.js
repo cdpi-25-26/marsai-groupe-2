@@ -4,7 +4,7 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const awardRouter = express.Router();
 
-awardRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.getAward);
+awardRouter.get("/", AwardController.getAward);
 
 awardRouter.get("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.getAwardById);
 
