@@ -252,7 +252,7 @@ function Users() {
             </tr>
           </thead>
           {/* Corps du tableau avec les données des utilisateurs */}
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-black divide-y divide-gray-200">
             {users.length > 0 ? (
               users.map((user) => (
                 <tr key={user.id_user}>
