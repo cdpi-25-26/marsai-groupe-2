@@ -25,6 +25,11 @@ async function getMovies(req, res) {
         {
           model: User,
           attributes: ["id_user", "first_name", "last_name"]
+        },
+        {
+          model: User,
+          as: "assignedJury",
+          attributes: ["id_user", "first_name", "last_name", "email"]
         }
       ]
     });
@@ -209,10 +214,64 @@ async function deleteMovie(req, res) {
   }
 }
 
+///////////////////////////////////////////////////////////////////////// Mettre à jour le statut
+
+async function updateMovieStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { selection_status } = req.body;
+
+    const allowed = ["submitted", "refused", "to_discuss", "selected", "finalist"];
+    if (!allowed.includes(selection_status)) {
+      return res.status(400).json({ error: "Statut invalide" });
+    }
+
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    movie.selection_status = selection_status;
+    await movie.save();
+
+    res.json({ message: "Statut mis à jour", movie });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+///////////////////////////////////////////////////////////////////////// Assigner un jury
+
+async function assignJury(req, res) {
+  try {
+    const { id } = req.params;
+    const { id_user } = req.body;
+
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    const juryUser = await User.findByPk(id_user);
+    if (!juryUser || juryUser.role !== "JURY") {
+      return res.status(400).json({ error: "Utilisateur jury invalide" });
+    }
+
+    movie.assigned_jury_id = id_user;
+    await movie.save();
+
+    res.json({ message: "Jury assigné", movie });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export default {
   getMovies,
   getMyMovies,
   getMovieById,
   createMovie,
-  deleteMovie
+  deleteMovie,
+  updateMovieStatus,
+  assignJury
 };
