@@ -10,6 +10,7 @@ export default (sequelize, DataTypes) => {
     },
     first_name: DataTypes.STRING(150),
     last_name: DataTypes.STRING(150),
+    email: DataTypes.STRING(255),
     job: DataTypes.STRING(100)
   }, {
     tableName: 'collaborators',
