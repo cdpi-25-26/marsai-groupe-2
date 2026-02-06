@@ -109,11 +109,6 @@ async function createMovie(req, res) {
       main_language,
       release_year,
       nationality,
-      poster_image,
-      image1,
-      image2,
-      image3,
-      trailer_video,
       youtube_link,
       production,
       workshop,
@@ -124,55 +119,117 @@ async function createMovie(req, res) {
       ai_tool,
       thumbnail,
       categories,
-      collaborators
+      collaborators,
+      filmTitleOriginal,
+      durationSeconds,
+      filmLanguage,
+      releaseYear,
+      youtubeLink,
+      synopsisOriginal,
+      synopsisEnglish,
+      aiClassification,
+      aiStack,
+      aiMethodology
     } = req.body;
 
+    const files = req.files || {};
+    const filmFile = files.filmFile?.[0]?.filename || null;
+    const thumb1 = files.thumbnail1?.[0]?.filename || null;
+    const thumb2 = files.thumbnail2?.[0]?.filename || null;
+    const thumb3 = files.thumbnail3?.[0]?.filename || null;
+    const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
+
+    const movieTitle = filmTitleOriginal || title;
+    const movieDescription = synopsisOriginal || description || synopsis;
+    const movieDurationRaw = durationSeconds ?? duration;
+    const movieDuration = movieDurationRaw !== undefined && movieDurationRaw !== null
+      ? Number(movieDurationRaw)
+      : null;
+    const movieMainLanguage = filmLanguage || main_language;
+    const movieReleaseYear = releaseYear || release_year || null;
+    const movieYoutubeLink = youtubeLink || youtube_link;
+    const movieSynopsisEnglish = synopsisEnglish || synopsis_anglais;
+    const movieProduction = aiClassification || production;
+    const movieWorkshop = aiMethodology || workshop;
+    const movieAiTool = aiStack || ai_tool;
+    const movieSubtitle = subtitleFile || subtitle || null;
+    const movieThumbnail = thumb1 || thumbnail || null;
+
     // -3- Validation minimale
-    if (!title || !description) {
+    if (!movieTitle || !movieDescription) {
       return res.status(400).json({
         error: "Le titre et la description sont obligatoires"
       });
     }
 
+    if (movieDuration !== null && Number.isNaN(movieDuration)) {
+      return res.status(400).json({
+        error: "La durée du film est invalide"
+      });
+    }
+
+    if (durationSeconds && movieDuration > 120) {
+      return res.status(400).json({
+        error: "La durée maximale est de 120 secondes"
+      });
+    }
+
     // -4-Création du film
     const newMovie = await Movie.create({
-      title,
-      description,
-      duration,
-      main_language,
-      release_year,
+      title: movieTitle,
+      description: movieDescription,
+      duration: movieDuration,
+      main_language: movieMainLanguage,
+      release_year: movieReleaseYear,
       nationality,
-      poster_image,
-      image1,
-      image2,
-      image3,
-      trailer_video,
-      youtube_link,
-      production,
-      workshop,
+      trailer: filmFile || req.body.trailer || req.body.trailer_video || null,
+      youtube_link: movieYoutubeLink,
+      production: movieProduction,
+      workshop: movieWorkshop,
       translation,
-      synopsis,
-      synopsis_anglais,
-      subtitle,
-      ai_tool,
-      thumbnail,
+      synopsis: movieDescription,
+      synopsis_anglais: movieSynopsisEnglish,
+      subtitle: movieSubtitle,
+      ai_tool: movieAiTool,
+      picture1: thumb1 || req.body.picture1 || null,
+      picture2: thumb2 || req.body.picture2 || null,
+      picture3: thumb3 || req.body.picture3 || null,
+      thumbnail: movieThumbnail,
       id_user
       // selection_status = 'submitted' automatiquement
     });
 
     // -5-Associer les catégories (N–N)
-    if (categories?.length) {
-      await newMovie.setCategories(categories);
+    let parsedCategories = categories;
+    if (typeof categories === "string") {
+      try {
+        parsedCategories = JSON.parse(categories);
+      } catch (parseError) {
+        parsedCategories = [];
+      }
+    }
+
+    if (parsedCategories?.length) {
+      await newMovie.setCategories(parsedCategories);
     }
 
     // -6- Associer les collaborateurs
-    if (collaborators?.length) {
+    let parsedCollaborators = collaborators;
+    if (typeof collaborators === "string") {
+      try {
+        parsedCollaborators = JSON.parse(collaborators);
+      } catch (parseError) {
+        parsedCollaborators = [];
+      }
+    }
+
+    if (parsedCollaborators?.length) {
       const createdCollaborators = await Promise.all(
-        collaborators.map(c =>
+        parsedCollaborators.map(c =>
           Collaborator.create({
-            firstname: c.firstname,
-            lastname: c.lastname,
-            job: c.job
+            first_name: c.first_name || c.firstname || "",
+            last_name: c.last_name || c.lastname || "",
+            job: c.job || null
           })
         )
       );
