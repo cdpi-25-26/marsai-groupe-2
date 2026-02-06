@@ -135,6 +135,16 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'id_movie',
       otherKey: 'id_collaborator'
     });
+
+
+    // Relation N–N : Movie ↔ User (JURY)
+    Movie.belongsToMany(models.User, {
+      through: 'movies_juries',
+      foreignKey: 'id_movie',
+      otherKey: 'id_user'
+   });
+
+
   };
 
   return Movie;
