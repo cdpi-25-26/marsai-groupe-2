@@ -36,6 +36,31 @@ async function getMovies(req, res) {
   }
 }
 
+//////////////////////////////////////////////////////////// Mes films (producteur connecté)
+
+async function getMyMovies(req, res) {
+  try {
+    const id_user = req.user.id_user;
+    const movies = await Movie.findAll({
+      where: { id_user },
+      include: [
+        {
+          model: Categorie,
+          through: { attributes: [] }
+        },
+        {
+          model: Collaborator,
+          through: { attributes: [] }
+        }
+      ]
+    });
+
+    res.json(movies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 
 /////////////////////////////////////////////////////////////////////// Récupérer un film par ID
 
@@ -186,6 +211,7 @@ async function deleteMovie(req, res) {
 
 export default {
   getMovies,
+  getMyMovies,
   getMovieById,
   createMovie,
   deleteMovie

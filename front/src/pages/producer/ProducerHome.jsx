@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from "react";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
+import { getMyMovies } from "../../api/movies";
 
 export default function ProducerHome() {
   // État pour stocker les données utilisateur
@@ -26,6 +27,8 @@ export default function ProducerHome() {
   const [form, setForm] = useState({});
   // État pour afficher les messages de succès
   const [success, setSuccess] = useState(null);
+  // État pour stocker les films du producteur
+  const [movies, setMovies] = useState([]);
 
   /**
    * Effect - Récupère les données utilisateur au chargement du composant
@@ -38,10 +41,11 @@ export default function ProducerHome() {
       setLoading(false);
       return;
     }
-    getCurrentUser()
-      .then(res => {
-        setUser(res.data);
-        setForm(res.data);
+    Promise.all([getCurrentUser(), getMyMovies()])
+      .then(([userRes, moviesRes]) => {
+        setUser(userRes.data);
+        setForm(userRes.data);
+        setMovies(moviesRes.data || []);
         setLoading(false);
       })
       .catch(() => {
@@ -51,9 +55,11 @@ export default function ProducerHome() {
   }, []);
 
 
-  if (loading) return <div>Chargement...</div>;
-  if (error) return <div>{error}</div>;
-  if (!user) return <div>Utilisateur introuvable</div>;
+  if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Chargement...</div>;
+  if (error) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{error}</div>;
+  if (!user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Utilisateur introuvable</div>;
+
+  const uploadBase = "http://localhost:3000/uploads";
 
   /**
    * Fonction handleEditChange
@@ -92,72 +98,189 @@ export default function ProducerHome() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Bienvenue Producteur {user.first_name} {user.last_name}</h1>
-      <h2 className="text-xl mb-2">Vos informations personnelles</h2>
-      {success && <div className="text-green-600 mb-2">{success}</div>}
-      {editMode ? (
-        <form onSubmit={handleSave} className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-          <label>Prénom<input name="first_name" value={form.first_name || ""} onChange={handleEditChange} required /></label>
-          <label>Nom<input name="last_name" value={form.last_name || ""} onChange={handleEditChange} required /></label>
-          <label>Téléphone<input name="phone" value={form.phone || ""} onChange={handleEditChange} /></label>
-          <label>Mobile<input name="mobile" value={form.mobile || ""} onChange={handleEditChange} /></label>
-          <label>Date de naissance<input name="birth_date" type="date" value={form.birth_date ? form.birth_date.substring(0,10) : ""} onChange={handleEditChange} /></label>
-          <label>Rue<input name="street" value={form.street || ""} onChange={handleEditChange} /></label>
-          <label>Code postal<input name="postal_code" value={form.postal_code || ""} onChange={handleEditChange} /></label>
-          <label>Ville<input name="city" value={form.city || ""} onChange={handleEditChange} /></label>
-          <label>Pays<input name="country" value={form.country || ""} onChange={handleEditChange} /></label>
-          <label>Biographie<textarea name="biography" value={form.biography || ""} onChange={handleEditChange} /></label>
-          <label>Profession
-            <select name="job" value={form.job || ""} onChange={handleEditChange}>
-              <option value="">-</option>
-              <option value="PRODUCER">Producteur</option>
-              <option value="ACTOR">Acteur</option>
-              <option value="DIRECTOR">Réalisateur</option>
-              <option value="WRITER">Scénariste</option>
-              <option value="OTHER">Autre</option>
-            </select>
-          </label>
-          <label>Portfolio<input name="portfolio" value={form.portfolio || ""} onChange={handleEditChange} /></label>
-          <label>YouTube<input name="youtube" value={form.youtube || ""} onChange={handleEditChange} /></label>
-          <label>Instagram<input name="instagram" value={form.instagram || ""} onChange={handleEditChange} /></label>
-          <label>LinkedIn<input name="linkedin" value={form.linkedin || ""} onChange={handleEditChange} /></label>
-          <label>Facebook<input name="facebook" value={form.facebook || ""} onChange={handleEditChange} /></label>
-          <label>TikTok<input name="tiktok" value={form.tiktok || ""} onChange={handleEditChange} /></label>
-          <label>Connu par MarsAI ?
-            <select name="known_by_mars_ai" value={form.known_by_mars_ai || ""} onChange={handleEditChange}>
-              <option value="">-</option>
-              <option value="YES">Oui</option>
-              <option value="NO">Non</option>
-            </select>
-          </label>
-          <label>Mot de passe (changer uniquement si nécessaire)<input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" /></label>
-          <div className="col-span-2 flex gap-2 mt-2">
-            <button type="submit" className="bg-blue-500 text-white px-4 py-1 rounded">Enregistrer</button>
-            <button type="button" className="bg-gray-300 px-4 py-1 rounded" onClick={() => { setEditMode(false); setForm(user); setSuccess(null); }}>Annuler</button>
+    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+      <div className="max-w-6xl mx-auto space-y-10">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold">Espace Producteur</h1>
+          <p className="text-gray-400 mt-2">Bienvenue {user.first_name} {user.last_name}</p>
+        </div>
+
+        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Vos informations personnelles</h2>
+            {!editMode && (
+              <button
+                className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold"
+                onClick={() => setEditMode(true)}
+              >
+                Modifier
+              </button>
+            )}
           </div>
-        </form>
-      ) : (
-        <>
-          <ul className="mb-4">
-            <li><b>Email:</b> {user.email}</li>
-            <li><b>Téléphone:</b> {user.phone || "-"}</li>
-            <li><b>Mobile:</b> {user.mobile || "-"}</li>
-            <li><b>Date de naissance:</b> {user.birth_date ? user.birth_date.substring(0,10) : "-"}</li>
-            <li><b>Adresse:</b> {user.street || "-"}, {user.postal_code || "-"} {user.city || "-"}, {user.country || "-"}</li>
-            <li><b>Biographie:</b> {user.biography || "-"}</li>
-            <li><b>Profession:</b> {user.job || "-"}</li>
-            <li><b>Portfolio:</b> {user.portfolio || "-"}</li>
-            <li><b>YouTube:</b> {user.youtube || "-"}</li>
-            <li><b>Instagram:</b> {user.instagram || "-"}</li>
-            <li><b>LinkedIn:</b> {user.linkedin || "-"}</li>
-            <li><b>Facebook:</b> {user.facebook || "-"}</li>
-            <li><b>TikTok:</b> {user.tiktok || "-"}</li>
-            <li><b>Connu par MarsAI:</b> {user.known_by_mars_ai || "-"}</li>
-          </ul>
-          <button className="bg-blue-500 text-white px-4 py-1 rounded" onClick={() => setEditMode(true)}>Modifier le profil</button>
-        </>
-      )}
+
+          {success && <div className="text-green-400 mb-4">{success}</div>}
+
+          {editMode ? (
+            <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Prénom</label>
+                <input name="first_name" value={form.first_name || ""} onChange={handleEditChange} required className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Nom</label>
+                <input name="last_name" value={form.last_name || ""} onChange={handleEditChange} required className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Téléphone</label>
+                <input name="phone" value={form.phone || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Mobile</label>
+                <input name="mobile" value={form.mobile || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Date de naissance</label>
+                <input name="birth_date" type="date" value={form.birth_date ? form.birth_date.substring(0,10) : ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Rue</label>
+                <input name="street" value={form.street || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Code postal</label>
+                <input name="postal_code" value={form.postal_code || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Ville</label>
+                <input name="city" value={form.city || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Pays</label>
+                <input name="country" value={form.country || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col md:col-span-2">
+                <label className="text-sm uppercase text-gray-400 mb-1">Biographie</label>
+                <textarea name="biography" value={form.biography || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Profession</label>
+                <select name="job" value={form.job || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg">
+                  <option value="">-</option>
+                  <option value="PRODUCER">Producteur</option>
+                  <option value="ACTOR">Acteur</option>
+                  <option value="DIRECTOR">Réalisateur</option>
+                  <option value="WRITER">Scénariste</option>
+                  <option value="OTHER">Autre</option>
+                </select>
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Portfolio</label>
+                <input name="portfolio" value={form.portfolio || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">YouTube</label>
+                <input name="youtube" value={form.youtube || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Instagram</label>
+                <input name="instagram" value={form.instagram || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">LinkedIn</label>
+                <input name="linkedin" value={form.linkedin || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Facebook</label>
+                <input name="facebook" value={form.facebook || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">TikTok</label>
+                <input name="tiktok" value={form.tiktok || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm uppercase text-gray-400 mb-1">Connu par MarsAI ?</label>
+                <select name="known_by_mars_ai" value={form.known_by_mars_ai || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg">
+                  <option value="">-</option>
+                  <option value="YES">Oui</option>
+                  <option value="NO">Non</option>
+                </select>
+              </div>
+              <div className="flex flex-col md:col-span-2">
+                <label className="text-sm uppercase text-gray-400 mb-1">Mot de passe (changer uniquement si nécessaire)</label>
+                <input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
+              </div>
+              <div className="md:col-span-2 flex gap-3">
+                <button type="submit" className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold">Enregistrer</button>
+                <button type="button" className="border border-gray-700 px-4 py-2 rounded-lg" onClick={() => { setEditMode(false); setForm(user); setSuccess(null); }}>Annuler</button>
+              </div>
+            </form>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
+              <div><span className="text-gray-400">Email:</span> {user.email}</div>
+              <div><span className="text-gray-400">Téléphone:</span> {user.phone || "-"}</div>
+              <div><span className="text-gray-400">Mobile:</span> {user.mobile || "-"}</div>
+              <div><span className="text-gray-400">Date de naissance:</span> {user.birth_date ? user.birth_date.substring(0,10) : "-"}</div>
+              <div className="md:col-span-2"><span className="text-gray-400">Adresse:</span> {user.street || "-"}, {user.postal_code || "-"} {user.city || "-"}, {user.country || "-"}</div>
+              <div className="md:col-span-2"><span className="text-gray-400">Biographie:</span> {user.biography || "-"}</div>
+              <div><span className="text-gray-400">Profession:</span> {user.job || "-"}</div>
+              <div><span className="text-gray-400">Portfolio:</span> {user.portfolio || "-"}</div>
+              <div><span className="text-gray-400">YouTube:</span> {user.youtube || "-"}</div>
+              <div><span className="text-gray-400">Instagram:</span> {user.instagram || "-"}</div>
+              <div><span className="text-gray-400">LinkedIn:</span> {user.linkedin || "-"}</div>
+              <div><span className="text-gray-400">Facebook:</span> {user.facebook || "-"}</div>
+              <div><span className="text-gray-400">TikTok:</span> {user.tiktok || "-"}</div>
+              <div><span className="text-gray-400">Connu par MarsAI:</span> {user.known_by_mars_ai || "-"}</div>
+            </div>
+          )}
+        </section>
+
+        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <h2 className="text-2xl font-bold mb-6">Votre film soumis</h2>
+          {movies.length === 0 ? (
+            <p className="text-gray-400">Aucun film soumis pour le moment.</p>
+          ) : (
+            movies.map(movie => (
+              <div key={movie.id_movie} className="border border-gray-800 rounded-xl p-6 bg-gray-950">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-white">{movie.title}</h3>
+                    <p className="text-gray-400 mt-2">{movie.synopsis || movie.description || "-"}</p>
+                    <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
+                      <div><span className="text-gray-400">Durée:</span> {movie.duration ? `${movie.duration}s` : "-"}</div>
+                      <div><span className="text-gray-400">Langue:</span> {movie.main_language || "-"}</div>
+                      <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
+                      <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
+                      <div><span className="text-gray-400">Outils IA:</span> {movie.ai_tool || "-"}</div>
+                      <div><span className="text-gray-400">Méthodologie:</span> {movie.workshop || "-"}</div>
+                      <div><span className="text-gray-400">Production:</span> {movie.production || "-"}</div>
+                      <div><span className="text-gray-400">Sous-titres:</span> {movie.subtitle ? (
+                        <a className="text-[#AD46FF] hover:text-[#F6339A]" href={`${uploadBase}/${movie.subtitle}`} target="_blank" rel="noreferrer">Télécharger</a>
+                      ) : "-"}</div>
+                    </div>
+                    {movie.trailer && (
+                      <div className="mt-4">
+                        <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={`${uploadBase}/${movie.trailer}`} target="_blank" rel="noreferrer">
+                          Télécharger le film
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="grid grid-cols-2 gap-3">
+                      {[movie.picture1, movie.picture2, movie.picture3].filter(Boolean).map((pic, idx) => (
+                        <div key={`${movie.id_movie}-pic-${idx}`} className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                          <img src={`${uploadBase}/${pic}`} alt="Vignette" className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+      </div>
     </div>
   );
 }

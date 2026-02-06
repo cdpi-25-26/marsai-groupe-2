@@ -4,6 +4,7 @@
  */
 
 import express from "express";
+import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -27,6 +28,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 /**
  * Routes de l'API
@@ -51,7 +53,6 @@ async function startServer() {
 
     // Démarrage du serveur
     app.listen(PORT, () => {
-      console.log(`✓ Serveur backend démarré sur le port ${PORT}`);
       console.log(`✓ API disponible sur http://localhost:${PORT}`);
     });
   } catch (error) {
