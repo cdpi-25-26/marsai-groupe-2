@@ -4,6 +4,8 @@ import movieRouter from "./Movie.route.js";
 import authRouter from "./Auth.route.js";
 import awardRouter from "./Award.route.js";
 import voteRouter from "./Vote.route.js";
+import categorieRouter from "./Categorie.route.js";
+//import collaboratorRouter from "./Collaborator.route.js";
 
 const router = express.Router();
 
@@ -16,5 +18,7 @@ router.use("/users", userRouter);     // Routes de gestion utilisateurs
 router.use("/movies", movieRouter);   // Routes de gestion films/vidéos
 router.use("/awards", awardRouter);  // Routes de gestion awards
 router.use("/votes", voteRouter); // Routes de gestion votes
+router.use("/categories", categorieRouter); // Routes de gestion catégories
+//router.use("/collaborators", collaboratorRouter); // Routes de gestion collaborateurs
 
 export default router;
