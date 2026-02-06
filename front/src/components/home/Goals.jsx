@@ -4,7 +4,7 @@ export default function Goals() {
   return (
     <div className="pt-12 pb-12 w-full">
 
-      <h2 className="text-6xl font-bold text-center text-white uppercase">
+      <h2 className="text-6xl font-bold text-center text-white uppercase pb-6">
         Objectifs du <span className="text-[#F6339A]">festival</span>
       </h2>
 
