@@ -21,12 +21,4 @@ async function updateMovieStatus(id, selection_status) {
   return await instance.put(`movies/${id}/status`, { selection_status });
 }
 
-/**
- * Assigne un jury à un film
- * Endpoint: PUT /movies/:id/assign-jury
- */
-async function assignMovieJury(id, id_user) {
-  return await instance.put(`movies/${id}/assign-jury`, { id_user });
-}
-
-export { getVideos, updateMovieStatus, assignMovieJury };
+export { getVideos, updateMovieStatus };

@@ -92,12 +92,6 @@ export default (sequelize, DataTypes) => {
     id_user: {
       type: DataTypes.INTEGER,
       allowNull: false
-    },
-
-    // Jury assigné pour l'évaluation
-    assigned_jury_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
     }
 
   }, {
@@ -116,11 +110,6 @@ export default (sequelize, DataTypes) => {
     // La clé étrangère id_user relie le film à son créateur
     Movie.belongsTo(models.User, {
       foreignKey: 'id_user'
-    });
-
-    Movie.belongsTo(models.User, {
-      foreignKey: 'assigned_jury_id',
-      as: 'assignedJury'
     });
 
     // Relation: Un film peut avoir plusieurs prix (Awards)

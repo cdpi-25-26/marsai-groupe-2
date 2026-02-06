@@ -8,10 +8,8 @@
  * - Affichage du titre et description de chaque vidéo
  * @returns {JSX.Element} La liste des vidéos ou un message d'erreur/chargement
  */
-import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getVideos, updateMovieStatus, assignMovieJury } from "../../api/videos.js";
-import { getUsers } from "../../api/users.js";
+import { getVideos, updateMovieStatus } from "../../api/videos.js";
 
 /**
  * Fonction Videos
@@ -26,28 +24,10 @@ function Videos() {
     queryFn: getVideos,
   });
 
-  const { data: usersData } = useQuery({
-    queryKey: ["listUsers"],
-    queryFn: getUsers,
-  });
-
-  const juryUsers = useMemo(() => {
-    return (usersData?.data || []).filter((u) => u.role === "JURY");
-  }, [usersData]);
-
-  const [selectedJury, setSelectedJury] = useState({});
-
   const statusMutation = useMutation({
     mutationFn: ({ id, status }) => updateMovieStatus(id, status),
     onSuccess: () => {
       // Refresh list
-      window.location.reload();
-    }
-  });
-
-  const assignMutation = useMutation({
-    mutationFn: ({ id, juryId }) => assignMovieJury(id, juryId),
-    onSuccess: () => {
       window.location.reload();
     }
   });
@@ -79,7 +59,6 @@ function Videos() {
                 <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
                 <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
                 <div><span className="text-gray-400">Producteur:</span> {movie.User ? `${movie.User.first_name} ${movie.User.last_name}` : "-"}</div>
-                <div><span className="text-gray-400">Jury assigné:</span> {movie.assignedJury ? `${movie.assignedJury.first_name} ${movie.assignedJury.last_name}` : "-"}</div>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-3">
@@ -135,30 +114,6 @@ function Videos() {
                 >
                   Refuser
                 </button>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={selectedJury[movie.id_movie] || ""}
-                    onChange={(e) => setSelectedJury((prev) => ({ ...prev, [movie.id_movie]: e.target.value }))}
-                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                  >
-                    <option value="">Assigner un jury</option>
-                    {juryUsers.map((jury) => (
-                      <option key={jury.id_user} value={jury.id_user}>
-                        {jury.first_name} {jury.last_name}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const juryId = selectedJury[movie.id_movie];
-                      if (juryId) assignMutation.mutate({ id: movie.id_movie, juryId });
-                    }}
-                    className="px-4 py-2 bg-blue-600/80 text-white rounded-lg hover:bg-blue-600"
-                  >
-                    Assigner
-                  </button>
-                </div>
               </div>
             </div>
 
