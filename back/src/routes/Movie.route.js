@@ -41,6 +41,22 @@ router.post(
   MovieController.createMovie
 );
 
+///////////////////////////////////////////////////////////////////////// Mettre à jour le statut
+// ADMIN uniquement
+router.put(
+  "/:id/status",
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
+  MovieController.updateMovieStatus
+);
+
+///////////////////////////////////////////////////////////////////////// Assigner un jury
+// ADMIN uniquement
+router.put(
+  "/:id/assign-jury",
+  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
+  MovieController.assignJury
+);
+
 
 /////////////////////////////////////////////////////////////////////////// Modifier un film
 //Seulement le propriétaire ou ADMIN
