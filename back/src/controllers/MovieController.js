@@ -108,14 +108,11 @@ async function createMovie(req, res) {
       main_language,
       release_year,
       nationality,
-<<<<<<< HEAD
-=======
       display_picture,
       picture1,
       picture2,
       picture3,
       trailer,
->>>>>>> bdb58d195af9d6e797c3401f433c36a10a08ae50
       youtube_link,
       production,
       workshop,
