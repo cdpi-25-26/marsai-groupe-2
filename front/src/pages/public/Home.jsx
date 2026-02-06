@@ -6,6 +6,8 @@
  */
 import { Link } from "react-router";
 import Button from "../../components/Button";
+import Hero from "../../components/home/Hero";
+import Reassure from "../../components/home/Reassure";
 import "./Home.css";
 
 /**
@@ -17,13 +19,15 @@ import "./Home.css";
 function Home() {
   return (
     <>
-      {/* Titre de bienvenue sur la plateforme du festival */}
+      {/* Titre de bienvenue sur la plateforme du festival 
       Bienvenue sur la plateforme du festival !
       <div className="mt-4">
         <Link to="/auth/login">
           <Button>Se connecter</Button>
         </Link>
-      </div>
+      </div>*/}
+      <Hero />
+      <Reassure />
     </>
   );
 }

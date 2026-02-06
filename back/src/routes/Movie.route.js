@@ -91,6 +91,15 @@ router.get(
   MovieController.getMovies
 );
 
+//////////////////////////////////////////////////////////////////////// Mes films
+// Seulement pour PRODUCER connecté
+
+router.get(
+  "/mine",
+  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER"]),
+  MovieController.getMyMovies
+);
+
 
 ///////////////////////////////////////////////////////////////////////// Voir un film par ID
 // Public

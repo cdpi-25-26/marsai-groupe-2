@@ -1,39 +1,23 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 /**
  * AdminLayout (Layout Administrateur)
  * Template pour les pages d'administration
- * Contient: navbar, barre latérale, bouton logout
+ * Contient: Navbar, barre latérale
  * Accessible uniquement par les administrateurs
- * @returns {JSX.Element} Layout avec Outlet pour les pages enfants
+ * @returns {JSX.Element} Layout avec Navbar et Outlet pour les pages enfants
  */
 export default function AdminLayout() {
-  const navigate = useNavigate();
-  
-  /**
-   * Fonction de déconnexion (Logout)
-   * Nettoie le localStorage et redirige vers la page de connexion
-   */
-  const handleLogout = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("role");
-    localStorage.removeItem("token");
-    window.location.href = "/auth/login";
-  };
-  
-  // Vérifier si l'utilisateur est connecté
-  const isLogged = !!localStorage.getItem("email");
   return (
-    <div>
-      <div>Barre de navigation</div>
-      {isLogged && (
-        <button onClick={handleLogout} style={{position:'absolute',top:10,right:10}}>Logout</button>
-      )}
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
       <aside>Barre latérale</aside>
       <main>
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }
