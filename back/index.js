@@ -31,7 +31,7 @@ app.use(cookieParser());
 /**
  * Routes de l'API
  */
-app.use("/api", routes);
+app.use("/", routes);
 
 /**
  * Route de test de connexion
