@@ -2,11 +2,11 @@ import axios from "axios";
 
 /**
  * Instance Axios configurée pour communiquer avec le backend
- * Base URL: http://localhost:3000/api
+ * Base URL: http://localhost:3000/
  * Timeout: 5000ms (increased for DB operations)
  */
 const instance = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "http://localhost:3000/",
   timeout: 5000,
 });
 
