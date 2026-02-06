@@ -70,8 +70,12 @@ async function getMovieById(req, res) {
 
     const movie = await Movie.findByPk(id, {
       include: [
-        { model: Categorie },
-        { model: Collaborator },
+        { model: Categorie, 
+          through: { attributes: [] } 
+        },
+        { model: Collaborator,
+          through: { attributes: [] } 
+         },
         { model: User, attributes: ["id_user", "first_name", "last_name"] }
       ]
     });
@@ -104,6 +108,7 @@ async function createMovie(req, res) {
       main_language,
       release_year,
       nationality,
+      display_picture,
       youtube_link,
       production,
       workshop,
@@ -149,6 +154,7 @@ async function createMovie(req, res) {
     const movieAiTool = aiStack || ai_tool;
     const movieSubtitle = subtitleFile || subtitle || null;
     const movieThumbnail = thumb1 || thumbnail || null;
+    const movieDisplayPicture = display_picture || null;
 
     // -3- Validation minimale
     if (!movieTitle || !movieDescription) {
@@ -177,6 +183,7 @@ async function createMovie(req, res) {
       main_language: movieMainLanguage,
       release_year: movieReleaseYear,
       nationality,
+      display_picture: movieDisplayPicture,
       trailer: filmFile || req.body.trailer || req.body.trailer_video || null,
       youtube_link: movieYoutubeLink,
       production: movieProduction,
@@ -243,6 +250,41 @@ async function createMovie(req, res) {
 }
 
 
+
+///////////////////////////////////////////////////////////////////////// Modifier un film (ADMIN uniquement)
+
+async function updateMovie(req, res) {
+  try {
+    const { id } = req.params;
+
+    const movie = await Movie.findByPk(id);
+
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    // Sécurité : uniquement ADMIN
+    if (req.user.role !== "ADMIN") {
+      return res.status(403).json({
+        error: "Seul un administrateur peut modifier un film"
+      });
+    }
+
+    await movie.update(req.body);
+
+    res.status(200).json({
+      message: "Film mis à jour avec succès",
+      movie
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////// Supprimer un film
  
 async function deleteMovie(req, res) {
@@ -257,14 +299,18 @@ async function deleteMovie(req, res) {
 
     await movie.destroy();
 
-    res.status(204).json({
+    res.status(200).json({
       message: "Film supprimé"
     });
+    //correction du status 204 (pas de JSON avec 204)
+    //return res.status(204).send(); 
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////// Mettre à jour le statut
 
@@ -297,6 +343,7 @@ export default {
   getMyMovies,
   getMovieById,
   createMovie,
+  updateMovie,
   deleteMovie,
   updateMovieStatus
 };
