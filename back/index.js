@@ -1,66 +1,64 @@
 /**
- * Point d'entrée principal de l'application backend
- * Serveur Express pour l'API REST du festival MarsAI
- * Fonctionnalités:
- * - Configuration CORS pour accepter les requêtes du frontend
- * - Parsing JSON automatique
- * - Chargement des variables d'environnement
- * - Routage vers les contrôleurs (Auth, Users, Videos)
+ * Point d'entrée principal du serveur backend MarsAI
+ * Configure Express, charge les routes et démarre le serveur
  */
 
-import "dotenv/config";
 import express from "express";
+import path from "path";
 import cors from "cors";
-import router from "./src/routes/index.js";
-import { configDotenv } from "dotenv";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+import sequelize from "./src/db/connection.js";
+import db from "./src/models/index.js";
+import routes from "./src/routes/index.js";
 
-/**
- * Charge les variables d'environnement depuis le fichier .env
- * Variables utilisées: PORT, JWT_SECRET, DATABASE_* etc.
- */
-configDotenv();
+// Charge les variables d'environnement
+dotenv.config();
 
-/**
- * Crée une application Express
- * Express est un framework Node.js minimaliste et flexible
- * pour créer des serveurs et des APIs
- */
 const app = express();
-
-/**
- * Middleware CORS (Cross-Origin Resource Sharing)
- * Permet aux requêtes depuis d'autres domaines d'accéder à cette API
- * origin: "*" = accepte les requêtes de tous les domaines
- * À restreindre en production pour des raisons de sécurité
- */
-app.use(cors({ origin: "*" }));
-
-/**
- * Middleware pour parser automatiquement le JSON des requêtes
- * Transforme les données brutes en objets JavaScript
- */
-app.use(express.json());
-
-/**
- * Port sur lequel le serveur écoute
- * Utilise la variable d'environnement PORT ou 3000 par défaut
- */
 const PORT = process.env.PORT || 3000;
 
 /**
- * Utilise le router défini dans src/routes/index.js
- * Tous les endpoints (Auth, Users, Videos) sont enregistrés ici
+ * Configuration des middlewares
  */
-app.use("/", router);
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 /**
- * Démarre le serveur HTTP et affiche un message de confirmation
- * Le serveur écoute sur le port spécifié et est prêt à accepter les requêtes
+ * Routes de l'API
  */
-app.listen(PORT, () => {
-  console.log("-----------------------------");
-  console.log("--        L'ARBITRE        --");
-  console.log("-----------------------------");
+app.use("/api", routes);
 
-  console.log(`Le serveur est lancé sur http://localhost:${PORT}`);
+/**
+ * Route de test de connexion
+ */
+app.get("/", (req, res) => {
+  res.json({ message: "MarsAI Backend API is running" });
 });
+
+/**
+ * Test de connexion à la base de données et démarrage du serveur
+ */
+async function startServer() {
+  try {
+    // Test de connexion à la base de données
+    await sequelize.authenticate();
+    console.log("✓ Connexion à la base de données MySQL établie avec succès");
+
+    // Démarrage du serveur
+    app.listen(PORT, () => {
+      console.log(`✓ API disponible sur http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("✗ Erreur de connexion à la base de données:", error.message);
+    process.exit(1);
+  }
+}
+
+startServer();

@@ -1,60 +1,83 @@
 import { Link } from "react-router";
-import Button from "./Button";
 
-/**
- * Composant Navbar (Barre de navigation)
- * Affiche le logo, le message de bienvenue et le bouton de déconnexion
- * Récupère le firstName du localStorage pour le salut personnalisé
- * @returns {JSX.Element} La barre de navigation
- */
 export default function Navbar() {
-  // Récupérer le prénom de l'utilisateur authentifié depuis localStorage
   const firstName = localStorage.getItem("firstName");
+  const lastName = localStorage.getItem("lastName");
 
-  /**
-   * Fonction de déconnexion (Logout)
-   * Nettoie tous les données de session du localStorage
-   * et recharge la page pour revenir à la page de connexion
-   */
   function handleLogout() {
-    // Supprimer toutes les données de session
     localStorage.removeItem("email");
     localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
     localStorage.removeItem("role");
     localStorage.removeItem("token");
     
-    // Recharger la page pour revenir au login
-    window.location.reload();
+    // Redirect alla home pubblica
+    window.location.href = "/";
   }
 
   return (
-    <div className="flex justify-between items-center ">
-      <div>
-        {/* Logo MarsAI */}
-        <svg viewBox="0 0 176 21" className="h-5">
-          <path
-            className="fill-sky-400"
-            d="M17.183 0C12.6 0 9.737 2.291 8.59 6.873c1.719-2.29 3.723-3.15 6.014-2.577 1.307.326 2.242 1.274 3.275 2.324 1.685 1.71 3.635 3.689 7.894 3.689 4.582 0 7.445-2.291 8.591-6.872-1.718 2.29-3.723 3.15-6.013 2.576-1.308-.326-2.243-1.274-3.276-2.324C23.39 1.98 21.44 0 17.183 0ZM8.59 10.309C4.01 10.309 1.145 12.6 0 17.182c1.718-2.291 3.723-3.15 6.013-2.577 1.308.326 2.243 1.274 3.276 2.324 1.685 1.71 3.635 3.689 7.894 3.689 4.582 0 7.445-2.29 8.59-6.872-1.718 2.29-3.722 3.15-6.013 2.577-1.307-.327-2.242-1.276-3.276-2.325-1.684-1.71-3.634-3.689-7.893-3.689Z"
-            clipRule="evenodd"
-            fillRule="evenodd"
-          ></path>
-          <path
-            className="fill-current"
-            d="M51.547 8.688h-3v5.803c0 1.548 1.016 1.524 3 1.427v2.346c-4.015.483-5.611-.629-5.611-3.773V8.688H43.71V6.172h2.225V2.925l2.612-.774v4.021h2.998v2.516Zm11.43-2.516h2.61v12.092h-2.61v-1.741c-.92 1.28-2.346 2.055-4.233 2.055-3.288 0-6.021-2.78-6.021-6.36 0-3.603 2.733-6.36 6.021-6.36 1.886 0 3.313.774 4.233 2.032V6.172Zm-3.821 9.915c2.176 0 3.82-1.62 3.82-3.87 0-2.248-1.644-3.868-3.82-3.868-2.177 0-3.821 1.62-3.821 3.869s1.644 3.87 3.82 3.87ZM69.94 4.36a1.687 1.687 0 0 1-1.668-1.669c.002-.443.179-.868.491-1.18a1.662 1.662 0 0 1 2.354 0c.312.312.49.737.491 1.18 0 .895-.75 1.669-1.668 1.669Zm-1.306 13.905V6.172h2.612v12.092h-2.612Zm5.635 0V.609h2.611v17.654H74.27ZM93.834 6.172h2.757l-3.797 12.092h-2.563l-2.516-8.15-2.539 8.15h-2.563L78.816 6.172h2.757l2.346 8.343 2.54-8.343h2.49l2.514 8.343 2.37-8.343ZM99.83 4.36c-.92 0-1.669-.774-1.669-1.669.002-.443.18-.868.492-1.18a1.661 1.661 0 0 1 2.354 0c.313.312.49.737.492 1.18 0 .895-.75 1.669-1.669 1.669Zm-1.306 13.905V6.172h2.612v12.092h-2.612ZM110.52 5.858c2.708 0 4.643 1.838 4.643 4.982v7.423h-2.612v-7.158c0-1.838-1.064-2.804-2.708-2.804-1.717 0-3.071 1.015-3.071 3.482v6.48h-2.612V6.174h2.612V7.72c.798-1.257 2.103-1.862 3.748-1.862Zm17.024-4.522h2.612v16.927h-2.612v-1.741c-.918 1.282-2.345 2.055-4.231 2.055-3.289 0-6.022-2.78-6.022-6.36 0-3.603 2.733-6.36 6.022-6.36 1.886 0 3.313.774 4.231 2.032V1.336Zm-3.821 14.751c2.177 0 3.821-1.62 3.821-3.87 0-2.248-1.644-3.868-3.821-3.868-2.176 0-3.82 1.62-3.82 3.869s1.644 3.87 3.82 3.87Z"
-            clipRule="evenodd"
-            fillRule="evenodd"
-          ></path>
-          <path
-            className="fill-sky-400"
-            d="M170.982 18.501c-2.467 0-4.088-1.19-4.744-2.984l2.036-1.19c.431 1.121 1.276 1.846 2.777 1.846 1.432 0 1.932-.604 1.932-1.277 0-.897-.811-1.242-2.605-1.76-1.845-.534-3.639-1.31-3.639-3.605 0-2.277 1.897-3.588 3.967-3.588 1.984 0 3.502 1.018 4.313 2.709l-2.001 1.155c-.432-.914-1.087-1.552-2.312-1.552-1 0-1.587.517-1.587 1.207 0 .742.466 1.139 2.294 1.69 1.915.605 3.951 1.243 3.951 3.71 0 2.26-1.812 3.64-4.382 3.64ZM158.711 18.502c-2.639 0-4.606-1.587-4.606-4.192V6.185h2.364v7.935c0 1.173.621 2.053 2.242 2.053 1.622 0 2.243-.88 2.243-2.053V6.185h2.38v8.125c0 2.605-1.966 4.192-4.623 4.192ZM147.056 15.983h4.606v2.277h-6.986V6.185h2.38v9.798ZM137.623 6.185c2.329 0 4.123 1.794 4.123 4.054 0 2.26-1.794 4.054-4.123 4.054h-2.121v3.967h-2.381V6.185h4.502Zm0 5.882c1.018 0 1.76-.793 1.76-1.828 0-1.052-.742-1.829-1.76-1.829h-2.121v3.657h2.121Z"
-          ></path>
-        </svg>
+    <div className="flex mt-0 ml-2.5 mr-2.5 bg-white/5 text-white text-xl uppercase rounded-full justify-between items-center p-4 border-white/10 border-2 fixed top-8 left-0 right-0 z-50">
+      <Link to="/">
+      <div className=" ml-3 flex gap-2.5 items-center">
+      <div className="text-white text-3xl uppercase font-bold">Mars</div> 
+      <div className="text-3xl font-boldtext-3xl uppercase font-bold bg-linear-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">AI</div>
       </div>
-      <div>
-        {firstName && (
-          <span className="mr-4">Bonjour, {firstName}</span>
+      </Link>
+
+
+      <div className=" flex gap-6 items-center font-bold">
+        <Link to="/" className="mr-4">Sélections</Link>
+        <Link to="/" className="mr-4">Programe</Link>
+        <Link to="/" className="mr-4">Jury</Link>
+      </div>
+
+
+    <div className=" flex items-center gap-7"> 
+
+        
+        <button className=" bg-linear-to-br from-[#2B7FFF] to-[#9810FA] text-white px-8 py-3 rounded-full uppercase font-bold hover:from-blue-600 hover:to-purple-700 transition-colors duration-300">
+        <Link to="/auth/register">
+        Candidater au festival
+        </Link>
+        </button>
+        
+
+        <div>
+          <Link to="/">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAACUCAMAAABV5TcGAAAA81BMVEXQFCz///8AI33PABn59PXy5ebQbHTZkpXKAAz8///PBCYAI3/MVV/QfIQAAG3Q09+2u9EAHnsRKXu7w9R5hq0AAHL///vqtrjw0dTLGTLFAAAAAGQAH4AAJXwAAGgAGXoAEHjEABzRACEAAFsAAHnX3OQAEXPx9fUAFW7ryM5mbZvZhIjDJDbn6++7AADjvL7v2dzSdnvXmJ5IVo2gq8A9TohdZ5AfH3UhInHCPExVYJAsMX8yN35udZvnx8Q6QYPSRlOIjazON0XPNDq7ACDIWGy5Q0nJKC3Pc4PIXmjcpqnFMUeWn7rUhZLJgIG3IB3NSmHFAxaRAAATAElEQVR4nO2da1viSBOGEwiHJBiIGEBISGAkKIpyHFeU4TDuOCDO7v//NW9XhwRIJx1AFPe9Up92R01XbvpQ1d08xbAexmf7ii6Lqhg5qIkRKcvyyzZSAuNrwontCHumHNaHiAimS99r6PG5XI7n2at1V7xwIKt172X9/xFHRNUjfzWadgNc4aFYDcbBstnBo24BORSV4+LQrHfR5ach7hngCPcjVYxuOOKLAwFpPBq6KEa0Azl05N6hoYGi66NhGj85x7Kxu1k06mra8c/D+OzwyZDRUw7jz1Fx4ClDH52l7UfH7uKVqMuJKsPReLB1BETRD+XRcXuHLo0mWbt5BOM56YaRHDPXdxwFBwA50xQVHvfuMXMkHDBINAtGHT0zh2G0GQJGdJy4YpI3WwAxFRgy7x0zR8IBjsvK6SQNMNDCynL59jnZM6aJK5ZFbUen7WAgZeW/igP5rUpLGGBcPn7jBaMADHDr1Wn7B27c15rZoYR6yPvW3GPgQCNcVrQlDDROuLv4DTGBFm/eAEbOwoH+ofozfkXtIGwzjYCo73Lts3HAZKfJyuUZwLDavZv9FNwNJ5+vC/bocDwQXuIF1reL5BC5enogGSia2buHfDYOFc2gF+VhrY795wHGCwmjeBLjnNde86Ea/buFphpaHJLul2R17y7yyThQGGp8G9SsB0Fu8m+l6mpUKN62W+tvuPHDZDG+8UMPS4/K8r7d45NxiEZpCQMe1PpVrFZd7UST8Rj6Uc4bB/xCEWj5dxD0l9mRiVIZWMq/LA4Y0KphIhhojPAwTlqp4joLaBsNG+vDX6PBMsRYqpy06JEqm+3e6+oe6+5n4RBVUdVPG044zhXiRXdughaPdoF8Teane9kRis9vLY7P0eaQ3gCSu12X3c/BgdzS9adGNrf82LnC7woRZ6DQouD1ZozHOiwUXyAooeYyvcajueuc+hk4UP6tm09DJzfhflwTMITKz7ZPWMGgwKTt0UNurChtY2C5gAw1SdZ26SEfjgPGr64gGE44fnV9nnQ/HKJwv7eC/Q4Uw98kXbOuUEQxPIe3Bfys2Rua5V12ED8ehyqXT8+y9eXfYhhEojal5WjW9g/K8M6J0DX5mvhBz2WamaGpfCEcquLAgHD8+qbo7vVRK2H1/ZDt3TAE5Nk1+wrV6vj6iprKICCNZS6zxbr7cTjwmFUV7SzbXP4d6hnT6KrH48YEO3vP+ePI2v8V+xG/JZYjYXxdsIahL5DsdxS6b7Vj9nE4UOvixeXQgcFenbxW1hsQAAZzckXv7XyGeYK9QxzRA5AiMdaE6UmLHpc1s4OyuU3o/mE4NFU0ysN0EwfjACM+deUm50Ly9qRAgZGDrdDGIyPLTw0nlOXuUmTAUpm2Yyx1zNSz/fIWpxAfhUNDMBr2fgbP/oh7ZK0o/aD1DNQfsoNTXWXEiKzf4612PKRgq929yKBs9zctdIdsN3taCtxB/Cgcxrdu2nGuRWatQvR2hgJL/wkUWXog6ygZY8BN2SwPm85P7jYPYqwH/vMb9xBKF8maKAyhhu6HxwFzhl4epa0PE3nXirt9P0d5WMozAl2z2qCsy/BAZvnci9I6kF9RMhWOvsUoKxRY5qms08KQD8Ch6lI/7TjQ+l0sup9Vrcw8cpM1y7G17jdj+UALB/pUtQvpDIBYuUo+RXS5arGSiNEh870R6nIR0SdWPSwO1Iisi11YGa1O2/pzS8QZwsvsiqUGk/XaoGRoKJoUHRxWti4r0qTJsctJwgOIUDxPxDjqiKn3uqKp+UQhB8OB/EUfoKyfDjL80l+u9UaG49WfM99w3IYxLF1YcNd6h83k4n5Sw/uKEO/PU0SkinKZztpWmpc1FwPNFD3nkAP2DhXNd4+NjH1uwhXeiN1xIRoIo5k+Uy42tjuZzWZ06Wmx2oKfz8jQvfg6D9gPQUBkwyv7P1zvQD35cdhz/CwkPMLxn/F8jp6Vp8/u3ZvhLhyihoBY2/Cw7MbmcTcQoVp86NACGguIiYBA6L4O5QA4rD04lJs0AEbOgeEOxys38TwMa/9wvJ6dnMJhGhUHDBldGU1gHcePiuXjzBoQ/F/V6LhT8B8x8O+13sAw3EPmEDhg20+RG70mvqyCYbwm3eF49Lyd56zbLD4OIhhw9kwMaTcObBiIvarG8rMKGammEgX6souASKZ6cByqKl02MjgmgNavEuOoO2pMPrfv6Esgnz17kjwP4j1xwHI+mjiXQmJ3KSK5iwqpBG3XPQdAugrqITBeRPG9OET8FBSOmxiGFWIWrscVAkYlToWRW8LwDpA8cYDnurG6CwFAiNC9Whm/UXfdWb6Z6UtWgKO9F4cG84ZoSAOcteJErXAyFtzRYvSWDgMZ3FnR/bIJPxzITH10VmOX6S4AISZVYfwW0CubKFJVteUk8g4c+AlGqYthwGkB22q7s1acm9zRwwA2PXzSYZhoO+GwfNDlp4kTunMol3EPGUGYIiC0uIytZ0plVX0vDrRE6d9Gzk4XG/v9UyAOkYop+k0EFI4P7ftuPkbDAQPWNCeOD1z+lVjeK9GbDn3VZdle2Tq5ew8OvfzkbFSxsT//EJe60Pp/xVGPh9jmEI0S+sZMAA5Y1koWkByOVIngD01eL3QgaNJbXF7AfRmttAcODd8DHWVWMBLESoeceKBFoNBo83vpAl6Ium9HxQGmwSn4wukh7PymSma7zx16KsPWF4+6LMr79A5V1vV+D/4MxxGxtwrRRasVKgyw5tm3bfbVAnEAS1W5XDRxsgTBzfyBmNBRLjMPGDLNRV/Wy7vjkHSt64TjfCxxTsJgfgWF47WJpGx1iBqIA4igtUF67Dn3JGKdFFMlQvfXecAK15z0v2Wd0G1bHOWu0zW52PyFXO/PU/iT8A8JEYxLBY36Q+GIwCqNhu+ixi+b9QACc1kQkNowvSuOxcJe2rjWnEzULBj0RG3xaF30OxgOTcNnnwDEbgUBIS+pRlNz2oUZ2FN1/mcrHPgP8GfAtTrkshY9n1E+AZj7+fQCwvGtrxts2TuwoaCwvwZkniJm+CgGspVticMyBCOVdJ+K0WFgIOnJqKzvcvOCkbc3VZYNpbsC0pojH4UNqyajsw49dN8DRyExTkarmy1FK/E5cVtlw3gEQzFkWd/hFZnTHU2+HCxqtgsIyM25y55vZp2AOWQ3HKhnnDPuVs5nAblJPT3pm/Kub8ek97DmclcFcpkCaT8Cdod2xOHVRKEQRJxv7vNmtC9w7G/BY2W3ucOjhS2a2MM+BscWtguOj3l1L/tP4Pg8C3FsWIhjw0IcGxbi2LAQx4YxseMYR8XRPpJXMSZ+JLvxp8Ew42N5hZLQ4xilc0C2eiSjORVaaKGFFlpooYUWWmihhRZaaKGFFlpooYUWWmihhRZaaKHtZckjGfVQsnosr5jEkWxKO8EfH8srhjuO0e93tNkjuRVed9mwEMeGhTg2LMSxYSGODQtxbFiIY8N8cfA+/w1KOIHfIPD+hY1vuXwIjjXPcjk25/I7yD9kTGZ3y9YCeHCFeZ60u9i61sp7cbTuvJpYScfxtT3eLMNIO1lZKpnDXtPXSaxLBDKhLive3rgqF7wXR2w+q9wWi5vN3E4tHR5wo7b4Xi7t9naStNM3JSOydHqWqVOczAEMsoSBh2bq+wdLLN9+cbUkVAGI/XXBZq9hGrtJVO+CQ1VOh5k6VeOGu9uQCbV8TN5cX+Hv/uZyq7/dDkeOKqjjEiay0CfHCUdTD4Ao4g6lIbbDIUY0TVVkLAhKhdGeVlzuCcsSBvjLwfXVMNuyd9S82tkA4v4yLwgULHV4cpa+rLF9/9jqO/gRUdMU01ZH9TLM6C4+dX8TnUlWrHoOMOfz2e87SxJMhmnPBldA7ma3bmGTqjBeAuEByEAxrNc4DA5V1QypkabAgHe8m/0khBuSlbY1tWEYjadvuys0lEfDoB5yBTo855tPYNaEiZrZvqRrW9WG2AaHZpQG6TpVjJItkHLroEtUcARX0o1HfR/BCsWQHwOA8Nzdv25hIlCG/xOzW6tnRt7CWDvh0KwSeyUQBM35CrSBSNPshZQ4vcXKmJaUWfq7DmUI95EzsfRlLQkk7/ZRC1z+gVSjFM7f8DiFv+Ozl5IaPF7ovUNUNbk8ynq7YbNgW2RFMSFanFnzOw4BBhKWmNP26R0RXJrJklOlhH9cfuoGAtP4mz1xsWzvUlGDdCuoylCqKpt9GgwWw7gllTGjf68EZGuDkoLLb71LRu2ifOY/eVmWf3CLquGCEc7X0/neqRlQXsZbVQ4LsGqyrnUz9Hica/0pkhojLw8/2GWcAYKg5lJq/1041Ij0bUKLAFnQ4RkTFUVAhydm5zL1xUiklsrw7h0aijNk83TQo7fPxa6TJAwsE2rNNPXaWVnRxMghZNSQU1J5UaN5hGaqzi9CdgYDsWPi+qKrmf5AfHpHRDQsDUwajFaCFGkSbuKOSFM9fXYpiTAfa+8X2cMSubryBED8ZnWs5dVJkdN6cQpaH5bGb3PRxXKq22sOQiG1QBggE+p+jSiC4XwO6cmjoq5r2R1CvhUUd9J1auiOgDAV1xOx6qz9C1hf1nsKIXDgnqFZgqBUGK9E0Y7oWtYKgqCSfHi9UlXUFQTE3zMssjqfMYQE3+2aDk/N0Zel44BxbpgNSgqPDWRCiQhUWMqEgpiWpY7qau4QvQMAG0qfBgSsNfcUWV3q8PBYTlUxtIi7QhXjagzC8UwQDA+Z0GhlpZmay05Gik6u8AfSOkafmKn0J0FA8iBM5HJSwEBYW04VNKP8caBJzygPMk3/QQLvUjjxEJB1NFPR36bPAIbHXHUo6Wd4sFHuTwKz3X+JcgBVxgKCJfJqvb7kUi7dwLEUBPXXS0bQ2+MqIY9ViV/F7BIGCIbpo011MCVsUEmPmDoViCXU/ECq0DFjR/2eb/ZG5Y1cxsYBz5dGQSl864RM4avJGZQ9sVaxGqijij5asQfUScdBri6PsJyqz8dnTapE6I6BcMskDAHRJEtzbqWiH0Ghmig9ZWlZK4hBnhAp/EozFXDUhvc6pabgwWssiLr6iID4CF5bxuVvitVz1/Mrrx1Hmq/ek6TIWlEB6Hm6dIriDN/HYgHoE6LaMVO9XVPGbA7Ll59ackIEjWpTn/AsTUwNxSHPRHJXjb52nPoJ9UVZWeEQZbU86gWcFcROKu5EDeq4YhhQpxDBKAVpYH5AfRaUTYgX0iTooKNDBKq2pqj1l/XFvaGDZDeDaMijgAiU5RJElSNBqDzk4Ud4km5OSgoWqz5GuZrIRWlBfQHUZofURsZAsPegIz95hAotjKmN6M9CiRrZ21DWmppbP86xHAiCWvr81PpfH4BDtBWI/+o1fcuO4MArl5h6AHnNx5wtxMkoojPdRUA4Huuce2imzhyZ0HptAcUK5OAP8QMrfyEgo17Tf8xg1dnEmAzdiw95Zz8EAWF8d92seg6tzpSAsVTGxFNGPb3A4fg2+9QfWCYPl4bo93zjEB6vxq1Eyg1EqBZTKyA1/xP8HNZMfSATNSY+tyNQ0MDcbk/2g3HgxxtSt1fz+3Qta3U8RVYdIH44cDjeIXbbUG4yc4Ybn16MJCPYz0/CsQaEYgiIO8dAYbUtBOvfOwoJr0RttpabLFDIL24xZ3waDhT0oKQrEMh87DH+ocvzvjhaZKUPJpq0exXAmPQNE++OfB0cWBXeMNcEd/2AeOomd2IeOHCo/zZ2r0pCEoaYHQDWJiN9uX/yhXDgQBWl5ZHugr5HwbXmXitEau7VO2KJX8QOfXV9RUIwIsYOhWg/D4fVjqqf9gOCKRaWTKKHvLhwgFwvxCseBa5wEoiLFUweVZTyfWUckQjKdheU0B29CQ6o3ECYzV9C0Sx51ioUn/MrYGeXBk7hv3Dhd2yycbqgdxA0JyTdQ2bzFzpEHWwEozJ3XqI+KSsoMdG2K0B7VBwIyEWpFwCEe7vdDKxWP+LZOXGiBtvjHavnsLAjLykRdfdRchwcoqpq5csebW8PgJwI61WAVv8+90jUmIcOt9xt4pu9vyRx22IFXwEHHHfJ5Sf6TjiPgNysgFgRJhfzWHmq56mOc1mlBsUK3sHi83Es29TL/QwlS4XsvnUytXMZ/IuxObHHiiLXVMe+LwKbzuWtc5OvhAMMHw9QRwzbul4GWiwuDUDmNUxqVRoAYJh7rKxfAwccHimDrFWQ2W/EsIW3Mdzy84IhVO1KGrnl+YwR2SX8/Fo4sClKgzZkwK4S4yQzT7mlVIVqZfM4U9kha6XZEXGgJUAJPGvlCgmGHCYOjByGcelz2L2PT8fDATuIxn3g4TPhSfIX1Jtd3mJedCOGcz3j/T4dcbAsK1KeDuhANt2AeyExdjnEMIwdtjOCHToqDji5g8gdrjTl/E7uNrxwbg3l8DWqCO1IbQ87Mg7LZPO03/M9yFxzIvnc4XLLS2X84lHWqUdqe9hXwKFpoirfP/ldh1z5UPmDpgzeyuF794om45v5h3TlK+AQ8Wm3KvkA+R+S4slG11ntJwAAAABJRU5ErkJggg==" 
+          alt="Logo Anglish" 
+          className="w-16 rounded-sm relative " />
+        </Link>
+        </div>
+
+
+      <div className=" mr-3">
+        {firstName ? (
+          <>
+            <span className="mr-4">Hello, {firstName}{lastName && ` ${lastName}`}</span>
+            <button onClick={handleLogout}>Logout</button>
+          </>
+        ) : (
+          <Link to="/auth/login">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth="1.5" 
+              stroke="currentColor" 
+              className="w-8 h-8 hover:opacity-80 transition-opacity"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" 
+              />
+            </svg>
+          </Link>
         )}
       </div>
     </div>
+    
+  </div>
   );
 }
