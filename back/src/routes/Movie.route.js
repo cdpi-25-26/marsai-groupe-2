@@ -1,4 +1,3 @@
-
 import express from "express";
 import fs from "fs";
 import path from "path";
@@ -7,7 +6,6 @@ import MovieController from "../controllers/MovieController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const router = express.Router();
-
 const uploadDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -84,7 +82,6 @@ router.put(
   MovieController.updateMovie
 );*/
 
-
 ///////////////////////////////////////////////////////////////////////// Supprimer un film
 // ADMIN uniquement
 router.delete(
@@ -98,11 +95,3 @@ export default router;
 
 
 
-
-
-
-
-/****** 
-const authorize = (roles = []) =>
-  (req, res, next) => AuthMiddleware(req, res, next, roles);
-*****/

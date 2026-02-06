@@ -33,7 +33,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 /**
  * Routes de l'API
  */
-app.use("/api", routes);
+app.use("/", routes);
 
 /**
  * Route de test de connexion
