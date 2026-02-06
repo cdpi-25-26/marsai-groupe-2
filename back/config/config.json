@@ -1,50 +1,24 @@
 {
-<<<<<<< HEAD
-  "development": {
-    "username": "marsai",
-    "password": "Mars2026!",
-    "database": "marsai_db",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "logging": false
-  },
-  "test": {
-    "username": "marsai",
-    "password": "Mars2026!",
-    "database": "marsai_db",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "marsai",
-    "password": "Mars2026!",
-    "database": "marsai_db",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  }
-}
-=======
 	"development": {
 		"username": "marsai",
-		"password": "root",
-		"database": "root",
+		"password": "Mars2026!",
+		"database": "marsai_db",
 		"host": "127.0.0.1",
 		"dialect": "mysql",
 		"logging": false
 	},
 	"test": {
 		"username": "marsai",
-		"password": "root",
-		"database": "root",
+		"password": "Mars2026!",
+		"database": "marsai_db",
 		"host": "127.0.0.1",
 		"dialect": "mysql"
 	},
 	"production": {
 		"username": "marsai",
-		"password": "root",
-		"database": "root",
+		"password": "Mars2026!",
+		"database": "marsai_db",
 		"host": "127.0.0.1",
 		"dialect": "mysql"
 	}
 }
->>>>>>> bdb58d195af9d6e797c3401f433c36a10a08ae50
