@@ -323,6 +323,15 @@ export function Register() {
               >
                 {registerMutation.isPending ? "Création en cours..." : "Créer mon profil"}
               </button>
+              <div className="text-center text-sm text-gray-400">
+                Déjà inscrit ?
+                <Link
+                  to="/auth/login"
+                  className="ml-2 inline-flex items-center justify-center border border-gray-700 text-white px-4 py-2 rounded-lg hover:border-[#AD46FF] transition"
+                >
+                  Se connecter
+                </Link>
+              </div>
 
             </div>
 
