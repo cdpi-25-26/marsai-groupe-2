@@ -35,4 +35,14 @@ async function signIn(data) {
   return await instance.post("auth/register", data);
 }
 
-export { login, signIn };
+/**
+ * Enregistre un producteur et son film (multipart/form-data)
+ * Endpoint: POST /auth/register-film
+ */
+async function signInWithFilm(formData) {
+  return await instance.post("auth/register-film", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+}
+
+export { login, signIn, signInWithFilm };

@@ -16,7 +16,7 @@ export default function Navbar() {
   }
 
   return (
-    <div className="flex mt-6 ml-2.5 mr-2.5 bg-white/5 text-white text-xl uppercase rounded-full justify-between items-center p-4 border-white/10 border-2">
+    <div className="flex mt-0 ml-2.5 mr-2.5 bg-white/5 text-white text-xl uppercase rounded-full justify-between items-center p-4 border-white/10 border-2 fixed top-8 left-0 right-0 z-50">
       <Link to="/">
       <div className=" ml-3 flex gap-2.5 items-center">
       <div className="text-white text-3xl uppercase font-bold">Mars</div> 
@@ -36,8 +36,8 @@ export default function Navbar() {
 
         
         <button className=" bg-linear-to-br from-[#2B7FFF] to-[#9810FA] text-white px-8 py-3 rounded-full uppercase font-bold hover:from-blue-600 hover:to-purple-700 transition-colors duration-300">
-        <Link to="/">
-        Soumettre
+        <Link to="/auth/register">
+        Candidater au festival
         </Link>
         </button>
         
