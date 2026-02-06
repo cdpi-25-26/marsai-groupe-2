@@ -6,6 +6,11 @@
  */
 import { useEffect, useState } from "react";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
+import { getAssignedMovies } from "../../api/videos";
+import { MediaPlayer, MediaProvider } from "@vidstack/react";
+import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
+import "@vidstack/react/player/styles/default/theme.css";
+import "@vidstack/react/player/styles/default/layouts/video.css";
 
 export default function JuryHome() {
   const [user, setUser] = useState(null);
@@ -14,6 +19,8 @@ export default function JuryHome() {
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({});
   const [success, setSuccess] = useState(null);
+  const [assignedMovies, setAssignedMovies] = useState([]);
+  const [moviesError, setMoviesError] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,6 +38,14 @@ export default function JuryHome() {
       .catch(() => {
         setError("Erreur lors de la récupération des données utilisateur");
         setLoading(false);
+      });
+
+    getAssignedMovies()
+      .then((res) => {
+        setAssignedMovies(res.data || []);
+      })
+      .catch(() => {
+        setMoviesError("Erreur lors du chargement des films assignés.");
       });
   }, []);
 
@@ -198,8 +213,59 @@ export default function JuryHome() {
         </section>
 
         <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold">Vos évaluations</h2>
-          <p className="text-gray-400 mt-2">Cet espace sera dédié à l'évaluation des films.</p>
+          <h2 className="text-2xl font-bold mb-6">Films assignés</h2>
+          {moviesError && <p className="text-red-400 mb-4">{moviesError}</p>}
+          {assignedMovies.length === 0 ? (
+            <p className="text-gray-400">Aucun film assigné pour le moment.</p>
+          ) : (
+            <div className="space-y-6">
+              {assignedMovies.map((movie) => (
+                <div key={movie.id_movie} className="border border-gray-800 rounded-xl p-6 bg-gray-950">
+                  <div className="flex flex-col lg:flex-row gap-6">
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-white">{movie.title}</h3>
+                      <p className="text-gray-400 mt-2">{movie.synopsis || movie.description || "-"}</p>
+                      <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
+                        <div><span className="text-gray-400">Durée:</span> {movie.duration ? `${movie.duration}s` : "-"}</div>
+                        <div><span className="text-gray-400">Langue:</span> {movie.main_language || "-"}</div>
+                        <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
+                        <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
+                      </div>
+                      {movie.trailer && (
+                        <MediaPlayer
+                          className="mt-4 w-full rounded-lg aspect-video bg-black"
+                          title={movie.title}
+                          src={`http://localhost:3000/uploads/${movie.trailer}`}
+                        >
+                          <MediaProvider />
+                          <DefaultVideoLayout icons={defaultLayoutIcons} />
+                        </MediaPlayer>
+                      )}
+                      {movie.trailer && (
+                        <div className="mt-3">
+                          <a
+                            className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                            href={`http://localhost:3000/uploads/${movie.trailer}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Ouvrir la vidéo
+                          </a>
+                        </div>
+                      )}
+                      {!movie.trailer && movie.youtube_link && (
+                        <div className="mt-4">
+                          <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={movie.youtube_link} target="_blank" rel="noreferrer">
+                            Voir sur YouTube
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

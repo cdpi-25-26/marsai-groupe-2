@@ -11,6 +11,10 @@
  */
 
 import { useEffect, useState } from "react";
+import { MediaPlayer, MediaProvider } from "@vidstack/react";
+import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
+import "@vidstack/react/player/styles/default/theme.css";
+import "@vidstack/react/player/styles/default/layouts/video.css";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -34,7 +38,12 @@ const movieSchema = z.object({
   synopsisEnglish: z.string().optional(),
   aiClassification: z.string().optional(),
   aiStack: z.string().optional(),
-  aiMethodology: z.string().optional()
+  aiMethodology: z.string().optional(),
+  filmFile: z.any().optional(),
+  thumbnail1: z.any().optional(),
+  thumbnail2: z.any().optional(),
+  thumbnail3: z.any().optional(),
+  subtitlesSrt: z.any().optional()
 });
 
 export default function ProducerHome() {
@@ -545,13 +554,21 @@ export default function ProducerHome() {
                   <label htmlFor="filmFile" className="text-white font-semibold mb-2 text-sm uppercase">
                     Fichier du film
                   </label>
-                  <input
-                    id="filmFile"
-                    type="file"
-                    {...registerMovie("filmFile")}
-                    className="sr-only"
-                    onChange={(event) => handleFileName(event, setFilmFileName)}
-                  />
+                  {(() => {
+                    const { onChange, ...rest } = registerMovie("filmFile");
+                    return (
+                      <input
+                        id="filmFile"
+                        type="file"
+                        {...rest}
+                        className="sr-only"
+                        onChange={(event) => {
+                          onChange(event);
+                          handleFileName(event, setFilmFileName);
+                        }}
+                      />
+                    );
+                  })()}
                   <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
                     <label htmlFor="filmFile" className="cursor-pointer text-white font-semibold">
                       Choisir un fichier
@@ -564,13 +581,21 @@ export default function ProducerHome() {
                   <label htmlFor="thumbnail1" className="text-white font-semibold mb-2 text-sm uppercase">
                     Vignette 1 (16:9)
                   </label>
-                  <input
-                    id="thumbnail1"
-                    type="file"
-                    {...registerMovie("thumbnail1")}
-                    className="sr-only"
-                    onChange={(event) => handleFileName(event, setThumbnail1Name)}
-                  />
+                  {(() => {
+                    const { onChange, ...rest } = registerMovie("thumbnail1");
+                    return (
+                      <input
+                        id="thumbnail1"
+                        type="file"
+                        {...rest}
+                        className="sr-only"
+                        onChange={(event) => {
+                          onChange(event);
+                          handleFileName(event, setThumbnail1Name);
+                        }}
+                      />
+                    );
+                  })()}
                   <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
                     <label htmlFor="thumbnail1" className="cursor-pointer text-white font-semibold">
                       Choisir un fichier
@@ -583,13 +608,21 @@ export default function ProducerHome() {
                   <label htmlFor="thumbnail2" className="text-white font-semibold mb-2 text-sm uppercase">
                     Vignette 2 (16:9)
                   </label>
-                  <input
-                    id="thumbnail2"
-                    type="file"
-                    {...registerMovie("thumbnail2")}
-                    className="sr-only"
-                    onChange={(event) => handleFileName(event, setThumbnail2Name)}
-                  />
+                  {(() => {
+                    const { onChange, ...rest } = registerMovie("thumbnail2");
+                    return (
+                      <input
+                        id="thumbnail2"
+                        type="file"
+                        {...rest}
+                        className="sr-only"
+                        onChange={(event) => {
+                          onChange(event);
+                          handleFileName(event, setThumbnail2Name);
+                        }}
+                      />
+                    );
+                  })()}
                   <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
                     <label htmlFor="thumbnail2" className="cursor-pointer text-white font-semibold">
                       Choisir un fichier
@@ -602,13 +635,21 @@ export default function ProducerHome() {
                   <label htmlFor="thumbnail3" className="text-white font-semibold mb-2 text-sm uppercase">
                     Vignette 3 (16:9)
                   </label>
-                  <input
-                    id="thumbnail3"
-                    type="file"
-                    {...registerMovie("thumbnail3")}
-                    className="sr-only"
-                    onChange={(event) => handleFileName(event, setThumbnail3Name)}
-                  />
+                  {(() => {
+                    const { onChange, ...rest } = registerMovie("thumbnail3");
+                    return (
+                      <input
+                        id="thumbnail3"
+                        type="file"
+                        {...rest}
+                        className="sr-only"
+                        onChange={(event) => {
+                          onChange(event);
+                          handleFileName(event, setThumbnail3Name);
+                        }}
+                      />
+                    );
+                  })()}
                   <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
                     <label htmlFor="thumbnail3" className="cursor-pointer text-white font-semibold">
                       Choisir un fichier
@@ -621,13 +662,21 @@ export default function ProducerHome() {
                   <label htmlFor="subtitlesSrt" className="text-white font-semibold mb-2 text-sm uppercase">
                     Fichier de sous-titres (.srt)
                   </label>
-                  <input
-                    id="subtitlesSrt"
-                    type="file"
-                    {...registerMovie("subtitlesSrt")}
-                    className="sr-only"
-                    onChange={(event) => handleFileName(event, setSubtitlesName)}
-                  />
+                  {(() => {
+                    const { onChange, ...rest } = registerMovie("subtitlesSrt");
+                    return (
+                      <input
+                        id="subtitlesSrt"
+                        type="file"
+                        {...rest}
+                        className="sr-only"
+                        onChange={(event) => {
+                          onChange(event);
+                          handleFileName(event, setSubtitlesName);
+                        }}
+                      />
+                    );
+                  })()}
                   <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
                     <label htmlFor="subtitlesSrt" className="cursor-pointer text-white font-semibold">
                       Choisir un fichier
@@ -687,9 +736,41 @@ export default function ProducerHome() {
                     </div>
                     {movie.trailer && (
                       <div className="mt-4">
-                        <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={`${uploadBase}/${movie.trailer}`} target="_blank" rel="noreferrer">
-                          Télécharger le film
+                        <MediaPlayer
+                          className="mt-3 w-full rounded-lg aspect-video bg-black"
+                          title={movie.title}
+                          src={{
+                            src: `${uploadBase}/${movie.trailer}`,
+                            type: "video/mp4"
+                          }}
+                        >
+                          <MediaProvider />
+                          <DefaultVideoLayout icons={defaultLayoutIcons} />
+                        </MediaPlayer>
+                      </div>
+                    )}
+                    {!movie.trailer && movie.youtube_link && (
+                      <div className="mt-4">
+                        <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={movie.youtube_link} target="_blank" rel="noreferrer">
+                          Voir sur YouTube
                         </a>
+                      </div>
+                    )}
+                    {movie.trailer && (
+                      <div className="mt-3">
+                        <a
+                          className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                          href={`${uploadBase}/${movie.trailer}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Ouvrir la vidéo
+                        </a>
+                      </div>
+                    )}
+                    {!movie.trailer && !movie.youtube_link && (
+                      <div className="mt-3 text-sm text-amber-300">
+                        Vidéo non disponible (trailer: {String(movie.trailer || "-")}, youtube: {String(movie.youtube_link || "-")}).
                       </div>
                     )}
                   </div>

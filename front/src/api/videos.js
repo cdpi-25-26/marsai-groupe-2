@@ -14,6 +14,14 @@ async function getVideos() {
 }
 
 /**
+ * Récupère les films assignés au jury connecté
+ * Endpoint: GET /movies/assigned
+ */
+async function getAssignedMovies() {
+  return await instance.get("movies/assigned");
+}
+
+/**
  * Met à jour le statut d'un film
  * Endpoint: PUT /movies/:id/status
  */
@@ -21,4 +29,44 @@ async function updateMovieStatus(id, selection_status) {
   return await instance.put(`movies/${id}/status`, { selection_status });
 }
 
-export { getVideos, updateMovieStatus };
+/**
+ * Supprime un film
+ * Endpoint: DELETE /movies/:id
+ */
+async function deleteMovie(id) {
+  return await instance.delete(`movies/${id}`);
+}
+
+/**
+ * Met à jour les catégories d'un film
+ * Endpoint: PUT /movies/:id/categories
+ */
+async function updateMovieCategories(id, categories) {
+  return await instance.put(`movies/${id}/categories`, { categories });
+}
+
+/**
+ * Met à jour les jurys assignés à un film
+ * Endpoint: PUT /movies/:id/juries
+ */
+async function updateMovieJuries(id, juryIds) {
+  return await instance.put(`movies/${id}/juries`, { juryIds });
+}
+
+/**
+ * Récupère toutes les catégories
+ * Endpoint: GET /categories
+ */
+async function getCategories() {
+  return await instance.get("categories");
+}
+
+export {
+  getVideos,
+  getAssignedMovies,
+  updateMovieStatus,
+  updateMovieCategories,
+  updateMovieJuries,
+  getCategories,
+  deleteMovie
+};
