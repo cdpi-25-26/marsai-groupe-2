@@ -6,7 +6,7 @@ import awardRouter from "./Award.route.js";
 import voteRouter from "./Vote.route.js";
 import categorieRouter from "./Categorie.route.js";
 //import collaboratorRouter from "./Collaborator.route.js";
-import reservationRouter from "./Reservation.route.js";
+import reservationRouter from "./Reservation.route.js";import eventRouter from "./Event.route.js";
 
 const router = express.Router();
 
@@ -21,6 +21,7 @@ router.use("/awards", awardRouter);  // Routes de gestion awards
 router.use("/votes", voteRouter); // Routes de gestion votes
 router.use("/categories", categorieRouter); // Routes de gestion catégories
 //router.use("/collaborators", collaboratorRouter); // Routes de gestion collaborateurs
-router.use("/reservation", reservationRouter);// Routes de gestion réservations
+router.use("/reservation", reservationRouter); // Routes de gestion réservations
+router.use("/events", eventRouter); // Routes de gestion réservations
 
 export default router;
