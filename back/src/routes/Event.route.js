@@ -4,14 +4,16 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const eventRouter = express.Router();
 
-eventRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), EventsController.getEvents);
+eventRouter.use(AuthMiddleware(["ADMIN"]));
 
-eventRouter.get("/:id_event", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), EventsController.getEventById);
+eventRouter.get("/", EventsController.getEvents);
 
-eventRouter.post("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), EventsController.createEvent);
+eventRouter.get("/:id_event", EventsController.getEventById);
 
-eventRouter.delete("/:id_event", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), EventsController.deleteEvent);
+eventRouter.post("/", EventsController.createEvent);
 
-eventRouter.put("/:id_event", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), EventsController.updateEvent);
+eventRouter.delete("/:id_event", EventsController.deleteEvent);
+
+eventRouter.put("/:id_event", EventsController.updateEvent);
 
 export default eventRouter;

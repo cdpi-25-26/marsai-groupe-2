@@ -20,8 +20,7 @@ const userRouter = express.Router();
  */
 // Applica il middleware per autenticazione a tutti i ruoli per le route /me
 userRouter.get(
-	"/me",
-	(req, res, next) => AuthMiddleware(req, res, next, ["ADMIN", "JURY", "PRODUCER"]),
+	"/me",AuthMiddleware(["ADMIN", "JURY", "PRODUCER"]),
 	UserController.getCurrentUser
 );
 
@@ -34,13 +33,12 @@ userRouter.get(
  * Accessible par tous les rôles authentifiés (ADMIN, JURY, PRODUCER)
  */
 userRouter.put(
-	"/me",
-	(req, res, next) => AuthMiddleware(req, res, next, ["ADMIN", "JURY", "PRODUCER"]),
+	"/me",AuthMiddleware(["ADMIN", "JURY", "PRODUCER"]),
 	UserController.updateCurrentUser
 );
 
 // Applica il middleware solo per ADMIN alle route seguenti
-userRouter.use((req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]));
+userRouter.use(AuthMiddleware(["ADMIN"]));
 
 
 /**

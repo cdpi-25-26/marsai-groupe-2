@@ -4,16 +4,17 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const voteRouter = express.Router();
 
-voteRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), VoteController.getVote);
+voteRouter.use(AuthMiddleware(["ADMIN"]));
 
-voteRouter.get("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), VoteController.getVoteById);
+voteRouter.get("/", VoteController.getVote);
 
-voteRouter.post("/:id_movie/:id_user", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), VoteController.createVote);
+voteRouter.get("/:id", VoteController.getVoteById);
 
-voteRouter.delete("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), VoteController.deleteVote);
+voteRouter.post("/:id_movie/:id_user", VoteController.createVote);
+
+voteRouter.delete("/:id", VoteController.deleteVote);
 
 
-voteRouter.put("/:id", (req, res, next) => 
-AuthMiddleware(req, res, next, ["ADMIN"]),VoteController.updateVote);
+voteRouter.put("/:id", VoteController.updateVote);
 
 export default voteRouter;
