@@ -21,7 +21,7 @@ router.use("/awards", awardRouter);  // Routes de gestion awards
 router.use("/votes", voteRouter); // Routes de gestion votes
 router.use("/categories", categorieRouter); // Routes de gestion catégories
 //router.use("/collaborators", collaboratorRouter); // Routes de gestion collaborateurs
-router.use("/reservation", reservationRouter); // Routes de gestion réservations
+router.use("/reservations", reservationRouter); // Routes de gestion réservations
 router.use("/events", eventRouter); // Routes de gestion réservations
 
 export default router;

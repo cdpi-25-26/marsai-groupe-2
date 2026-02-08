@@ -2,43 +2,19 @@ import express from "express";
 import MovieController from "../controllers/MovieController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
-const router = express.Router();
-
-/**
- * Helper pour simplifier l'utilisation des rôles
- */
-const authorize = (roles = []) =>
-  (req, res, next) => AuthMiddleware(req, res, next, roles);
-
+const movieRouter = express.Router();
 
 
  //-1- Voir tous les films (public)
- 
-router.get(
-  "/",
-  MovieController.getMovies
-);
-
-
+movieRouter.get("/",MovieController.getMovies);
 
  //-2- Voir un film par ID (public)
- 
-router.get(
-  "/:id",
-  MovieController.getMovieById
-);
-
+movieRouter.get("/:id",MovieController.getMovieById);
 
 
  //-3- Soumettre un film (PRODUCER uniquement)
- 
-router.post(
-  "/",
-  authorize(["PRODUCER", "ADMIN"]),
-  MovieController.createMovie
+movieRouter.post("/", AuthMiddleware(["PRODUCER"]),MovieController.createMovie
 );
-
-
 
  //-4- Modifier un film (PRODUCER connecté)
  
@@ -48,30 +24,14 @@ router.post(
   MovieController.updateMovie
 );*/
 
-
-
  //-5- Supprimer un film (ADMIN uniquement)
- 
-router.delete(
-  "/:id",
-  authorize(["ADMIN"]),
-  MovieController.deleteMovie
-);
+movieRouter.delete("/:id", AuthMiddleware(["ADMIN"]),MovieController.deleteMovie);
 
 
  //-6- assigner un film à des juries(ADMIN uniquement)
- 
+movieRouter.post("/:id/assign-juries", AuthMiddleware(["ADMIN"]), MovieController.assignJuriesToMovie);
 
-router.post(
-  "/:id/assign-juries",
-  authorize(["ADMIN"]),
-  MovieController.assignJuriesToMovie
-);
-
-
-
-
-export default router;
+export default movieRouter;
 
 
 
