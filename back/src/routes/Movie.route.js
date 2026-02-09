@@ -16,6 +16,7 @@ const authorize = (roles = []) =>
  
 router.get(
   "/",
+  authorize(["ADMIN"]),
   MovieController.getMovies
 );
 
@@ -25,6 +26,7 @@ router.get(
  
 router.get(
   "/:id",
+  authorize(["ADMIN"]),
   MovieController.getMovieById
 );
 

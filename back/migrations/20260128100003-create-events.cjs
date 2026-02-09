@@ -9,20 +9,28 @@ module.exports = {
 				type: Sequelize.INTEGER
 			},
 			name: {
-				type: Sequelize.STRING(100),
+				type: Sequelize.STRING(255),
 				allowNull: false
 			},
 			description: {
-				type: Sequelize.STRING,
+				type: Sequelize.TEXT,
 				allowNull: true
 			},
-			date: {
+			start_date: {
+				type: Sequelize.DATE,
+				allowNull: false
+			},
+			end_date: {
 				type: Sequelize.DATE,
 				allowNull: false
 			},
 			location: {
-				type: Sequelize.STRING,
+				type: Sequelize.STRING(255),
 				allowNull: true
+			},
+			event_type: {
+				type: Sequelize.ENUM('CONFERENCE', 'WORKSHOP', 'MEETUP', 'WEBINAR'),
+				allowNull: false
 			},
 			createdAt: {
 				allowNull: false,
