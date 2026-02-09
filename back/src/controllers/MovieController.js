@@ -1,4 +1,6 @@
 import db from "../models/index.js";
+import path from "path";
+import ffmpeg from "fluent-ffmpeg";
 
 const {
   Movie,
@@ -6,6 +8,27 @@ const {
   Collaborator,
   User
 } = db;
+
+const uploadDir = path.join(process.cwd(), "uploads");
+
+function generatePosterFromVideo(videoFilename) {
+  if (!videoFilename) return Promise.resolve(null);
+
+  const posterName = `poster-${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+
+  return new Promise((resolve, reject) => {
+    ffmpeg(path.join(uploadDir, videoFilename))
+      .on("end", () => resolve(posterName))
+      .on("error", (err) => reject(err))
+      .screenshots({
+        count: 1,
+        timemarks: ["1"],
+        filename: posterName,
+        folder: uploadDir,
+        size: "1280x720"
+      });
+  });
+}
 
 
 //////////////////////////////////////////////////////////// Récupérer tous les films
@@ -222,6 +245,21 @@ async function createMovie(req, res) {
       id_user
       // selection_status = 'submitted' automatiquement
     });
+
+    if (!movieThumbnail && filmFile) {
+      try {
+        const generatedPoster = await generatePosterFromVideo(filmFile);
+        if (generatedPoster) {
+          await newMovie.update({
+            thumbnail: generatedPoster,
+            display_picture: movieDisplayPicture || generatedPoster,
+            picture1: thumb1 || req.body.picture1 || generatedPoster
+          });
+        }
+      } catch (posterError) {
+        console.warn("Poster generation failed:", posterError.message);
+      }
+    }
 
     // -5-Associer les catégories (N–N)
     let parsedCategories = categories;

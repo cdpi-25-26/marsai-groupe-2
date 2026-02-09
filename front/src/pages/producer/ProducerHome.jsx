@@ -11,10 +11,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { MediaPlayer, MediaProvider } from "@vidstack/react";
-import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
-import "@vidstack/react/player/styles/default/theme.css";
-import "@vidstack/react/player/styles/default/layouts/video.css";
+import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -736,17 +733,19 @@ export default function ProducerHome() {
                     </div>
                     {movie.trailer && (
                       <div className="mt-4">
-                        <MediaPlayer
-                          className="mt-3 w-full rounded-lg aspect-video bg-black"
+                        <VideoPreview
                           title={movie.title}
-                          src={{
-                            src: `${uploadBase}/${movie.trailer}`,
-                            type: "video/mp4"
-                          }}
-                        >
-                          <MediaProvider />
-                          <DefaultVideoLayout icons={defaultLayoutIcons} />
-                        </MediaPlayer>
+                          src={`${uploadBase}/${movie.trailer}`}
+                          poster={
+                            movie.thumbnail
+                              ? `${uploadBase}/${movie.thumbnail}`
+                              : movie.display_picture
+                                ? `${uploadBase}/${movie.display_picture}`
+                                : movie.picture1
+                                  ? `${uploadBase}/${movie.picture1}`
+                                  : undefined
+                          }
+                        />
                       </div>
                     )}
                     {!movie.trailer && movie.youtube_link && (

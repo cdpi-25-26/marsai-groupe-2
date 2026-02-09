@@ -19,10 +19,7 @@ import {
   updateMovieStatus
 } from "../../api/videos.js";
 import { getUsers } from "../../api/users.js";
-import { MediaPlayer, MediaProvider } from "@vidstack/react";
-import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
-import "@vidstack/react/player/styles/default/theme.css";
-import "@vidstack/react/player/styles/default/layouts/video.css";
+import { VideoPreview } from "../../components/VideoPreview.jsx";
 
 /**
  * Fonction Videos
@@ -159,17 +156,21 @@ function Videos() {
                 <details className="mt-4">
                   <summary className="cursor-pointer text-gray-300 hover:text-white">Voir la vidéo</summary>
                   {movie.trailer ? (
-                    <MediaPlayer
-                      className="mt-3 w-full rounded-lg aspect-video bg-black"
-                      title={movie.title}
-                      src={{
-                        src: `${uploadBase}/${movie.trailer}`,
-                        type: "video/mp4"
-                      }}
-                    >
-                      <MediaProvider />
-                      <DefaultVideoLayout icons={defaultLayoutIcons} />
-                    </MediaPlayer>
+                    <div className="mt-3">
+                      <VideoPreview
+                        title={movie.title}
+                        src={`${uploadBase}/${movie.trailer}`}
+                        poster={
+                          movie.thumbnail
+                            ? `${uploadBase}/${movie.thumbnail}`
+                            : movie.display_picture
+                              ? `${uploadBase}/${movie.display_picture}`
+                              : movie.picture1
+                                ? `${uploadBase}/${movie.picture1}`
+                                : undefined
+                        }
+                      />
+                    </div>
                   ) : (
                     <div className="mt-3">
                       <a className="text-[#AD46FF] hover:text-[#F6339A]" href={movie.youtube_link} target="_blank" rel="noreferrer">
