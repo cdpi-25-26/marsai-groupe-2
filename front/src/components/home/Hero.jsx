@@ -1,3 +1,5 @@
+import TitleInBox from "../TitleInBox";
+import Button from "../Button";
 export default function Hero() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -24,13 +26,8 @@ export default function Hero() {
         <div className="text-center w-full">
 
           {/* Sur‑titre */}
-          <div className="inline-flex items-center justify-center 
-                          bg-black/20 border border-white/10 
-                          px-4 py-1.5 rounded-full mb-6 mt-6">
-            <p className="text-xs sm:text-sm tracking-[0.25em] text-gray-300 font-bold uppercase m-0">
-              LE PROTOCOLE TEMPOREL <span className="text-[#AD46FF]">2026</span>
-            </p>
-          </div>
+          <TitleInBox title="LE PROTOCOLE TEMPOREL" spancolor="#AD46FF" title2="2026"/>
+        
 
           {/* Titre principal */}
           <h1
@@ -73,22 +70,17 @@ export default function Hero() {
           </p>
 
           {/* Bouton */}
-          <div className="flex justify-center pt-2 mt-6">
-            <a
+          <div className="flex justify-center pt-6 mt-6">
+            <Button
+              title="inscrivez votre film ➝"
               href="#"
-              className="
-                px-6 py-3 md:px-8 md:py-3 
-                rounded-full font-semibold 
-                text-sm md:text-lg uppercase
-                bg-white text-black
-                shadow-[0_0_25px_rgba(255,255,255,0.35)]
-                hover:shadow-[0_0_40px_rgba(173,70,255,0.7)]
-                hover:bg-[#F5F5F5] hover:border hover:border-[#F6339A]
-                transition-all duration-300
-              "
-            >
-              inscrivez votre film ➝
-            </a>
+              backgroundColor="bg-white"
+              textColor="text-black"
+              hoverBackgroundColor="hover:bg-[#F5F5F5]"
+              hoverBorderColor="hover:border-[#F6339A]"
+              shadow = "shadow-[0_0_25px_rgba(255,255,255,0.35)]"
+              hoverShadow = "hover:shadow-[0_0_40px_rgba(173,70,255,0.7)]"
+            />
           </div>
 
         </div>
