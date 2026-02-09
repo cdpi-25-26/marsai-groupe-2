@@ -1,22 +1,22 @@
 {
 	"development": {
-		"username": "theoa",
-		"password": "Root_2026",
+		"username": "root",
+		"password": "root",
 		"database": "marsai",
 		"host": "127.0.0.1",
 		"dialect": "mysql",
 		"logging": false
 	},
 	"test": {
-		"username": "theoa",
-		"password": "Root_2026",
+		"username": "root",
+		"password": "root",
 		"database": "marsai",
 		"host": "127.0.0.1",
 		"dialect": "mysql"
 	},
 	"production": {
-		"username": "theoa",
-		"password": "Root_2026",
+		"username": "root",
+		"password": "root",
 		"database": "marsai",
 		"host": "127.0.0.1",
 		"dialect": "mysql"

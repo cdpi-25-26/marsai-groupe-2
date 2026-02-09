@@ -14,12 +14,12 @@ export default function Hero() {
           muted
           playsInline
         >
-          <source src="./src/assets/videos/accueil_marsai.mp4" type="video/mp4" />
+          <source src="./src/assets/videos/accueil_marsai_2.mp4" type="video/mp4" />
         </video>
       </div>
 
       {/* Overlay sombre */}
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/90"></div>
 
       {/* Contenu */}
       <div className="relative z-10 flex items-center justify-center w-full h-full px-4 md:px-6">
