@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  createCategory,
   getCategories,
   getVideos,
   deleteMovie,
@@ -53,6 +54,7 @@ function Videos() {
 
   const [categorySelection, setCategorySelection] = useState({});
   const [jurySelection, setJurySelection] = useState({});
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   useEffect(() => {
     if (!data?.data) return;
@@ -93,6 +95,14 @@ function Videos() {
     }
   });
 
+  const createCategoryMutation = useMutation({
+    mutationFn: (name) => createCategory(name),
+    onSuccess: () => {
+      setNewCategoryName("");
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+    }
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteMovie(id),
     onSuccess: () => {
@@ -113,8 +123,34 @@ function Videos() {
   }
 
   // Affichage de la liste des vidéos ou message si aucune vidéo n'existe
-  return data.data.length > 0 ? (
+  return (
     <div className="space-y-6">
+      <div className="bg-gray-950 border border-gray-800 rounded-xl p-6">
+        <h3 className="text-xl font-bold text-white mb-4">Créer une catégorie</h3>
+        <div className="flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            value={newCategoryName}
+            onChange={(event) => setNewCategoryName(event.target.value)}
+            placeholder="Nom de la catégorie"
+            className="flex-1 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (newCategoryName.trim()) {
+                createCategoryMutation.mutate(newCategoryName.trim());
+              }
+            }}
+            className="px-5 py-3 bg-[#AD46FF] text-white rounded-lg hover:opacity-90"
+          >
+            Ajouter
+          </button>
+        </div>
+      </div>
+
+      {data.data.length > 0 ? (
+        <>
       {data.data.map((movie) => (
         <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-xl p-6">
           <div className="flex flex-col lg:flex-row gap-6">
@@ -310,9 +346,11 @@ function Videos() {
           </div>
         </div>
       ))}
+        </>
+      ) : (
+        <div className="text-gray-400">Aucune vidéo trouvée.</div>
+      )}
     </div>
-  ) : (
-    <div className="text-gray-400">Aucune vidéo trouvée.</div>
   );
 }
 

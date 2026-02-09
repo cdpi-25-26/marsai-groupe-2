@@ -61,6 +61,14 @@ async function getCategories() {
   return await instance.get("categories");
 }
 
+/**
+ * Crée une catégorie (ADMIN)
+ * Endpoint: POST /categories
+ */
+async function createCategory(name) {
+  return await instance.post("categories", { name });
+}
+
 export {
   getVideos,
   getAssignedMovies,
@@ -68,5 +76,6 @@ export {
   updateMovieCategories,
   updateMovieJuries,
   getCategories,
+  createCategory,
   deleteMovie
 };

@@ -125,6 +125,7 @@ export default function ProducerHome() {
         formData.append("collaborators", JSON.stringify(normalized));
       }
 
+
       if (data.filmFile?.[0]) formData.append("filmFile", data.filmFile[0]);
       if (data.thumbnail1?.[0]) formData.append("thumbnail1", data.thumbnail1[0]);
       if (data.thumbnail2?.[0]) formData.append("thumbnail2", data.thumbnail2[0]);
@@ -695,6 +696,7 @@ export default function ProducerHome() {
               </div>
             </section>
 
+
             <section>
               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <span className="text-[#AD46FF]">●</span> Fichiers
@@ -981,6 +983,7 @@ export default function ProducerHome() {
                         </div>
                       )}
                     </div>
+
                     {movie.trailer && (
                       <div className="mt-4">
                         <VideoPreview
