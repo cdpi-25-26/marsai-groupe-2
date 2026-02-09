@@ -1,3 +1,5 @@
+import TitleInBox from "../TitleInBox.jsx";
+
 export default function Hero() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -70,7 +72,7 @@ export default function Hero() {
           {/* Bouton */}
           <div className="flex justify-center pt-2 mt-6">
             <a
-              href="#"
+              href="/auth/register"
               className="
                 px-6 py-3 md:px-8 md:py-3 
                 rounded-full font-semibold 
