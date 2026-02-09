@@ -7,10 +7,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
 import { getAssignedMovies } from "../../api/videos";
-import { MediaPlayer, MediaProvider } from "@vidstack/react";
-import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default";
-import "@vidstack/react/player/styles/default/theme.css";
-import "@vidstack/react/player/styles/default/layouts/video.css";
+import { VideoPreview } from "../../components/VideoPreview.jsx";
 
 export default function JuryHome() {
   const [user, setUser] = useState(null);
@@ -232,25 +229,20 @@ export default function JuryHome() {
                         <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
                       </div>
                       {movie.trailer && (
-                        <MediaPlayer
-                          className="mt-4 w-full rounded-lg aspect-video bg-black"
-                          title={movie.title}
-                          src={`http://localhost:3000/uploads/${movie.trailer}`}
-                        >
-                          <MediaProvider />
-                          <DefaultVideoLayout icons={defaultLayoutIcons} />
-                        </MediaPlayer>
-                      )}
-                      {movie.trailer && (
-                        <div className="mt-3">
-                          <a
-                            className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                            href={`http://localhost:3000/uploads/${movie.trailer}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Ouvrir la vidéo
-                          </a>
+                        <div className="mt-4">
+                          <VideoPreview
+                            title={movie.title}
+                            src={`http://localhost:3000/uploads/${movie.trailer}`}
+                            poster={
+                              movie.thumbnail
+                                ? `http://localhost:3000/uploads/${movie.thumbnail}`
+                                : movie.display_picture
+                                  ? `http://localhost:3000/uploads/${movie.display_picture}`
+                                  : movie.picture1
+                                    ? `http://localhost:3000/uploads/${movie.picture1}`
+                                    : undefined
+                            }
+                          />
                         </div>
                       )}
                       {!movie.trailer && movie.youtube_link && (
