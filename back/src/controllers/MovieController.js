@@ -54,7 +54,8 @@ async function getMovies(req, res) {
           model: User,
           as: "Juries",
           attributes: ["id_user", "first_name", "last_name", "email", "role"],
-          through: { attributes: [] }
+          through: { attributes: [] },
+          required: false
         }
       ]
     });
@@ -92,7 +93,12 @@ async function getMyMovies(req, res) {
 
     res.json(movies);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("createMovie error:", error);
+    res.status(500).json({
+      error: error.message,
+      name: error.name,
+      detail: error?.parent?.sqlMessage || error?.original?.message
+    });
   }
 }
 
