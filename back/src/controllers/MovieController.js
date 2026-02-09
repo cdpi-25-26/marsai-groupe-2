@@ -531,6 +531,79 @@ async function updateMovieJuries(req, res) {
   }
 }
 
+///////////////////////////////////////////////////////////////////////// Assigner des collaborateurs (PRODUCER/ADMIN)
+
+async function updateMovieCollaborators(req, res) {
+  try {
+    const { id } = req.params;
+    let { collaborators } = req.body;
+
+    if (typeof collaborators === "string") {
+      try {
+        collaborators = JSON.parse(collaborators);
+      } catch (parseError) {
+        collaborators = [];
+      }
+    }
+
+    if (!Array.isArray(collaborators)) {
+      collaborators = [];
+    }
+
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ error: "Film non trouvé" });
+    }
+
+    if (req.user.role !== "ADMIN" && movie.id_user !== req.user.id_user) {
+      return res.status(403).json({ error: "Accès refusé" });
+    }
+
+    const collaboratorRecords = await Promise.all(
+      collaborators
+        .filter((collab) => collab?.email)
+        .map(async (collab) => {
+          const [record] = await Collaborator.findOrCreate({
+            where: { email: collab.email },
+            defaults: {
+              first_name: collab.first_name || "",
+              last_name: collab.last_name || "",
+              email: collab.email,
+              job: collab.job || null
+            }
+          });
+
+          const needsUpdate =
+            (collab.first_name && collab.first_name !== record.first_name)
+            || (collab.last_name && collab.last_name !== record.last_name)
+            || (collab.job && collab.job !== record.job);
+
+          if (needsUpdate) {
+            await record.update({
+              first_name: collab.first_name || record.first_name,
+              last_name: collab.last_name || record.last_name,
+              job: collab.job || record.job
+            });
+          }
+
+          return record;
+        })
+    );
+
+    await movie.setCollaborators(collaboratorRecords);
+
+    const updatedMovie = await Movie.findByPk(id, {
+      include: [
+        { model: Collaborator, through: { attributes: [] } }
+      ]
+    });
+
+    res.json({ message: "Collaborateurs mis à jour", movie: updatedMovie });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export default {
   getMovies,
   getMyMovies,
@@ -541,5 +614,6 @@ export default {
   updateMovieStatus,
   getAssignedMovies,
   updateMovieCategories,
-  updateMovieJuries
+  updateMovieJuries,
+  updateMovieCollaborators
 };

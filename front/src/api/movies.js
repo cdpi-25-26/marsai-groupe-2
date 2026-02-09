@@ -22,4 +22,12 @@ async function createMovie(formData) {
   });
 }
 
-export { getMyMovies, createMovie };
+/**
+ * Met à jour les collaborateurs d'un film
+ * Endpoint: PUT /movies/:id/collaborators
+ */
+async function updateMovieCollaborators(id, collaborators) {
+  return await instance.put(`movies/${id}/collaborators`, { collaborators });
+}
+
+export { getMyMovies, createMovie, updateMovieCollaborators };

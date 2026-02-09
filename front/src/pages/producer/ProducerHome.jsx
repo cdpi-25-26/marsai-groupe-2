@@ -14,10 +14,10 @@ import { useEffect, useState } from "react";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
-import { createMovie, getMyMovies } from "../../api/movies";
+import { createMovie, getMyMovies, updateMovieCollaborators } from "../../api/movies";
 
 const movieSchema = z.object({
   filmTitleOriginal: z.string().min(1, "Le titre du film est requis"),
@@ -36,6 +36,16 @@ const movieSchema = z.object({
   aiClassification: z.string().optional(),
   aiStack: z.string().optional(),
   aiMethodology: z.string().optional(),
+  collaborators: z
+    .array(
+      z.object({
+        first_name: z.string().optional(),
+        last_name: z.string().optional(),
+        email: z.string().email("Email invalide").optional(),
+        job: z.string().optional()
+      })
+    )
+    .optional(),
   filmFile: z.any().optional(),
   thumbnail1: z.any().optional(),
   thumbnail2: z.any().optional(),
@@ -60,6 +70,8 @@ export default function ProducerHome() {
   const [movies, setMovies] = useState([]);
   const [movieSuccess, setMovieSuccess] = useState(null);
   const [movieError, setMovieError] = useState(null);
+  const [editingMovieId, setEditingMovieId] = useState(null);
+  const [collabDrafts, setCollabDrafts] = useState({});
   const [filmFileName, setFilmFileName] = useState("Aucun fichier sélectionné");
   const [thumbnail1Name, setThumbnail1Name] = useState("Aucun fichier sélectionné");
   const [thumbnail2Name, setThumbnail2Name] = useState("Aucun fichier sélectionné");
@@ -75,9 +87,19 @@ export default function ProducerHome() {
     register: registerMovie,
     handleSubmit: handleSubmitMovie,
     reset: resetMovie,
+    control: movieControl,
     formState: { errors: movieErrors }
   } = useForm({
     resolver: zodResolver(movieSchema)
+  });
+
+  const {
+    fields: collaboratorFields,
+    append: appendCollaborator,
+    remove: removeCollaborator
+  } = useFieldArray({
+    control: movieControl,
+    name: "collaborators"
   });
 
   const createMovieMutation = useMutation({
@@ -95,6 +117,13 @@ export default function ProducerHome() {
       formData.append("aiClassification", data.aiClassification || "");
       formData.append("aiStack", data.aiStack || "");
       formData.append("aiMethodology", data.aiMethodology || "");
+
+      if (data.collaborators?.length) {
+        const normalized = data.collaborators.filter(
+          (collab) => collab?.first_name || collab?.last_name || collab?.email
+        );
+        formData.append("collaborators", JSON.stringify(normalized));
+      }
 
       if (data.filmFile?.[0]) formData.append("filmFile", data.filmFile[0]);
       if (data.thumbnail1?.[0]) formData.append("thumbnail1", data.thumbnail1[0]);
@@ -127,6 +156,22 @@ export default function ProducerHome() {
         || err?.message
         || "Erreur lors de la soumission du film."
       );
+    }
+  });
+
+  const updateCollaboratorsMutation = useMutation({
+    mutationFn: ({ id, collaborators }) => updateMovieCollaborators(id, collaborators),
+    onSuccess: async () => {
+      try {
+        const moviesRes = await getMyMovies();
+        setMovies(moviesRes.data || []);
+      } catch {
+        // ignore refresh errors
+      }
+      setEditingMovieId(null);
+    },
+    onError: () => {
+      setMovieError("Erreur lors de la mise à jour des collaborateurs.");
     }
   });
 
@@ -199,6 +244,48 @@ export default function ProducerHome() {
     } catch (err) {
       setError("Erreur lors de la mise à jour du profil");
     }
+  }
+
+  function startEditCollaborators(movie) {
+    const existing = (movie.Collaborators || []).map((collab) => ({
+      first_name: collab.first_name || "",
+      last_name: collab.last_name || "",
+      email: collab.email || "",
+      job: collab.job || ""
+    }));
+
+    setCollabDrafts((prev) => ({
+      ...prev,
+      [movie.id_movie]: existing.length ? existing : [{ first_name: "", last_name: "", email: "", job: "" }]
+    }));
+    setEditingMovieId(movie.id_movie);
+  }
+
+  function updateDraftField(movieId, index, field, value) {
+    setCollabDrafts((prev) => {
+      const list = [...(prev[movieId] || [])];
+      if (!list[index]) return prev;
+      list[index] = { ...list[index], [field]: value };
+      return { ...prev, [movieId]: list };
+    });
+  }
+
+  function addDraftCollaborator(movieId) {
+    setCollabDrafts((prev) => ({
+      ...prev,
+      [movieId]: [
+        ...(prev[movieId] || []),
+        { first_name: "", last_name: "", email: "", job: "" }
+      ]
+    }));
+  }
+
+  function removeDraftCollaborator(movieId, index) {
+    setCollabDrafts((prev) => {
+      const list = [...(prev[movieId] || [])];
+      list.splice(index, 1);
+      return { ...prev, [movieId]: list };
+    });
   }
 
   return (
@@ -542,6 +629,73 @@ export default function ProducerHome() {
             </section>
 
             <section>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <span className="text-[#AD46FF]">●</span> Collaborateurs
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => appendCollaborator({ first_name: "", last_name: "", email: "", job: "" })}
+                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Ajouter un collaborateur
+                </button>
+              </div>
+
+              {collaboratorFields.length === 0 && (
+                <p className="text-gray-400">Aucun collaborateur ajouté.</p>
+              )}
+
+              <div className="space-y-4">
+                {collaboratorFields.map((field, index) => (
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-950 border border-gray-800 p-4 rounded-xl">
+                    <div className="flex flex-col">
+                      <label className="text-sm uppercase text-gray-400 mb-1">Prénom</label>
+                      <input
+                        type="text"
+                        {...registerMovie(`collaborators.${index}.first_name`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm uppercase text-gray-400 mb-1">Nom</label>
+                      <input
+                        type="text"
+                        {...registerMovie(`collaborators.${index}.last_name`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm uppercase text-gray-400 mb-1">Email</label>
+                      <input
+                        type="email"
+                        {...registerMovie(`collaborators.${index}.email`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-sm uppercase text-gray-400 mb-1">Rôle</label>
+                      <input
+                        type="text"
+                        {...registerMovie(`collaborators.${index}.job`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                      />
+                    </div>
+                    <div className="md:col-span-4 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removeCollaborator(index)}
+                        className="text-red-400 hover:text-red-300 text-sm"
+                      >
+                        Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section>
               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <span className="text-[#AD46FF]">●</span> Fichiers
               </h3>
@@ -730,6 +884,102 @@ export default function ProducerHome() {
                       <div><span className="text-gray-400">Sous-titres:</span> {movie.subtitle ? (
                         <a className="text-[#AD46FF] hover:text-[#F6339A]" href={`${uploadBase}/${movie.subtitle}`} target="_blank" rel="noreferrer">Télécharger</a>
                       ) : "-"}</div>
+                    </div>
+
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm uppercase text-gray-400">Collaborateurs</h4>
+                        <button
+                          type="button"
+                          onClick={() => startEditCollaborators(movie)}
+                          className="text-sm text-[#AD46FF] hover:text-[#F6339A]"
+                        >
+                          Modifier
+                        </button>
+                      </div>
+                      {movie.Collaborators?.length ? (
+                        <ul className="mt-2 text-sm text-gray-300 space-y-1">
+                          {movie.Collaborators.map((collab) => (
+                            <li key={collab.id_collaborator}>
+                              {collab.first_name} {collab.last_name} {collab.job ? `— ${collab.job}` : ""}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500 mt-2">Aucun collaborateur.</p>
+                      )}
+
+                      {editingMovieId === movie.id_movie && (
+                        <div className="mt-4 space-y-3">
+                          {(collabDrafts[movie.id_movie] || []).map((collab, idx) => (
+                            <div key={`${movie.id_movie}-collab-${idx}`} className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-900 border border-gray-800 p-3 rounded-lg">
+                              <input
+                                type="text"
+                                placeholder="Prénom"
+                                value={collab.first_name}
+                                onChange={(e) => updateDraftField(movie.id_movie, idx, "first_name", e.target.value)}
+                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Nom"
+                                value={collab.last_name}
+                                onChange={(e) => updateDraftField(movie.id_movie, idx, "last_name", e.target.value)}
+                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                              />
+                              <input
+                                type="email"
+                                placeholder="Email"
+                                value={collab.email}
+                                onChange={(e) => updateDraftField(movie.id_movie, idx, "email", e.target.value)}
+                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Rôle"
+                                value={collab.job}
+                                onChange={(e) => updateDraftField(movie.id_movie, idx, "job", e.target.value)}
+                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                              />
+                              <div className="md:col-span-4 flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => removeDraftCollaborator(movie.id_movie, idx)}
+                                  className="text-red-400 hover:text-red-300 text-sm"
+                                >
+                                  Supprimer
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="flex flex-wrap gap-3">
+                            <button
+                              type="button"
+                              onClick={() => addDraftCollaborator(movie.id_movie)}
+                              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                            >
+                              Ajouter un collaborateur
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateCollaboratorsMutation.mutate({
+                                id: movie.id_movie,
+                                collaborators: collabDrafts[movie.id_movie] || []
+                              })}
+                              className="px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90"
+                            >
+                              Enregistrer
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingMovieId(null)}
+                              className="px-4 py-2 border border-gray-700 rounded-lg"
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     {movie.trailer && (
                       <div className="mt-4">
