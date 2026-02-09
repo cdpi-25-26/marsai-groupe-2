@@ -96,6 +96,13 @@ router.put(
   MovieController.updateMovieJuries
 );
 
+///////////////////////////////////////////////////////////////////////// Assigner collaborateurs (PRODUCER/ADMIN)
+router.put(
+  "/:id/collaborators",
+  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER", "ADMIN"]),
+  MovieController.updateMovieCollaborators
+);
+
 /////////////////////////////////////////////////////////////////////////// Modifier un film
 //Seulement le propriétaire ou ADMIN
 
