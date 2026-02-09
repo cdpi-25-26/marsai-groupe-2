@@ -13,7 +13,7 @@ movieRouter.get("/:id",MovieController.getMovieById);
 
 
  //-3- Soumettre un film (PRODUCER uniquement)
-movieRouter.post("/", AuthMiddleware(["PRODUCER"]),MovieController.createMovie
+movieRouter.post("/", AuthMiddleware(["PRODUCER", "ADMIN"]),MovieController.createMovie
 );
 
  //-4- Modifier un film (PRODUCER connecté)
