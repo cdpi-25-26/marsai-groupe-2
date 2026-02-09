@@ -48,72 +48,78 @@
 
 
 
-import {
-  LineChart,
+import { 
+  LineChart, 
   Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer
-} from "recharts";
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
 
-/**
- * Votes activity chart
- */
-export default function VotesChart({ data = [] }) {
-  /* ===============================
-     SAFETY FALLBACK
-  =============================== */
-  if (!data.length) {
+export default function VotesChart({ votesData }) {
+  // Transform data for chart
+  const chartData = votesData?.trend?.map(item => ({
+    date: new Date(item.date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    }),
+    votes: item.count
+  })) || [];
+
+  // Show empty state if no data
+  if (!votesData || chartData.length === 0) {
     return (
-      <div className="bg-neutral-900 p-6 rounded-2xl border border-neutral-800">
-        <h3 className="text-lg font-semibold mb-4">
-          Activité des votes
-        </h3>
-        <p className="text-neutral-400">
-          Aucune donnée disponible
-        </p>
+      <div className="bg-neutral-900 rounded-2xl p-6 border border-neutral-800">
+        <h3 className="font-semibold mb-4">Voting Activity (Last 7 Days)</h3>
+        <div className="flex items-center justify-center h-64 text-neutral-500">
+          <div className="text-center">
+            <div className="text-4xl mb-2">📊</div>
+            <p>No voting activity yet</p>
+            <p className="text-sm">Chart will appear when jury starts voting</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  /* ===============================
-     FORMAT DATE
-  =============================== */
-  const formatted = data.map(d => ({
-    ...d,
-    date: new Date(d.date).toLocaleDateString()
-  }));
-
-  /* ===============================
-     RENDER
-  =============================== */
   return (
-    <div className="bg-neutral-900 p-6 rounded-2xl border border-neutral-800">
-      <h3 className="text-lg font-semibold mb-6">
-        Activité des votes (7 derniers jours)
-      </h3>
+    <div className="bg-neutral-900 rounded-2xl p-6 border border-neutral-800">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="font-semibold text-lg">Voting Activity</h3>
+        <span className="text-sm text-neutral-400">Last 7 Days</span>
+      </div>
 
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={formatted}>
-          <CartesianGrid strokeDasharray="3 3" />
-
-          <XAxis dataKey="date" />
-
-          <YAxis allowDecimals={false} />
-
-          <Tooltip />
-
-          <Line
-            type="monotone"
-            dataKey="count"
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="date" 
+            stroke="#9CA3AF"
+            style={{ fontSize: '12px' }}
+          />
+          <YAxis 
+            stroke="#9CA3AF"
+            style={{ fontSize: '12px' }}
+          />
+          <Tooltip 
+            contentStyle={{
+              backgroundColor: '#1F2937',
+              border: '1px solid #374151',
+              borderRadius: '8px'
+            }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="votes" 
+            stroke="#3B82F6" 
             strokeWidth={3}
-            dot={{ r: 4 }}
+            dot={{ fill: '#3B82F6', r: 5 }}
+            activeDot={{ r: 7 }}
           />
         </LineChart>
       </ResponsiveContainer>
     </div>
   );
 }
-

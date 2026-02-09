@@ -91,35 +91,46 @@ export default function AdminLayout() {
         } bg-neutral-900 border-r border-neutral-800 flex flex-col transition-all duration-300`}
       >
         {/* Logo / Profile */}
-        <div className="p-6 border-b border-neutral-800">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold relative">
-              {firstName.charAt(0).toUpperCase()}
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-900"></span>
-            </div>
-
+        <div className="p-5 border-b border-neutral-800">
+          {" "}
+          <div
+            className={`flex ${isSidebarOpen ? "items-center space-x-3" : "flex-col items-center"}`}
+          >
+            {" "}
+            {/* Avatar */}{" "}
+            <div className="w-12 h-12 flex-shrink-0">
+              {" "}
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-black-500 to-blue-500 flex items-center justify-center font-bold relative">
+                {" "}
+                {firstName.charAt(0).toUpperCase()}{" "}
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-neutral-900"></span>{" "}
+              </div>{" "}
+            </div>{" "}
+            {/* Text only when open */}{" "}
             {isSidebarOpen && (
               <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate">{firstName}</p>
+                {" "}
+                <p className="font-semibold truncate">{firstName}</p>{" "}
                 <p className="text-xs text-neutral-400 uppercase tracking-wide">
-                  {role}
-                </p>
+                  {" "}
+                  {role}{" "}
+                </p>{" "}
               </div>
-            )}
-          </div>
+            )}{" "}
+          </div>{" "}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-2">
+        <nav className="flex-1 overflow-y-auto py-4 px-2 scrollbar-thin-dark">
           {menuItems.map((item, index) => (
             <NavLink
               key={index}
               to={item.path}
               end={item.exact}
               className={({ isActive }) =>
-                `flex items-center space-x-3 px-4 py-3 mb-1 rounded-lg transition-all duration-200 group ${
+                `flex items-center space-x-3 px-4 py-1 mb-1 rounded-lg transition-all duration-200 group ${
                   isActive
-                    ? "bg-blue-600 text-white"
+                    ? "bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 space-y-0"
                     : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
                 }`
               }
@@ -146,7 +157,7 @@ export default function AdminLayout() {
         {/* Bottom Card */}
         <div className="p-4 border-t border-neutral-800 space-y-3">
           {isSidebarOpen ? (
-            <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-lg p-4 space-y-2">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 space-y-2">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl">🚀</span>
                 <span className="font-bold">Mars AI</span>
@@ -176,29 +187,44 @@ export default function AdminLayout() {
       {/* ================= MAIN ================= */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-neutral-900 border-b border-neutral-800 px-8 py-4 flex items-center justify-between">
+        <header className="bg-neutral-900 border-b border-neutral-800 px-7 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             {/* Sidebar Toggle */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 hover:bg-neutral-800 rounded-lg"
+              className="p-0 rounded-lg transition-all duration-500"
             >
-              ☰
+              {" "}
+              <span
+                className={`inline-block transition-all duration-500 ${isSidebarOpen ? "rotate-0" : "rotate-90"}  text-2xl hover:scale-110`}
+              >
+                {" "}
+                {isSidebarOpen ? "☰" : "✕"}{" "}
+              </span>{" "}
             </button>
-
-            <div className="flex items-center space-x-2 font-bold text-xl">
-              <span>MARS</span>
-              <span className="text-blue-500">AI</span>
+            <div className="flex items-center space-x-0 font-bold">
+              <span className="text-yellow-500 text-xl">MARS</span>
+              <span className="text-blue-500 text-xl">AI</span>
             </div>
           </div>
 
           {/* Right header */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 ">
             {/* Search */}
             <input
               type="text"
               placeholder="Rechercher..."
-              className="bg-neutral-800 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-74 bg-white/10 
+    backdrop-blur-lg 
+    border border-white/20 
+    text-sm text-white
+    placeholder-white/60
+    rounded-lg 
+    px-2 py-1
+    shadow-sm shadow-black/20
+    focus:outline-none 
+    focus:ring-2 
+    focus:ring-blue-500/50"
             />
 
             {/* Icons */}
@@ -208,8 +234,8 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        {/* Page Content (OLD LAYOUT FUNCTIONALITY) */}
-        <div className="flex-1 overflow-y-auto bg-black p-8">
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto bg-black p-8 scrollbar-thin-dark">
           <Outlet />
         </div>
       </main>

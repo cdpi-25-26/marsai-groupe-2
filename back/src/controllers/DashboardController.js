@@ -143,7 +143,7 @@ const {
   Movie,
   Vote,
   Award,
-  Categorie   // keep your existing spelling
+  Categorie   
 } = db;
 
 /**
@@ -196,7 +196,7 @@ export const getAdminStats = async (req, res) => {
     =============================== */
     const filmsEvaluated = await Vote.count({
       distinct: true,
-      col: "movieId"
+      col: "id_movie"
     });
 
     /* ===============================
@@ -204,7 +204,7 @@ export const getAdminStats = async (req, res) => {
     =============================== */
     const awardsAssigned = await Award.count({
       where: {
-        movieId: {
+        id_movie: {
           [Op.ne]: null
         }
       }
@@ -216,7 +216,7 @@ export const getAdminStats = async (req, res) => {
     const votesTrendRaw = await Vote.findAll({
       attributes: [
         [fn("DATE", col("createdAt")), "date"],
-        [fn("COUNT", col("id")), "count"]
+        [fn("COUNT", col("id_vote")), "count"]
       ],
       where: {
         createdAt: {
@@ -269,7 +269,8 @@ export const getAdminStats = async (req, res) => {
     console.error("Dashboard error:", error);
 
     res.status(500).json({
-      error: "Failed to load admin dashboard stats"
+      error: "Failed to load admin dashboard stats",
+      details: error.message  // ✅ Added for debugging
     });
   }
 };
