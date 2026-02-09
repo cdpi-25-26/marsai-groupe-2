@@ -133,7 +133,7 @@ export function Login() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+              className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
             >
               {loginMutation.isPending ? "Connexion..." : "Se connecter"}
             </button>

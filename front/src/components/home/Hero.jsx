@@ -1,5 +1,3 @@
-import { Link } from "react-router";
-
 export default function Hero() {
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -14,25 +12,20 @@ export default function Hero() {
           muted
           playsInline
         >
-          <source src="./src/assets/videos/accueil_marsai.mp4" type="video/mp4" />
+          <source src="./src/assets/videos/accueil_marsai_2.mp4" type="video/mp4" />
         </video>
       </div>
 
       {/* Overlay sombre */}
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/90"></div>
 
       {/* Contenu */}
       <div className="relative z-10 flex items-center justify-center w-full h-full px-4 md:px-6">
         <div className="text-center w-full">
 
           {/* Sur‑titre */}
-          <div className="inline-flex items-center justify-center 
-                          bg-black/20 border border-white/10 
-                          px-4 py-1.5 rounded-full mb-6 mt-6">
-            <p className="text-xs sm:text-sm tracking-[0.25em] text-gray-300 font-bold uppercase m-0">
-              LE PROTOCOLE TEMPOREL <span className="text-[#AD46FF]">2026</span>
-            </p>
-          </div>
+          <TitleInBox title="LE PROTOCOLE TEMPOREL" spancolor="#AD46FF" title2="2026"/>
+        
 
           {/* Titre principal */}
           <h1
@@ -76,8 +69,8 @@ export default function Hero() {
 
           {/* Bouton */}
           <div className="flex justify-center pt-2 mt-6">
-            <Link
-              to="/auth/register"
+            <a
+              href="#"
               className="
                 px-6 py-3 md:px-8 md:py-3 
                 rounded-full font-semibold 
@@ -90,7 +83,7 @@ export default function Hero() {
               "
             >
               inscrivez votre film ➝
-            </Link>
+            </a>
           </div>
 
         </div>
