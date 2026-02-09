@@ -15,6 +15,6 @@ voteRouter.post("/:id_movie/:id_user", VoteController.createVote);
 voteRouter.delete("/:id", VoteController.deleteVote);
 
 
-voteRouter.put("/:id", VoteController.updateVote);
+voteRouter.put("/:id_vote", VoteController.updateVote);
 
 export default voteRouter;

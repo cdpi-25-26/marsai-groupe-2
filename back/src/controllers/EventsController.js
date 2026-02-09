@@ -1,10 +1,20 @@
 import db from "../models/index.js";
 const Event = db.Event;
 
+
 function getEvents(req, res) {
     Event.findAll().then((event) => {
         res.json(event);
     });
+    console.log({
+  method: req.method,
+  url: req.url,
+  params: req.params,
+  query: req.query,
+  body: req.body,
+  user: req.user
+});
+
 }
 
 function createEvent(req, res) {
@@ -44,7 +54,7 @@ function createEvent(req, res) {
 function deleteEvent(req, res) {
     const { id_event } = req.params;
     Event.destroy({ where: { id_event }}).then(() => {
-        res.status(204).json({ message: "Evenement supprimé" });
+        res.status(200).json({ message: "Evenement supprimé" });
     });
 }
 
