@@ -28,13 +28,17 @@ const upload = multer({ storage });
  // Voir tous les films (public)
 movieRouter.get("/", MovieController.getMovies);
 
- // Voir un film par ID (public)
+// JURY
+// Films assignés (JURY)
+movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssignedMovies);
+
+// PRODUCER
+// Seulement pour PRODUCER connecté (PRODUCER)
+movieRouter.get("/mine", AuthMiddleware(["PRODUCER"]),MovieController.getMyMovies);
+
+// PUBLIC
+// Voir un film par ID (public)
 movieRouter.get("/:id", MovieController.getMovieById);
-
- // Soumettre un film (PRODUCER & ADMIN uniquement)
-movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
-);
-
 
 // ADMIN
 // Supprimer un film (ADMIN)
@@ -42,9 +46,6 @@ movieRouter.delete("/:id", AuthMiddleware(["ADMIN"]),MovieController.deleteMovie
 
 // Modifier un film (ADMIN)
 movieRouter.put("/:id", AuthMiddleware(["ADMIN"]),MovieController.updateMovie);
-
-// Assigner un film à des juries(ADMIN)
-movieRouter.post("/:id/assign-juries", AuthMiddleware(["ADMIN"]),MovieController.assignJuriesToMovie);
 
 // Mettre à jour le statut (ADMIN)
 movieRouter.put("/:id/status", AuthMiddleware(["ADMIN"]),MovieController.updateMovieStatus);
@@ -55,14 +56,18 @@ movieRouter.put("/:id/categories", AuthMiddleware(["ADMIN"]),MovieController.upd
 // Assigner jurys (ADMIN)
 movieRouter.put("/:id/juries", AuthMiddleware(["ADMIN"]),MovieController.updateMovieJuries);
 
+// Assigner un film à des juries(ADMIN)
+// movieRouter.post("/:id/assign-juries", AuthMiddleware(["ADMIN"]),MovieController.assignJuriesToMovie);
+
 // Assigner collaborateurs (PRODUCER/ADMIN)
 movieRouter.put("/:id/collaborators", AuthMiddleware(["ADMIN", "PRODUCER"]),MovieController.updateMovieCollaborators);
 
 
-
 // PRODUCER
-// Seulement pour PRODUCER connecté (PRODUCER)
-movieRouter.get("/mine", AuthMiddleware(["PRODUCER"]),MovieController.getMyMovies);
+
+// Soumettre un film (PRODUCER & ADMIN uniquement)
+movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
+);
 
 // Soumettre un film (PRODUCER) NOUVELLE URL movies/upload
 movieRouter.post("/upload", AuthMiddleware(["PRODUCER"]),
@@ -76,8 +81,5 @@ movieRouter.post("/upload", AuthMiddleware(["PRODUCER"]),
   MovieController.createMovie
 );
 
-// JURY
-// Films assignés (JURY)
-movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssignedMovies);
 
 export default movieRouter;
