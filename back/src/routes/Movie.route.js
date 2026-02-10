@@ -5,7 +5,9 @@ import multer from "multer";
 import MovieController from "../controllers/MovieController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
-const router = express.Router();
+// const router = express.Router();
+const movieRouter = express.Router();
+
 const uploadDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -22,42 +24,48 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-/ ////////////////////////////////////////////////////////////////////////// Voir tous les films
- // Public (ex: page sélection officielle)
+// PUBLIC
+ // Voir tous les films (public)
+movieRouter.get("/", MovieController.getMovies);
 
-router.get(
-  "/",
-  MovieController.getMovies
-);
+ // Voir un film par ID (public)
+movieRouter.get("/:id", MovieController.getMovieById);
 
-//////////////////////////////////////////////////////////////////////// Mes films
-// Seulement pour PRODUCER connecté
-
-router.get(
-  "/mine",
-  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER"]),
-  MovieController.getMyMovies
+ // Soumettre un film (PRODUCER & ADMIN uniquement)
+movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
 );
 
 
-//////////////////////////////////////////////////////////////////////// Films assignés (JURY)
+// ADMIN
+// Supprimer un film (ADMIN)
+movieRouter.delete("/:id", AuthMiddleware(["ADMIN"]),MovieController.deleteMovie);
 
-router.get(
-  "/assigned",
-  (req, res, next) => AuthMiddleware(req, res, next, ["JURY"]),
-  MovieController.getAssignedMovies
-);
+// Modifier un film (ADMIN)
+movieRouter.put("/:id", AuthMiddleware(["ADMIN"]),MovieController.updateMovie);
+
+// Assigner un film à des juries(ADMIN)
+movieRouter.post("/:id/assign-juries", AuthMiddleware(["ADMIN"]),MovieController.assignJuriesToMovie);
+
+// Mettre à jour le statut (ADMIN)
+movieRouter.put("/:id/status", AuthMiddleware(["ADMIN"]),MovieController.updateMovieStatus);
+
+// Assigner catégories (ADMIN)
+movieRouter.put("/:id/categories", AuthMiddleware(["ADMIN"]),MovieController.updateMovieCategories);
+
+// Assigner jurys (ADMIN)
+movieRouter.put("/:id/juries", AuthMiddleware(["ADMIN"]),MovieController.updateMovieJuries);
+
+// Assigner collaborateurs (PRODUCER/ADMIN)
+movieRouter.put("/:id/collaborators", AuthMiddleware(["ADMIN", "PRODUCER"]),MovieController.updateMovieCollaborators);
 
 
 
+// PRODUCER
+// Seulement pour PRODUCER connecté (PRODUCER)
+movieRouter.get("/mine", AuthMiddleware(["PRODUCER"]),MovieController.getMyMovies);
 
-
-//////////////////////////////////////////////////////////////////////// Soumettre un film
- // Seulement pour PRODUCER connecté
-
-router.post(
-  "/",
-  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER"]),
+// Soumettre un film (PRODUCER) NOUVELLE URL movies/upload
+movieRouter.post("/upload", AuthMiddleware(["PRODUCER"]),
   upload.fields([
     { name: "filmFile", maxCount: 1 },
     { name: "thumbnail1", maxCount: 1 },
@@ -68,71 +76,8 @@ router.post(
   MovieController.createMovie
 );
 
-///////////////////////////////////////////////////////////////////////// Mettre à jour le statut
-// ADMIN uniquement
-router.put(
-  "/:id/status",
-  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
-  MovieController.updateMovieStatus
-);
-
-///////////////////////////////////////////////////////////////////////// Assigner catégories (ADMIN)
-router.put(
-  "/:id/categories",
-  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
-  MovieController.updateMovieCategories
-);
-
-///////////////////////////////////////////////////////////////////////// Assigner jurys (ADMIN)
-router.put(
-  "/:id/juries",
-  (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
-  MovieController.updateMovieJuries
-);
-
-///////////////////////////////////////////////////////////////////////// Assigner collaborateurs (PRODUCER/ADMIN)
-router.put(
-  "/:id/collaborators",
-  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER", "ADMIN"]),
-  MovieController.updateMovieCollaborators
-);
-
-/////////////////////////////////////////////////////////////////////////// Modifier un film
-//Seulement le propriétaire ou ADMIN
-
-/*router.put(
-  "/:id",
-  (req, res, next) => AuthMiddleware(req, res, next, ["PRODUCER"]),
-  MovieController.updateMovie
-);*/
-
-///////////////////////////////////////////////////////////////////////// Supprimer un film
-// ADMIN uniquement
-
-
-
-
-
-
-const movieRouter = express.Router();
-
-// ADMIN uniquement
-movieRouter.use(AuthMiddleware(["ADMIN"]));
-
- //-1- Voir tous les films (public)
-movieRouter.get("/",MovieController.getMovies);
-
- //-2- Voir un film par ID (public)
-movieRouter.get("/:id",MovieController.getMovieById);
-
- //-3- Soumettre un film (PRODUCER & ADMIN uniquement)
-movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
-);
-
- //-5- Supprimer un film (ADMIN uniquement)
-movieRouter.delete("/:id", MovieController.deleteMovie);
-
- //-6- assigner un film à des juries(ADMIN uniquement)
-movieRouter.post("/:id/assign-juries", MovieController.assignJuriesToMovie);
+// JURY
+// Films assignés (JURY)
+movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssignedMovies);
 
 export default movieRouter;

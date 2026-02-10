@@ -1,11 +1,13 @@
 import express from "express";
+
 import userRouter from "./User.route.js";
 import movieRouter from "./Movie.route.js";
 import authRouter from "./Auth.route.js";
 import awardRouter from "./Award.route.js";
 import voteRouter from "./Vote.route.js";
 import categorieRouter from "./Categorie.route.js";
-import reservationRouter from "./Reservation.route.js";import eventRouter from "./Event.route.js";
+import reservationRouter from "./Reservation.route.js";
+import eventRouter from "./Event.route.js";
 
 const router = express.Router();
 

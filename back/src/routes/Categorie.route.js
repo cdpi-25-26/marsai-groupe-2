@@ -5,9 +5,7 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 const categorieRouter = express.Router();
 
 // Public
-
 categorieRouter.get("/", CategorieController.getCategories);
-
 
 categorieRouter.get("/:id", CategorieController.getCategorieById);
 

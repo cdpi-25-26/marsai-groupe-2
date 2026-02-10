@@ -8,9 +8,9 @@ voteRouter.use(AuthMiddleware(["ADMIN"]));
 
 voteRouter.get("/", VoteController.getVote);
 
-voteRouter.get("/:id", VoteController.getVoteById);
-
 voteRouter.post("/:id_movie/:id_user", VoteController.createVote);
+
+voteRouter.get("/:id", VoteController.getVoteById);
 
 voteRouter.delete("/:id", VoteController.deleteVote);
 
