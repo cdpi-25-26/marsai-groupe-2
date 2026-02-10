@@ -183,6 +183,8 @@ async function createMovie(req, res) {
       aiMethodology
     } = req.body;
 
+    const knownByMarsAi = req.body.knownByMarsAi || req.body.known_by_mars_ai;
+
     const files = req.files || {};
     const filmFile = files.filmFile?.[0]?.filename || null;
     const thumb1 = files.thumbnail1?.[0]?.filename || null;
@@ -224,6 +226,14 @@ async function createMovie(req, res) {
       return res.status(400).json({
         error: "La durée maximale est de 120 secondes"
       });
+    }
+
+    // -3.5- Mettre à jour l'origine de connaissance du festival si fournie
+    if (knownByMarsAi) {
+      await User.update(
+        { known_by_mars_ai: knownByMarsAi },
+        { where: { id_user } }
+      );
     }
 
     // -4-Création du film
@@ -444,7 +454,7 @@ async function getAssignedMovies(req, res) {
         {
           model: User,
           as: "Producer",
-          attributes: ["id_user", "first_name", "last_name"]
+          attributes: ["id_user", "first_name", "last_name", "known_by_mars_ai"]
         },
         {
           model: User,

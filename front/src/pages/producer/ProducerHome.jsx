@@ -38,6 +38,7 @@ const movieSchema = z.object({
   aiStack: z.string().optional(),
   aiMethodology: z.string().optional(),
   categoryId: z.string().optional(),
+  knownByMarsAi: z.string().optional(),
   collaborators: z
     .array(
       z.object({
@@ -120,6 +121,10 @@ export default function ProducerHome() {
       formData.append("aiClassification", data.aiClassification || "");
       formData.append("aiStack", data.aiStack || "");
       formData.append("aiMethodology", data.aiMethodology || "");
+
+      if (data.knownByMarsAi) {
+        formData.append("knownByMarsAi", data.knownByMarsAi);
+      }
 
       if (data.categoryId) {
         formData.append("categories", JSON.stringify([Number(data.categoryId)]));
@@ -412,14 +417,6 @@ export default function ProducerHome() {
                 <label className="text-sm uppercase text-gray-400 mb-1">TikTok</label>
                 <input name="tiktok" value={form.tiktok || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
               </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Connu par MarsAI ?</label>
-                <select name="known_by_mars_ai" value={form.known_by_mars_ai || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg">
-                  <option value="">-</option>
-                  <option value="YES">Oui</option>
-                  <option value="NO">Non</option>
-                </select>
-              </div>
               <div className="flex flex-col md:col-span-2">
                 <label className="text-sm uppercase text-gray-400 mb-1">Mot de passe (changer uniquement si nécessaire)</label>
                 <input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
@@ -444,7 +441,6 @@ export default function ProducerHome() {
               <div><span className="text-gray-400">LinkedIn:</span> {user.linkedin || "-"}</div>
               <div><span className="text-gray-400">Facebook:</span> {user.facebook || "-"}</div>
               <div><span className="text-gray-400">TikTok:</span> {user.tiktok || "-"}</div>
-              <div><span className="text-gray-400">Connu par MarsAI:</span> {user.known_by_mars_ai || "-"}</div>
             </div>
           )}
         </section>
@@ -536,6 +532,22 @@ export default function ProducerHome() {
                     {...registerMovie("nationality")}
                     className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="knownByMarsAi" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Comment avez-vous connu le Festival ?
+                  </label>
+                  <select
+                    id="knownByMarsAi"
+                    {...registerMovie("knownByMarsAi")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  >
+                    <option value="">Sélectionner</option>
+                    <option value="Par un ami">Par un ami</option>
+                    <option value="Vu une publicité du festival">Vu une publicité du festival</option>
+                    <option value="Via le site internet ou application de l'IA">Via le site internet ou application de l'IA</option>
+                  </select>
                 </div>
 
                 <div className="flex flex-col">
