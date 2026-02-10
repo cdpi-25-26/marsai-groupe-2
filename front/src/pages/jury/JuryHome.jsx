@@ -18,6 +18,7 @@ export default function JuryHome() {
   const [success, setSuccess] = useState(null);
   const [assignedMovies, setAssignedMovies] = useState([]);
   const [moviesError, setMoviesError] = useState(null);
+  const uploadBase = "http://localhost:3000/uploads";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -232,17 +233,30 @@ export default function JuryHome() {
                         <div className="mt-4">
                           <VideoPreview
                             title={movie.title}
-                            src={`http://localhost:3000/uploads/${movie.trailer}`}
+                            src={`${uploadBase}/${movie.trailer}`}
                             poster={
                               movie.thumbnail
-                                ? `http://localhost:3000/uploads/${movie.thumbnail}`
+                                ? `${uploadBase}/${movie.thumbnail}`
                                 : movie.display_picture
-                                  ? `http://localhost:3000/uploads/${movie.display_picture}`
+                                  ? `${uploadBase}/${movie.display_picture}`
                                   : movie.picture1
-                                    ? `http://localhost:3000/uploads/${movie.picture1}`
+                                    ? `${uploadBase}/${movie.picture1}`
                                     : undefined
                             }
                           />
+                        </div>
+                      )}
+                      {typeof movie.subtitle === "string" && movie.subtitle.toLowerCase().endsWith(".srt") && (
+                        <div className="mt-3">
+                          <a
+                            className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                            href={`${uploadBase}/${movie.subtitle}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            download
+                          >
+                            Télécharger les sous-titres
+                          </a>
                         </div>
                       )}
                       {!movie.trailer && movie.youtube_link && (

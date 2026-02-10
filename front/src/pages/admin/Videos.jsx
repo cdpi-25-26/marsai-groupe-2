@@ -176,6 +176,17 @@ function Videos() {
                     Ouvrir la vidéo
                   </a>
                 )}
+                {typeof movie.subtitle === "string" && movie.subtitle.toLowerCase().endsWith(".srt") && (
+                  <a
+                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                    href={`${uploadBase}/${movie.subtitle}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                  >
+                    Télécharger les sous-titres
+                  </a>
+                )}
                 {movie.youtube_link && (
                   <a
                     className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"

@@ -821,6 +821,7 @@ export default function ProducerHome() {
                       <input
                         id="subtitlesSrt"
                         type="file"
+                        accept=".srt"
                         {...rest}
                         className="sr-only"
                         onChange={(event) => {
