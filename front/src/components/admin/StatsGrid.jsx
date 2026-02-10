@@ -1,138 +1,155 @@
-// import StatCard from "./StatCard.jsx";
 
-// /**
-//  * Admin Dashboard Stats Grid
-//  */
+/** English */
+
+// import StatCard from "./StatCard";
+
 // export default function StatsGrid({ stats }) {
-//   /* ===============================
-//      SAFETY FALLBACK
-//   =============================== */
 //   if (!stats) {
 //     return (
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-//         <p>Loading statistics...</p>
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+//         {[1, 2, 3, 4].map(i => (
+//           <div
+//             key={i}
+//             className="
+//               bg-white/5 
+//               backdrop-blur-xl 
+//               border border-white/10 
+//               rounded-xl p-4 
+//               shadow-lg shadow-black/20 
+//               animate-pulse
+//             "
+//           >
+//             <div className="h-16"></div>
+//           </div>
+//         ))}
 //       </div>
 //     );
 //   }
 
-//   /* ===============================
-//      DATA MAPPING
-//   =============================== */
-//   const data = [
-//     {
-//       icon: "👥",
-//       label: "Utilisateurs",
-//       value: stats.users?.total ?? 0,
-//       subtitle: `+${stats.users?.newToday ?? 0} aujourd’hui`
-//     },
-//     {
-//       icon: "🎬",
-//       label: "Films",
-//       value: stats.movies?.total ?? 0,
-//       subtitle: `${stats.movies?.evaluated ?? 0} évalués`
-//     },
-//     {
-//       icon: "🗳️",
-//       label: "Votes",
-//       value: stats.votes?.total ?? 0,
-//       subtitle: "Total des votes"
-//     },
-//     {
-//       icon: "🏆",
-//       label: "Récompenses",
-//       value: stats.awards?.assigned ?? 0,
-//       subtitle: `${stats.awards?.total ?? 0} au total`
-//     },
-//     {
-//       icon: "🎭",
-//       label: "Jurys",
-//       value: stats.users?.jury ?? 0,
-//       subtitle: "Membres du jury"
-//     },
-//     {
-//       icon: "📂",
-//       label: "Catégories",
-//       value: stats.categories?.total ?? 0,
-//       subtitle: "Catégories actives"
-//     }
-//   ];
-
-//   /* ===============================
-//      RENDER
-//   =============================== */
 //   return (
-//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-//       {data.map((stat, i) => (
-//         <StatCard key={i} {...stat} />
-//       ))}
+//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+//       <StatCard
+//         icon="👥"
+//         label="Total Users"
+//         value={stats.users?.total || 0}
+//         subtitle={`${stats.users?.newToday || 0} new today`}
+//         details={`${stats.users?.jury || 0} jury members`}
+//       />
+
+//       <StatCard
+//         icon="🎬"
+//         label="Total Films"
+//         value={stats.movies?.total || 0}
+//         subtitle={`${stats.movies?.evaluated || 0} evaluated`}
+//         details={`${stats.movies?.selected || 0} selected`}
+//       />
+
+//       <StatCard
+//         icon="⭐"
+//         label="Total Votes"
+//         value={stats.votes?.total || 0}
+//         subtitle="Cast by jury"
+//         details={
+//           stats.votes?.total > 0
+//             ? `Avg: ${(stats.votes.total / (stats.movies?.total || 1)).toFixed(1)}/film`
+//             : "No votes yet"
+//         }
+//       />
+
+//       <StatCard
+//         icon="🏆"
+//         label="Awards"
+//         value={stats.awards?.assigned || 0}
+//         subtitle={`of ${stats.awards?.total || 0} total`}
+//         details={
+//           stats.awards?.pending > 0
+//             ? `${stats.awards.pending} pending`
+//             : "All assigned"
+//         }
+//       />
 //     </div>
 //   );
 // }
 
 
-
-import StatCard from './StatCard';
+import StatCard from "./StatCard";
 
 export default function StatsGrid({ stats }) {
-  // Guard clause for loading state
+  /* ===============================
+     LOADING STATE
+  =============================== */
   if (!stats) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="bg-neutral-900 rounded-2xl p-6 border border-neutral-800 animate-pulse">
-            <div className="h-20"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="
+              bg-white/5 
+              backdrop-blur-xl 
+              border border-white/10 
+              rounded-xl p-4 
+              shadow-lg shadow-black/20 
+              animate-pulse
+            "
+          >
+            <div className="h-16"></div>
           </div>
         ))}
       </div>
     );
   }
 
+  /* ===============================
+     STATS GRID
+  =============================== */
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* Users Card */}
+      {/* Utilisateurs */}
       <StatCard
         icon="👥"
-        label="Total Users"
+        label="Utilisateurs totaux"
         value={stats.users?.total || 0}
-        subtitle={`${stats.users?.newToday || 0} new today`}
-        details={`${stats.users?.jury || 0} jury members`}
-        // bgColor="from-blue-900 to-blue-800"
+        subtitle={`${stats.users?.newToday || 0} nouveaux aujourd’hui`}
+        details={`${stats.users?.jury || 0} membres du jury`}
       />
 
-      {/* Movies Card */}
+      {/* Films */}
       <StatCard
         icon="🎬"
-        label="Total Films"
+        label="Films totaux"
         value={stats.movies?.total || 0}
-        subtitle={`${stats.movies?.evaluated || 0} evaluated`}
-        details={`${stats.movies?.selected || 0} selected`}
-        // bgColor="from-purple-900 to-purple-800"
+        subtitle={`${stats.movies?.evaluated || 0} évalués`}
+        details={`${stats.movies?.selected || 0} sélectionnés`}
       />
 
-      {/* Votes Card */}
+      {/* Votes */}
       <StatCard
         icon="⭐"
-        label="Total Votes"
+        label="Votes totaux"
         value={stats.votes?.total || 0}
-        subtitle="Cast by jury"
-        details={stats.votes?.total > 0 
-          ? `Avg: ${(stats.votes.total / (stats.movies?.total || 1)).toFixed(1)}/film`
-          : 'No votes yet'
+        subtitle="Attribués par le jury"
+        details={
+          stats.votes?.total > 0
+            ? `Moy. : ${(
+                stats.votes.total /
+                (stats.movies?.total || 1)
+              ).toFixed(1)} / film`
+            : "Aucun vote pour le moment"
         }
-        // bgColor="from-green-900 to-green-800"
       />
 
-      {/* Awards Card */}
+      {/* Récompenses */}
       <StatCard
         icon="🏆"
-        label="Awards"
+        label="Récompenses"
         value={stats.awards?.assigned || 0}
-        subtitle={`of ${stats.awards?.total || 0} total`}
-        details={stats.awards?.pending > 0 
-          ? `${stats.awards.pending} pending`
-          : 'All assigned'
+        subtitle={`sur ${stats.awards?.total || 0} au total`}
+        details={
+          stats.awards?.pending > 0
+            ? `${stats.awards.pending} en attente`
+            : "Toutes attribuées"
         }
-        // bgColor="from-yellow-900 to-yellow-800"
       />
     </div>
   );

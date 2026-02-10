@@ -32,6 +32,8 @@ import { Login } from "./pages/auth/Login.jsx";
 import { Register } from "./pages/auth/Register.jsx";
 import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 
+
+import Users from "./pages/admin/Users.jsx";
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
@@ -84,8 +86,20 @@ createRoot(document.getElementById("root")).render(
             {/* Dashboard administrateur */}
             <Route index element={<Dashboard />} />
             {/* Gestion des utilisateurs sera ajoutée ici */}
+
+      <Route path="users" element={<Users />} />
             {/* Gestion des vidéos sera ajoutée ici */}
           </Route>
+
+  
+
+
+
+
+
+
+
+
 
           {/* ========================================
               ROUTES PRODUCTEUR (Rôle PRODUCER)

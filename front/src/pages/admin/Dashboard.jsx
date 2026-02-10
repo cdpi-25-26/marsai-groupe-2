@@ -54,10 +54,10 @@ export default function Dashboard() {
         <Users users={users} />
       </section>
 
-      <section className="space-y-4">
+      {/* <section className="space-y-4">
         <h2 className="text-xl font-bold">Gestion des vidéos</h2>
         <Videos />
-      </section>
+      </section> */}
     </div>
   );
 }
