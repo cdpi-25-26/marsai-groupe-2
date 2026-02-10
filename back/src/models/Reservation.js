@@ -15,7 +15,7 @@ export default (sequelize, DataTypes) => {
     first_name: DataTypes.STRING(100),
     last_name: DataTypes.STRING(100),
     email: DataTypes.STRING(255),
-    seats: DataTypes.INTEGER,
+    number_seats: DataTypes.INTEGER,
     reservation_date: DataTypes.DATE
   }, {
     tableName: 'reservations',

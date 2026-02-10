@@ -37,14 +37,14 @@ function createAward(req, res) {
 
 function deleteAward(req, res) {
     const { id } = req.params;
-    Award.destroy({ where: { id } }).then(() => {
-        res.status(204).json({ message: "Prix supprimé" });
+    Award.destroy({ where: { id_award: id } }).then(() => {
+        return res.status(200).json({ message: "Prix supprimé" });
     });
 }
 
 function updateAward(req, res) {
-    const { id, id_movie } = req.params;
-    const { award_name } = req.body;
+    const { id } = req.params;
+    const { award_name, id_movie } = req.body;
 
     Award.findOne({ where: { id_award: id } })
         .then((award) => {
@@ -53,7 +53,10 @@ function updateAward(req, res) {
             }
 
             if (award_name) award.award_name = award_name;
-            if (id_movie) award.id_movie = id_movie;
+            if (id_movie) {
+                award.setDataValue("id_movie", Number(id_movie));
+                award.changed("id_movie", true);
+            }
 
             return award.save(); 
         })
@@ -68,7 +71,7 @@ function updateAward(req, res) {
 function getAwardById(req, res) {
     const { id } = req.params;
 
-    Award.findOne({ where: { id } }).then((award) => {
+    Award.findOne({ where: { id_award: id } }).then((award) => {
         if (award) {
             res.json(award);
         } else {
