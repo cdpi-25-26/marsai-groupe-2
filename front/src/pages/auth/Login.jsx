@@ -133,20 +133,11 @@ export function Login() {
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+              className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
             >
               {loginMutation.isPending ? "Connexion..." : "Se connecter"}
             </button>
 
-            <p className="text-center text-gray-400">
-              Pas encore de compte ?{" "}
-              <Link
-                to="/auth/register"
-                className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition"
-              >
-                S'inscrire
-              </Link>
-            </p>
           </form>
         </div>
       </div>
