@@ -12,12 +12,13 @@
 
 import { useEffect, useState } from "react";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
 import { createMovie, getMyMovies, updateMovieCollaborators } from "../../api/movies";
+import { getCategories } from "../../api/videos.js";
 
 const movieSchema = z.object({
   filmTitleOriginal: z.string().min(1, "Le titre du film est requis"),
@@ -36,6 +37,7 @@ const movieSchema = z.object({
   aiClassification: z.string().optional(),
   aiStack: z.string().optional(),
   aiMethodology: z.string().optional(),
+  categoryId: z.string().optional(),
   collaborators: z
     .array(
       z.object({
@@ -118,6 +120,10 @@ export default function ProducerHome() {
       formData.append("aiClassification", data.aiClassification || "");
       formData.append("aiStack", data.aiStack || "");
       formData.append("aiMethodology", data.aiMethodology || "");
+
+      if (data.categoryId) {
+        formData.append("categories", JSON.stringify([Number(data.categoryId)]));
+      }
 
       if (data.collaborators?.length) {
         const normalized = data.collaborators.filter(
@@ -204,6 +210,13 @@ export default function ProducerHome() {
         setLoading(false);
       });
   }, []);
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories
+  });
+
+  const categories = categoriesData?.data || [];
 
 
   if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Chargement...</div>;
@@ -523,6 +536,24 @@ export default function ProducerHome() {
                     {...registerMovie("nationality")}
                     className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="categoryId" className="text-white font-semibold mb-2 text-sm uppercase">
+                    Catégorie
+                  </label>
+                  <select
+                    id="categoryId"
+                    {...registerMovie("categoryId")}
+                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                  >
+                    <option value="">Sélectionner une catégorie</option>
+                    {categories.map((category) => (
+                      <option key={category.id_categorie} value={category.id_categorie}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex flex-col">
