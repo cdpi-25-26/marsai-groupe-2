@@ -16,7 +16,10 @@ import { createRoot } from "react-dom/client";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LanguageProvider } from "./context/LanguageContext";
 
+
+// import "./i18n"; // Désactivé tant que i18next n'est pas installé correctement
 import "./index.css";
 
 // Importation des pages publiques et privées
@@ -54,7 +57,9 @@ const queryClient = new QueryClient({
  * 3. Routes: Définit toutes les routes de l'application
  */
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  
+    
+  <StrictMode>  
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <Routes>
@@ -121,3 +126,6 @@ createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </StrictMode>,
 );
+
+
+
