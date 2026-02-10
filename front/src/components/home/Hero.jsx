@@ -19,7 +19,7 @@ export default function Hero() {
       </div>
 
       {/* Overlay sombre */}
-      <div className="absolute inset-0 bg-black/90"></div>
+      <div className="absolute inset-0 bg-black/45"></div>
 
       {/* Contenu */}
       <div className="relative z-10 flex items-center justify-center w-full h-full px-4 md:px-6">
@@ -58,16 +58,19 @@ export default function Hero() {
           </h2>
 
           {/* Description */}
-          <p
-            className="
-              mt-5 text-gray-400 leading-relaxed
-              text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl
-            "
-          >
-            Le festival de courts‑métrages de 60 secondes réalisés par IA.
-            <br className="hidden md:block" />
-            Deux jours d’immersion au cœur de Marseille.
-          </p>
+<div className="text-white pt-3.5">
+<TitleInBox
+  title={
+    <>
+      Le festival de courts-métrages de 60 secondes réalisés par IA.
+      <br />
+      <div className="text-[#fd6cba] pt-2.5">
+        Deux jours d’immersion au cœur de Marseille.
+      </div>
+    </>
+  }
+/>
+</div>
 
           {/* Bouton */}
           <div className="flex justify-center pt-2 mt-6">
