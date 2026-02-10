@@ -11,7 +11,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  createCategory,
   getCategories,
   getVideos,
   deleteMovie,
@@ -54,7 +53,6 @@ function Videos() {
 
   const [categorySelection, setCategorySelection] = useState({});
   const [jurySelection, setJurySelection] = useState({});
-  const [newCategoryName, setNewCategoryName] = useState("");
 
   useEffect(() => {
     if (!data?.data) return;
@@ -95,14 +93,6 @@ function Videos() {
     }
   });
 
-  const createCategoryMutation = useMutation({
-    mutationFn: (name) => createCategory(name),
-    onSuccess: () => {
-      setNewCategoryName("");
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-    }
-  });
-
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteMovie(id),
     onSuccess: () => {
@@ -125,30 +115,6 @@ function Videos() {
   // Affichage de la liste des vidéos ou message si aucune vidéo n'existe
   return (
     <div className="space-y-6">
-      <div className="bg-gray-950 border border-gray-800 rounded-xl p-6">
-        <h3 className="text-xl font-bold text-white mb-4">Créer une catégorie</h3>
-        <div className="flex flex-col md:flex-row gap-3">
-          <input
-            type="text"
-            value={newCategoryName}
-            onChange={(event) => setNewCategoryName(event.target.value)}
-            placeholder="Nom de la catégorie"
-            className="flex-1 bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg"
-          />
-          <button
-            type="button"
-            onClick={() => {
-              if (newCategoryName.trim()) {
-                createCategoryMutation.mutate(newCategoryName.trim());
-              }
-            }}
-            className="px-5 py-3 bg-[#AD46FF] text-white rounded-lg hover:opacity-90"
-          >
-            Ajouter
-          </button>
-        </div>
-      </div>
-
       {data.data.length > 0 ? (
         <>
       {data.data.map((movie) => (
@@ -262,31 +228,24 @@ function Videos() {
                   {categories.length === 0 ? (
                     <p className="text-gray-500 text-sm">Aucune catégorie disponible.</p>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-                      {categories.map((category) => {
-                        const selected = (categorySelection[movie.id_movie] || []).includes(category.id_categorie);
-                        return (
-                          <label key={`${movie.id_movie}-cat-${category.id_categorie}`} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              onChange={() => {
-                                setCategorySelection((prev) => {
-                                  const current = prev[movie.id_movie] || [];
-                                  const exists = current.includes(category.id_categorie);
-                                  const next = exists
-                                    ? current.filter((id) => id !== category.id_categorie)
-                                    : [...current, category.id_categorie];
-                                  return { ...prev, [movie.id_movie]: next };
-                                });
-                              }}
-                              className="accent-[#AD46FF]"
-                            />
-                            {category.name}
-                          </label>
-                        );
-                      })}
-                    </div>
+                    <select
+                      value={(categorySelection[movie.id_movie] || [""])[0] || ""}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setCategorySelection((prev) => ({
+                          ...prev,
+                          [movie.id_movie]: value ? [Number(value)] : []
+                        }));
+                      }}
+                      className="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                    >
+                      <option value="">Sélectionner une catégorie</option>
+                      {categories.map((category) => (
+                        <option key={`${movie.id_movie}-cat-${category.id_categorie}`} value={category.id_categorie}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
                   )}
                   <button
                     type="button"

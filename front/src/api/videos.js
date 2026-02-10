@@ -69,6 +69,22 @@ async function createCategory(name) {
   return await instance.post("categories", { name });
 }
 
+/**
+ * Met à jour une catégorie (ADMIN)
+ * Endpoint: PUT /categories/:id
+ */
+async function updateCategory(id, name) {
+  return await instance.put(`categories/${id}`, { name });
+}
+
+/**
+ * Supprime une catégorie (ADMIN)
+ * Endpoint: DELETE /categories/:id
+ */
+async function deleteCategory(id) {
+  return await instance.delete(`categories/${id}`);
+}
+
 export {
   getVideos,
   getAssignedMovies,
@@ -77,5 +93,7 @@ export {
   updateMovieJuries,
   getCategories,
   createCategory,
+  updateCategory,
+  deleteCategory,
   deleteMovie
 };
