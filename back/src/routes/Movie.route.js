@@ -5,7 +5,7 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 const movieRouter = express.Router();
 
 // ADMIN uniquement
-categorieRouter.use(AuthMiddleware(["ADMIN"]));
+movieRouter.use(AuthMiddleware(["ADMIN"]));
 
  //-1- Voir tous les films (public)
 movieRouter.get("/",MovieController.getMovies);
