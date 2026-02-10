@@ -19,7 +19,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./context/LanguageContext";
 
 
-import "./i18n";
+// import "./i18n"; // Désactivé tant que i18next n'est pas installé correctement
 import "./index.css";
 
 // Importation des pages publiques et privées
