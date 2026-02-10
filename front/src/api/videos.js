@@ -19,12 +19,16 @@
 import instance from "./config.js";
 
 /**
- * Get all movies (Admin)
+ * Récupère la liste de tous les films/vidéos
  * Endpoint: GET /movies
+ * @returns {Promise<Object>} Array de tous les films disponibles
+ * 
+ * @example
+ * const response = await getVideos();
+ * const films = response.data;
  */
 async function getVideos() {
-  return await instance.get("movies");
+  return await instance.get("videos");
 }
 
 export { getVideos };
-

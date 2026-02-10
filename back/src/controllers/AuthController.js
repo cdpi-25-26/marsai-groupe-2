@@ -29,10 +29,15 @@ function login(req, res) {
         return res.status(401).json({ error: "Identifiants invalides" });
       }
 
-      // Créer un JWT valide 1 heure par défaut
-      const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN || "1h",
-      });
+      // Créer un JWT valide avec id_user au lieu de id 1 heure par défaut
+      const token = jwt.sign(
+      { id: user.id_user, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
+    );
+
+
+      console.log("JWT payload:", jwt.decode(token)); // 🔹 debug
 
       // Retourner le token et les infos utilisateur
       return res.status(200).json({
