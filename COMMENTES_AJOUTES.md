@@ -8,6 +8,12 @@ Cycle complet de documentation du projet en **français** avec commentaires JSDo
 
 ---
 
+## 🧷 Notes de configuration (à ne pas modifier)
+
+- Le fichier back/config/config.json est aligné sur le .env (marsai_db / marsai / Mars2026!). Ne pas le modifier manuellement.
+
+---
+
 ## 🎯 Couverture des Commentaires
 
 ### 🔧 **Backend** (Node.js/Express)
