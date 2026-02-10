@@ -9,9 +9,15 @@ import Videos from "./Videos.jsx";
  */
 function Dashboard() {
   return (
-    <>
+    <div className="bg-black text-white">
       <Users />
-    </>
+      <div className="max-w-6xl mx-auto px-4 pb-20">
+        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <h2 className="text-3xl font-bold mb-6">Gestion des films</h2>
+          <Videos />
+        </div>
+      </div>
+    </div>
   );
 }
 
