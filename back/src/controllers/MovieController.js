@@ -183,6 +183,8 @@ async function createMovie(req, res) {
       aiMethodology
     } = req.body;
 
+    const knownByMarsAi = req.body.knownByMarsAi || req.body.known_by_mars_ai;
+
     const files = req.files || {};
     const filmFile = files.filmFile?.[0]?.filename || null;
     const thumb1 = files.thumbnail1?.[0]?.filename || null;
@@ -224,6 +226,14 @@ async function createMovie(req, res) {
       return res.status(400).json({
         error: "La durée maximale est de 120 secondes"
       });
+    }
+
+    // -3.5- Mettre à jour l'origine de connaissance du festival si fournie
+    if (knownByMarsAi) {
+      await User.update(
+        { known_by_mars_ai: knownByMarsAi },
+        { where: { id_user } }
+      );
     }
 
     // -4-Création du film
@@ -292,17 +302,38 @@ async function createMovie(req, res) {
     }
 
     if (parsedCollaborators?.length) {
-      const createdCollaborators = await Promise.all(
-        parsedCollaborators.map(c =>
-          Collaborator.create({
-            first_name: c.first_name || c.firstname || "",
-            last_name: c.last_name || c.lastname || "",
-            job: c.job || null
+      const collaboratorRecords = await Promise.all(
+        parsedCollaborators
+          .filter((collab) => collab?.email)
+          .map(async (collab) => {
+            const [record] = await Collaborator.findOrCreate({
+              where: { email: collab.email },
+              defaults: {
+                first_name: collab.first_name || collab.firstname || "",
+                last_name: collab.last_name || collab.lastname || "",
+                email: collab.email,
+                job: collab.job || null
+              }
+            });
+
+            const needsUpdate =
+              (collab.first_name && collab.first_name !== record.first_name)
+              || (collab.last_name && collab.last_name !== record.last_name)
+              || (collab.job && collab.job !== record.job);
+
+            if (needsUpdate) {
+              await record.update({
+                first_name: collab.first_name || record.first_name,
+                last_name: collab.last_name || record.last_name,
+                job: collab.job || record.job
+              });
+            }
+
+            return record;
           })
-        )
       );
 
-      await newMovie.setCollaborators(createdCollaborators);
+      await newMovie.setCollaborators(collaboratorRecords);
     }
 
     res.status(201).json({
@@ -423,7 +454,7 @@ async function getAssignedMovies(req, res) {
         {
           model: User,
           as: "Producer",
-          attributes: ["id_user", "first_name", "last_name"]
+          attributes: ["id_user", "first_name", "last_name", "known_by_mars_ai"]
         },
         {
           model: User,
