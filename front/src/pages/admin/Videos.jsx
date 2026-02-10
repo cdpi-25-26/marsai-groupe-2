@@ -182,7 +182,8 @@ function Videos() {
               <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
               <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
               <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
-              <div><span className="text-gray-400">Producteur:</span> {selectedMovie.User ? `${selectedMovie.User.first_name} ${selectedMovie.User.last_name}` : "-"}</div>
+              <div><span className="text-gray-400">Producteur:</span> {(selectedMovie.User || selectedMovie.Producer) ? `${(selectedMovie.User || selectedMovie.Producer).first_name} ${(selectedMovie.User || selectedMovie.Producer).last_name}` : "-"}</div>
+              <div><span className="text-gray-400">Comment avez-vous connu le Festival ?</span> {(selectedMovie.User || selectedMovie.Producer)?.known_by_mars_ai || "-"}</div>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-3">

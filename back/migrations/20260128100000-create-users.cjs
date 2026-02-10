@@ -92,7 +92,11 @@ module.exports = {
 				allowNull: true
 			},
 			known_by_mars_ai: {
-				type: Sequelize.ENUM('YES', 'NO'),
+				type: Sequelize.ENUM(
+					'Par un ami',
+					'Vu une publicité du festival',
+					"Via le site internet ou application de l'IA"
+				),
 				allowNull: true
 			},
 			role: {
