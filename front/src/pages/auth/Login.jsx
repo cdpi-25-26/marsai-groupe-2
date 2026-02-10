@@ -138,15 +138,6 @@ export function Login() {
               {loginMutation.isPending ? "Connexion..." : "Se connecter"}
             </button>
 
-            <p className="text-center text-gray-400">
-              Pas encore de compte ?{" "}
-              <Link
-                to="/auth/register"
-                className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition"
-              >
-                S'inscrire
-              </Link>
-            </p>
           </form>
         </div>
       </div>

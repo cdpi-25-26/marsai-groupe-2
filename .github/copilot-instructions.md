@@ -1,71 +1,43 @@
 # Copilot Instructions – MarsAI Project
 
-## Architettura generale
+## Big picture architecture
 
-- **Monorepo**: due cartelle principali:
-  - `back/` (Node.js/Express, REST API, Sequelize/MySQL)
-  - `front/` (React + Vite, Tailwind CSS)
+- Monorepo with two apps: backend in back/ (Express + Sequelize/MySQL) and frontend in front/ (React + Vite + Tailwind).
+- Backend entry: back/index.js (Express setup, CORS, /uploads static, registers routes from back/src/routes/index.js).
+- Data layer uses Sequelize models in back/src/models/ with associations; migrations live in back/migrations/ and are run via sequelize-cli.
+- Frontend routes are defined in front/src/main.jsx using React Router; role-based gating uses RoleGuard (localStorage role).
 
-### Backend
+## Critical workflows (from README/package.json)
 
-- Entry point: `back/index.js`
-- Tutte le rotte sono registrate in `back/src/routes/index.js`
-- Modelli Sequelize: `back/src/models/`
-- Autenticazione JWT: vedi `back/src/middlewares/AuthMiddleware.js` e `back/src/utils/password.js`
-- Migrazioni: `back/migrations/` (timestamp nel nome file)
-- Configurazione DB: `back/config/config.cjs` e `back/config/config.json`
+- Install all deps: npm install (root) runs installs in back/ and front/ (see package.json scripts).
+- Run backend: npm run back (root) or cd back && npm start (nodemon).
+- Run frontend: npm run front (root) or cd front && npm run dev.
+- DB migrations: cd back && npm run migrate (sequelize-cli using back/config/config.json).
 
-### Frontend
+## Backend conventions & patterns
 
-- App React (Vite): pagine in `front/src/pages/`, componenti in `front/src/components/`, layouts in `front/src/layouts/`
-- Chiamate API centralizzate in `front/src/api/` tramite Axios (`front/src/api/config.js` gestisce token JWT da `localStorage`)
-- Protezione ruoli: `front/src/middlewares/RoleGuard.jsx`
-- Stili: Tailwind CSS in `front/src/index.css`
+- Routes are split by resource in back/src/routes/\*.route.js and registered in back/src/routes/index.js.
+- Controllers in back/src/controllers/ use Sequelize models from back/src/models/index.js and return JSON; errors usually res.status(500).json({ error: error.message }).
+- Auth middleware is role-aware (JWT Bearer + DB lookup): back/src/middlewares/AuthMiddleware.js. Example usage in Movie routes for PRODUCER/ADMIN.
+- File uploads: back/src/routes/Movie.route.js uses multer fields (filmFile, thumbnail1-3, subtitlesSrt). Files stored in uploads/ and served at /uploads (see back/index.js).
+- Movie creation expects multipart/form-data; controller maps multiple possible field names (see back/src/controllers/MovieController.js).
 
-## Flussi di lavoro principali
+## Frontend conventions & patterns
 
-- **Installazione**: `npm install` nella root installa tutte le dipendenze (front e back)
-- **Avvio backend**: `npm run back` dalla root, oppure `cd back && npm start`
-- **Avvio frontend**: `npm run front` dalla root, oppure `cd front && npm run dev`
-- **Ambiente**: backend su `http://localhost:3000`, frontend su `http://localhost:5173` (default Vite)
-- **Migrazioni**: gestite con Sequelize CLI, file in `back/migrations/`
+- API access via Axios instance in front/src/api/config.js; token is read from localStorage and attached as Authorization: Bearer.
+- Feature API modules live in front/src/api/ (e.g., auth.js, movies.js) and use the shared instance.
+- RoleGuard (front/src/middlewares/RoleGuard.jsx) enforces roles from localStorage; routes wrap layouts in front/src/main.jsx.
+- Data fetching uses TanStack Query with infinite staleTime (front/src/main.jsx), so refreshes are manual via invalidation/mutations.
 
-## Convenzioni e pattern
+## Integration points & env
 
-### Backend
+- Backend expects JWT*SECRET and DB*\* env vars; connection.js defaults to local MySQL if not provided.
+- Sequelize model loader (back/src/models/index.js) reads back/config/config.json; do not mix config sources unintentionally.
+- Frontend talks to http://localhost:3000/ by default (front/src/api/config.js) and expects the backend to accept CORS from http://localhost:5173.
 
-- Rotte: `back/src/routes/` (es. `Movie.route.js`), controller: `back/src/controllers/`, modelli: `back/src/models/`
-- Middleware di autenticazione: `back/src/middlewares/`
-- Ogni nuova rotta va registrata in `back/src/routes/index.js`
+## Reference examples
 
-### Frontend
-
-- Pagine: `front/src/pages/`, componenti: `front/src/components/`, layouts: `front/src/layouts/`
-- Chiamate API: moduli in `front/src/api/` (es. `users.js`, `auth.js`)
-- Protezione ruoli: `front/src/middlewares/RoleGuard.jsx`
-
-## Integrazione & comunicazione
-
-- **Autenticazione**: token JWT in `localStorage`, aggiunto alle richieste API tramite Axios interceptor (`front/src/api/config.js`)
-- **Data flow**: solo REST API tra frontend e backend
-- **Migrazioni**: file timestamp in `back/migrations/`, eseguite con Sequelize
-
-## Esempi pratici
-
-- **Aggiungere una rotta backend**:
-  1. Crea controller in `back/src/controllers/`
-  2. Crea file rotta in `back/src/routes/`
-  3. Registra la rotta in `back/src/routes/index.js`
-- **Chiamare un’API dal frontend**:
-  1. Aggiungi funzione in `front/src/api/`
-  2. Usa l’istanza Axios configurata in `front/src/api/config.js`
-
-## Riferimenti
-
-- [README.md](../../README.md)
-- [back/README.md](../back/README.md)
-- [front/README.md](../front/README.md)
-
----
-
-**Agents:** Seguite queste convenzioni e fate riferimento alla struttura delle cartelle per esempi. Non inventate nuovi pattern se non necessario. Se un flusso non è documentato, cercate esempi nei file esistenti prima di proporre soluzioni nuove.
+- Auth + role check in route: back/src/routes/Movie.route.js
+- Multipart handling + model associations: back/src/controllers/MovieController.js
+- Frontend routing + RoleGuard: front/src/main.jsx
+- Axios auth interceptor: front/src/api/config.js
