@@ -4,14 +4,17 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const reservationRouter = express.Router();
 
-reservationRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), ReservationController.getReservations);
 
-reservationRouter.get("/:id_reservation ", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), ReservationController.getReservationById);
+reservationRouter.use(AuthMiddleware(["ADMIN"]));
 
-reservationRouter.post("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), ReservationController.createReservation);
+reservationRouter.get("/", ReservationController.getReservations);
 
-reservationRouter.put("/:id_reservation", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), ReservationController.updateReservation);
+reservationRouter.post("/", ReservationController.createReservation);
 
-reservationRouter.delete("/:id_reservation", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), ReservationController.deleteReservation);
+reservationRouter.get("/:id_reservation",ReservationController.getReservationById);
+
+reservationRouter.put("/:id_reservation",ReservationController.updateReservation);
+
+reservationRouter.delete("/:id_reservation", ReservationController.deleteReservation);
 
 export default reservationRouter;

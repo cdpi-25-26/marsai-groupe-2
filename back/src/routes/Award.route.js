@@ -4,14 +4,16 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const awardRouter = express.Router();
 
-awardRouter.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.getAward);
+awardRouter.use(AuthMiddleware(["ADMIN"]));
 
-awardRouter.get("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.getAwardById);
+awardRouter.get("/", AwardController.getAward);
 
-awardRouter.post("/:id_movie", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.createAward);
+awardRouter.post("/:id_movie", AwardController.createAward);
 
-awardRouter.delete("/:id", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.deleteAward);
+awardRouter.get("/:id", AwardController.getAwardById);
 
-awardRouter.put("/:id/:id_movie", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),AwardController.updateAward);
+awardRouter.put("/:id/:id_movie", AwardController.updateAward);
+
+awardRouter.delete("/:id", AwardController.deleteAward);
 
 export default awardRouter;
