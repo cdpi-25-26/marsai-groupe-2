@@ -6,7 +6,6 @@
  * Utilise TanStack Query (useMutation) pour les opérations CRUD
  * @returns {JSX.Element} La page de gestion des utilisateurs avec tableau et modales
  */
-import { useEffect, useState, useMemo } from "react";
 import { deleteUser, getUsers, updateUser, createUser } from "../../api/users.js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
