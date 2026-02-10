@@ -109,6 +109,7 @@ export default (sequelize, DataTypes) => {
     // Relation: Un film appartient à un utilisateur (producteur)
     // La clé étrangère id_user relie le film à son créateur
     Movie.belongsTo(models.User, {
+      as: 'Producer',
       foreignKey: 'id_user'
     });
 
@@ -139,6 +140,7 @@ export default (sequelize, DataTypes) => {
 
     // Relation N–N : Movie ↔ User (JURY)
     Movie.belongsToMany(models.User, {
+      as: 'Juries',
       through: 'movies_juries',
       foreignKey: 'id_movie',
       otherKey: 'id_user'
