@@ -144,7 +144,11 @@ export default (sequelize, DataTypes) => {
     },
 
     known_by_mars_ai: {
-      type: DataTypes.ENUM('YES', 'NO'),
+      type: DataTypes.ENUM(
+        'Par un ami',
+        'Vu une publicité du festival',
+        "Via le site internet ou application de l'IA"
+      ),
       allowNull: true
     },
 
