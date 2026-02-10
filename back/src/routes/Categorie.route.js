@@ -2,43 +2,24 @@ import express from "express";
 import CategorieController from "../controllers/CategorieController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
-const router = express.Router();
-
-
-const authorize = (roles = []) =>
-  (req, res, next) => AuthMiddleware(req, res, next, roles);
+const categorieRouter = express.Router();
 
 // Public
 
-router.get(
-    "/",
-    authorize(["ADMIN"]),
-     CategorieController.getCategories);
+categorieRouter.get("/", CategorieController.getCategories);
 
 
-
-router.get(
-    "/:id",
-    authorize(["ADMIN"]),
-    CategorieController.getCategorieById);
+categorieRouter.get("/:id", CategorieController.getCategorieById);
 
 
 // ADMIN uniquement
-router.use(AuthMiddleware(["ADMIN"]));
+categorieRouter.use(AuthMiddleware(["ADMIN"]));
 
-router.post(
-  "/",
-  CategorieController.createCategorie
+categorieRouter.post("/", CategorieController.createCategorie);
+
+categorieRouter.put("/:id", CategorieController.updateCategorie);
+
+categorieRouter.delete("/:id",CategorieController.deleteCategorie
 );
 
-router.put(
-  "/:id",
-  CategorieController.updateCategorie
-);
-
-router.delete(
-  "/:id",
-  CategorieController.deleteCategorie
-);
-
-export default router;
+export default categorieRouter;
