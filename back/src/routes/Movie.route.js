@@ -44,7 +44,7 @@ movieRouter.delete("/:id", AuthMiddleware(["ADMIN"]),MovieController.deleteMovie
 movieRouter.put("/:id", AuthMiddleware(["ADMIN"]),MovieController.updateMovie);
 
 // Assigner un film à des juries(ADMIN)
-movieRouter.post("/:id/assign-juries", AuthMiddleware(["ADMIN"]),MovieController.assignJuriesToMovie);
+// movieRouter.post("/:id/assign-juries", AuthMiddleware(["ADMIN"]),MovieController.assignJuriesToMovie);
 
 // Mettre à jour le statut (ADMIN)
 movieRouter.put("/:id/status", AuthMiddleware(["ADMIN"]),MovieController.updateMovieStatus);
