@@ -5,10 +5,22 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 const router = express.Router();
 
 
+const authorize = (roles = []) =>
+  (req, res, next) => AuthMiddleware(req, res, next, roles);
+
 // Public
 
-router.get("/", CategorieController.getCategories);
-router.get("/:id", CategorieController.getCategorieById);
+router.get(
+    "/",
+    authorize(["ADMIN"]),
+     CategorieController.getCategories);
+
+
+
+router.get(
+    "/:id",
+    authorize(["ADMIN"]),
+    CategorieController.getCategorieById);
 
 
 // ADMIN uniquement
