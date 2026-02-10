@@ -1,3 +1,4 @@
+
 export default function StatCard({ 
   icon, 
   label, 
@@ -5,73 +6,56 @@ export default function StatCard({
   subtitle, 
   details,
   progress,
-  // bgColor = "from-gray-900 to-gray-800"
 }) {
   return (
-    <div className={`
-       bg-white/10
+    <div
+      className="
+        bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60
         backdrop-blur-xl
-        border border-white/20
+        border border-white/10
         rounded-2xl p-6
-        shadow-lg hover:shadow-xl
+        shadow-xl shadow-black/30
+        hover:shadow-2xl hover:shadow-blue-500/10
         transition-all duration-300
-        hover:scale-105
+        hover:scale-[1.03]
         text-white
-    `}>
+      "
+    >
       {/* Header */}
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-1xl -ml-1">{icon}</span>
-        <span className="text-xs text-neutral-400 uppercase tracking-wide">
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-3xl drop-shadow-sm">{icon}</span>
+        <span className="text-xs text-white/40 uppercase tracking-wide">
           {label}
         </span>
       </div>
 
       {/* Main Value */}
       <div className="space-y-2">
-        <p className="text-4xl font-bold text-white">
+        <p className="text-4xl font-bold text-white drop-shadow-sm">
           {value}
         </p>
-        
+
         {subtitle && (
-          <p className="text-sm text-neutral-300">
-            {subtitle}
-          </p>
+          <p className="text-sm text-white/60">{subtitle}</p>
         )}
 
         {details && (
-          <p className="text-xs text-neutral-400">
-            {details}
-          </p>
+          <p className="text-xs text-white/40">{details}</p>
         )}
 
-        {/* Progress Bar (if provided) */}
+        {/* Progress Bar */}
         {progress !== undefined && (
-          <div className="mt-3">
-            <div className="w-full bg-neutral-800 h-2 rounded-full overflow-hidden">
+          <div className="mt-4">
+            <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/10">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-blue-500 to-blue-400 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <span className="text-xs text-neutral-400 mt-1">{progress}%</span>
+            <span className="text-xs text-white/40 mt-1 block">{progress}%</span>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-
-
-/*
-*** color cards effect ***
-
- bg-gradient-to-br ${bgColor}/30
-    backdrop-blur-xl
-    border border-white/10
-    rounded-2xl p-6
-    shadow-lg hover:shadow-xl
-    transition-all duration-300
-    hover:scale-105
-    text-white
-*/
