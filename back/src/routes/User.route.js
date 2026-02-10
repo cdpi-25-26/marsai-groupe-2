@@ -37,6 +37,15 @@ userRouter.put(
 	UserController.updateCurrentUser
 );
 
+/**
+ * POST /users
+ * Crée un nouvel utilisateur en base de données
+ * ⚠️ NON protégé (pour permettre aux admins de créer des utilisateurs depuis le panel admin)
+ * Body: { firstName, lastName, email, password, role }
+ * Response: { message, newUser }
+ */
+// userRouter.post("/", UserController.createUser);
+
 // Applica il middleware solo per ADMIN alle route seguenti
 userRouter.use(AuthMiddleware(["ADMIN"]));
 
@@ -59,15 +68,6 @@ userRouter.get("/",  UserController.getUsers);
  * Response: Données de l'utilisateur
  */
 userRouter.get("/:id", UserController.getUserById);
-
-/**
- * POST /users
- * Crée un nouvel utilisateur en base de données
- * ⚠️ NON protégé (pour permettre aux admins de créer des utilisateurs depuis le panel admin)
- * Body: { firstName, lastName, email, password, role }
- * Response: { message, newUser }
- */
-userRouter.post("/", UserController.createUser);
 
 /**
  * DELETE /users/:id

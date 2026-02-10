@@ -8,12 +8,12 @@ awardRouter.use(AuthMiddleware(["ADMIN"]));
 
 awardRouter.get("/", AwardController.getAward);
 
-awardRouter.get("/:id", AwardController.getAwardById);
-
 awardRouter.post("/:id_movie", AwardController.createAward);
 
-awardRouter.delete("/:id", AwardController.deleteAward);
+awardRouter.get("/:id", AwardController.getAwardById);
 
 awardRouter.put("/:id/:id_movie", AwardController.updateAward);
+
+awardRouter.delete("/:id", AwardController.deleteAward);
 
 export default awardRouter;

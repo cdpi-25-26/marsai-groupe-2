@@ -8,12 +8,12 @@ eventRouter.use(AuthMiddleware(["ADMIN"]));
 
 eventRouter.get("/", EventsController.getEvents);
 
-eventRouter.get("/:id_event", EventsController.getEventById);
-
 eventRouter.post("/", EventsController.createEvent);
 
-eventRouter.delete("/:id_event", EventsController.deleteEvent);
+eventRouter.get("/:id_event", EventsController.getEventById);
 
 eventRouter.put("/:id_event", EventsController.updateEvent);
+
+eventRouter.delete("/:id_event", EventsController.deleteEvent);
 
 export default eventRouter;
