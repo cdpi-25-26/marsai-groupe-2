@@ -77,6 +77,7 @@ export default function ProducerHome() {
   const [thumbnail2Name, setThumbnail2Name] = useState("Aucun fichier sélectionné");
   const [thumbnail3Name, setThumbnail3Name] = useState("Aucun fichier sélectionné");
   const [subtitlesName, setSubtitlesName] = useState("Aucun fichier sélectionné");
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   const handleFileName = (event, setter) => {
     const file = event.target.files?.[0];
@@ -210,6 +211,15 @@ export default function ProducerHome() {
   if (!user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Utilisateur introuvable</div>;
 
   const uploadBase = "http://localhost:3000/uploads";
+  const getPoster = (movie) => (
+    movie.thumbnail
+      ? `${uploadBase}/${movie.thumbnail}`
+      : movie.display_picture
+        ? `${uploadBase}/${movie.display_picture}`
+        : movie.picture1
+          ? `${uploadBase}/${movie.picture1}`
+          : null
+  );
 
   /**
    * Fonction handleEditChange
@@ -218,9 +228,11 @@ export default function ProducerHome() {
    */
   function handleEditChange(e) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   }
-
   /**
    * Fonction handleSave
    * Envoie les données modifiées au serveur via updateCurrentUser
@@ -233,14 +245,12 @@ export default function ProducerHome() {
     setSuccess(null);
     try {
       const toSend = { ...form };
-      // Les champs email et role sont protégés et ne doivent pas être modifiés par l'utilisateur
       delete toSend.email;
       delete toSend.role;
       const res = await updateCurrentUser(toSend);
       setUser(res.data);
       setEditMode(false);
       setSuccess("Profil mis à jour avec succès.");
-      // Mise à jour du prénom dans le localStorage pour l'affichage dans la navbar
       if (res.data.first_name) localStorage.setItem("firstName", res.data.first_name);
     } catch (err) {
       setError("Erreur lors de la mise à jour du profil");
@@ -870,178 +880,205 @@ export default function ProducerHome() {
           {movies.length === 0 ? (
             <p className="text-gray-400">Aucun film soumis pour le moment.</p>
           ) : (
-            movies.map(movie => (
-              <div key={movie.id_movie} className="border border-gray-800 rounded-xl p-6 bg-gray-950">
-                <div className="flex flex-col lg:flex-row gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-white">{movie.title}</h3>
-                    <p className="text-gray-400 mt-2">{movie.synopsis || movie.description || "-"}</p>
-                    <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
-                      <div><span className="text-gray-400">Durée:</span> {movie.duration ? `${movie.duration}s` : "-"}</div>
-                      <div><span className="text-gray-400">Langue:</span> {movie.main_language || "-"}</div>
-                      <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
-                      <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
-                      <div><span className="text-gray-400">Outils IA:</span> {movie.ai_tool || "-"}</div>
-                      <div><span className="text-gray-400">Méthodologie:</span> {movie.workshop || "-"}</div>
-                      <div><span className="text-gray-400">Production:</span> {movie.production || "-"}</div>
-                      <div><span className="text-gray-400">Sous-titres:</span> {movie.subtitle ? (
-                        <a className="text-[#AD46FF] hover:text-[#F6339A]" href={`${uploadBase}/${movie.subtitle}`} target="_blank" rel="noreferrer">Télécharger</a>
-                      ) : "-"}</div>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm uppercase text-gray-400">Collaborateurs</h4>
-                        <button
-                          type="button"
-                          onClick={() => startEditCollaborators(movie)}
-                          className="text-sm text-[#AD46FF] hover:text-[#F6339A]"
-                        >
-                          Modifier
-                        </button>
-                      </div>
-                      {movie.Collaborators?.length ? (
-                        <ul className="mt-2 text-sm text-gray-300 space-y-1">
-                          {movie.Collaborators.map((collab) => (
-                            <li key={collab.id_collaborator}>
-                              {collab.first_name} {collab.last_name} {collab.job ? `— ${collab.job}` : ""}
-                            </li>
-                          ))}
-                        </ul>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {movies.map((movie) => {
+                const poster = getPoster(movie);
+                return (
+                  <button
+                    key={movie.id_movie}
+                    type="button"
+                    onClick={() => setSelectedMovie(movie)}
+                    className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
+                  >
+                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                      {poster ? (
+                        <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
                       ) : (
-                        <p className="text-sm text-gray-500 mt-2">Aucun collaborateur.</p>
-                      )}
-
-                      {editingMovieId === movie.id_movie && (
-                        <div className="mt-4 space-y-3">
-                          {(collabDrafts[movie.id_movie] || []).map((collab, idx) => (
-                            <div key={`${movie.id_movie}-collab-${idx}`} className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-900 border border-gray-800 p-3 rounded-lg">
-                              <input
-                                type="text"
-                                placeholder="Prénom"
-                                value={collab.first_name}
-                                onChange={(e) => updateDraftField(movie.id_movie, idx, "first_name", e.target.value)}
-                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Nom"
-                                value={collab.last_name}
-                                onChange={(e) => updateDraftField(movie.id_movie, idx, "last_name", e.target.value)}
-                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                              />
-                              <input
-                                type="email"
-                                placeholder="Email"
-                                value={collab.email}
-                                onChange={(e) => updateDraftField(movie.id_movie, idx, "email", e.target.value)}
-                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Rôle"
-                                value={collab.job}
-                                onChange={(e) => updateDraftField(movie.id_movie, idx, "job", e.target.value)}
-                                className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                              />
-                              <div className="md:col-span-4 flex justify-end">
-                                <button
-                                  type="button"
-                                  onClick={() => removeDraftCollaborator(movie.id_movie, idx)}
-                                  className="text-red-400 hover:text-red-300 text-sm"
-                                >
-                                  Supprimer
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                          <div className="flex flex-wrap gap-3">
-                            <button
-                              type="button"
-                              onClick={() => addDraftCollaborator(movie.id_movie)}
-                              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                            >
-                              Ajouter un collaborateur
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => updateCollaboratorsMutation.mutate({
-                                id: movie.id_movie,
-                                collaborators: collabDrafts[movie.id_movie] || []
-                              })}
-                              className="px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90"
-                            >
-                              Enregistrer
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingMovieId(null)}
-                              className="px-4 py-2 border border-gray-700 rounded-lg"
-                            >
-                              Annuler
-                            </button>
-                          </div>
-                        </div>
+                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
                       )}
                     </div>
-
-                    {movie.trailer && (
-                      <div className="mt-4">
-                        <VideoPreview
-                          title={movie.title}
-                          src={`${uploadBase}/${movie.trailer}`}
-                          poster={
-                            movie.thumbnail
-                              ? `${uploadBase}/${movie.thumbnail}`
-                              : movie.display_picture
-                                ? `${uploadBase}/${movie.display_picture}`
-                                : movie.picture1
-                                  ? `${uploadBase}/${movie.picture1}`
-                                  : undefined
-                          }
-                        />
+                    <div className="mt-3">
+                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
+                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
+                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
+                        <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
+                        <span>{movie.main_language || "-"}</span>
+                        <span>{movie.nationality || "-"}</span>
+                        <span>{movie.selection_status || "submitted"}</span>
                       </div>
-                    )}
-                    {!movie.trailer && movie.youtube_link && (
-                      <div className="mt-4">
-                        <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={movie.youtube_link} target="_blank" rel="noreferrer">
-                          Voir sur YouTube
-                        </a>
-                      </div>
-                    )}
-                    {movie.trailer && (
-                      <div className="mt-3">
-                        <a
-                          className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                          href={`${uploadBase}/${movie.trailer}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Ouvrir la vidéo
-                        </a>
-                      </div>
-                    )}
-                    {!movie.trailer && !movie.youtube_link && (
-                      <div className="mt-3 text-sm text-amber-300">
-                        Vidéo non disponible (trailer: {String(movie.trailer || "-")}, youtube: {String(movie.youtube_link || "-")}).
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="grid grid-cols-2 gap-3">
-                      {[movie.picture1, movie.picture2, movie.picture3].filter(Boolean).map((pic, idx) => (
-                        <div key={`${movie.id_movie}-pic-${idx}`} className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                          <img src={`${uploadBase}/${pic}`} alt="Vignette" className="w-full h-full object-cover" />
-                        </div>
-                      ))}
                     </div>
-                  </div>
-                </div>
-              </div>
-            ))
+                  </button>
+                );
+              })}
+            </div>
           )}
         </section>
+
+        {selectedMovie && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-bold text-white">{selectedMovie.title}</h3>
+                <button
+                  type="button"
+                  onClick={() => setSelectedMovie(null)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="text-gray-400 mt-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
+              <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
+                <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
+                <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
+                <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
+                <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
+                <div><span className="text-gray-400">Outils IA:</span> {selectedMovie.ai_tool || "-"}</div>
+                <div><span className="text-gray-400">Méthodologie:</span> {selectedMovie.workshop || "-"}</div>
+                <div><span className="text-gray-400">Production:</span> {selectedMovie.production || "-"}</div>
+                <div><span className="text-gray-400">Sous-titres:</span> {selectedMovie.subtitle ? (
+                  <a className="text-[#AD46FF] hover:text-[#F6339A]" href={`${uploadBase}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer">Télécharger</a>
+                ) : "-"}</div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                {selectedMovie.trailer && (
+                  <a
+                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                    href={`${uploadBase}/${selectedMovie.trailer}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Ouvrir la vidéo
+                  </a>
+                )}
+                {selectedMovie.youtube_link && (
+                  <a
+                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                    href={selectedMovie.youtube_link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Voir sur YouTube
+                  </a>
+                )}
+              </div>
+
+              {(selectedMovie.trailer || selectedMovie.youtube_link) && (
+                <div className="mt-4">
+                  {selectedMovie.trailer ? (
+                    <VideoPreview
+                      title={selectedMovie.title}
+                      src={`${uploadBase}/${selectedMovie.trailer}`}
+                      poster={getPoster(selectedMovie) || undefined}
+                    />
+                  ) : (
+                    <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
+                      Ouvrir la vidéo
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-6">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm uppercase text-gray-400">Collaborateurs</h4>
+                  <button
+                    type="button"
+                    onClick={() => startEditCollaborators(selectedMovie)}
+                    className="text-sm text-[#AD46FF] hover:text-[#F6339A]"
+                  >
+                    Modifier
+                  </button>
+                </div>
+                {selectedMovie.Collaborators?.length ? (
+                  <ul className="mt-2 text-sm text-gray-300 space-y-1">
+                    {selectedMovie.Collaborators.map((collab) => (
+                      <li key={collab.id_collaborator}>
+                        {collab.first_name} {collab.last_name} {collab.job ? `— ${collab.job}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-2">Aucun collaborateur.</p>
+                )}
+
+                {editingMovieId === selectedMovie.id_movie && (
+                  <div className="mt-4 space-y-3">
+                    {(collabDrafts[selectedMovie.id_movie] || []).map((collab, idx) => (
+                      <div key={`${selectedMovie.id_movie}-collab-${idx}`} className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-900 border border-gray-800 p-3 rounded-lg">
+                        <input
+                          type="text"
+                          placeholder="Prénom"
+                          value={collab.first_name}
+                          onChange={(e) => updateDraftField(selectedMovie.id_movie, idx, "first_name", e.target.value)}
+                          className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Nom"
+                          value={collab.last_name}
+                          onChange={(e) => updateDraftField(selectedMovie.id_movie, idx, "last_name", e.target.value)}
+                          className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          value={collab.email}
+                          onChange={(e) => updateDraftField(selectedMovie.id_movie, idx, "email", e.target.value)}
+                          className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Rôle"
+                          value={collab.job}
+                          onChange={(e) => updateDraftField(selectedMovie.id_movie, idx, "job", e.target.value)}
+                          className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                        />
+                        <div className="md:col-span-4 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => removeDraftCollaborator(selectedMovie.id_movie, idx)}
+                            className="text-red-400 hover:text-red-300 text-sm"
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => addDraftCollaborator(selectedMovie.id_movie)}
+                        className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                      >
+                        Ajouter un collaborateur
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateCollaboratorsMutation.mutate({
+                          id: selectedMovie.id_movie,
+                          collaborators: collabDrafts[selectedMovie.id_movie] || []
+                        })}
+                        className="px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90"
+                      >
+                        Enregistrer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingMovieId(null)}
+                        className="px-4 py-2 border border-gray-700 rounded-lg"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

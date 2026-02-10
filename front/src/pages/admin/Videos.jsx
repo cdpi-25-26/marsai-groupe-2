@@ -53,6 +53,7 @@ function Videos() {
 
   const [categorySelection, setCategorySelection] = useState({});
   const [jurySelection, setJurySelection] = useState({});
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   useEffect(() => {
     if (!data?.data) return;
@@ -101,6 +102,15 @@ function Videos() {
   });
 
   const uploadBase = "http://localhost:3000/uploads";
+  const getPoster = (movie) => (
+    movie.thumbnail
+      ? `${uploadBase}/${movie.thumbnail}`
+      : movie.display_picture
+        ? `${uploadBase}/${movie.display_picture}`
+        : movie.picture1
+          ? `${uploadBase}/${movie.picture1}`
+          : null
+  );
 
   // État de chargement - affiche un message en attente des données
   if (isPending) {
@@ -116,209 +126,233 @@ function Videos() {
   return (
     <div className="space-y-6">
       {data.data.length > 0 ? (
-        <>
-      {data.data.map((movie) => (
-        <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-xl p-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="flex-1">
-              <h3 className="text-2xl font-bold text-white">{movie.title}</h3>
-              <p className="text-gray-400 mt-2">{movie.synopsis || movie.description || "-"}</p>
-              <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
-                <div><span className="text-gray-400">Durée:</span> {movie.duration ? `${movie.duration}s` : "-"}</div>
-                <div><span className="text-gray-400">Langue:</span> {movie.main_language || "-"}</div>
-                <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
-                <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
-                <div><span className="text-gray-400">Producteur:</span> {movie.User ? `${movie.User.first_name} ${movie.User.last_name}` : "-"}</div>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {data.data.map((movie) => {
+            const poster = getPoster(movie);
+            return (
+              <button
+                type="button"
+                key={movie.id_movie}
+                onClick={() => setSelectedMovie(movie)}
+                className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
+              >
+                <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                  {poster ? (
+                    <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
+                  )}
+                </div>
+                <div className="mt-3">
+                  <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
+                  <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
+                  <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
+                    <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
+                    <span>{movie.main_language || "-"}</span>
+                    <span>{movie.nationality || "-"}</span>
+                    <span>{movie.selection_status || "submitted"}</span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-gray-400">Aucune vidéo trouvée.</div>
+      )}
 
-              <div className="mt-4 flex flex-wrap gap-3">
-                {movie.trailer && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={`${uploadBase}/${movie.trailer}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+      {selectedMovie && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold text-white">{selectedMovie.title}</h3>
+              <button
+                type="button"
+                onClick={() => setSelectedMovie(null)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-gray-400 mt-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
+
+            <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
+              <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
+              <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
+              <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
+              <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
+              <div><span className="text-gray-400">Producteur:</span> {selectedMovie.User ? `${selectedMovie.User.first_name} ${selectedMovie.User.last_name}` : "-"}</div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              {selectedMovie.trailer && (
+                <a
+                  className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                  href={`${uploadBase}/${selectedMovie.trailer}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Ouvrir la vidéo
+                </a>
+              )}
+              {typeof selectedMovie.subtitle === "string" && selectedMovie.subtitle.toLowerCase().endsWith(".srt") && (
+                <a
+                  className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                  href={`${uploadBase}/${selectedMovie.subtitle}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  download
+                >
+                  Télécharger les sous-titres
+                </a>
+              )}
+              {selectedMovie.youtube_link && (
+                <a
+                  className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                  href={selectedMovie.youtube_link}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Voir sur YouTube
+                </a>
+              )}
+            </div>
+
+            {(selectedMovie.trailer || selectedMovie.youtube_link) && (
+              <div className="mt-4">
+                {selectedMovie.trailer ? (
+                  <VideoPreview
+                    title={selectedMovie.title}
+                    src={`${uploadBase}/${selectedMovie.trailer}`}
+                    poster={getPoster(selectedMovie) || undefined}
+                  />
+                ) : (
+                  <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
                     Ouvrir la vidéo
                   </a>
                 )}
-                {typeof movie.subtitle === "string" && movie.subtitle.toLowerCase().endsWith(".srt") && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={`${uploadBase}/${movie.subtitle}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    download
-                  >
-                    Télécharger les sous-titres
-                  </a>
-                )}
-                {movie.youtube_link && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={movie.youtube_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Voir sur YouTube
-                  </a>
-                )}
               </div>
+            )}
 
-              {(movie.trailer || movie.youtube_link) && (
-                <details className="mt-4">
-                  <summary className="cursor-pointer text-gray-300 hover:text-white">Voir la vidéo</summary>
-                  {movie.trailer ? (
-                    <div className="mt-3">
-                      <VideoPreview
-                        title={movie.title}
-                        src={`${uploadBase}/${movie.trailer}`}
-                        poster={
-                          movie.thumbnail
-                            ? `${uploadBase}/${movie.thumbnail}`
-                            : movie.display_picture
-                              ? `${uploadBase}/${movie.display_picture}`
-                              : movie.picture1
-                                ? `${uploadBase}/${movie.picture1}`
-                                : undefined
-                        }
-                      />
-                    </div>
-                  ) : (
-                    <div className="mt-3">
-                      <a className="text-[#AD46FF] hover:text-[#F6339A]" href={movie.youtube_link} target="_blank" rel="noreferrer">
-                        Ouvrir la vidéo
-                      </a>
-                    </div>
-                  )}
-                </details>
-              )}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => statusMutation.mutate({ id: selectedMovie.id_movie, status: "selected" })}
+                className="px-4 py-2 bg-green-600/80 text-white rounded-lg hover:bg-green-600"
+              >
+                Approuver
+              </button>
+              <button
+                type="button"
+                onClick={() => statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" })}
+                className="px-4 py-2 bg-red-600/80 text-white rounded-lg hover:bg-red-600"
+              >
+                Refuser
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm("Supprimer définitivement ce film ?")) {
+                    deleteMutation.mutate(selectedMovie.id_movie);
+                  }
+                }}
+                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              >
+                Supprimer
+              </button>
+            </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-sm uppercase text-gray-400 mb-3">Catégories</h4>
+                {categories.length === 0 ? (
+                  <p className="text-gray-500 text-sm">Aucune catégorie disponible.</p>
+                ) : (
+                  <select
+                    value={(categorySelection[selectedMovie.id_movie] || [""])[0] || ""}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setCategorySelection((prev) => ({
+                        ...prev,
+                        [selectedMovie.id_movie]: value ? [Number(value)] : []
+                      }));
+                    }}
+                    className="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                  >
+                    <option value="">Sélectionner une catégorie</option>
+                    {categories.map((category) => (
+                      <option key={`${selectedMovie.id_movie}-cat-${category.id_categorie}`} value={category.id_categorie}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <button
                   type="button"
-                  onClick={() => statusMutation.mutate({ id: movie.id_movie, status: "selected" })}
-                  className="px-4 py-2 bg-green-600/80 text-white rounded-lg hover:bg-green-600"
+                  onClick={() => categoryMutation.mutate({
+                    id: selectedMovie.id_movie,
+                    categories: categorySelection[selectedMovie.id_movie] || []
+                  })}
+                  className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
                 >
-                  Approuver
-                </button>
-                <button
-                  type="button"
-                  onClick={() => statusMutation.mutate({ id: movie.id_movie, status: "refused" })}
-                  className="px-4 py-2 bg-red-600/80 text-white rounded-lg hover:bg-red-600"
-                >
-                  Refuser
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.confirm("Supprimer définitivement ce film ?")) {
-                      deleteMutation.mutate(movie.id_movie);
-                    }
-                  }}
-                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Supprimer
+                  Enregistrer catégories
                 </button>
               </div>
 
-              <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="text-sm uppercase text-gray-400 mb-3">Catégories</h4>
-                  {categories.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Aucune catégorie disponible.</p>
-                  ) : (
-                    <select
-                      value={(categorySelection[movie.id_movie] || [""])[0] || ""}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        setCategorySelection((prev) => ({
-                          ...prev,
-                          [movie.id_movie]: value ? [Number(value)] : []
-                        }));
-                      }}
-                      className="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                    >
-                      <option value="">Sélectionner une catégorie</option>
-                      {categories.map((category) => (
-                        <option key={`${movie.id_movie}-cat-${category.id_categorie}`} value={category.id_categorie}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => categoryMutation.mutate({
-                      id: movie.id_movie,
-                      categories: categorySelection[movie.id_movie] || []
+              <div>
+                <h4 className="text-sm uppercase text-gray-400 mb-3">Assigner jurys</h4>
+                {juries.length === 0 ? (
+                  <p className="text-gray-500 text-sm">Aucun jury disponible.</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
+                    {juries.map((jury) => {
+                      const selected = (jurySelection[selectedMovie.id_movie] || []).includes(jury.id_user);
+                      return (
+                        <label key={`${selectedMovie.id_movie}-jury-${jury.id_user}`} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => {
+                              setJurySelection((prev) => {
+                                const current = prev[selectedMovie.id_movie] || [];
+                                const exists = current.includes(jury.id_user);
+                                const next = exists
+                                  ? current.filter((id) => id !== jury.id_user)
+                                  : [...current, jury.id_user];
+                                return { ...prev, [selectedMovie.id_movie]: next };
+                              });
+                            }}
+                            className="accent-[#AD46FF]"
+                          />
+                          {jury.first_name} {jury.last_name}
+                        </label>
+                      );
                     })}
-                    className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                  >
-                    Enregistrer catégories
-                  </button>
-                </div>
-
-                <div>
-                  <h4 className="text-sm uppercase text-gray-400 mb-3">Assigner jurys</h4>
-                  {juries.length === 0 ? (
-                    <p className="text-gray-500 text-sm">Aucun jury disponible.</p>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-                      {juries.map((jury) => {
-                        const selected = (jurySelection[movie.id_movie] || []).includes(jury.id_user);
-                        return (
-                          <label key={`${movie.id_movie}-jury-${jury.id_user}`} className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              onChange={() => {
-                                setJurySelection((prev) => {
-                                  const current = prev[movie.id_movie] || [];
-                                  const exists = current.includes(jury.id_user);
-                                  const next = exists
-                                    ? current.filter((id) => id !== jury.id_user)
-                                    : [...current, jury.id_user];
-                                  return { ...prev, [movie.id_movie]: next };
-                                });
-                              }}
-                              className="accent-[#AD46FF]"
-                            />
-                            {jury.first_name} {jury.last_name}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => juryMutation.mutate({
-                      id: movie.id_movie,
-                      juryIds: jurySelection[movie.id_movie] || []
-                    })}
-                    className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                  >
-                    Enregistrer jurys
-                  </button>
-                </div>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => juryMutation.mutate({
+                    id: selectedMovie.id_movie,
+                    juryIds: jurySelection[selectedMovie.id_movie] || []
+                  })}
+                  className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Enregistrer jurys
+                </button>
               </div>
             </div>
 
-            <div className="flex-1">
-              <div className="grid grid-cols-2 gap-3">
-                {[movie.picture1, movie.picture2, movie.picture3].filter(Boolean).map((pic, idx) => (
-                  <div key={`${movie.id_movie}-pic-${idx}`} className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                    <img src={`${uploadBase}/${pic}`} alt="Vignette" className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              {[selectedMovie.picture1, selectedMovie.picture2, selectedMovie.picture3].filter(Boolean).map((pic, idx) => (
+                <div key={`${selectedMovie.id_movie}-pic-${idx}`} className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                  <img src={`${uploadBase}/${pic}`} alt="Vignette" className="w-full h-full object-cover" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      ))}
-        </>
-      ) : (
-        <div className="text-gray-400">Aucune vidéo trouvée.</div>
       )}
     </div>
   );
