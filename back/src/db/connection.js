@@ -22,7 +22,6 @@ dotenv.config();
  */
 const sequelize = new Sequelize(
   process.env.DB_NAME || "marsai",
-  process.env.DB_NAME || "marsai",
   process.env.DB_USER || "root",
   process.env.DB_PASSWORD || "josantos",
   {

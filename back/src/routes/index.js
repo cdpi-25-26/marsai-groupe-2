@@ -33,6 +33,7 @@ router.use("/categories", categorieRouter); // Routes de gestion catégories
 router.use("/reservations", reservationRouter); // Routes de gestion réservations
 
 router.use("/events", eventRouter); // Routes de gestion réservations
-router.use("/admin/dashboard", dashboardRouter);
+
+router.use("/admin/dashboard", dashboardRouter); // Routes de gestion du dashboard admin
 
 export default router;
