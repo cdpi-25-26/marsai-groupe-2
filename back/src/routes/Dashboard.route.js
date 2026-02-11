@@ -3,7 +3,7 @@ import { getAdminStats } from "../controllers/DashboardController.js";
 
 const router = express.Router();
 
-router.get("/", getAdminStats);
+router.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), getAdminStats);
 
 export default router;
 

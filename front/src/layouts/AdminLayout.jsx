@@ -25,7 +25,7 @@ export default function AdminLayout() {
 
   const menuItems = [
     { path: "/admin", icon: "📊", label: "Overview", exact: true },
-    { path: "/admin/films", icon: "🎬", label: "Gestion films" },
+    { path: "/admin/movies", icon: "🎬", label: "Gestion films" },
     { path: "/admin/users", icon: "👥", label: "Gestion utilisateurs" },
     { path: "/admin/jury", icon: "👥", label: "Distribution & Jury" },
     { path: "/admin/results", icon: "📈", label: "Résultats & classement" },
