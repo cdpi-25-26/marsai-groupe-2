@@ -1,4 +1,3 @@
-
 /** English */
 
 // import StatCard from "./StatCard";
@@ -11,11 +10,11 @@
 //           <div
 //             key={i}
 //             className="
-//               bg-white/5 
-//               backdrop-blur-xl 
-//               border border-white/10 
-//               rounded-xl p-4 
-//               shadow-lg shadow-black/20 
+//               bg-white/5
+//               backdrop-blur-xl
+//               border border-white/10
+//               rounded-xl p-4
+//               shadow-lg shadow-black/20
 //               animate-pulse
 //             "
 //           >
@@ -70,7 +69,6 @@
 //     </div>
 //   );
 // }
-
 
 import StatCard from "./StatCard";
 
@@ -132,8 +130,7 @@ export default function StatsGrid({ stats }) {
         details={
           stats.votes?.total > 0
             ? `Moy. : ${(
-                stats.votes.total /
-                (stats.movies?.total || 1)
+                stats.votes.total / (stats.movies?.total || 1)
               ).toFixed(1)} / film`
             : "Aucun vote pour le moment"
         }
