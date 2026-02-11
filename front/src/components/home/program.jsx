@@ -1,5 +1,5 @@
-import ThreeCards from "./cards/ThreeCards"
-import TitleInBox from "../TitleInBox";
+import ThreeCards from "./cards/ThreeCards.jsx"
+import TitleInBox from "../TitleInBox.jsx";
 import Button from "../Button.jsx";
 
 export default function Program() {
@@ -62,8 +62,9 @@ export default function Program() {
         />
 
       </div>
-      {/* Bouton */}
-                                <div className="flex justify-center pt-2 mt-6">
+    
+          {/* Bouton */}
+                                <div className="w-full flex items-center justify-center pt-2 mt-6">
                                   <Button
                                     title="agenda complet ➝"
                                     href="/auth/register"
@@ -77,6 +78,8 @@ export default function Program() {
                                     hoverShadow = "hover:shadow-[0_0_40px_rgba(173,70,255,0.7)]"
                                   />
                                 </div>
-
         
-        </div>)}
+        </div>
+
+      
+      )}
