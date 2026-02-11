@@ -37,9 +37,7 @@ function login(req, res) {
     );
 
 
-      console.log("JWT payload:", jwt.decode(token)); // 🔹 debug
-
-      // Retourner le token et les infos utilisateur
+    // Retourner le token et les infos utilisateur
       return res.status(200).json({
         message: "Connexion réussie",
         email: user.email,
