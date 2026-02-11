@@ -64,7 +64,6 @@ movieRouter.put("/:id/collaborators", AuthMiddleware(["ADMIN", "PRODUCER"]),Movi
 
 
 // PRODUCER
-
 // Soumettre un film (PRODUCER & ADMIN uniquement)
 movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
 );
