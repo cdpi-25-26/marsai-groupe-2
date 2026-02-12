@@ -103,13 +103,33 @@ async function createOrUpdateMyVote(req, res) {
         const existingVote = await Vote.findOne({ where: { id_movie, id_user } });
 
         if (existingVote) {
+            // Verifica se il film è stato approvato dall'admin
+            const movie = await Movie.findByPk(id_movie);
+            const isApproved = movie?.selection_status === 'selected';
+            
+            // Incrementa il counter solo se il film è già approvato
+            if (isApproved) {
+                existingVote.modification_count = (existingVote.modification_count || 0) + 1;
+            }
+            
             existingVote.note = noteFloat;
             existingVote.commentaire = commentaire;
             await existingVote.save();
-            return res.json({ message: "Vote mis à jour", vote: existingVote });
+            return res.json({ 
+                message: "Vote mis à jour", 
+                vote: existingVote,
+                isModified: existingVote.modification_count > 0,
+                isApproved
+            });
         }
 
-        const newVote = await Vote.create({ note: noteFloat, commentaire, id_movie, id_user });
+        const newVote = await Vote.create({ 
+            note: noteFloat, 
+            commentaire, 
+            id_movie, 
+            id_user,
+            modification_count: 0
+        });
         return res.status(201).json({ message: "Vote créé", vote: newVote });
     } catch (err) {
         console.error("createOrUpdateMyVote error:", err);

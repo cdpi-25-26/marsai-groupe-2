@@ -64,6 +64,22 @@ export default function JuryHome() {
   }, [archivedMovieIds]);
 
   useEffect(() => {
+    if (selectedMovie) {
+      const existingVote = votesByMovie[selectedMovie.id_movie];
+      if (existingVote) {
+        setVoteForm({
+          note: String(existingVote.note),
+          commentaire: existingVote.commentaire || ""
+        });
+      } else {
+        setVoteForm({ note: "", commentaire: "" });
+      }
+      setHasWatched(false);
+      setConfirmedWatched(false);
+    }
+  }, [selectedMovie, votesByMovie]);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       setError("Non authentifié");
@@ -346,6 +362,23 @@ export default function JuryHome() {
                         <span>{movie.nationality || "-"}</span>
                         <span>{movie.selection_status || "submitted"}</span>
                       </div>
+                      {votesByMovie[movie.id_movie] && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded">
+                            Déjà voté
+                          </span>
+                          {votesByMovie[movie.id_movie].modification_count > 0 && (
+                            <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-1 rounded">
+                              Modifié {votesByMovie[movie.id_movie].modification_count}×
+                            </span>
+                          )}
+                          {movie.selection_status === 'selected' && (
+                            <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
+                              Peut être modifié
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </button>
                 );
@@ -471,7 +504,26 @@ export default function JuryHome() {
               </div>
 
               <div className="mt-6 border-t border-gray-800 pt-6">
-                <h4 className="text-lg font-semibold text-white mb-4">Votre vote</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-white">Votre vote</h4>
+                  {votesByMovie[selectedMovie.id_movie] && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded">
+                        Déjà voté
+                      </span>
+                      {votesByMovie[selectedMovie.id_movie].modification_count > 0 && (
+                        <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-1 rounded">
+                          Modifié {votesByMovie[selectedMovie.id_movie].modification_count}×
+                        </span>
+                      )}
+                      {selectedMovie.selection_status === 'selected' && (
+                        <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
+                          ✓ Modifiable
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
                 {selectedMovie.trailer ? (
                   <p className="text-sm text-gray-400 mb-3">
                     Vous devez visionner le film en entier avant de voter.

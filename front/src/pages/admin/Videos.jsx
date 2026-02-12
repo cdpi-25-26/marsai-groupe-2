@@ -622,15 +622,32 @@ function Videos() {
                 <p className="text-gray-500 text-sm">Aucun vote pour le moment.</p>
               ) : (
                 <div className="space-y-3">
-                  {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => (
-                    <div key={`vote-${vote.id_vote}`} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
-                      <div className="flex items-center justify-between text-sm text-gray-300">
-                        <span>{vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}</span>
-                        <span className="font-semibold text-white">{voteLabels[getVoteCategory(vote.note)] || vote.note}</span>
+                  {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => {
+                    const isModified = vote.modification_count > 0;
+                    const createdDate = new Date(vote.createdAt).toLocaleDateString('fr-FR');
+                    const updatedDate = new Date(vote.updatedAt).toLocaleDateString('fr-FR');
+                    
+                    return (
+                      <div key={`vote-${vote.id_vote}`} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+                        <div className="flex items-center justify-between text-sm text-gray-300 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span>{vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}</span>
+                            {isModified && (
+                              <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-0.5 rounded">
+                                Modifié {vote.modification_count}×
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-semibold text-white">{voteLabels[getVoteCategory(vote.note)] || vote.note}</span>
+                        </div>
+                        {vote.commentaire && <p className="text-sm text-gray-400 mt-2">{vote.commentaire}</p>}
+                        <div className="mt-2 text-xs text-gray-500 flex gap-3">
+                          <span>Créé: {createdDate}</span>
+                          {isModified && <span>Modifié: {updatedDate}</span>}
+                        </div>
                       </div>
-                      {vote.commentaire && <p className="text-sm text-gray-400 mt-2">{vote.commentaire}</p>}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

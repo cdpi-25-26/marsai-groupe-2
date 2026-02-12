@@ -23,7 +23,12 @@ export default (sequelize, DataTypes) => {
     commentaire: {
       type: DataTypes.TEXT,
       allowNull: true
-    } 
+    },
+    modification_count: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    }
   }, 
   {
     tableName: 'votes',
