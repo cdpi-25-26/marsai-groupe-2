@@ -132,7 +132,57 @@
         "remove": "Supprimer",
         "chooseFile": "Choisir un fichier"
       }
+    },
+
+
+"producer": {
+  "profile": {
+    "title": "Mon Profil",
+    "editMode": "Mode Édition",
+    "viewMode": "Mode Lecture",
+    "successUpdate": "Profil mis à jour avec succès",
+    "errorUpdate": "Erreur lors de la mise à jour du profil"
+  },
+  "filmSubmission": {
+    "title": "Déposer un film",
+    "sections": {
+      "filmIdentity": "Identité du film",
+      "aiUsage": "Déclaration IA",
+      "collaborators": "Collaborateurs"
+    },
+    "labels": {
+      "filmTitleOriginal": "Titre original",
+      "durationSeconds": "Durée (secondes)",
+      "filmLanguage": "Langue du film",
+      "releaseYear": "Année de sortie",
+      "nationality": "Nationalité",
+      "translation": "Traduction du titre",
+      "youtubeLink": "Lien YouTube",
+      "synopsisOriginal": "Synopsis (langue originale)",
+      "synopsisEnglish": "Synopsis (anglais)",
+      "aiClassification": "Classification de l'œuvre",
+      "aiStack": "Stack technologique",
+      "aiMethodology": "Méthodologie créative",
+      "knownByMarsAi": "Connu par MarsAI",
+      "filmFile": "Fichier du film",
+      "thumbnail1": "Vignette 1",
+      "thumbnail2": "Vignette 2",
+      "thumbnail3": "Vignette 3",
+      "subtitlesSrt": "Sous-titres",
+      "category": "Catégorie"
+    },
+    "buttons": {
+      "submit": "Soumettre le film",
+      "save": "Enregistrer",
+      "edit": "Modifier",
+      "cancel": "Annuler",
+      "addCollaborator": "Ajouter un collaborateur",
+      "remove": "Supprimer"
     }
+  }
+}
+
+
   },
   "validation": {
     "firstName": {

@@ -132,7 +132,57 @@
         "remove": "Remove",
         "chooseFile": "Choose file"
       }
+    },
+
+"producer": {
+  "profile": {
+    "title": "My Profile",
+    "editMode": "Edit Mode",
+    "viewMode": "View Mode",
+    "successUpdate": "Profile updated successfully",
+    "errorUpdate": "Error updating profile"
+  },
+  "filmSubmission": {
+    "title": "Submit a Film",
+    "sections": {
+      "filmIdentity": "Film Identity",
+      "aiUsage": "AI Usage",
+      "collaborators": "Collaborators"
+    },
+    "labels": {
+      "filmTitleOriginal": "Original title",
+      "durationSeconds": "Duration (seconds)",
+      "filmLanguage": "Film language",
+      "releaseYear": "Release year",
+      "nationality": "Nationality",
+      "translation": "Title translation",
+      "youtubeLink": "YouTube link",
+      "synopsisOriginal": "Synopsis (original language)",
+      "synopsisEnglish": "Synopsis (English)",
+      "aiClassification": "Work classification",
+      "aiStack": "Technological stack",
+      "aiMethodology": "Creative methodology",
+      "knownByMarsAi": "Known by MarsAI",
+      "filmFile": "Film file",
+      "thumbnail1": "Thumbnail 1",
+      "thumbnail2": "Thumbnail 2",
+      "thumbnail3": "Thumbnail 3",
+      "subtitlesSrt": "Subtitles",
+      "category": "Category"
+    },
+    "buttons": {
+      "submit": "Submit Film",
+      "save": "Save",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "addCollaborator": "Add Collaborator",
+      "remove": "Remove"
     }
+  }
+}
+
+
+    
   },
   "validation": {
     "firstName": {
