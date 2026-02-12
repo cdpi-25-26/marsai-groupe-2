@@ -13,6 +13,7 @@ import Protocole from "../../components/home/Protocole";
 import Program from "../../components/home/program";
 import Party from "../../components/home/Party";
 import Promoters from "../../components/home/Promoters";
+import Localisation from "../../components/home/Localisation";
 import "./Home.css";
 
 /**
@@ -38,6 +39,7 @@ function Home() {
       <Program />
       <Party />
       <Promoters />
+      <Localisation />
 
     </>
   );
