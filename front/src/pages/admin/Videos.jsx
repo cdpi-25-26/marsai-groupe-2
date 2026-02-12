@@ -68,6 +68,7 @@ function Videos() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [awardName, setAwardName] = useState("");
   const [awardFilter, setAwardFilter] = useState("");
+  const [showRefusedList, setShowRefusedList] = useState(false);
 
   useEffect(() => {
     if (!data?.data) return;
@@ -225,16 +226,31 @@ function Videos() {
   }, [data, awardFilter]);
 
   const groupedMovies = useMemo(() => {
-    const groups = { YES: [], "TO DISCUSS": [], NO: [], NONE: [] };
+    const approved = [];
+    const refused = [];
+    const voting = { YES: [], "TO DISCUSS": [], NO: [], NONE: [] };
+    
     filteredMovies.forEach((movie) => {
-      const summary = voteSummaryByMovie[movie.id_movie];
-      const dominant = getAverageCategory(summary);
-      groups[dominant].push({ movie, summary, score: getScore(summary) });
+      const status = movie.selection_status || "submitted";
+      
+      if (status === "selected") {
+        approved.push({ movie, summary: voteSummaryByMovie[movie.id_movie] });
+      } else if (status === "refused") {
+        refused.push({ movie, summary: voteSummaryByMovie[movie.id_movie] });
+      } else {
+        const summary = voteSummaryByMovie[movie.id_movie];
+        const dominant = getAverageCategory(summary);
+        voting[dominant].push({ movie, summary, score: getScore(summary) });
+      }
     });
+    
     voteOrder.forEach((key) => {
-      groups[key].sort((a, b) => b.score - a.score);
+      voting[key].sort((a, b) => b.score - a.score);
     });
-    return groups;
+    
+    approved.sort((a, b) => (b.summary?.average || 0) - (a.summary?.average || 0));
+    
+    return { approved, refused, voting };
   }, [filteredMovies, voteSummaryByMovie]);
 
   const renderVoteSummary = (summary) => {
@@ -248,48 +264,86 @@ function Videos() {
     );
   };
 
-  const renderMovieCard = (movie) => {
+  const renderMovieCard = (movie, showActions = true) => {
     const poster = getPoster(movie);
     const summary = voteSummaryByMovie[movie.id_movie];
     const movieAwards = awardsByMovie[movie.id_movie] || [];
     const avgScore = summary ? summary.average.toFixed(1) : "-";
     
     return (
-      <button
-        type="button"
-        key={movie.id_movie}
-        onClick={() => setSelectedMovie(movie)}
-        className="text-left bg-gray-950 border border-gray-800 rounded-lg p-2 hover:border-gray-600 transition flex gap-3 items-center"
-      >
-        <div className="w-20 h-20 flex-shrink-0 bg-gray-800 rounded overflow-hidden">
-          {poster ? (
-            <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-white truncate">{movie.title}</h3>
-          <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
-            <span>Moy: <span className="text-white font-semibold">{avgScore}</span></span>
-            <span>👍 {summary?.YES || 0}</span>
-            <span>🗣️ {summary?.["TO DISCUSS"] || 0}</span>
-            <span>👎 {summary?.NO || 0}</span>
+      <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setSelectedMovie(movie)}
+          className="w-full text-left p-2 hover:bg-gray-900 transition flex gap-2 items-center"
+        >
+          <div className="w-16 h-16 flex-shrink-0 bg-gray-800 rounded overflow-hidden">
+            {poster ? (
+              <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
+            )}
           </div>
-          {movieAwards.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {movieAwards.slice(0, 2).map((award) => (
-                <span key={`award-${award.id_award}`} className="text-[10px] bg-purple-900/40 text-purple-200 px-1.5 py-0.5 rounded">
-                  {award.award_name}
-                </span>
-              ))}
-              {movieAwards.length > 2 && (
-                <span className="text-[10px] text-gray-500">+{movieAwards.length - 2}</span>
-              )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-xs font-semibold text-white truncate">{movie.title}</h3>
+            <div className="mt-0.5 flex items-center gap-2 text-[10px] text-gray-400">
+              <span>Moy: <span className="text-white font-semibold">{avgScore}</span></span>
+              <span>👍 {summary?.YES || 0}</span>
+              <span>🗣️ {summary?.["TO DISCUSS"] || 0}</span>
+              <span>👎 {summary?.NO || 0}</span>
             </div>
-          )}
-        </div>
-      </button>
+            {movieAwards.length > 0 && (
+              <div className="mt-0.5 flex flex-wrap gap-1">
+                {movieAwards.slice(0, 2).map((award) => (
+                  <span key={`award-${award.id_award}`} className="text-[9px] bg-purple-900/40 text-purple-200 px-1 py-0.5 rounded">
+                    {award.award_name}
+                  </span>
+                ))}
+                {movieAwards.length > 2 && (
+                  <span className="text-[9px] text-gray-500">+{movieAwards.length - 2}</span>
+                )}
+              </div>
+            )}
+          </div>
+        </button>
+        {showActions && (
+          <div className="p-2 pt-0 flex gap-1.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                statusMutation.mutate({ id: movie.id_movie, status: "selected" });
+              }}
+              className="flex-1 px-2 py-1 bg-green-600/80 text-white rounded text-[10px] hover:bg-green-600"
+            >
+              Approuver
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                statusMutation.mutate({ id: movie.id_movie, status: "refused" });
+              }}
+              className="flex-1 px-2 py-1 bg-red-600/80 text-white rounded text-[10px] hover:bg-red-600"
+            >
+              Refuser
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Supprimer définitivement ce film ?")) {
+                  deleteMutation.mutate(movie.id_movie);
+                  setSelectedMovie(null);
+                }
+              }}
+              className="flex-1 px-2 py-1 bg-gray-700 text-white rounded text-[10px] hover:bg-gray-600"
+            >
+              Supprimer
+            </button>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -323,47 +377,83 @@ function Videos() {
       {filteredMovies.length > 0 ? (
         <div className="space-y-8">
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Validé / J'aime / Bon 👍</h3>
-            {groupedMovies.YES.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun film validé.</p>
+            <h3 className="text-xl font-bold text-green-400 mb-3">✓ Films Approuvés ({groupedMovies.approved.length})</h3>
+            {groupedMovies.approved.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucun film approuvé.</p>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {groupedMovies.YES.map(({ movie }) => renderMovieCard(movie))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {groupedMovies.approved.map(({ movie }) => renderMovieCard(movie, false))}
               </div>
             )}
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">À discuter avec l'admin</h3>
-            {groupedMovies["TO DISCUSS"].length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun film à discuter.</p>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {groupedMovies["TO DISCUSS"].map(({ movie }) => renderMovieCard(movie))}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Refusé / Je n'aime pas 👎</h3>
-            {groupedMovies.NO.length === 0 ? (
+            <h3 className="text-xl font-bold text-red-400 mb-3">✗ Films Refusés ({groupedMovies.refused.length})</h3>
+            {groupedMovies.refused.length === 0 ? (
               <p className="text-gray-500 text-sm">Aucun film refusé.</p>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {groupedMovies.NO.map(({ movie }) => renderMovieCard(movie))}
+              <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
+                <p className="text-gray-400 text-sm">
+                  {groupedMovies.refused.length} film{groupedMovies.refused.length > 1 ? "s" : ""} refusé{groupedMovies.refused.length > 1 ? "s" : ""}.
+                  <button
+                    type="button"
+                    onClick={() => setShowRefusedList(true)}
+                    className="ml-2 text-[#AD46FF] hover:text-[#F6339A] underline"
+                  >
+                    Voir la liste
+                  </button>
+                </p>
               </div>
             )}
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-3">Sans vote</h3>
-            {groupedMovies.NONE.length === 0 ? (
-              <p className="text-gray-500 text-sm">Tous les films ont des votes.</p>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {groupedMovies.NONE.map(({ movie }) => renderMovieCard(movie))}
+            <h3 className="text-xl font-bold text-white mb-3">📊 Films en Votation</h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-base font-semibold text-white mb-2">Validé / J'aime / Bon 👍</h4>
+                {groupedMovies.voting.YES.length === 0 ? (
+                  <p className="text-gray-500 text-sm">Aucun film validé.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {groupedMovies.voting.YES.map(({ movie }) => renderMovieCard(movie))}
+                  </div>
+                )}
               </div>
-            )}
+
+              <div>
+                <h4 className="text-base font-semibold text-white mb-2">À discuter avec l'admin</h4>
+                {groupedMovies.voting["TO DISCUSS"].length === 0 ? (
+                  <p className="text-gray-500 text-sm">Aucun film à discuter.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {groupedMovies.voting["TO DISCUSS"].map(({ movie }) => renderMovieCard(movie))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h4 className="text-base font-semibold text-white mb-2">Refusé / Je n'aime pas 👎</h4>
+                {groupedMovies.voting.NO.length === 0 ? (
+                  <p className="text-gray-500 text-sm">Aucun film refusé.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {groupedMovies.voting.NO.map(({ movie }) => renderMovieCard(movie))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h4 className="text-base font-semibold text-white mb-2">Sans vote</h4>
+                {groupedMovies.voting.NONE.length === 0 ? (
+                  <p className="text-gray-500 text-sm">Tous les films ont des votes.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {groupedMovies.voting.NONE.map(({ movie }) => renderMovieCard(movie))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       ) : (
@@ -444,34 +534,6 @@ function Videos() {
                 )}
               </div>
             )}
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => statusMutation.mutate({ id: selectedMovie.id_movie, status: "selected" })}
-                className="px-4 py-2 bg-green-600/80 text-white rounded-lg hover:bg-green-600"
-              >
-                Approuver
-              </button>
-              <button
-                type="button"
-                onClick={() => statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" })}
-                className="px-4 py-2 bg-red-600/80 text-white rounded-lg hover:bg-red-600"
-              >
-                Refuser
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm("Supprimer définitivement ce film ?")) {
-                    deleteMutation.mutate(selectedMovie.id_movie);
-                  }
-                }}
-                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-              >
-                Supprimer
-              </button>
-            </div>
 
             <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
@@ -624,6 +686,26 @@ function Videos() {
                   <img src={`${uploadBase}/${pic}`} alt="Vignette" className="w-full h-full object-cover" />
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRefusedList && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-red-400">Films Refusés ({groupedMovies.refused.length})</h3>
+              <button
+                type="button"
+                onClick={() => setShowRefusedList(false)}
+                className="text-gray-400 hover:text-white text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {groupedMovies.refused.map(({ movie }) => renderMovieCard(movie, true))}
             </div>
           </div>
         </div>
