@@ -34,8 +34,9 @@ export default function Localisation() {
     </p>
 </div>
 <div className="pt-6 pb-12 w-full flex justify-center">
-  <div className="w-full max-w-220 grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div className="w-full max-w-280 grid grid-cols-1 md:grid-cols-2 gap-20">
     <OneCard
+      width="200"
       title="Salle des Sucres"
       description="Futur sanctuaire des conférences et de la remise des prix de Mars.A.I. Un espace majestueux alliant patrimoine et technologie."
       accentColor="#2B7FFF"
@@ -44,6 +45,7 @@ export default function Localisation() {
     />
 
     <OneCard
+      width="200"
       title="Salle PLAZA"
       description="L'épicentre du festival : accueil, animations, workshops et restauration. Le point de rencontre de tous les participants."
       accentColor="#C27AFF"
@@ -54,7 +56,7 @@ export default function Localisation() {
 </div>
 
 <div className="w-full flex justify-center pt-10 pb-16">
-  <div className="w-full max-w-225 border border-[rgba(255,255,255,0.65)] rounded-4xl overflow-hidden shadow-[0_0_25px_rgba(173,70,255,0.3)]">
+  <div className="w-full max-w-250 border-2 border-[rgba(255,255,255,0.82)] rounded-4xl overflow-hidden shadow-[0_0_25px_rgba(173,70,255,0.3)]">
     <iframe
       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5806.007572123465!2d5.366207076720204!3d43.31418017429094!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c9c0f3f2295ed9%3A0xe8332bddf8f8ffdb!2s155%20Rue%20Peyssonnel%2C%2013002%20Marseille!5e0!3m2!1sfr!2sfr!4v1770892741990!5m2!1sfr!2sfr"
       className="w-full h-112.5"

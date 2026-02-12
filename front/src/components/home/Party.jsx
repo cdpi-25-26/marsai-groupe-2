@@ -23,33 +23,17 @@ export default function Program() {
       </div>
 
       {/* GRID RESPONSIVE */}
-      <div
-        className="
-          px-6 sm:px-10 md:px-20
-          pt-10 pb-16
-          grid grid-cols-1 md:grid-cols-2
-          gap-12 md:gap-20
-        "
-      >
-
-        {/* TEXTE GAUCHE */}
-        <div className="w-full">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white uppercase leading-none">
-            MARS.A.I
-          </h2>
-
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#F6339A] uppercase leading-none mb-6">
-            night
-          </h2>
-
-          <p className="text-lg sm:text-xl md:text-2xl text-white leading-relaxed max-w-xl">
-            Fête Électro mêlant IA et futurs souhaitables.<br />
-            Une expérience immersive sonore et visuelle.
-          </p>
-        </div>
+      <div className="pt-12 pb-12 w-full grid grid-cols-1 md:grid-cols-2 max-w-350 mx-auto justify-center place-items-center">
+        {/* TEXTE GAUCHE */} 
+        <div className="max-w-200 mx-auto text-left"> 
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white uppercase leading-none"> MARS.A.I </h2> 
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#F6339A] uppercase leading-none mb-6"> night </h2> 
+          <p className="text-lg sm:text-xl md:text-2xl text-white leading-relaxed max-w-xl"> 
+            Fête Électro mêlant IA et futurs souhaitables.<br /> Une expérience immersive sonore et visuelle. </p> 
+            </div>
 
         {/* CARD DROITE */}
-        <div className="flex justify-start md:justify-end w-full">
+        <div className="flex justify-center w-full max-w-300 mx-auto">
           <OneCard
             icon={
               <svg className="w-24 h-24 md:w-40 md:h-40" viewBox="0 0 432 432">
@@ -60,6 +44,7 @@ export default function Program() {
               </svg>
             }
             title="13 JUIN 2026"
+            width="w-120"
             description="DÈS 19H00 • MARSEILLE"
             accentColor="#FB64B6"
             borderColor="border-[rgba(251,100,182,0.40)]"
@@ -70,7 +55,7 @@ export default function Program() {
       </div>
 
       {/* BOUTON */}
-      <div className="w-full flex items-center justify-center px-6 sm:px-10 md:px-20 pb-10">
+      <div className="w-full flex items-center justify-center px-6 sm:px-10 md:px-20 pt-12 pb-10">
         <Button
           title="réserver ➝"
           href="/auth/register"

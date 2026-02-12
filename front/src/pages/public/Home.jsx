@@ -14,6 +14,7 @@ import Program from "../../components/home/program";
 import Party from "../../components/home/Party";
 import Promoters from "../../components/home/Promoters";
 import Localisation from "../../components/home/Localisation";
+import Statistics from "../../components/home/Statistics";
 import "./Home.css";
 
 /**
@@ -40,6 +41,7 @@ function Home() {
       <Party />
       <Promoters />
       <Localisation />
+      <Statistics />
 
     </>
   );

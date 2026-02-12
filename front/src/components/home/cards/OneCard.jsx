@@ -5,14 +5,16 @@ export default function OneCard({
   accentColor,
   borderColor,
   hoverShadow,
+  textSize = "text-xl sm:text-2xl md:text-3xl",
   height = "h-60",
+  width = "w-90",
   iconBg = "bg-white/10",
   paddingBottom = "pb-3",
 }) {
   return (
     <div
       className={`
-        w-90
+${width}
         ${height}
         bg-[rgba(255,255,255,0.05)]
         rounded-[40px]
@@ -45,7 +47,7 @@ export default function OneCard({
       {/* TITLE */}
       <div className={`${paddingBottom} pt-3`}>
       <h2
-        className={`text-2xl font-bold text-center uppercase`}
+        className={`${textSize} font-bold text-center uppercase`}
         style={{ color: accentColor }}
       >
         {title}
