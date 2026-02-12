@@ -19,6 +19,8 @@ import {
   updateMovieStatus
 } from "../../api/videos.js";
 import { getUsers } from "../../api/users.js";
+import { getVotes } from "../../api/votes.js";
+import { createAward, getAwards, deleteAward } from "../../api/awards.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 
 /**
@@ -45,6 +47,16 @@ function Videos() {
     queryFn: getUsers,
   });
 
+  const { data: votesData } = useQuery({
+    queryKey: ["votes"],
+    queryFn: getVotes,
+  });
+
+  const { data: awardsData } = useQuery({
+    queryKey: ["awards"],
+    queryFn: getAwards,
+  });
+
   const categories = categoriesData?.data || [];
   const juries = useMemo(
     () => (usersData?.data || []).filter((user) => user.role === "JURY"),
@@ -54,6 +66,8 @@ function Videos() {
   const [categorySelection, setCategorySelection] = useState({});
   const [jurySelection, setJurySelection] = useState({});
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [awardName, setAwardName] = useState("");
+  const [awardFilter, setAwardFilter] = useState("");
 
   useEffect(() => {
     if (!data?.data) return;
@@ -101,6 +115,35 @@ function Videos() {
     }
   });
 
+  const awardMutation = useMutation({
+    mutationFn: ({ id_movie, award_name }) => createAward(id_movie, award_name),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+      queryClient.invalidateQueries({ queryKey: ["awards"] });
+      setAwardName("");
+      const newAward = res?.data?.newAward;
+      if (newAward) {
+        setSelectedMovie((prev) => {
+          if (!prev || prev.id_movie !== newAward.id_movie) return prev;
+          const current = prev.Awards || [];
+          return { ...prev, Awards: [...current, newAward] };
+        });
+      }
+    }
+  });
+
+  const deleteAwardMutation = useMutation({
+    mutationFn: (id) => deleteAward(id),
+    onSuccess: (_res, id) => {
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+      queryClient.invalidateQueries({ queryKey: ["awards"] });
+      setSelectedMovie((prev) => {
+        if (!prev) return prev;
+        return { ...prev, Awards: (prev.Awards || []).filter((award) => award.id_award !== id) };
+      });
+    }
+  });
+
   const uploadBase = "http://localhost:3000/uploads";
   const getPoster = (movie) => (
     movie.thumbnail
@@ -111,6 +154,141 @@ function Videos() {
           ? `${uploadBase}/${movie.picture1}`
           : null
   );
+
+  const votes = votesData?.data || [];
+  const awards = awardsData?.data || [];
+
+  const voteLabels = {
+    YES: "Validé / J'aime / Bon 👍",
+    "TO DISCUSS": "À discuter avec l'admin",
+    NO: "Refusé / Je n'aime pas 👎"
+  };
+
+  const voteOrder = ["YES", "TO DISCUSS", "NO", "NONE"];
+
+  const getVoteCategory = (note) => {
+    if (note === "YES" || note === "TO DISCUSS" || note === "NO") return note;
+    const value = parseFloat(note);
+    if (Number.isNaN(value)) return "NONE";
+    if (value >= 2.5) return "YES";
+    if (value >= 1.5) return "TO DISCUSS";
+    return "NO";
+  };
+
+  const awardsByMovie = useMemo(() => {
+    return (data?.data || []).reduce((acc, movie) => {
+      acc[movie.id_movie] = movie.Awards || [];
+      return acc;
+    }, {});
+  }, [data]);
+
+  const voteSummaryByMovie = useMemo(() => {
+    return votes.reduce((acc, vote) => {
+      if (!acc[vote.id_movie]) {
+        acc[vote.id_movie] = { YES: 0, "TO DISCUSS": 0, NO: 0, votes: [], sum: 0, count: 0, average: 0 };
+      }
+      const category = getVoteCategory(vote.note);
+      if (category !== "NONE") {
+        acc[vote.id_movie][category] += 1;
+      }
+      const numeric = parseFloat(vote.note);
+      if (!Number.isNaN(numeric)) {
+        acc[vote.id_movie].sum += numeric;
+        acc[vote.id_movie].count += 1;
+      }
+      acc[vote.id_movie].average = acc[vote.id_movie].count
+        ? acc[vote.id_movie].sum / acc[vote.id_movie].count
+        : 0;
+      acc[vote.id_movie].votes.push(vote);
+      return acc;
+    }, {});
+  }, [votes]);
+
+  const getAverageCategory = (summary) => {
+    if (!summary || summary.count === 0) return "NONE";
+    if (summary.average >= 2.5) return "YES";
+    if (summary.average >= 1.5) return "TO DISCUSS";
+    return "NO";
+  };
+
+  const getScore = (summary) => {
+    if (!summary || summary.count === 0) return 0;
+    return summary.average;
+  };
+
+  const awardOptions = Array.from(new Set(awards.map((award) => award.award_name))).filter(Boolean);
+
+  const filteredMovies = useMemo(() => {
+    const list = data?.data || [];
+    if (!awardFilter) return list;
+    return list.filter((movie) => (movie.Awards || []).some((award) => award.award_name === awardFilter));
+  }, [data, awardFilter]);
+
+  const groupedMovies = useMemo(() => {
+    const groups = { YES: [], "TO DISCUSS": [], NO: [], NONE: [] };
+    filteredMovies.forEach((movie) => {
+      const summary = voteSummaryByMovie[movie.id_movie];
+      const dominant = getAverageCategory(summary);
+      groups[dominant].push({ movie, summary, score: getScore(summary) });
+    });
+    voteOrder.forEach((key) => {
+      groups[key].sort((a, b) => b.score - a.score);
+    });
+    return groups;
+  }, [filteredMovies, voteSummaryByMovie]);
+
+  const renderVoteSummary = (summary) => {
+    if (!summary) return <span className="text-xs text-gray-500">Aucun vote</span>;
+    return (
+      <div className="text-xs text-gray-400 flex flex-wrap gap-3">
+        <span>👍 {summary.YES}</span>
+        <span>🗣️ {summary["TO DISCUSS"]}</span>
+        <span>👎 {summary.NO}</span>
+      </div>
+    );
+  };
+
+  const renderMovieCard = (movie) => {
+    const poster = getPoster(movie);
+    const summary = voteSummaryByMovie[movie.id_movie];
+    const movieAwards = awardsByMovie[movie.id_movie] || [];
+    return (
+      <button
+        type="button"
+        key={movie.id_movie}
+        onClick={() => setSelectedMovie(movie)}
+        className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
+      >
+        <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+          {poster ? (
+            <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
+          )}
+        </div>
+        <div className="mt-3">
+          <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
+          <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
+          <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
+            <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
+            <span>{movie.main_language || "-"}</span>
+            <span>{movie.nationality || "-"}</span>
+            <span>{movie.selection_status || "submitted"}</span>
+          </div>
+          <div className="mt-2">{renderVoteSummary(summary)}</div>
+          {movieAwards.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {movieAwards.map((award) => (
+                <span key={`award-${award.id_award}`} className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full">
+                  {award.award_name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </button>
+    );
+  };
 
   // État de chargement - affiche un message en attente des données
   if (isPending) {
@@ -125,37 +303,65 @@ function Videos() {
   // Affichage de la liste des vidéos ou message si aucune vidéo n'existe
   return (
     <div className="space-y-6">
-      {data.data.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {data.data.map((movie) => {
-            const poster = getPoster(movie);
-            return (
-              <button
-                type="button"
-                key={movie.id_movie}
-                onClick={() => setSelectedMovie(movie)}
-                className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
-              >
-                <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                  {poster ? (
-                    <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
-                  )}
-                </div>
-                <div className="mt-3">
-                  <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                  <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                  <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                    <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
-                    <span>{movie.main_language || "-"}</span>
-                    <span>{movie.nationality || "-"}</span>
-                    <span>{movie.selection_status || "submitted"}</span>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="text-sm text-gray-400">Filtrer par prix:</label>
+        <select
+          value={awardFilter}
+          onChange={(event) => setAwardFilter(event.target.value)}
+          className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
+        >
+          <option value="">Tous</option>
+          {awardOptions.map((name) => (
+            <option key={`award-filter-${name}`} value={name}>{name}</option>
+          ))}
+        </select>
+      </div>
+
+      {filteredMovies.length > 0 ? (
+        <div className="space-y-8">
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Validé / J'aime / Bon 👍</h3>
+            {groupedMovies.YES.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucun film validé.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {groupedMovies.YES.map(({ movie }) => renderMovieCard(movie))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">À discuter avec l'admin</h3>
+            {groupedMovies["TO DISCUSS"].length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucun film à discuter.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {groupedMovies["TO DISCUSS"].map(({ movie }) => renderMovieCard(movie))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Refusé / Je n'aime pas 👎</h3>
+            {groupedMovies.NO.length === 0 ? (
+              <p className="text-gray-500 text-sm">Aucun film refusé.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {groupedMovies.NO.map(({ movie }) => renderMovieCard(movie))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-3">Sans vote</h3>
+            {groupedMovies.NONE.length === 0 ? (
+              <p className="text-gray-500 text-sm">Tous les films ont des votes.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {groupedMovies.NONE.map(({ movie }) => renderMovieCard(movie))}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <div className="text-gray-400">Aucune vidéo trouvée.</div>
@@ -341,6 +547,70 @@ function Videos() {
                   className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
                 >
                   Enregistrer jurys
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 border-t border-gray-800 pt-6">
+              <h4 className="text-sm uppercase text-gray-400 mb-3">Votes du jury</h4>
+              {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).length === 0 ? (
+                <p className="text-gray-500 text-sm">Aucun vote pour le moment.</p>
+              ) : (
+                <div className="space-y-3">
+                  {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => (
+                    <div key={`vote-${vote.id_vote}`} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+                      <div className="flex items-center justify-between text-sm text-gray-300">
+                        <span>{vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}</span>
+                        <span className="font-semibold text-white">{voteLabels[getVoteCategory(vote.note)] || vote.note}</span>
+                      </div>
+                      {vote.commentaire && <p className="text-sm text-gray-400 mt-2">{vote.commentaire}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 border-t border-gray-800 pt-6">
+              <h4 className="text-sm uppercase text-gray-400 mb-3">Prix</h4>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {(selectedMovie.Awards || []).length === 0 ? (
+                  <p className="text-gray-500 text-sm">Aucun prix attribué.</p>
+                ) : (
+                  selectedMovie.Awards.map((award) => (
+                    <button
+                      key={`award-${award.id_award}`}
+                      type="button"
+                      onClick={() => deleteAwardMutation.mutate(award.id_award)}
+                      className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full hover:bg-purple-900/70"
+                      title="Supprimer le prix"
+                    >
+                      {award.award_name} ✕
+                    </button>
+                  ))
+                )}
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <input
+                  value={awardName}
+                  onChange={(event) => setAwardName(event.target.value)}
+                  list="award-names"
+                  placeholder="Nom du prix"
+                  className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg"
+                />
+                <datalist id="award-names">
+                  {awardOptions.map((name) => (
+                    <option key={`award-option-${name}`} value={name} />
+                  ))}
+                </datalist>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!awardName.trim()) return;
+                    awardMutation.mutate({ id_movie: selectedMovie.id_movie, award_name: awardName.trim() });
+                  }}
+                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Attribuer le prix
                 </button>
               </div>
             </div>

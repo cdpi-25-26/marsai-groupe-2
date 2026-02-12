@@ -8,28 +8,36 @@ import UserController from "./UserController.js";
 import jwt from "jsonwebtoken";
 
 /**
- * Fonction de connexion (Login)
- * Valide les identifiants de l'utilisateur et crée un JWT
- * @param {Object} req - La requête HTTP contenant { email, password }
- * @param {Object} res - La réponse HTTP
- * @returns {Object} Un token JWT et les infos utilisateur si succès, sinon erreur 401
+ * Funzione di connessione (Login)
+ * Valida gli identifiant dell'utente e crea un JWT
+ * @param {Object} req - La richiesta HTTP contenente { email, password }
+ * @param {Object} res - La risposta HTTP
+ * @returns {Object} Un token JWT e le info utente se successo, altrimenti errore 401
  */
 function login(req, res) {
   const { email, password } = req.body;
 
-  // Chercher l'utilisateur par son email
+  console.log("[AUTH] Login attempt for email:", email);
+
+  // Cercare l'utente per il suo email
   User.findOne({ where: { email } }).then((user) => {
     if (!user) {
+      console.log("[AUTH] User not found:", email);
       return res.status(401).json({ error: "Identifiants invalides" });
     }
 
-    // Comparer le mot de passe fourni avec le hash en base de données
+    console.log("[AUTH] User found, checking password");
+
+    // Comparare la password fornita con il hash nel database
     comparePassword(password, user.password).then((isMatch) => {
       if (!isMatch) {
+        console.log("[AUTH] Password mismatch");
         return res.status(401).json({ error: "Identifiants invalides" });
       }
 
-      // Créer un JWT valide avec id_user au lieu de id 1 heure par défaut
+      console.log("[AUTH] Login successful for:", email);
+
+      // Creare un JWT valido con id_user al posto di id 1 ora di default
       const token = jwt.sign(
       { id: user.id_user, role: user.role },
       process.env.JWT_SECRET,
@@ -37,15 +45,23 @@ function login(req, res) {
     );
 
 
-    // Retourner le token et les infos utilisateur
-      return res.status(200).json({
+    // Ritornare il token e le info utente
+      const responseData = {
         message: "Connexion réussie",
         email: user.email,
         first_name: user.first_name,
         role: user.role,
         token,
-      });
+      };
+      console.log("[AUTH] Sending response:", responseData);
+      return res.status(200).json(responseData);
+    }).catch(err => {
+      console.error("[AUTH] Password comparison error:", err);
+      return res.status(500).json({ error: "Erreur serveur" });
     });
+  }).catch(err => {
+    console.error("[AUTH] Database error:", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   });
 }
 
