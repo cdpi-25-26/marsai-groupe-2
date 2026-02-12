@@ -25,13 +25,33 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // PUBLIC
- // Voir tous les films (public)
+// Voir tous les films (public)
 movieRouter.get("/", MovieController.getMovies);
 
- // Voir un film par ID (public)
+// PRODUCER
+// Seulement pour PRODUCER connecté (PRODUCER)
+movieRouter.get("/mine", AuthMiddleware(["PRODUCER"]),MovieController.getMyMovies);
+
+// Soumettre un film (PRODUCER) NOUVELLE URL movies/upload
+movieRouter.post("/upload", AuthMiddleware(["PRODUCER"]),
+  upload.fields([
+    { name: "filmFile", maxCount: 1 },
+    { name: "thumbnail1", maxCount: 1 },
+    { name: "thumbnail2", maxCount: 1 },
+    { name: "thumbnail3", maxCount: 1 },
+    { name: "subtitlesSrt", maxCount: 1 }
+  ]),
+  MovieController.createMovie
+);
+
+// JURY
+// Films assignés (JURY)
+movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssignedMovies);
+
+// Voir un film par ID (public)
 movieRouter.get("/:id", MovieController.getMovieById);
 
- // Soumettre un film (PRODUCER & ADMIN uniquement)
+// Soumettre un film (PRODUCER & ADMIN uniquement)
 movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
 );
 
@@ -59,25 +79,5 @@ movieRouter.put("/:id/juries", AuthMiddleware(["ADMIN"]),MovieController.updateM
 movieRouter.put("/:id/collaborators", AuthMiddleware(["ADMIN", "PRODUCER"]),MovieController.updateMovieCollaborators);
 
 
-
-// PRODUCER
-// Seulement pour PRODUCER connecté (PRODUCER)
-movieRouter.get("/mine", AuthMiddleware(["PRODUCER"]),MovieController.getMyMovies);
-
-// Soumettre un film (PRODUCER) NOUVELLE URL movies/upload
-movieRouter.post("/upload", AuthMiddleware(["PRODUCER"]),
-  upload.fields([
-    { name: "filmFile", maxCount: 1 },
-    { name: "thumbnail1", maxCount: 1 },
-    { name: "thumbnail2", maxCount: 1 },
-    { name: "thumbnail3", maxCount: 1 },
-    { name: "subtitlesSrt", maxCount: 1 }
-  ]),
-  MovieController.createMovie
-);
-
-// JURY
-// Films assignés (JURY)
-movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssignedMovies);
 
 export default movieRouter;

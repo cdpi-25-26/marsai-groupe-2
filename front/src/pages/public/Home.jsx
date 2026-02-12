@@ -10,6 +10,7 @@ import Hero from "../../components/home/Hero";
 import Reassure from "../../components/home/Reassure";
 import Goals from "../../components/home/Goals";
 import Protocole from "../../components/home/Protocole";
+import Program from "../../components/home/program";
 import "./Home.css";
 
 /**
@@ -32,6 +33,7 @@ function Home() {
       <Reassure />
       <Goals />
       <Protocole />
+      <Program />
     </>
   );
 }

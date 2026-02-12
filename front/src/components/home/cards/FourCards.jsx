@@ -1,4 +1,4 @@
-export default function ReassureCard({
+export default function FourCards({
   title,
   description,
   accentColor,

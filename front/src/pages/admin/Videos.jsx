@@ -8,7 +8,7 @@
  * - Affichage du titre et description de chaque vidéo
  * @returns {JSX.Element} La liste des vidéos ou un message d'erreur/chargement
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getCategories,
