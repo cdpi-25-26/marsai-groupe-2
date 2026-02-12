@@ -252,37 +252,40 @@ function Videos() {
     const poster = getPoster(movie);
     const summary = voteSummaryByMovie[movie.id_movie];
     const movieAwards = awardsByMovie[movie.id_movie] || [];
+    const avgScore = summary ? summary.average.toFixed(1) : "-";
+    
     return (
       <button
         type="button"
         key={movie.id_movie}
         onClick={() => setSelectedMovie(movie)}
-        className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
+        className="text-left bg-gray-950 border border-gray-800 rounded-lg p-2 hover:border-gray-600 transition flex gap-3 items-center"
       >
-        <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+        <div className="w-20 h-20 flex-shrink-0 bg-gray-800 rounded overflow-hidden">
           {poster ? (
             <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
+            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
           )}
         </div>
-        <div className="mt-3">
-          <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-          <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-          <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-            <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
-            <span>{movie.main_language || "-"}</span>
-            <span>{movie.nationality || "-"}</span>
-            <span>{movie.selection_status || "submitted"}</span>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-white truncate">{movie.title}</h3>
+          <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
+            <span>Moy: <span className="text-white font-semibold">{avgScore}</span></span>
+            <span>👍 {summary?.YES || 0}</span>
+            <span>🗣️ {summary?.["TO DISCUSS"] || 0}</span>
+            <span>👎 {summary?.NO || 0}</span>
           </div>
-          <div className="mt-2">{renderVoteSummary(summary)}</div>
           {movieAwards.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {movieAwards.map((award) => (
-                <span key={`award-${award.id_award}`} className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full">
+            <div className="mt-1 flex flex-wrap gap-1">
+              {movieAwards.slice(0, 2).map((award) => (
+                <span key={`award-${award.id_award}`} className="text-[10px] bg-purple-900/40 text-purple-200 px-1.5 py-0.5 rounded">
                   {award.award_name}
                 </span>
               ))}
+              {movieAwards.length > 2 && (
+                <span className="text-[10px] text-gray-500">+{movieAwards.length - 2}</span>
+              )}
             </div>
           )}
         </div>
@@ -324,7 +327,7 @@ function Videos() {
             {groupedMovies.YES.length === 0 ? (
               <p className="text-gray-500 text-sm">Aucun film validé.</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {groupedMovies.YES.map(({ movie }) => renderMovieCard(movie))}
               </div>
             )}
@@ -335,7 +338,7 @@ function Videos() {
             {groupedMovies["TO DISCUSS"].length === 0 ? (
               <p className="text-gray-500 text-sm">Aucun film à discuter.</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {groupedMovies["TO DISCUSS"].map(({ movie }) => renderMovieCard(movie))}
               </div>
             )}
@@ -346,7 +349,7 @@ function Videos() {
             {groupedMovies.NO.length === 0 ? (
               <p className="text-gray-500 text-sm">Aucun film refusé.</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {groupedMovies.NO.map(({ movie }) => renderMovieCard(movie))}
               </div>
             )}
@@ -357,7 +360,7 @@ function Videos() {
             {groupedMovies.NONE.length === 0 ? (
               <p className="text-gray-500 text-sm">Tous les films ont des votes.</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {groupedMovies.NONE.map(({ movie }) => renderMovieCard(movie))}
               </div>
             )}
