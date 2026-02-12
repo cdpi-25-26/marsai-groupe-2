@@ -1,1 +1,195 @@
-{}
+{
+  "forms": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your MarsAI space",
+      "email": "Email",
+      "password": "Password",
+      "placeholders": {
+        "email": "Your email",
+        "password": "Your password"
+      },
+      "buttons": {
+        "submit": "Sign in",
+        "submitting": "Signing in..."
+      },
+      "links": {
+        "noAccount": "Don't have an account?",
+        "register": "Register"
+      }
+    },
+    "register": {
+      "pageTitle": "Submit a film",
+      "subtitle": "Submit the technical elements, AI usage and your team composition. All fields marked with an asterisk (*) are required.",
+      "sections": {
+        "filmIdentity": "Film identity",
+        "aiUsage": "AI usage declaration",
+        "profile": "My profile",
+        "collaborators": "Collaborators",
+        "certificate": "Ownership certificate"
+      },
+      "labels": {
+        "filmTitleOriginal": "Original title",
+        "durationSeconds": "Exact duration (in seconds)",
+        "filmLanguage": "Film language / main language",
+        "releaseYear": "Release year",
+        "nationality": "Nationality",
+        "translation": "Title translation",
+        "youtubeLink": "YouTube link (public / unlisted)",
+        "synopsisOriginal": "Synopsis original language (max 300 characters)",
+        "synopsisEnglish": "English synopsis (max 300 characters)",
+        "filmFile": "Film file",
+        "thumbnail1": "Thumbnail 1 (16:9)",
+        "thumbnail2": "Thumbnail 2 (16:9)",
+        "thumbnail3": "Thumbnail 3 (16:9)",
+        "subtitlesSrt": "Subtitles file (.srt)",
+        "aiClassification": "Work classification",
+        "aiStack": "Technological stack",
+        "aiMethodology": "Creative methodology",
+        "lastName": "Last name",
+        "firstName": "First name",
+        "email": "Email address",
+        "phone": "Phone",
+        "mobile": "Mobile",
+        "birthDate": "Birth date",
+        "street": "Street",
+        "postalCode": "Postal code",
+        "city": "City",
+        "country": "Country",
+        "biography": "My biography",
+        "job": "Job",
+        "portfolio": "My links",
+        "youtube": "YouTube",
+        "instagram": "Instagram",
+        "linkedin": "LinkedIn",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "knownByMarsAi": "Known by MarsAI",
+        "password": "Password",
+        "collaborators": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "email": "Email",
+          "job": "Role"
+        },
+        "termsAccepted": "I certify that I am the legitimate owner of this film and have all necessary rights to submit it to this festival, in accordance with the terms of use and internal regulations."
+      },
+      "placeholders": {
+        "filmTitleOriginal": "ORIGINAL TITLE",
+        "durationSeconds": "EX: 60",
+        "filmLanguage": "LANGUAGE",
+        "releaseYear": "2026",
+        "nationality": "NATIONALITY",
+        "translation": "TRANSLATION",
+        "youtubeLink": "HTTPS://WWW.YOUTUBE.COM/WATCH?V=...",
+        "synopsisOriginal": "SUMMARIZE THE INTENTION OF YOUR FILM AND THE STORY IN A FEW LINES...",
+        "synopsisEnglish": "SUMMARIZE THE INTENTION OF YOUR FILM AND THE STORY IN A FEW LINES...",
+        "lastName": "LAST NAME",
+        "firstName": "FIRST NAME",
+        "email": "EMAIL@EXAMPLE.COM",
+        "phone": "+33 6 12 34 56 78",
+        "birthDate": "",
+        "street": "STREET",
+        "postalCode": "POSTAL CODE",
+        "city": "CITY",
+        "country": "COUNTRY",
+        "biography": "CANADIAN ARTIST BASED IN MARSEILLE - I EXPLORE THE BOUNDARIES BETWEEN TRADITIONAL CINEMATOGRAPHIC ART AND GENERATIVE ALGORITHMS...",
+        "portfolio": "HTTPS://WEBSITE.COM",
+        "youtube": "@USERNAME_YT",
+        "instagram": "@USERNAME_IG",
+        "linkedin": "@USERNAME_LINKEDIN",
+        "facebook": "@USERNAME_FB",
+        "tiktok": "@USERNAME_TK",
+        "aiStack": "LIST THE TOOLS USED (EX: MIDJOURNEY FOR VISUALS, ELEVENLABS FOR VOICES, RUNWAY FOR ANIMATION...)",
+        "aiMethodology": "DESCRIBE THE INTERACTION BETWEEN HUMAN AND MACHINE IN THIS PROCESS..."
+      },
+      "hints": {
+        "durationMax": "Maximum duration: 2 minutes (120 seconds).",
+        "charCount": "{{count}}/300",
+        "dropFile": "Drop your file here or click to select",
+        "dropImage": "Drop the image or click to select",
+        "dropSrt": "Drop the .srt file or click to select"
+      },
+      "aiClassificationOptions": {
+        "integrale": "Full generation (100% AI)",
+        "hybride": "Hybrid production (Real footage + AI contributions)"
+      },
+      "jobOptions": {
+        "ACTOR": "Actor",
+        "DIRECTOR": "Director",
+        "PRODUCER": "Producer",
+        "WRITER": "Writer",
+        "OTHER": "Other"
+      },
+      "knownByOptions": {
+        "YES": "Yes",
+        "NO": "No"
+      },
+      "buttons": {
+        "submit": "Submit my application",
+        "submitting": "Submission in progress...",
+        "addCollaborator": "Add collaborator",
+        "remove": "Remove",
+        "chooseFile": "Choose file"
+      }
+    }
+  },
+  "validation": {
+    "firstName": {
+      "required": "First name is required"
+    },
+    "lastName": {
+      "required": "Last name is required"
+    },
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email format"
+    },
+    "password": {
+      "required": "Password is required",
+      "minLength": "At least 6 characters"
+    },
+    "filmTitleOriginal": {
+      "required": "Film title is required"
+    },
+    "durationSeconds": {
+      "required": "Duration is required",
+      "integer": "Duration must be a whole number",
+      "min": "Duration must be at least 1",
+      "max": "Maximum duration is 120 seconds"
+    },
+    "synopsisOriginal": {
+      "required": "Original synopsis is required"
+    },
+    "synopsisEnglish": {
+      "required": "English synopsis is required"
+    },
+    "aiClassification": {
+      "required": "Work classification is required"
+    },
+    "aiStack": {
+      "required": "Technological stack is required"
+    },
+    "aiMethodology": {
+      "required": "Creative methodology is required"
+    },
+    "termsAccepted": {
+      "required": "You must accept the terms"
+    }
+  },
+  "common": {
+    "required": "This field is required",
+    "optional": "Optional",
+    "noFileSelected": "No file selected",
+    "alreadyLoggedIn": "You are already logged in as {{email}}",
+    "goHome": "Go home",
+    "error": "Error",
+    "success": "Success"
+  },
+  "messages": {
+    "registrationSuccess": "Registration successful! Automatic login in progress...",
+    "registrationError": "Registration successful, but automatic login failed. Please log in manually.",
+    "loginError": "Login error. Please try again.",
+    "submissionError": "Submission error. Please try again."
+  }
+}

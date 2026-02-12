@@ -1,1 +1,195 @@
-{}
+{
+  "forms": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace MarsAI",
+      "email": "Email",
+      "password": "Mot de passe",
+      "placeholders": {
+        "email": "Votre email",
+        "password": "Votre mot de passe"
+      },
+      "buttons": {
+        "submit": "Se connecter",
+        "submitting": "Connexion..."
+      },
+      "links": {
+        "noAccount": "Pas encore de compte ?",
+        "register": "S'inscrire"
+      }
+    },
+    "register": {
+      "pageTitle": "Déposer un film",
+      "subtitle": "Transmettez les éléments techniques, l'usage de l'IA et la composition de votre équipe. Tous les champs marqués d'une étoile (*) sont obligatoires.",
+      "sections": {
+        "filmIdentity": "Identité du film",
+        "aiUsage": "Déclaration usage de l'IA",
+        "profile": "Mon profil",
+        "collaborators": "Collaborateurs",
+        "certificate": "Certificat de propriété"
+      },
+      "labels": {
+        "filmTitleOriginal": "Titre original",
+        "durationSeconds": "Durée exacte (en secondes)",
+        "filmLanguage": "Langue parlée / principale du film",
+        "releaseYear": "Année de sortie",
+        "nationality": "Nationalité",
+        "translation": "Traduction du titre",
+        "youtubeLink": "Lien YouTube (public / non-répertorié)",
+        "synopsisOriginal": "Synopsis langue originale (max. 300 caractères)",
+        "synopsisEnglish": "Synopsis anglais (max. 300 caractères)",
+        "filmFile": "Fichier du film",
+        "thumbnail1": "Vignette 1 (16:9)",
+        "thumbnail2": "Vignette 2 (16:9)",
+        "thumbnail3": "Vignette 3 (16:9)",
+        "subtitlesSrt": "Fichier de sous-titres (.srt)",
+        "aiClassification": "Classification de l'œuvre",
+        "aiStack": "Stack technologique",
+        "aiMethodology": "Méthodologie créative",
+        "lastName": "Nom",
+        "firstName": "Prénom",
+        "email": "Adresse e-mail",
+        "phone": "Téléphone",
+        "mobile": "Téléphone mobile",
+        "birthDate": "Date de naissance",
+        "street": "Rue",
+        "postalCode": "Code postal",
+        "city": "Ville",
+        "country": "Pays",
+        "biography": "Ma biographie",
+        "job": "Métier",
+        "portfolio": "Mes liens",
+        "youtube": "YouTube",
+        "instagram": "Instagram",
+        "linkedin": "LinkedIn",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "knownByMarsAi": "Connu par MarsAI",
+        "password": "Mot de passe",
+        "collaborators": {
+          "firstName": "Prénom",
+          "lastName": "Nom",
+          "email": "Email",
+          "job": "Rôle"
+        },
+        "termsAccepted": "Je certifie être le propriétaire légitime de ce film et disposer de tous les droits nécessaires pour le soumettre à ce festival, conformément aux conditions d'utilisation et au règlement intérieur."
+      },
+      "placeholders": {
+        "filmTitleOriginal": "TITRE ORIGINAL",
+        "durationSeconds": "EX: 60",
+        "filmLanguage": "LANGUE",
+        "releaseYear": "2026",
+        "nationality": "NATIONALITÉ",
+        "translation": "TRADUCTION",
+        "youtubeLink": "HTTPS://WWW.YOUTUBE.COM/WATCH?V=...",
+        "synopsisOriginal": "RÉSUMEZ L'INTENTION DE VOTRE FILM ET L'HISTOIRE QU'IL RACONTE EN QUELQUES LIGNES...",
+        "synopsisEnglish": "RÉSUMEZ L'INTENTION DE VOTRE FILM ET L'HISTOIRE QU'IL RACONTE EN QUELQUES LIGNES...",
+        "lastName": "NOM",
+        "firstName": "PRÉNOM",
+        "email": "EMAIL@EXEMPLE.COM",
+        "phone": "+33 6 12 34 56 78",
+        "birthDate": "",
+        "street": "RUE",
+        "postalCode": "CODE POSTAL",
+        "city": "VILLE",
+        "country": "PAYS",
+        "biography": "ARTISTE CANADIEN BASÉ À MARSEILLE - J'EXPLORE LES FRONTIÈRES ENTRE L'ART CINÉMATOGRAPHIQUE TRADITIONNEL ET LES ALGORITHMES GÉNÉRATIFS...",
+        "portfolio": "HTTPS://SITEWEB.COM",
+        "youtube": "@USERNAME_YT",
+        "instagram": "@USERNAME_IG",
+        "linkedin": "@USERNAME_LINKEDIN",
+        "facebook": "@USERNAME_FB",
+        "tiktok": "@USERNAME_TK",
+        "aiStack": "LISTEZ LES OUTILS UTILISÉS (EX: MIDJOURNEY POUR LES VISUELS, ELEVENLABS POUR LES VOIX, RUNWAY POUR L'ANIMATION...)",
+        "aiMethodology": "DÉCRIVEZ L'INTERACTION ENTRE L'HUMAIN ET LA MACHINE DANS CE PROCESSUS..."
+      },
+      "hints": {
+        "durationMax": "Durée maximale : 2 minutes (120 secondes).",
+        "charCount": "{{count}}/300",
+        "dropFile": "Déposez votre fichier ici ou cliquez pour sélectionner",
+        "dropImage": "Déposez l'image ou cliquez pour sélectionner",
+        "dropSrt": "Déposez le fichier .srt ou cliquez pour sélectionner"
+      },
+      "aiClassificationOptions": {
+        "integrale": "Génération intégrale (100% IA)",
+        "hybride": "Production hybride (Prises de vues réelles + apports IA)"
+      },
+      "jobOptions": {
+        "ACTOR": "Acteur",
+        "DIRECTOR": "Réalisateur",
+        "PRODUCER": "Producteur",
+        "WRITER": "Scénariste",
+        "OTHER": "Autre"
+      },
+      "knownByOptions": {
+        "YES": "Oui",
+        "NO": "Non"
+      },
+      "buttons": {
+        "submit": "Soumettre ma candidature",
+        "submitting": "Soumission en cours...",
+        "addCollaborator": "Ajouter un collaborateur",
+        "remove": "Supprimer",
+        "chooseFile": "Choisir un fichier"
+      }
+    }
+  },
+  "validation": {
+    "firstName": {
+      "required": "Le prénom est requis"
+    },
+    "lastName": {
+      "required": "Le nom est requis"
+    },
+    "email": {
+      "required": "L'email est requis",
+      "invalid": "Format d'email invalide"
+    },
+    "password": {
+      "required": "Le mot de passe est requis",
+      "minLength": "Au moins 6 caractères"
+    },
+    "filmTitleOriginal": {
+      "required": "Le titre du film est requis"
+    },
+    "durationSeconds": {
+      "required": "La durée est obligatoire",
+      "integer": "La durée doit être un nombre entier",
+      "min": "La durée doit être au moins 1",
+      "max": "La durée maximale est de 120 secondes"
+    },
+    "synopsisOriginal": {
+      "required": "Le synopsis en langue originale est requis"
+    },
+    "synopsisEnglish": {
+      "required": "Le synopsis en anglais est requis"
+    },
+    "aiClassification": {
+      "required": "La classification de l'œuvre est requise"
+    },
+    "aiStack": {
+      "required": "La stack technologique est requise"
+    },
+    "aiMethodology": {
+      "required": "La méthodologie créative est requise"
+    },
+    "termsAccepted": {
+      "required": "Vous devez accepter les conditions"
+    }
+  },
+  "common": {
+    "required": "Ce champ est requis",
+    "optional": "Optionnel",
+    "noFileSelected": "Aucun fichier sélectionné",
+    "alreadyLoggedIn": "Vous êtes déjà connecté en tant que {{email}}",
+    "goHome": "Aller à l'accueil",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "messages": {
+    "registrationSuccess": "Enregistrement réussi ! Connexion automatique en cours...",
+    "registrationError": "Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.",
+    "loginError": "Erreur de connexion. Veuillez réessayer.",
+    "submissionError": "Erreur lors de la soumission. Veuillez réessayer."
+  }
+}

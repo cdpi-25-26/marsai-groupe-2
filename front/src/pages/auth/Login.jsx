@@ -4,14 +4,15 @@ import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useTranslation } from "react-i18next";
 
 /**
  * Schéma de validation pour le formulaire de connexion
  * Valide: email et password
  */
 const loginSchema = z.object({
-  email: z.string().email("Format d'email invalide"),
-  password: z.string().min(1, "Le mot de passe est requis"),
+  email: z.string().email("validation.invalidEmail"),
+  password: z.string().min(1, "validation.required"),
 });
 
 /**
@@ -21,14 +22,16 @@ const loginSchema = z.object({
  * @returns {JSX.Element} La page de connexion
  */
 export function Login() {
+  const { t } = useTranslation();
+
   // Si déjà connecté, afficher un message
   if (localStorage.getItem("email")) {
     return (
       <>
         <h1 className="text-2xl">
-          Vous êtes déjà connecté en tant que {localStorage.getItem("email")}
+          {t('common.alreadyLoggedIn', { email: localStorage.getItem("email") })}
         </h1>
-        <Link to="/">Aller à l'accueil</Link>
+        <Link to="/">{t('common.goHome')}</Link>
       </>
     );
   }
@@ -88,8 +91,8 @@ export function Login() {
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold mb-2">Connexion</h1>
-          <p className="text-gray-400">Accédez à votre espace MarsAI</p>
+          <h1 className="text-4xl font-bold mb-2">{t('forms.login.title')}</h1>
+          <p className="text-gray-400">{t('forms.login.subtitle')}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
@@ -98,46 +101,55 @@ export function Login() {
 
             <div className="flex flex-col">
               <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
-                Email
+                {t('forms.login.email')}
               </label>
               <input
                 id="email"
                 type="email"
-                placeholder="Votre email"
+                placeholder={t('forms.login.placeholders.email')}
                 {...register("email")}
                 className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                 required
               />
               {errors.email && (
-                <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
+                <p className="text-red-400 text-sm mt-1">{t(errors.email.message)}</p>
               )}
             </div>
 
             <div className="flex flex-col">
               <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
-                Mot de passe
+                {t('forms.login.password')}
               </label>
               <input
                 id="password"
                 type="password"
-                placeholder="Votre mot de passe"
+                placeholder={t('forms.login.placeholders.password')}
                 {...register("password")}
                 className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                 required
               />
               {errors.password && (
-                <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>
+                <p className="text-red-400 text-sm mt-1">{t(errors.password.message)}</p>
               )}
             </div>
 
             <button
               type="submit"
               disabled={loginMutation.isPending}
-              className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
             >
-              {loginMutation.isPending ? "Connexion..." : "Se connecter"}
+              {loginMutation.isPending ? `${t('forms.login.buttons.submit')}...` : t('forms.login.buttons.submit')}
             </button>
 
+            <p className="text-center text-gray-400">
+              {t('forms.login.links.noAccount')} {" "}
+              <Link
+                to="/auth/register"
+                className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition"
+              >
+                {t('forms.login.links.register')}
+              </Link>
+            </p>
           </form>
         </div>
       </div>

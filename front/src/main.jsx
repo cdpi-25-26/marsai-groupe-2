@@ -16,7 +16,6 @@ import { createRoot } from "react-dom/client";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { LanguageProvider } from "./context/LanguageContext";
 
 
 import "./i18n";
