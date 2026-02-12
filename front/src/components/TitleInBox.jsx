@@ -1,9 +1,9 @@
 export default function TitleInBox({
   icon = null,
   iconcolor,
-    title,
-    spancolor,
-    title2,
+  title,
+  spancolor,
+  title2,
 }) {
     const spanStyle = spancolor ? { color: spancolor } : undefined;
     return (

@@ -3,7 +3,7 @@
  * Configure le routage avec React Router et TanStack Query pour la gestion d'état
  * Définit tous les chemins de routes (publics et protégés par rôle)
  * Utilise RoleGuard pour protéger les routes selon le rôle de l'utilisateur
- * 
+ *
  * Structure des routes:
  * - / (publique): Accueil, Login, Register
  * - /admin (ADMIN uniquement): Dashboard, utilisateurs, vidéos
@@ -35,6 +35,8 @@ import { Login } from "./pages/auth/Login.jsx";
 import { Register } from "./pages/auth/Register.jsx";
 import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 
+import Users from "./pages/admin/Users.jsx";
+import Videos from "./pages/admin/Videos.jsx";
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
@@ -89,7 +91,12 @@ createRoot(document.getElementById("root")).render(
             {/* Dashboard administrateur */}
             <Route index element={<Dashboard />} />
             {/* Gestion des utilisateurs sera ajoutée ici */}
+
+            <Route path="users" element={<Users />} />
+
             {/* Gestion des vidéos sera ajoutée ici */}
+
+            <Route path="movies" element={<Videos />} />
           </Route>
 
           {/* ========================================
