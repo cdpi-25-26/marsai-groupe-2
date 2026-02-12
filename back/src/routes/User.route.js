@@ -44,7 +44,7 @@ userRouter.put(
  * Body: { firstName, lastName, email, password, role }
  * Response: { message, newUser }
  */
-// userRouter.post("/", UserController.createUser);
+userRouter.post("/", UserController.createUser);
 
 // Applica il middleware solo per ADMIN alle route seguenti
 userRouter.use(AuthMiddleware(["ADMIN"]));

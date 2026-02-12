@@ -17,7 +17,7 @@ async function getMyMovies() {
  * @param {FormData} formData - Données multipart (fichier + champs)
  */
 async function createMovie(formData) {
-  return await instance.post("movies", formData, {
+  return await instance.post("movies/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" }
   });
 }

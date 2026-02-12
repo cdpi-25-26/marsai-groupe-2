@@ -1,3 +1,65 @@
+// export default function StatCard({ 
+//   icon, 
+//   label, 
+//   value, 
+//   subtitle, 
+//   details,
+//   progress,
+// }) {
+//   return (
+//     <div
+//       className="
+//         bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60
+//         backdrop-blur-xl
+//         border border-white/10
+//         rounded-xl p-4
+//         shadow-xl shadow-black/30
+//         hover:shadow-2xl hover:shadow-blue-500/10
+//         transition-all duration-300
+//         hover:scale-[1.02]
+//         text-white
+//       "
+//     >
+//       {/* Header */}
+//       <div className="flex justify-between items-center mb-3">
+//         <span className="text-2xl drop-shadow-sm">{icon}</span>
+//         <span className="text-[10px] text-white/40 uppercase tracking-wide">
+//           {label}
+//         </span>
+//       </div>
+
+//       {/* Main Value */}
+//       <div className="space-y-1.5">
+//         <p className="text-2xl font-bold text-white drop-shadow-sm">
+//           {value}
+//         </p>
+
+//         {subtitle && (
+//           <p className="text-xs text-white/60">{subtitle}</p>
+//         )}
+
+//         {details && (
+//           <p className="text-[11px] text-white/40">{details}</p>
+//         )}
+
+//         {/* Progress Bar */}
+//         {progress !== undefined && (
+//           <div className="mt-3">
+//             <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/10">
+//               <div
+//                 className="bg-gradient-to-r from-blue-500 to-blue-400 h-1.5 rounded-full transition-all duration-500"
+//                 style={{ width: `${progress}%` }}
+//               />
+//             </div>
+//             <span className="text-[10px] text-white/40 mt-1 block">{progress}%</span>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+  {/* Stats Cards avec Effet de brillance au survol */}
 export default function StatCard({ 
   icon, 
   label, 
@@ -9,51 +71,91 @@ export default function StatCard({
   return (
     <div
       className="
-        bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60
-        backdrop-blur-xl
-        border border-white/10
-        rounded-xl p-4
-        shadow-xl shadow-black/30
-        hover:shadow-2xl hover:shadow-blue-500/10
-        transition-all duration-300
-        hover:scale-[1.02]
+        group
+        bg-gradient-to-br from-white/[0.07] to-white/[0.02]
+        backdrop-blur-2xl
+        border border-white/10 hover:border-blue-500/30
+        rounded-2xl p-4
+        shadow-2xl shadow-black/40
+        hover:shadow-3xl hover:shadow-blue-500/20
+        transition-all duration-500
+        hover:scale-[1.02] hover:-translate-y-1
         text-white
+        relative
+        overflow-hidden
       "
     >
-      {/* Header */}
-      <div className="flex justify-between items-center mb-3">
-        <span className="text-2xl drop-shadow-sm">{icon}</span>
-        <span className="text-[10px] text-white/40 uppercase tracking-wide">
-          {label}
-        </span>
+      {/* Effet de brillance au survol */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      
+      {/* Effet de lueur en arrière-plan */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10 blur-xl transition-opacity duration-700" />
+
+      {/* Header - plus compact */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="relative">
+          <div className="absolute inset-0 bg-blue-500/30 blur-lg rounded-full scale-0 group-hover:scale-150 transition-transform duration-700" />
+          <span className="relative text-xl drop-shadow-lg group-hover:scale-110 transition-transform duration-300 inline-block">
+            {icon}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-1 h-1 bg-green-400/60 rounded-full animate-pulse" />
+          <span className="px-1.5 py-0.5 text-[8px] font-mono text-white/40 uppercase tracking-wider">
+            {label}
+          </span>
+        </div>
       </div>
 
-      {/* Main Value */}
-      <div className="space-y-1.5">
-        <p className="text-2xl font-bold text-white drop-shadow-sm">
-          {value}
-        </p>
-
-        {subtitle && (
-          <p className="text-xs text-white/60">{subtitle}</p>
-        )}
+      {/* Main Value - espacement réduit */}
+      <div className="space-y-2">
+        <div className="flex items-end gap-1.5">
+          <p className="text-2xl font-light bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent drop-shadow-lg">
+            {value}
+          </p>
+          {subtitle && (
+            <span className="text-[10px] text-blue-300/80 mb-0.5 font-light">{subtitle}</span>
+          )}
+        </div>
 
         {details && (
-          <p className="text-[11px] text-white/40">{details}</p>
+          <div className="flex items-center gap-1.5 text-[10px] text-white/50 border-t border-white/5 pt-2 mt-1">
+            <svg className="w-3 h-3 text-blue-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            {details}
+          </div>
         )}
 
         {/* Progress Bar */}
         {progress !== undefined && (
-          <div className="mt-3">
-            <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/10">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-blue-400 h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
+          <div className="mt-2 pt-2 border-t border-white/5">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-[9px] text-white/40 uppercase tracking-wider">Progression</span>
+              <span className="text-[10px] font-medium text-blue-300/90">{progress}%</span>
             </div>
-            <span className="text-[10px] text-white/40 mt-1 block">{progress}%</span>
+            <div className="relative">
+              <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden border border-white/5">
+                <div
+                  className="h-full rounded-full relative transition-all duration-700"
+                  style={{ 
+                    width: `${progress}%`,
+                    background: 'linear-gradient(90deg, #3b82f6, #93c5fd, #3b82f6)',
+                    backgroundSize: '200% 100%',
+                  }}
+                >
+                  {/* Effet de brillance sur la barre de progression */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                </div>
+              </div>
+            </div>
           </div>
         )}
+      </div>
+
+      {/* Badge décoratif */}
+      <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+        <div className="absolute top-0 right-0 w-8 h-8 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-full blur-2xl" />
       </div>
     </div>
   );

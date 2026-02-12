@@ -6,6 +6,15 @@
  * - Affichage d'une liste de toutes les vidéos
  * - Gestion des états de chargement et d'erreur
  * - Affichage du titre et description de chaque vidéo
+ * 
+  * @param {Object} props
+ * @param {Array} props.videos - Liste des vidéos (optionnel, pour le mode compact)
+ * @param {boolean} props.compact - Mode compact/liste pour le dashboard
+ * @param {number} props.maxItems - Nombre maximum de vidéos à afficher
+ * @param {Function} props.onAction - Callback après action (refetch)
+ * 
+ * 
+ * 
  * @returns {JSX.Element} La liste des vidéos ou un message d'erreur/chargement
  */
 import { useEffect, useState, useMemo } from "react";
@@ -27,13 +36,26 @@ import { VideoPreview } from "../../components/VideoPreview.jsx";
  * Gère les états de chargement, succès et erreur
  * @returns {JSX.Element} Le contenu de la page selon l'état
  */
-function Videos() {
+function Videos({ 
+  videos: propVideos,
+  compact = false,
+  maxItems = 5,
+  onAction 
+}) {
   const queryClient = useQueryClient();
-  // Utilisation de TanStack Query pour gérer les données et les états de requête
+  
+  // Utiliser propVideos si fourni, sinon appel API
   const { isPending, isError, data, error } = useQuery({
     queryKey: ["listVideos"],
     queryFn: getVideos,
+    enabled: !propVideos // ✅ Désactiver si on a les props
   });
+
+
+  // Données à afficher (props ou API)
+  const videosData = propVideos || data?.data || [];
+  const displayedVideos = compact ? videosData.slice(0, maxItems) : videosData;
+
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
