@@ -67,8 +67,11 @@ async function startServer() {
     console.log("✓ Connexion à la base de données MySQL établie avec succès");
 
     // Démarrage du serveur
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`✓ API disponible sur http://localhost:${PORT}`);
+    });
+    server.on("error", (err) => {
+      console.error("✗ Erreur serveur:", err.message);
     });
   } catch (error) {
     console.error("✗ Erreur de connexion à la base de données:", error.message);

@@ -155,6 +155,8 @@ export default function JuryHome() {
       const vote = res.data?.vote;
       if (vote) {
         setVotesByMovie((prev) => ({ ...prev, [vote.id_movie]: vote }));
+        setArchivedMovieIds((prev) => (prev.includes(vote.id_movie) ? prev : [...prev, vote.id_movie]));
+        setSelectedMovie(null);
       }
       setVoteFeedback("Vote enregistré.");
     } catch (err) {
@@ -170,9 +172,10 @@ export default function JuryHome() {
       : confirmedWatched
     : false;
 
-  const votedMovies = assignedMovies.filter((movie) => Boolean(votesByMovie[movie.id_movie]));
-  const archivedMovies = votedMovies.filter((movie) => archivedMovieIds.includes(movie.id_movie));
-  const activeVotedMovies = votedMovies.filter((movie) => !archivedMovieIds.includes(movie.id_movie));
+  const unvotedAssignedMovies = assignedMovies.filter(
+    (movie) => !archivedMovieIds.includes(movie.id_movie) && !votesByMovie[movie.id_movie]
+  );
+  const archivedMovies = assignedMovies.filter((movie) => archivedMovieIds.includes(movie.id_movie));
 
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
@@ -312,13 +315,13 @@ export default function JuryHome() {
         </section>
 
         <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">Films assignés</h2>
+          <h2 className="text-2xl font-bold mb-6">Films assignés et encore à voter</h2>
           {moviesError && <p className="text-red-400 mb-4">{moviesError}</p>}
-          {assignedMovies.length === 0 ? (
-            <p className="text-gray-400">Aucun film assigné pour le moment.</p>
+          {unvotedAssignedMovies.length === 0 ? (
+            <p className="text-gray-400">Aucun film assigné à voter pour le moment.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {assignedMovies.map((movie) => {
+              {unvotedAssignedMovies.map((movie) => {
                 const poster = getPoster(movie);
                 return (
                   <button
@@ -352,100 +355,35 @@ export default function JuryHome() {
         </section>
 
         <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">Films votés</h2>
-          {activeVotedMovies.length === 0 ? (
-            <p className="text-gray-400">Aucun film voté pour le moment.</p>
+          <h2 className="text-2xl font-bold mb-6">Films archivés</h2>
+          {archivedMovies.length === 0 ? (
+            <p className="text-gray-400">Aucun film archivé pour le moment.</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {activeVotedMovies.map((movie) => {
+            <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-6 gap-4">
+              {archivedMovies.map((movie) => {
                 const poster = getPoster(movie);
-                const vote = votesByMovie[movie.id_movie];
                 return (
-                  <div key={`voted-${movie.id_movie}`} className="bg-gray-950 border border-gray-800 rounded-xl p-4">
-                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
+                  <button
+                    key={`archived-${movie.id_movie}`}
+                    type="button"
+                    onClick={() => setSelectedMovie(movie)}
+                    className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden hover:border-gray-600 transition"
+                    title={movie.title}
+                  >
+                    <div className="aspect-video bg-gray-800">
                       {poster ? (
                         <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
+                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">Aucune vignette</div>
                       )}
                     </div>
-                    <div className="mt-3">
-                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                        <span>Vote: {getVoteLabel(vote?.note)}</span>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedMovie(movie)}
-                        className="px-3 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                      >
-                        Voir / Modifier
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleArchive(movie.id_movie)}
-                        className="px-3 py-2 text-sm border border-gray-700 text-gray-200 rounded-lg hover:border-gray-500"
-                      >
-                        Archiver
-                      </button>
-                    </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
           )}
         </section>
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">Films archivés</h2>
-          {archivedMovies.length === 0 ? (
-            <p className="text-gray-400">Aucun film archivé pour le moment.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {archivedMovies.map((movie) => {
-                const poster = getPoster(movie);
-                const vote = votesByMovie[movie.id_movie];
-                return (
-                  <div key={`archived-${movie.id_movie}`} className="bg-gray-950 border border-gray-800 rounded-xl p-4">
-                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                      {poster ? (
-                        <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                        <span>Vote: {getVoteLabel(vote?.note)}</span>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedMovie(movie)}
-                        className="px-3 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                      >
-                        Voir / Modifier
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleArchive(movie.id_movie)}
-                        className="px-3 py-2 text-sm border border-gray-700 text-gray-200 rounded-lg hover:border-gray-500"
-                      >
-                        Restaurer
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
 
         {selectedMovie && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
