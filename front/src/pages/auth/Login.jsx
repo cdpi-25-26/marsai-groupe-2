@@ -51,13 +51,14 @@ export function Login() {
     },
     onSuccess: (response) => {
       // Sauvegarder le token et les infos utilisateur
-      localStorage.setItem("email", response.data?.email);
-      localStorage.setItem("firstName", response.data?.first_name || "");
-      localStorage.setItem("role", response.data?.role);
-      localStorage.setItem("token", response.data?.token);
+      const userData = response.data?.data || response.data;
+      localStorage.setItem("email", userData?.email);
+      localStorage.setItem("firstName", userData?.first_name || "");
+      localStorage.setItem("role", userData?.role);
+      localStorage.setItem("token", userData?.token);
 
       // Redirection basée sur le rôle
-      switch (response.data?.role) {
+      switch (userData?.role) {
         case "ADMIN":
           navigate("/admin");
           break;

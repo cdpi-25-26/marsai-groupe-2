@@ -45,13 +45,15 @@ function login(req, res) {
     );
 
 
-    // Ritornare il token e le info utente
+    // Ritornare il token e le info utente con wrapper data
       const responseData = {
         message: "Connexion réussie",
-        email: user.email,
-        first_name: user.first_name,
-        role: user.role,
-        token,
+        data: {
+          email: user.email,
+          first_name: user.first_name,
+          role: user.role,
+          token,
+        }
       };
       console.log("[AUTH] Sending response:", responseData);
       return res.status(200).json(responseData);
