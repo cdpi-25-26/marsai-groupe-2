@@ -1,4 +1,4 @@
-export default function GoalCard({
+export default function ThreeCards({
   icon,
   title,
   description,

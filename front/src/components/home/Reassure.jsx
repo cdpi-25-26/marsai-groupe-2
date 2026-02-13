@@ -1,10 +1,10 @@
-import ReassureCard from "./cards/ReassureCard";
+import FourCards from "./cards/FourCards";
 
 export default function Reassure() {
   return (
     <div className="pt-12 pb-12 w-full grid grid-cols-1 md:grid-cols-4 place-items-center gap-10">
 
-      <ReassureCard
+      <FourCards
         title="1 MINUTE"
         description="Format ultra-court pour un impact maximum"
         accentColor="#C27AFF"
@@ -13,7 +13,7 @@ export default function Reassure() {
         hoverShadow="hover:shadow-[0_0_40px_rgba(173,70,255,0.7)]"
       />
 
-      <ReassureCard
+      <FourCards
         title="GRATUITÉ"
         description="Conférences et workshops accessibles."
         accentColor="#00D492"
@@ -22,7 +22,7 @@ export default function Reassure() {
         hoverShadow="hover:shadow-[0_0_40px_rgba(0,212,146,0.7)]"
       />
 
-      <ReassureCard
+      <FourCards
         title="POUR TOUS"
         description="Professionnels, étudiants et curieux."
         accentColor="#FB64B6"
@@ -31,7 +31,7 @@ export default function Reassure() {
         hoverShadow="hover:shadow-[0_0_40px_rgba(251,100,182,0.7)]"
       />
 
-      <ReassureCard
+      <FourCards
         title="EXPERTISE"
         description="Leaders mondiaux de l'IA générative."
         accentColor="#2B7FFF"
