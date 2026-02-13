@@ -22,3 +22,12 @@ La lecture des films utilise Vidstack. Les styles sont importés dans les pages 
 import "@vidstack/react/player/styles/default/theme.css";
 import "@vidstack/react/player/styles/default/layouts/video.css";
 ```
+
+## 🌍 Système de traduction (i18n)
+
+- Les fichiers de traduction sont dans [src/locales](src/locales) (ex: en.json, fr.json).
+- L'initialisation i18n est définie dans [src/i18n.js](src/i18n.js).
+- Pour activer i18n, installez les dépendances :
+  - `i18next`
+  - `react-i18next`
+- Puis réactivez l'import dans [src/main.jsx](src/main.jsx).

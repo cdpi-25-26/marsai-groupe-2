@@ -6,7 +6,8 @@ const {
   Movie,
   Categorie,
   Collaborator,
-  User
+  User,
+  Award
 } = db;
 
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -44,6 +45,10 @@ async function getMovies(req, res) {
         {
           model: Collaborator,
           through: { attributes: [] }
+        },
+        {
+          model: Award,
+          required: false
         },
         {
           model: User,
@@ -117,6 +122,7 @@ async function getMovieById(req, res) {
         { model: Collaborator,
           through: { attributes: [] } 
          },
+        { model: Award, required: false },
         { model: User, as: "Producer", attributes: ["id_user", "first_name", "last_name"] },
         {
           model: User,

@@ -97,12 +97,23 @@ export function Register() {
           email: variables.email,
           password: variables.password
         });
+        const userData = loginRes.data?.data || loginRes.data;
+        if (!userData?.token || !userData?.email) {
+          localStorage.removeItem("email");
+          localStorage.removeItem("firstName");
+          localStorage.removeItem("lastName");
+          localStorage.removeItem("role");
+          localStorage.removeItem("token");
+          alert("Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.");
+          navigate("/auth/login");
+          return;
+        }
         // Sauvegarder les données de session
-        localStorage.setItem("email", loginRes.data?.email);
-        localStorage.setItem("firstName", loginRes.data?.first_name || "");
-        localStorage.setItem("lastName", loginRes.data?.last_name || "");
-        localStorage.setItem("role", loginRes.data?.role);
-        localStorage.setItem("token", loginRes.data?.token);
+        localStorage.setItem("email", userData?.email);
+        localStorage.setItem("firstName", userData?.first_name || "");
+        localStorage.setItem("lastName", userData?.last_name || "");
+        localStorage.setItem("role", userData?.role);
+        localStorage.setItem("token", userData?.token);
         
         // Redirection vers le tableau de bord du producteur
         navigate("/producer");

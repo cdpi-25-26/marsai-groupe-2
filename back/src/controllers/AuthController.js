@@ -8,28 +8,28 @@ import UserController from "./UserController.js";
 import jwt from "jsonwebtoken";
 
 /**
- * Fonction de connexion (Login)
- * Valide les identifiants de l'utilisateur et crée un JWT
- * @param {Object} req - La requête HTTP contenant { email, password }
- * @param {Object} res - La réponse HTTP
- * @returns {Object} Un token JWT et les infos utilisateur si succès, sinon erreur 401
+ * Funzione di connessione (Login)
+ * Valida gli identifiant dell'utente e crea un JWT
+ * @param {Object} req - La richiesta HTTP contenente { email, password }
+ * @param {Object} res - La risposta HTTP
+ * @returns {Object} Un token JWT e le info utente se successo, altrimenti errore 401
  */
 function login(req, res) {
   const { email, password } = req.body;
 
-  // Chercher l'utilisateur par son email
+  // Cercare l'utente per il suo email
   User.findOne({ where: { email } }).then((user) => {
     if (!user) {
       return res.status(401).json({ error: "Identifiants invalides" });
     }
 
-    // Comparer le mot de passe fourni avec le hash en base de données
+    // Comparare la password fornita con il hash nel database
     comparePassword(password, user.password).then((isMatch) => {
       if (!isMatch) {
         return res.status(401).json({ error: "Identifiants invalides" });
       }
 
-      // Créer un JWT valide avec id_user au lieu de id 1 heure par défaut
+      // Creare un JWT valido con id_user al posto di id 1 ora di default
       const token = jwt.sign(
       { id: user.id_user, role: user.role },
       process.env.JWT_SECRET,
@@ -37,15 +37,22 @@ function login(req, res) {
     );
 
 
-    // Retourner le token et les infos utilisateur
-      return res.status(200).json({
+    // Ritornare il token e le info utente con wrapper data
+      const responseData = {
         message: "Connexion réussie",
-        email: user.email,
-        first_name: user.first_name,
-        role: user.role,
-        token,
-      });
+        data: {
+          email: user.email,
+          first_name: user.first_name,
+          role: user.role,
+          token,
+        }
+      };
+      return res.status(200).json(responseData);
+    }).catch(err => {
+      return res.status(500).json({ error: "Erreur serveur" });
     });
+  }).catch(err => {
+    return res.status(500).json({ error: "Erreur serveur" });
   });
 }
 
