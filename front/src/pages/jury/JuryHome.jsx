@@ -28,7 +28,12 @@ export default function JuryHome() {
   const [confirmedWatched, setConfirmedWatched] = useState(false);
   const [archivedMovieIds, setArchivedMovieIds] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("juryArchivedMovies") || "[]");
+      const raw = JSON.parse(localStorage.getItem("juryArchivedMovies") || "[]");
+      if (!Array.isArray(raw)) return [];
+      const normalized = raw
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id));
+      return Array.from(new Set(normalized));
     } catch (err) {
       return [];
     }
@@ -44,9 +49,11 @@ export default function JuryHome() {
   };
 
   const toggleArchive = (id) => {
+    const normalizedId = Number(id);
+    if (!Number.isFinite(normalizedId)) return;
     setArchivedMovieIds((prev) => {
-      if (prev.includes(id)) return prev.filter((item) => item !== id);
-      return [...prev, id];
+      if (prev.includes(normalizedId)) return prev.filter((item) => item !== normalizedId);
+      return [...prev, normalizedId];
     });
   };
   const getPoster = (movie) => (

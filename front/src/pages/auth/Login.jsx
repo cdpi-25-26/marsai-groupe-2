@@ -22,15 +22,24 @@ const loginSchema = z.object({
  */
 export function Login() {
   // Si déjà connecté, afficher un message
-  if (localStorage.getItem("email")) {
+  const storedEmail = localStorage.getItem("email");
+  if (storedEmail && storedEmail !== "undefined" && storedEmail !== "null") {
     return (
       <>
         <h1 className="text-2xl">
-          Vous êtes déjà connecté en tant que {localStorage.getItem("email")}
+          Vous êtes déjà connecté en tant que {storedEmail}
         </h1>
         <Link to="/">Aller à l'accueil</Link>
       </>
     );
+  }
+
+  if (storedEmail === "undefined" || storedEmail === "null") {
+    localStorage.removeItem("email");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
+    localStorage.removeItem("role");
+    localStorage.removeItem("token");
   }
 
   const navigate = useNavigate();
@@ -52,6 +61,15 @@ export function Login() {
     onSuccess: (response) => {
       // Sauvegarder le token et les infos utilisateur
       const userData = response.data?.data || response.data;
+      if (!userData?.token || !userData?.email) {
+        localStorage.removeItem("email");
+        localStorage.removeItem("firstName");
+        localStorage.removeItem("lastName");
+        localStorage.removeItem("role");
+        localStorage.removeItem("token");
+        alert("Connexion invalide: données utilisateur manquantes");
+        return;
+      }
       localStorage.setItem("email", userData?.email);
       localStorage.setItem("firstName", userData?.first_name || "");
       localStorage.setItem("role", userData?.role);
