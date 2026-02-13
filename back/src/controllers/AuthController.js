@@ -17,25 +17,17 @@ import jwt from "jsonwebtoken";
 function login(req, res) {
   const { email, password } = req.body;
 
-  console.log("[AUTH] Login attempt for email:", email);
-
   // Cercare l'utente per il suo email
   User.findOne({ where: { email } }).then((user) => {
     if (!user) {
-      console.log("[AUTH] User not found:", email);
       return res.status(401).json({ error: "Identifiants invalides" });
     }
-
-    console.log("[AUTH] User found, checking password");
 
     // Comparare la password fornita con il hash nel database
     comparePassword(password, user.password).then((isMatch) => {
       if (!isMatch) {
-        console.log("[AUTH] Password mismatch");
         return res.status(401).json({ error: "Identifiants invalides" });
       }
-
-      console.log("[AUTH] Login successful for:", email);
 
       // Creare un JWT valido con id_user al posto di id 1 ora di default
       const token = jwt.sign(
@@ -55,14 +47,11 @@ function login(req, res) {
           token,
         }
       };
-      console.log("[AUTH] Sending response:", responseData);
       return res.status(200).json(responseData);
     }).catch(err => {
-      console.error("[AUTH] Password comparison error:", err);
       return res.status(500).json({ error: "Erreur serveur" });
     });
   }).catch(err => {
-    console.error("[AUTH] Database error:", err);
     return res.status(500).json({ error: "Erreur serveur" });
   });
 }
