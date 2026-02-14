@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
 import { createMovie, getMyMovies, updateMovieCollaborators } from "../../api/movies";
@@ -96,6 +96,14 @@ export default function ProducerHome() {
   } = useForm({
     resolver: zodResolver(movieSchema)
   });
+
+  // Watch form fields for validation
+  const filmTitleOriginal = useWatch({ control: movieControl, name: "filmTitleOriginal" });
+  const durationSeconds = useWatch({ control: movieControl, name: "durationSeconds" });
+  const synopsisOriginal = useWatch({ control: movieControl, name: "synopsisOriginal" });
+  const acceptRules = useWatch({ control: movieControl, name: "acceptRules" });
+  const aiClassification = useWatch({ control: movieControl, name: "aiClassification" });
+  const categoryId = useWatch({ control: movieControl, name: "categoryId" });
 
   const {
     fields: collaboratorFields,
@@ -191,6 +199,45 @@ export default function ProducerHome() {
   function onSubmitMovie(data) {
     return createMovieMutation.mutate(data);
   }
+
+  // Validation functions
+  const isStep1Valid = () => {
+    return (
+      filmTitleOriginal && 
+      filmTitleOriginal.trim().length > 0 &&
+      durationSeconds && 
+      durationSeconds > 0 && 
+      durationSeconds <= 120 &&
+      synopsisOriginal && 
+      synopsisOriginal.trim().length > 0
+    );
+  };
+
+  const isStep2Valid = () => {
+    return (
+      acceptRules === true &&
+      aiClassification && 
+      aiClassification.trim().length > 0 &&
+      categoryId && 
+      categoryId.toString().trim().length > 0
+    );
+  };
+
+  const handleNextStep = () => {
+    if (!isStep1Valid()) {
+      alert("⚠️ Veuillez compléter tous les champs obligatoires de l'étape 1:\n- Titre original\n- Durée (en secondes)\n- Synopsis");
+      return;
+    }
+    setFormStep(2);
+  };
+
+  const handlePreviousStep = () => {
+    if (!isStep2Valid()) {
+      alert("⚠️ Veuillez compléter tous les champs obligatoires de l'étape 2:\n- Classification IA\n- Catégorie\n- Accepter les modalités de participation");
+      return;
+    }
+    setFormStep(1);
+  };
 
   /**
    * Effect - Récupère les données utilisateur au chargement du composant

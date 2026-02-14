@@ -128,28 +128,27 @@ export function Register() {
     return registerMutation.mutate(data);
   }
   return (
-    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-10">
-          <p className="text-sm uppercase tracking-widest text-gray-400">Producer</p>
-          <h1 className="text-5xl font-bold mt-2">Créer mon profil</h1>
-          <p className="text-gray-400 text-base mt-4">
+    <div className="min-h-screen bg-black text-white font-light pt-24 pb-6 px-3 md:pt-28">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold mt-1">Créer mon profil Producteur</h1>
+          <p className="text-gray-400 text-xs mt-1">
             Complétez votre profil producteur. Vous pourrez ensuite déposer votre film dans votre espace producteur.
           </p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+        <div className="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-2xl">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Mon Profil */}
             <section>
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
                 <span className="text-[#F6339A]">●</span> Mon Profil
               </h2>
-              <p className="text-sm uppercase tracking-widest text-gray-400 mb-4">Réalisateur</p>
+              <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-2">Réalisateur</p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="flex flex-col">
-                  <label htmlFor="lastName" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="lastName" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Nom *
                   </label>
                   <input
@@ -157,13 +156,13 @@ export function Register() {
                     type="text"
                     placeholder="NOM"
                     {...register("lastName")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                   {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>}
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="firstName" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="firstName" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Prénom *
                   </label>
                   <input
@@ -171,13 +170,13 @@ export function Register() {
                     type="text"
                     placeholder="PRÉNOM"
                     {...register("firstName")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                   {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName.message}</p>}
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="email" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Adresse e-mail *
                   </label>
                   <input
@@ -185,13 +184,13 @@ export function Register() {
                     type="email"
                     placeholder="EMAIL@EXEMPLE.COM"
                     {...register("email")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                   {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="phone" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="phone" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Téléphone *
                   </label>
                   <input
@@ -199,25 +198,25 @@ export function Register() {
                     type="text"
                     placeholder="+33 6 12 34 56 78"
                     {...register("phone")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="birthDate" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="birthDate" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Date de naissance *
                   </label>
                   <input
                     id="birthDate"
                     type="date"
                     {...register("birthDate")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
 
                 <div className="flex flex-col">
-                  <label htmlFor="city" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="city" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Ville *
                   </label>
                   <input
@@ -225,12 +224,12 @@ export function Register() {
                     type="text"
                     placeholder="VILLE"
                     {...register("city")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="postalCode" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="postalCode" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Code Postal *
                   </label>
                   <input
@@ -238,12 +237,12 @@ export function Register() {
                     type="text"
                     placeholder="CODE POSTAL"
                     {...register("postalCode")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="country" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="country" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Pays *
                   </label>
                   <input
@@ -251,25 +250,25 @@ export function Register() {
                     type="text"
                     placeholder="PAYS"
                     {...register("country")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="biography" className="text-white font-semibold mb-2 text-sm uppercase">
+                <div className="flex flex-col md:col-span-2 lg:col-span-2">
+                  <label htmlFor="biography" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Ma Biographie
                   </label>
                   <textarea
                     id="biography"
-                    rows="4"
+                    rows="2"
                     placeholder="ARTISTE CANADIEN BASÉ À MARSEILLE - J'EXPLORE LES FRONTIÈRES ENTRE L'ART CINÉMATOGRAPHIQUE TRADITIONNEL ET LES ALGORITHMES GÉNÉRATIFS..."
                     {...register("biography")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="portfolio" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="portfolio" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Mes Liens
                   </label>
                   <input
@@ -277,12 +276,12 @@ export function Register() {
                     type="text"
                     placeholder="HTTPS://SITEWEB.COM"
                     {...register("portfolio")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="instagram" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="instagram" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Instagram
                   </label>
                   <input
@@ -290,12 +289,12 @@ export function Register() {
                     type="text"
                     placeholder="@USERNAME_IG"
                     {...register("instagram")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="linkedin" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="linkedin" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     LinkedIn
                   </label>
                   <input
@@ -303,12 +302,12 @@ export function Register() {
                     type="text"
                     placeholder="@USERNAME_LINKEDIN"
                     {...register("linkedin")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
+                <div className="flex flex-col md:col-span-2 lg:col-span-3">
+                  <label htmlFor="password" className="text-white font-semibold mb-1 text-[11px] uppercase">
                     Mot de passe *
                   </label>
                   <input
@@ -316,7 +315,7 @@ export function Register() {
                     type="password"
                     placeholder="Minimum 6 caractères"
                     {...register("password")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                   {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>}
                 </div>
@@ -326,11 +325,11 @@ export function Register() {
             {/* Hidden role field */}
             <input type="hidden" {...register("role")} defaultValue="PRODUCER" />
 
-            <div className="flex flex-col gap-4 pt-4">
+            <div className="flex flex-col gap-2 pt-1">
               <button
                 type="submit"
                 disabled={registerMutation.isPending}
-                className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+                className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-2 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
               >
                 {registerMutation.isPending ? "Création en cours..." : "Créer mon profil"}
               </button>
@@ -338,7 +337,7 @@ export function Register() {
                 Déjà inscrit ?
                 <Link
                   to="/auth/login"
-                  className="ml-2 inline-flex items-center justify-center border border-gray-700 text-white px-4 py-2 rounded-lg hover:border-[#AD46FF] transition"
+                  className="ml-2 inline-flex items-center justify-center border border-gray-700 text-white px-3 py-1 rounded-lg hover:border-[#AD46FF] transition"
                 >
                   Se connecter
                 </Link>
