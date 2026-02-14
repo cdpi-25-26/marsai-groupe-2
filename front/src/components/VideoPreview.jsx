@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export function VideoPreview({ src, poster, title, onEnded }) {
+export function VideoPreview({ src, poster, title, onEnded, openMode = "overlay" }) {
   const videoRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -73,9 +73,9 @@ export function VideoPreview({ src, poster, title, onEnded }) {
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-          <div className="w-full max-w-6xl">
-            <div className="flex items-center justify-between mb-3">
+        <div className={openMode === "fullscreen" ? "fixed inset-0 z-50 bg-black flex items-center justify-center" : "fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"}>
+          <div className={openMode === "fullscreen" ? "w-full h-full" : "w-full max-w-6xl"}>
+            <div className={openMode === "fullscreen" ? "absolute top-4 left-4 right-4 flex items-center justify-between z-10" : "flex items-center justify-between mb-3"}>
               <h3 className="text-white font-semibold text-lg">{title}</h3>
               <button
                 type="button"
@@ -86,22 +86,24 @@ export function VideoPreview({ src, poster, title, onEnded }) {
               </button>
             </div>
             <video
-              className="w-full h-auto max-h-[80vh] bg-black rounded-lg"
+              className={openMode === "fullscreen" ? "w-full h-full object-contain bg-black" : "w-full h-auto max-h-[80vh] bg-black rounded-lg"}
               src={src}
               poster={poster || undefined}
               controls
               autoPlay
               onEnded={onEnded}
             />
-            <div className="mt-3 flex justify-end">
-              <button
-                type="button"
-                onClick={requestNativeFullscreen}
-                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-              >
-                Plein écran
-              </button>
-            </div>
+            {openMode !== "fullscreen" && (
+              <div className="mt-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={requestNativeFullscreen}
+                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                >
+                  Plein écran
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
