@@ -248,6 +248,8 @@ export default function ProducerHome() {
   const handleResetForm = () => {
     setSubmittedSuccess(false);
     setFormStep(1);
+    setMovieSuccess(null); // Nascondere il messaggio di successo
+    setMovieError(null); // Nascondere eventuali errori
     resetMovie();
     setFilmFileName("Aucun fichier sélectionné");
     setThumbnail1Name("Aucun fichier sélectionné");
@@ -271,7 +273,10 @@ export default function ProducerHome() {
       .then(([userRes, moviesRes]) => {
         setUser(userRes.data);
         setForm(userRes.data);
-        setMovies(moviesRes.data || []);
+        const userMovies = moviesRes.data || [];
+        setMovies(userMovies);
+        // Se l'utilisateur a déjà soumis des films, afficher la liste
+        setSubmittedSuccess(userMovies.length > 0);
         setLoading(false);
       })
       .catch(() => {
