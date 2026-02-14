@@ -5,15 +5,8 @@ import youtubeController from "../controllers/youtubeController.js";
 
 const youtubeRouter = express.Router();
 
-// const uploadFolder = path.join("back/uploads");
 const uploadFolder = path.join(process.cwd(), "uploads");
 
-
-/**
- * POST /youtube/upload
- * Body attendu : { fileName, title, description }
- * fileName doit être exactement le nom du fichier déjà présent dans back/upload
- */
 youtubeRouter.post("/upload", async (req, res) => {
   const { fileName, title, description } = req.body;
 
@@ -34,14 +27,11 @@ youtubeRouter.post("/upload", async (req, res) => {
 
   const filePath = path.join(uploadFolder, fileName);
 
-  // Vérifie que le fichier existe
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: `Fichier ${fileName} introuvable dans ${uploadFolder}` });
   }
 
   try {
-    // Appel au controller pour uploader la vidéo
-    // const data = await uploadVideo(fileName, title, description);
     const data = await youtubeController.uploadVideo(filePath, title, description);
 
     if (!data?.data?.id) {
@@ -49,12 +39,12 @@ youtubeRouter.post("/upload", async (req, res) => {
     }
 
     res.json({
-      message: "Vidéo uploadée ✅",
+      message: "Vidéo uploadée",
       videoId: data.data.id,
       status: data.data.status,
       title: title
     });
-    
+
   } catch (err) {
     console.error(`Erreur lors de l'upload de ${fileName} :`, err.message);
     res.status(500).json({
