@@ -74,6 +74,7 @@ export default (sequelize, DataTypes) => {
     subtitle: DataTypes.STRING(255),         // Langue des sous-titres
     ai_tool: DataTypes.STRING(255),          // Outil IA utilisé
     thumbnail: DataTypes.STRING(255),        // Image thumbnail
+    admin_comment: DataTypes.TEXT,           // Commentaire admin
 
     // Statut de sélection du film dans le processus de jury
     selection_status: {

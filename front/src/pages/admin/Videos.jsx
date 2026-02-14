@@ -13,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getCategories,
   getVideos,
+  updateMovie,
   updateMovieCategories,
   updateMovieJuries,
   updateMovieStatus
@@ -67,7 +68,8 @@ function Videos() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [awardName, setAwardName] = useState("");
   const [awardMovieId, setAwardMovieId] = useState("");
-  const [showRefusedList, setShowRefusedList] = useState(false);
+  const [activeFolder, setActiveFolder] = useState(null);
+  const [adminComment, setAdminComment] = useState("");
 
   useEffect(() => {
     if (!data?.data) return;
@@ -87,6 +89,11 @@ function Videos() {
     setJurySelection(initialJuries);
   }, [data]);
 
+  useEffect(() => {
+    if (!selectedMovie) return;
+    setAdminComment(selectedMovie.admin_comment || "");
+  }, [selectedMovie]);
+
   const statusMutation = useMutation({
     mutationFn: ({ id, status }) => updateMovieStatus(id, status),
     onSuccess: () => {
@@ -103,6 +110,13 @@ function Videos() {
 
   const juryMutation = useMutation({
     mutationFn: ({ id, juryIds }) => updateMovieJuries(id, juryIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+    }
+  });
+
+  const updateMovieMutation = useMutation({
+    mutationFn: ({ id, payload }) => updateMovie(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listVideos"] });
     }
@@ -265,6 +279,10 @@ function Videos() {
     return { approved, refused, voted, assignJury };
   }, [filteredMovies, voteSummaryByMovie]);
 
+  const reviewMovies = useMemo(() => {
+    return [...groupedMovies.voted, ...groupedMovies.approved];
+  }, [groupedMovies]);
+
   const renderVoteSummary = (summary) => {
     if (!summary) return <span className="text-xs text-gray-500">Aucun vote</span>;
     return (
@@ -359,154 +377,181 @@ function Videos() {
   // Affichage de la liste des vidéos ou message si aucune vidéo n'existe
   return (
     <div className="space-y-6">
-      <section className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">CRUD Prix (films approuvés)</h3>
-        {groupedMovies.approved.length === 0 ? (
-          <p className="text-gray-400 text-sm">Aucun film approuvé pour attribuer un prix.</p>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <select
-                value={awardMovieId}
-                onChange={(event) => setAwardMovieId(event.target.value)}
-                className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
-              >
-                <option value="">Sélectionner un film approuvé</option>
-                {groupedMovies.approved.map(({ movie }) => (
-                  <option key={`approved-award-${movie.id_movie}`} value={movie.id_movie}>
-                    {movie.title}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={awardName}
-                onChange={(event) => setAwardName(event.target.value)}
-                list="award-names"
-                placeholder="Nom du prix"
-                className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (!awardMovieId || !awardName.trim()) return;
-                  awardMutation.mutate({ id_movie: Number(awardMovieId), award_name: awardName.trim() });
-                }}
-                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-              >
-                Assigner le prix
-              </button>
-            </div>
+      {filteredMovies.length > 0 ? (
+        <>
+          {!activeFolder ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
+                <button
+                  onClick={() => setActiveFolder("assign")}
+                  className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
+                >
+                  <div className="text-center">
+                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#AD46FF] to-[#F6339A] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                      <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">À assigner jury</h2>
+                    <p className="text-gray-400 mb-4">Films soumis</p>
+                    <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-full font-bold text-xl shadow-lg">
+                      {groupedMovies.assignJury.length}
+                    </div>
+                  </div>
+                </button>
 
-            {awardMovieId && (
-              <div className="flex flex-wrap gap-2">
-                {(awardsByMovie[Number(awardMovieId)] || []).length === 0 ? (
-                  <span className="text-sm text-gray-400">Aucun prix attribué pour ce film.</span>
-                ) : (
-                  (awardsByMovie[Number(awardMovieId)] || []).map((award) => (
-                    <button
-                      key={`award-chip-${award.id_award}`}
-                      type="button"
-                      onClick={() => deleteAwardMutation.mutate(award.id_award)}
-                      className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full hover:bg-purple-900/70"
-                      title="Supprimer le prix"
-                    >
-                      {award.award_name} ✕
-                    </button>
-                  ))
-                )}
+                <button
+                  onClick={() => setActiveFolder("review")}
+                  className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
+                >
+                  <div className="text-center">
+                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-purple-700 to-[#AD46FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                      <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">En évaluation</h2>
+                    <p className="text-gray-400 mb-4">Votés & approuvés</p>
+                    <div className="inline-block px-4 py-2 bg-gradient-to-r from-purple-700 to-[#AD46FF] text-white rounded-full font-bold text-xl shadow-lg">
+                      {reviewMovies.length}
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveFolder("refused")}
+                  className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#F6339A]/20"
+                >
+                  <div className="text-center">
+                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#F6339A] to-pink-700 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                      <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#F6339A] transition-colors">Scartati / Refusés</h2>
+                    <p className="text-gray-400 mb-4">Archivés</p>
+                    <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#F6339A] to-pink-700 text-white rounded-full font-bold text-xl shadow-lg">
+                      {groupedMovies.refused.length}
+                    </div>
+                  </div>
+                </button>
               </div>
-            )}
+            </div>
+          ) : (
+            <div>
+              <div className="mb-6 flex items-center justify-between">
+                <button
+                  onClick={() => setActiveFolder(null)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 transition font-semibold"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span>Retour</span>
+                </button>
+                <h2 className="text-2xl font-bold text-white">
+                  {activeFolder === "assign" && "Films à assigner"}
+                  {activeFolder === "review" && "Films en évaluation"}
+                  {activeFolder === "refused" && "Films scartati / refusés"}
+                </h2>
+                <div className="w-24"></div>
+              </div>
 
-            <div className="border-t border-gray-800 pt-4">
-              <h4 className="text-sm uppercase text-gray-400 mb-3">Prix attribués (films approuvés)</h4>
-              {groupedMovies.approved.length === 0 ? (
-                <p className="text-gray-500 text-sm">Aucun film approuvé.</p>
-              ) : (
-                <div className="space-y-3">
-                  {groupedMovies.approved.map(({ movie }) => (
-                    <div key={`approved-awards-${movie.id_movie}`} className="bg-gray-950 border border-gray-800 rounded-lg p-3">
-                      <div className="text-sm text-white font-semibold mb-2">{movie.title}</div>
-                      {(awardsByMovie[movie.id_movie] || []).length === 0 ? (
-                        <div className="text-xs text-gray-500">Aucun prix attribué.</div>
+              {activeFolder === "assign" && (
+                groupedMovies.assignJury.length === 0 ? (
+                  <p className="text-center text-gray-400 py-12">Aucun film à assigner.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {groupedMovies.assignJury.map(({ movie }) => renderMovieCard(movie))}
+                  </div>
+                )
+              )}
+
+              {activeFolder === "review" && (
+                reviewMovies.length === 0 ? (
+                  <p className="text-center text-gray-400 py-12">Aucun film en évaluation.</p>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                      {reviewMovies.map(({ movie }) => renderMovieCard(movie))}
+                    </div>
+
+                    <section className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">CRUD Prix (films approuvés)</h3>
+                      {groupedMovies.approved.length === 0 ? (
+                        <p className="text-gray-400 text-sm">Aucun film approuvé pour attribuer un prix.</p>
                       ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {(awardsByMovie[movie.id_movie] || []).map((award) => (
-                            <button
-                              key={`award-list-${award.id_award}`}
-                              type="button"
-                              onClick={() => deleteAwardMutation.mutate(award.id_award)}
-                              className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full hover:bg-purple-900/70"
-                              title="Supprimer le prix"
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <select
+                              value={awardMovieId}
+                              onChange={(event) => setAwardMovieId(event.target.value)}
+                              className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
                             >
-                              {award.award_name} ✕
+                              <option value="">Sélectionner un film approuvé</option>
+                              {groupedMovies.approved.map(({ movie }) => (
+                                <option key={`approved-award-${movie.id_movie}`} value={movie.id_movie}>
+                                  {movie.title}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              value={awardName}
+                              onChange={(event) => setAwardName(event.target.value)}
+                              list="award-names"
+                              placeholder="Nom du prix"
+                              className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!awardMovieId || !awardName.trim()) return;
+                                awardMutation.mutate({ id_movie: Number(awardMovieId), award_name: awardName.trim() });
+                              }}
+                              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+                            >
+                              Assigner le prix
                             </button>
-                          ))}
+                          </div>
+
+                          {awardMovieId && (
+                            <div className="flex flex-wrap gap-2">
+                              {(awardsByMovie[Number(awardMovieId)] || []).length === 0 ? (
+                                <span className="text-sm text-gray-400">Aucun prix attribué pour ce film.</span>
+                              ) : (
+                                (awardsByMovie[Number(awardMovieId)] || []).map((award) => (
+                                  <button
+                                    key={`award-chip-${award.id_award}`}
+                                    type="button"
+                                    onClick={() => deleteAwardMutation.mutate(award.id_award)}
+                                    className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full hover:bg-purple-900/70"
+                                    title="Supprimer le prix"
+                                  >
+                                    {award.award_name} ✕
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
-                    </div>
-                  ))}
-                </div>
+                    </section>
+                  </div>
+                )
+              )}
+
+              {activeFolder === "refused" && (
+                groupedMovies.refused.length === 0 ? (
+                  <p className="text-center text-gray-400 py-12">Aucun film refusé.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {groupedMovies.refused.map(({ movie }) => renderMovieCard(movie, false))}
+                  </div>
+                )
               )}
             </div>
-          </div>
-        )}
-      </section>
-
-      {filteredMovies.length > 0 ? (
-        <div className="space-y-8">
-          <div>
-            <h3 className="text-xl font-bold text-green-400 mb-3">1. Films en attente de prix (approuvés) ({groupedMovies.approved.length})</h3>
-            {groupedMovies.approved.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun film approuvé.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {groupedMovies.approved.map(({ movie }) => renderMovieCard(movie, false))}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-white mb-3">2. Films votés (approbation/refus possible) ({groupedMovies.voted.length})</h3>
-            {groupedMovies.voted.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun film voté pour le moment.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {groupedMovies.voted.map(({ movie }) => renderMovieCard(movie))}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-red-400 mb-3">3. Films refusés (archivés) ({groupedMovies.refused.length})</h3>
-            {groupedMovies.refused.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun film refusé.</p>
-            ) : (
-              <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-                <p className="text-gray-400 text-sm">
-                  {groupedMovies.refused.length} film{groupedMovies.refused.length > 1 ? "s" : ""} refusé{groupedMovies.refused.length > 1 ? "s" : ""}.
-                  <button
-                    type="button"
-                    onClick={() => setShowRefusedList(true)}
-                    className="ml-2 text-[#AD46FF] hover:text-[#F6339A] underline"
-                  >
-                    Voir la liste
-                  </button>
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-xl font-bold text-white mb-3">4. Films à assigner aux jurys ({groupedMovies.assignJury.length})</h3>
-            {groupedMovies.assignJury.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun film à assigner.</p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {groupedMovies.assignJury.map(({ movie }) => renderMovieCard(movie))}
-              </div>
-            )}
-          </div>
-        </div>
+          )}
+        </>
       ) : (
         <div className="text-gray-400">Aucune vidéo trouvée.</div>
       )}
@@ -516,13 +561,25 @@ function Videos() {
           <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
-              <button
-                type="button"
-                onClick={() => setSelectedMovie(null)}
-                className="text-gray-400 hover:text-white"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
+                    setSelectedMovie(null);
+                  }}
+                  className="px-3 py-1.5 bg-red-600/80 text-white rounded-lg text-xs font-semibold hover:bg-red-600"
+                >
+                  Archiver / Refuser
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedMovie(null)}
+                  className="text-gray-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
@@ -667,7 +724,30 @@ function Videos() {
               </div>
             </div>
 
-            <div className="mt-6 border-t border-gray-800 pt-6">
+            <div className="mt-3 border-t border-gray-800 pt-3">
+              <h4 className="text-sm uppercase text-gray-400 mb-2">Commentaire admin</h4>
+              <textarea
+                value={adminComment}
+                onChange={(event) => setAdminComment(event.target.value)}
+                rows={3}
+                placeholder="Ajouter un commentaire interne..."
+                className="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
+              />
+              <div className="mt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => updateMovieMutation.mutate({
+                    id: selectedMovie.id_movie,
+                    payload: { admin_comment: adminComment }
+                  })}
+                  className="px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 text-sm"
+                >
+                  Enregistrer commentaire
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 border-t border-gray-800 pt-4">
               <h4 className="text-sm uppercase text-gray-400 mb-3">Votes du jury</h4>
               {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).length === 0 ? (
                 <p className="text-gray-500 text-sm">Aucun vote pour le moment.</p>
@@ -759,25 +839,6 @@ function Videos() {
         </div>
       )}
 
-      {showRefusedList && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-          <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-red-400">Films Refusés ({groupedMovies.refused.length})</h3>
-              <button
-                type="button"
-                onClick={() => setShowRefusedList(false)}
-                className="text-gray-400 hover:text-white text-2xl"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {groupedMovies.refused.map(({ movie }) => renderMovieCard(movie, true))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

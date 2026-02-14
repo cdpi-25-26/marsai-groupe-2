@@ -30,6 +30,14 @@ async function updateMovieStatus(id, selection_status) {
 }
 
 /**
+ * Met à jour un film (ADMIN)
+ * Endpoint: PUT /movies/:id
+ */
+async function updateMovie(id, payload) {
+  return await instance.put(`movies/${id}`, payload);
+}
+
+/**
  * Supprime un film
  * Endpoint: DELETE /movies/:id
  */
@@ -89,6 +97,7 @@ export {
   getVideos,
   getAssignedMovies,
   updateMovieStatus,
+  updateMovie,
   updateMovieCategories,
   updateMovieJuries,
   getCategories,
