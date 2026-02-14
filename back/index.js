@@ -11,6 +11,7 @@ import dotenv from "dotenv";
 import sequelize from "./src/db/connection.js";
 import db from "./src/models/index.js";
 import routes from "./src/routes/index.js";
+import startYoutubeWatcher from "./src/utils/youtubewatcher.js";
 
 // Charge les variables d'environnement
 dotenv.config();
@@ -54,6 +55,8 @@ async function startServer() {
     // Démarrage du serveur
     app.listen(PORT, () => {
       console.log(`✓ API disponible sur http://localhost:${PORT}`);
+
+      startYoutubeWatcher();
     });
   } catch (error) {
     console.error("✗ Erreur de connexion à la base de données:", error.message);
