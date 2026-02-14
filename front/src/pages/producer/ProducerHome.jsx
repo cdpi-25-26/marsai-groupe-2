@@ -305,7 +305,20 @@ export default function ProducerHome() {
         ? `${uploadBase}/${movie.display_picture}`
         : movie.picture1
           ? `${uploadBase}/${movie.picture1}`
-          : null
+          : movie.picture2
+            ? `${uploadBase}/${movie.picture2}`
+            : movie.picture3
+              ? `${uploadBase}/${movie.picture3}`
+              : null
+  );
+
+  const getTrailer = (movie) => (
+    movie.trailer
+      || movie.trailer_video
+      || movie.trailerVideo
+      || movie.filmFile
+      || movie.video
+      || null
   );
 
   /**
@@ -1114,9 +1127,9 @@ export default function ProducerHome() {
 
         {selectedMovie && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-white">{selectedMovie.title}</h3>
+                <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
                 <button
                   type="button"
                   onClick={() => setSelectedMovie(null)}
@@ -1126,60 +1139,53 @@ export default function ProducerHome() {
                 </button>
               </div>
 
-              <p className="text-gray-400 mt-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
-              <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
-                <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
-                <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
-                <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
-                <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
-                <div><span className="text-gray-400">Outils IA:</span> {selectedMovie.ai_tool || "-"}</div>
-                <div><span className="text-gray-400">Méthodologie:</span> {selectedMovie.workshop || "-"}</div>
-                <div><span className="text-gray-400">Production:</span> {selectedMovie.production || "-"}</div>
-                <div><span className="text-gray-400">Sous-titres:</span> {selectedMovie.subtitle ? (
-                  <a className="text-[#AD46FF] hover:text-[#F6339A]" href={`${uploadBase}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer">Télécharger</a>
-                ) : "-"}</div>
-              </div>
+              <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
 
-              <div className="mt-4 flex flex-wrap gap-3">
-                {selectedMovie.trailer && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={`${uploadBase}/${selectedMovie.trailer}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Ouvrir la vidéo
-                  </a>
-                )}
-                {selectedMovie.youtube_link && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={selectedMovie.youtube_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Voir sur YouTube
-                  </a>
-                )}
-              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3 text-xs text-gray-300">
+                    <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
+                    <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
+                    <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
+                    <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
+                    <div><span className="text-gray-400">Outils IA:</span> {selectedMovie.ai_tool || "-"}</div>
+                    <div><span className="text-gray-400">Méthodologie:</span> {selectedMovie.workshop || "-"}</div>
+                  </div>
 
-              {(selectedMovie.trailer || selectedMovie.youtube_link) && (
-                <div className="mt-4">
-                  {selectedMovie.trailer ? (
-                    <VideoPreview
-                      title={selectedMovie.title}
-                      src={`${uploadBase}/${selectedMovie.trailer}`}
-                      poster={getPoster(selectedMovie) || undefined}
-                    />
-                  ) : (
-                    <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
-                      Ouvrir la vidéo
-                    </a>
-                  )}
+                  <div className="flex flex-wrap gap-3 text-sm">
+                    {getTrailer(selectedMovie) && (
+                      <span className="text-xs text-gray-400">
+                        Trailer : cliquez pour plein écran
+                      </span>
+                    )}
+                    {selectedMovie.subtitle ? (
+                      <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={`${uploadBase}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer">Sous-titres</a>
+                    ) : null}
+                    {selectedMovie.youtube_link && (
+                      <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">YouTube</a>
+                    )}
+                  </div>
                 </div>
-              )}
 
-              <div className="mt-6">
+                {(getTrailer(selectedMovie) || selectedMovie.youtube_link) && (
+                  <div>
+                    {getTrailer(selectedMovie) ? (
+                      <VideoPreview
+                        title={selectedMovie.title}
+                        src={`${uploadBase}/${getTrailer(selectedMovie)}`}
+                        poster={getPoster(selectedMovie) || undefined}
+                        openMode="fullscreen"
+                      />
+                    ) : (
+                      <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
+                        Ouvrir la vidéo
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-3 border-t border-gray-800 pt-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm uppercase text-gray-400">Collaborateurs</h4>
                   <button
