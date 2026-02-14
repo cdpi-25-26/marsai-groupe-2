@@ -23,6 +23,7 @@ export default function JuryHome() {
   const [voteLoading, setVoteLoading] = useState(false);
   const [hasWatched, setHasWatched] = useState(false);
   const [confirmedWatched, setConfirmedWatched] = useState(false);
+  const [activeFolder, setActiveFolder] = useState(null); // null, 'assigned', 'voted', 'approved'
   const [archivedMovieIds, setArchivedMovieIds] = useState(() => {
     try {
       const raw = JSON.parse(localStorage.getItem("juryArchivedMovies") || "[]");
@@ -153,167 +154,238 @@ export default function JuryHome() {
 
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
-      <div className="max-w-5xl mx-auto space-y-10">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold">Espace Jury</h1>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-[#AD46FF]">Espace Jury</h1>
           <p className="text-gray-400 mt-2">Bienvenue {user.first_name} {user.last_name}</p>
         </div>
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">1. Films assignés en attente de vote</h2>
-          {moviesError && <p className="text-red-400 mb-4">{moviesError}</p>}
-          {awaitingVoteMovies.length === 0 ? (
-            <p className="text-gray-400">Aucun film en attente de vote pour le moment.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {awaitingVoteMovies.map((movie) => {
-                const poster = getPoster(movie);
-                return (
-                  <button
-                    key={`awaiting-${movie.id_movie}`}
-                    type="button"
-                    onClick={() => setSelectedMovie(movie)}
-                    className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
-                  >
-                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                      {poster ? (
-                        <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                        <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
-                        <span>{movie.main_language || "-"}</span>
-                        <span>{movie.nationality || "-"}</span>
-                        <span>{movie.selection_status || "submitted"}</span>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
+        {moviesError && (
+          <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg mb-6">
+            {moviesError}
+          </div>
+        )}
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">2. Films déjà votés en attente d'approbation pour la deuxieme phase</h2>
-          {votedAwaitingApprovalMovies.length === 0 ? (
-            <p className="text-gray-400">Aucun film en attente d'approbation pour le moment.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {votedAwaitingApprovalMovies.map((movie) => {
-                const poster = getPoster(movie);
-                const vote = votesByMovie[movie.id_movie];
-                return (
-                  <button
-                    key={`voted-${movie.id_movie}`}
-                    type="button"
-                    onClick={() => setSelectedMovie(movie)}
-                    className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
-                  >
-                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                      {poster ? (
-                        <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                        <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
-                        <span>{movie.main_language || "-"}</span>
-                        <span>{movie.nationality || "-"}</span>
-                        <span>{movie.selection_status || "submitted"}</span>
-                      </div>
-                      {vote && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded">
-                            Déjà voté
-                          </span>
-                          {vote.modification_count > 0 && (
-                            <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-1 rounded">
-                              Modifié {vote.modification_count}×
+        {!activeFolder ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
+            {/* Cartella 1: Film Assegnati Non Votati */}
+            <button
+              onClick={() => setActiveFolder('assigned')}
+              className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
+            >
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#AD46FF] to-[#F6339A] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">Films Assignés</h2>
+                <p className="text-gray-400 mb-4">En attente de vote</p>
+                <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-full font-bold text-xl shadow-lg">
+                  {awaitingVoteMovies.length}
+                </div>
+              </div>
+            </button>
+
+            {/* Cartella 2: Film Votati in Attesa di Approvazione */}
+            <button
+              onClick={() => setActiveFolder('voted')}
+              className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
+            >
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-purple-700 to-[#AD46FF] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">Films Votés</h2>
+                <p className="text-gray-400 mb-4">En attente d'approbation</p>
+                <div className="inline-block px-4 py-2 bg-gradient-to-r from-purple-700 to-[#AD46FF] text-white rounded-full font-bold text-xl shadow-lg">
+                  {votedAwaitingApprovalMovies.length}
+                </div>
+              </div>
+            </button>
+
+            {/* Cartella 3: Film Approvati per Seconda Votazione */}
+            <button
+              onClick={() => setActiveFolder('approved')}
+              className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#F6339A]/20"
+            >
+              <div className="text-center">
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#F6339A] to-pink-700 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#F6339A] transition-colors">Films Approuvés</h2>
+                <p className="text-gray-400 mb-4">Seconde votation</p>
+                <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#F6339A] to-pink-700 text-white rounded-full font-bold text-xl shadow-lg">
+                  {approvedAwaitingSecondVoteMovies.length}
+                </div>
+              </div>
+            </button>
+          </div>
+          </div>
+        ) : (
+          <div>
+            {/* Header con bottone per tornare */}
+            <div className="mb-6 flex items-center justify-between">
+              <button
+                onClick={() => setActiveFolder(null)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 transition font-semibold"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Retour</span>
+              </button>
+              <h2 className="text-2xl font-bold text-white">
+                {activeFolder === 'assigned' && 'Films Assignés - En Attente de Vote'}
+                {activeFolder === 'voted' && 'Films Votés - En Attente d\'Approbation'}
+                {activeFolder === 'approved' && 'Films Approuvés - Seconde Votation'}
+              </h2>
+              <div className="w-24"></div>
+            </div>
+
+            {/* Griglia Film */}
+            {activeFolder === 'assigned' && (
+              awaitingVoteMovies.length === 0 ? (
+                <p className="text-center text-gray-400 py-12">Aucun film en attente de vote.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {awaitingVoteMovies.map((movie) => {
+                    const poster = getPoster(movie);
+                    return (
+                      <button
+                        key={`awaiting-${movie.id_movie}`}
+                        type="button"
+                        onClick={() => setSelectedMovie(movie)}
+                        className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group"
+                      >
+                        <div className="aspect-video bg-gray-800 relative">
+                          {poster ? (
+                            <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-2">
+                          <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#AD46FF] transition">
+                            {movie.title}
+                          </h3>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {movie.duration}s • {movie.main_language || "-"}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )
+            )}
+
+            {activeFolder === 'voted' && (
+              votedAwaitingApprovalMovies.length === 0 ? (
+                <p className="text-center text-gray-400 py-12">Aucun film en attente d'approbation.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {votedAwaitingApprovalMovies.map((movie) => {
+                    const poster = getPoster(movie);
+                    const vote = votesByMovie[movie.id_movie];
+                    return (
+                      <button
+                        key={`voted-${movie.id_movie}`}
+                        type="button"
+                        onClick={() => setSelectedMovie(movie)}
+                        className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group relative"
+                      >
+                        {vote && (
+                          <div className="absolute top-1 right-1 z-10">
+                            <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                              ✓
                             </span>
+                          </div>
+                        )}
+                        <div className="aspect-video bg-gray-800 relative">
+                          {poster ? (
+                            <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                              </svg>
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                        <div className="p-2">
+                          <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#AD46FF] transition">
+                            {movie.title}
+                          </h3>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {movie.duration}s • {movie.main_language || "-"}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )
+            )}
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">3. Films approuvés en attente de seconde votation et prix</h2>
-          {approvedAwaitingSecondVoteMovies.length === 0 ? (
-            <p className="text-gray-400">Aucun film approuvé pour le moment.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {approvedAwaitingSecondVoteMovies.map((movie) => {
-                const poster = getPoster(movie);
-                const vote = votesByMovie[movie.id_movie];
-                return (
-                  <button
-                    key={`approved-${movie.id_movie}`}
-                    type="button"
-                    onClick={() => setSelectedMovie(movie)}
-                    className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
-                  >
-                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                      {poster ? (
-                        <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
-                      )}
-                    </div>
-                    <div className="mt-3">
-                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                        <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
-                        <span>{movie.main_language || "-"}</span>
-                        <span>{movie.nationality || "-"}</span>
-                        <span>{movie.selection_status || "submitted"}</span>
-                      </div>
-                      {vote && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
-                            Approuvé
+            {activeFolder === 'approved' && (
+              approvedAwaitingSecondVoteMovies.length === 0 ? (
+                <p className="text-center text-gray-400 py-12">Aucun film approuvé pour le moment.</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {approvedAwaitingSecondVoteMovies.map((movie) => {
+                    const poster = getPoster(movie);
+                    return (
+                      <button
+                        key={`approved-${movie.id_movie}`}
+                        type="button"
+                        onClick={() => setSelectedMovie(movie)}
+                        className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group relative"
+                      >
+                        <div className="absolute top-1 right-1 z-10">
+                          <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                            ★
                           </span>
-                          {vote.modification_count > 0 && (
-                            <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-1 rounded">
-                              Modifié {vote.modification_count}×
-                            </span>
+                        </div>
+                        <div className="aspect-video bg-gray-800 relative">
+                          {poster ? (
+                            <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                              </svg>
+                            </div>
                           )}
                         </div>
-                      )}
-                      {vote && (
-                        <div className="mt-2 text-xs text-gray-300">
-                          <div className="font-semibold text-gray-200">Voto precedente:</div>
-                          <div className="text-gray-400">Nota: {vote.note}</div>
-                          {vote.commentaire && (
-                            <div className="text-gray-400 line-clamp-2">Commento: {vote.commentaire}</div>
-                          )}
+                        <div className="p-2">
+                          <h3 className="text-sm font-semibold text-white truncate group-hover:text-[#AD46FF] transition">
+                            {movie.title}
+                          </h3>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {movie.duration}s • {movie.main_language || "-"}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                      </button>
+                    );
+                  })}
+                </div>
+              )
+            )}
+          </div>
+        )}
+      </div>
 
-
-        {selectedMovie && (
+      {selectedMovie && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
             <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
               <div className="flex items-center justify-between">
@@ -503,7 +575,6 @@ export default function JuryHome() {
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 }
