@@ -26,10 +26,12 @@ export default function AdminLayout() {
   const menuItems = [
     { path: "/admin", icon: "📊", label: "Overview", exact: true },
     { path: "/admin/movies", icon: "🎬", label: "Gestion films" },
+    { path: "/admin/categories", icon: "📂", label: "Catégories" },
+    { path: "/admin/awards", icon: "🏆", label: "Prix" },
     { path: "/admin/users", icon: "👥", label: "Gestion utilisateurs" },
     { path: "/admin/jury", icon: "👥", label: "Distribution & Jury" },
     { path: "/admin/results", icon: "📈", label: "Résultats & classement" },
-    { path: "/admin/leaderboard", icon: "🏆", label: "Leaderboard officiel" },
+    { path: "/admin/leaderboard", icon: "🎖️", label: "Leaderboard officiel" },
     { path: "/admin/events", icon: "📅", label: "Événements" },
     { path: "/admin/messages", icon: "✉️", label: "Messages", badge: 2 },
     { path: "/admin/festival-box", icon: "📦", label: "Festival Box" },

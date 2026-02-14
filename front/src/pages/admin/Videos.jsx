@@ -20,7 +20,6 @@ import {
 } from "../../api/videos.js";
 import { getUsers } from "../../api/users.js";
 import { getVotes } from "../../api/votes.js";
-import { createAward, getAwards, deleteAward } from "../../api/awards.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 
 /**
@@ -52,11 +51,6 @@ function Videos() {
     queryFn: getVotes,
   });
 
-  const { data: awardsData } = useQuery({
-    queryKey: ["awards"],
-    queryFn: getAwards,
-  });
-
   const categories = categoriesData?.data || [];
   const juries = useMemo(
     () => (usersData?.data || []).filter((user) => user.role === "JURY"),
@@ -66,8 +60,6 @@ function Videos() {
   const [categorySelection, setCategorySelection] = useState({});
   const [jurySelection, setJurySelection] = useState({});
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [awardName, setAwardName] = useState("");
-  const [awardMovieId, setAwardMovieId] = useState("");
   const [activeFolder, setActiveFolder] = useState(null);
   const [adminComment, setAdminComment] = useState("");
 
@@ -122,36 +114,6 @@ function Videos() {
     }
   });
 
-
-  const awardMutation = useMutation({
-    mutationFn: ({ id_movie, award_name }) => createAward(id_movie, award_name),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-      queryClient.invalidateQueries({ queryKey: ["awards"] });
-      setAwardName("");
-      const newAward = res?.data?.newAward;
-      if (newAward) {
-        setSelectedMovie((prev) => {
-          if (!prev || prev.id_movie !== newAward.id_movie) return prev;
-          const current = prev.Awards || [];
-          return { ...prev, Awards: [...current, newAward] };
-        });
-      }
-    }
-  });
-
-  const deleteAwardMutation = useMutation({
-    mutationFn: (id) => deleteAward(id),
-    onSuccess: (_res, id) => {
-      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-      queryClient.invalidateQueries({ queryKey: ["awards"] });
-      setSelectedMovie((prev) => {
-        if (!prev) return prev;
-        return { ...prev, Awards: (prev.Awards || []).filter((award) => award.id_award !== id) };
-      });
-    }
-  });
-
   const uploadBase = "http://localhost:3000/uploads";
   const getPoster = (movie) => (
     movie.thumbnail
@@ -196,13 +158,6 @@ function Videos() {
     return "NO";
   };
 
-  const awardsByMovie = useMemo(() => {
-    return (data?.data || []).reduce((acc, movie) => {
-      acc[movie.id_movie] = movie.Awards || [];
-      return acc;
-    }, {});
-  }, [data]);
-
   const voteSummaryByMovie = useMemo(() => {
     return votes.reduce((acc, vote) => {
       if (!acc[vote.id_movie]) {
@@ -236,8 +191,6 @@ function Videos() {
     if (!summary || summary.count === 0) return 0;
     return summary.average;
   };
-
-  const awardOptions = Array.from(new Set(awards.map((award) => award.award_name))).filter(Boolean);
 
   const filteredMovies = useMemo(() => {
     return data?.data || [];
@@ -283,25 +236,20 @@ function Videos() {
     return [...groupedMovies.voted, ...groupedMovies.approved];
   }, [groupedMovies]);
 
-  const renderVoteSummary = (summary) => {
-    if (!summary) return <span className="text-xs text-gray-500">Aucun vote</span>;
-    return (
-      <div className="text-xs text-gray-400 flex flex-wrap gap-3">
-        <span>👍 {summary.YES}</span>
-        <span>🗣️ {summary["TO DISCUSS"]}</span>
-        <span>👎 {summary.NO}</span>
-      </div>
-    );
-  };
-
-  const renderMovieCard = (movie, showActions = true) => {
+  const renderMovieCard = (movie, showActions = true, rank = null) => {
     const poster = getPoster(movie);
     const summary = voteSummaryByMovie[movie.id_movie];
-    const movieAwards = awardsByMovie[movie.id_movie] || [];
     const avgScore = summary ? summary.average.toFixed(1) : "-";
     
     return (
-      <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
+      <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden relative">
+        {rank !== null && (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+              #{rank}
+            </span>
+          </div>
+        )}
         <button
           type="button"
           onClick={() => setSelectedMovie(movie)}
@@ -322,18 +270,6 @@ function Videos() {
               <span>🗣️ {summary?.["TO DISCUSS"] || 0}</span>
               <span>👎 {summary?.NO || 0}</span>
             </div>
-            {movieAwards.length > 0 && (
-              <div className="mt-0.5 flex flex-wrap gap-1">
-                {movieAwards.slice(0, 2).map((award) => (
-                  <span key={`award-${award.id_award}`} className="text-[9px] bg-purple-900/40 text-purple-200 px-1 py-0.5 rounded">
-                    {award.award_name}
-                  </span>
-                ))}
-                {movieAwards.length > 2 && (
-                  <span className="text-[9px] text-gray-500">+{movieAwards.length - 2}</span>
-                )}
-              </div>
-            )}
           </div>
         </button>
         {showActions && (
@@ -366,7 +302,14 @@ function Videos() {
 
   // État de chargement - affiche un message en attente des données
   if (isPending) {
-    return <div className="text-gray-300">Chargement en cours...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#AD46FF] mx-auto mb-4"></div>
+          <p className="text-gray-300">Chargement en cours...</p>
+        </div>
+      </div>
+    );
   }
 
   // État d'erreur - affiche le message d'erreur si la requête échoue
@@ -471,71 +414,8 @@ function Videos() {
                 reviewMovies.length === 0 ? (
                   <p className="text-center text-gray-400 py-12">Aucun film en évaluation.</p>
                 ) : (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                      {reviewMovies.map(({ movie }) => renderMovieCard(movie))}
-                    </div>
-
-                    <section className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-                      <h3 className="text-lg font-semibold text-white mb-4">CRUD Prix (films approuvés)</h3>
-                      {groupedMovies.approved.length === 0 ? (
-                        <p className="text-gray-400 text-sm">Aucun film approuvé pour attribuer un prix.</p>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <select
-                              value={awardMovieId}
-                              onChange={(event) => setAwardMovieId(event.target.value)}
-                              className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
-                            >
-                              <option value="">Sélectionner un film approuvé</option>
-                              {groupedMovies.approved.map(({ movie }) => (
-                                <option key={`approved-award-${movie.id_movie}`} value={movie.id_movie}>
-                                  {movie.title}
-                                </option>
-                              ))}
-                            </select>
-                            <input
-                              value={awardName}
-                              onChange={(event) => setAwardName(event.target.value)}
-                              list="award-names"
-                              placeholder="Nom du prix"
-                              className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!awardMovieId || !awardName.trim()) return;
-                                awardMutation.mutate({ id_movie: Number(awardMovieId), award_name: awardName.trim() });
-                              }}
-                              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                            >
-                              Assigner le prix
-                            </button>
-                          </div>
-
-                          {awardMovieId && (
-                            <div className="flex flex-wrap gap-2">
-                              {(awardsByMovie[Number(awardMovieId)] || []).length === 0 ? (
-                                <span className="text-sm text-gray-400">Aucun prix attribué pour ce film.</span>
-                              ) : (
-                                (awardsByMovie[Number(awardMovieId)] || []).map((award) => (
-                                  <button
-                                    key={`award-chip-${award.id_award}`}
-                                    type="button"
-                                    onClick={() => deleteAwardMutation.mutate(award.id_award)}
-                                    className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full hover:bg-purple-900/70"
-                                    title="Supprimer le prix"
-                                  >
-                                    {award.award_name} ✕
-                                  </button>
-                                ))
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </section>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {reviewMovies.map(({ movie }, index) => renderMovieCard(movie, true, index + 1))}
                   </div>
                 )
               )}
@@ -561,25 +441,13 @@ function Videos() {
           <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
-                    setSelectedMovie(null);
-                  }}
-                  className="px-3 py-1.5 bg-red-600/80 text-white rounded-lg text-xs font-semibold hover:bg-red-600"
-                >
-                  Archiver / Refuser
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedMovie(null)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedMovie(null)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
             </div>
 
             <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
@@ -748,84 +616,98 @@ function Videos() {
             </div>
 
             <div className="mt-4 border-t border-gray-800 pt-4">
-              <h4 className="text-sm uppercase text-gray-400 mb-3">Votes du jury</h4>
+              <h4 className="text-sm uppercase text-gray-400 mb-3">Évaluation & Classifica</h4>
               {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).length === 0 ? (
                 <p className="text-gray-500 text-sm">Aucun vote pour le moment.</p>
               ) : (
                 <div className="space-y-3">
-                  {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => {
-                    const isModified = vote.modification_count > 0;
-                    const createdDate = new Date(vote.createdAt).toLocaleDateString('fr-FR');
-                    const updatedDate = new Date(vote.updatedAt).toLocaleDateString('fr-FR');
-                    
-                    return (
-                      <div key={`vote-${vote.id_vote}`} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
-                        <div className="flex items-center justify-between text-sm text-gray-300 mb-2">
-                          <div className="flex items-center gap-2">
-                            <span>{vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}</span>
-                            {isModified && (
-                              <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-0.5 rounded">
-                                Modifié {vote.modification_count}×
-                              </span>
-                            )}
-                          </div>
-                          <span className="font-semibold text-white">{voteLabels[getVoteCategory(vote.note)] || vote.note}</span>
+                  {/* Score moyen et actions */}
+                  <div className="bg-gradient-to-r from-[#AD46FF]/20 to-[#F6339A]/20 border border-[#AD46FF] rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <p className="text-xs text-gray-400 uppercase mb-1">Score moyen</p>
+                          <p className="text-3xl font-bold text-white">
+                            {voteSummaryByMovie[selectedMovie.id_movie].average.toFixed(2)}
+                          </p>
+                          <p className="text-xs text-gray-300 mt-1">
+                            {voteSummaryByMovie[selectedMovie.id_movie].count} vote{voteSummaryByMovie[selectedMovie.id_movie].count > 1 ? 's' : ''}
+                          </p>
                         </div>
-                        {vote.commentaire && <p className="text-sm text-gray-400 mt-2">{vote.commentaire}</p>}
-                        <div className="mt-2 text-xs text-gray-500 flex gap-3">
-                          <span>Créé: {createdDate}</span>
-                          {isModified && <span>Modifié: {updatedDate}</span>}
+                        <div className="flex gap-4 text-sm">
+                          <div className="text-center">
+                            <p className="text-green-400 font-semibold text-xl">{voteSummaryByMovie[selectedMovie.id_movie].YES}</p>
+                            <p className="text-xs text-gray-400">👍 Validé</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-yellow-400 font-semibold text-xl">{voteSummaryByMovie[selectedMovie.id_movie]["TO DISCUSS"]}</p>
+                            <p className="text-xs text-gray-400">🗣️ À discuter</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-red-400 font-semibold text-xl">{voteSummaryByMovie[selectedMovie.id_movie].NO}</p>
+                            <p className="text-xs text-gray-400">👎 Refusé</p>
+                          </div>
                         </div>
                       </div>
-                    );
-                  })}
+                      {selectedMovie.selection_status !== "selected" && selectedMovie.selection_status !== "refused" && (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              statusMutation.mutate({ id: selectedMovie.id_movie, status: "selected" });
+                              setSelectedMovie(null);
+                            }}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
+                          >
+                            ✓ Approuver
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
+                              setSelectedMovie(null);
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold"
+                          >
+                            ✕ Refuser
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Liste des votes individuels */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-400 uppercase">Détail des votes</p>
+                    {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => {
+                      const isModified = vote.modification_count > 0;
+                      const createdDate = new Date(vote.createdAt).toLocaleDateString('fr-FR');
+                      const updatedDate = new Date(vote.updatedAt).toLocaleDateString('fr-FR');
+                      
+                      return (
+                        <div key={`vote-${vote.id_vote}`} className="bg-gray-900 border border-gray-800 rounded-lg p-3">
+                          <div className="flex items-center justify-between text-sm text-gray-300 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">{vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}</span>
+                              {isModified && (
+                                <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-0.5 rounded">
+                                  Modifié {vote.modification_count}×
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-semibold text-white">{voteLabels[getVoteCategory(vote.note)] || vote.note}</span>
+                          </div>
+                          {vote.commentaire && <p className="text-sm text-gray-400 mt-2">{vote.commentaire}</p>}
+                          <div className="mt-2 text-xs text-gray-500 flex gap-3">
+                            <span>Créé: {createdDate}</span>
+                            {isModified && <span>Modifié: {updatedDate}</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
-            </div>
-
-            <div className="mt-6 border-t border-gray-800 pt-6">
-              <h4 className="text-sm uppercase text-gray-400 mb-3">Prix</h4>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {(selectedMovie.Awards || []).length === 0 ? (
-                  <p className="text-gray-500 text-sm">Aucun prix attribué.</p>
-                ) : (
-                  selectedMovie.Awards.map((award) => (
-                    <button
-                      key={`award-${award.id_award}`}
-                      type="button"
-                      onClick={() => deleteAwardMutation.mutate(award.id_award)}
-                      className="text-xs bg-purple-900/40 text-purple-200 px-2 py-1 rounded-full hover:bg-purple-900/70"
-                      title="Supprimer le prix"
-                    >
-                      {award.award_name} ✕
-                    </button>
-                  ))
-                )}
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <input
-                  value={awardName}
-                  onChange={(event) => setAwardName(event.target.value)}
-                  list="award-names"
-                  placeholder="Nom du prix"
-                  className="bg-gray-900 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                />
-                <datalist id="award-names">
-                  {awardOptions.map((name) => (
-                    <option key={`award-option-${name}`} value={name} />
-                  ))}
-                </datalist>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!awardName.trim()) return;
-                    awardMutation.mutate({ id_movie: selectedMovie.id_movie, award_name: awardName.trim() });
-                  }}
-                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Attribuer le prix
-                </button>
-              </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
@@ -838,7 +720,6 @@ function Videos() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -37,6 +37,8 @@ import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
+import Categories from "./pages/admin/Categories.jsx";
+import Awards from "./pages/admin/Awards.jsx";
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
@@ -97,6 +99,12 @@ createRoot(document.getElementById("root")).render(
             {/* Gestion des vidéos sera ajoutée ici */}
 
             <Route path="movies" element={<Videos />} />
+            
+            {/* Gestion des catégories */}
+            <Route path="categories" element={<Categories />} />
+            
+            {/* Gestion des prix */}
+            <Route path="awards" element={<Awards />} />
           </Route>
 
           {/* ========================================
