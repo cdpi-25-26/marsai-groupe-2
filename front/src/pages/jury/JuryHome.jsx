@@ -412,10 +412,42 @@ export default function JuryHome() {
                 </button>
               </div>
 
-              <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
+              <div className="mt-3 space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+                <p className="text-gray-400 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                  <h4 className="text-xs uppercase text-gray-400 mb-2">Producteur</h4>
+                  <div className="text-xs text-gray-300 grid grid-cols-2 gap-2">
+                    <div><span className="text-gray-400">Nom:</span> {(selectedMovie.User || selectedMovie.Producer) ? `${(selectedMovie.User || selectedMovie.Producer).first_name} ${(selectedMovie.User || selectedMovie.Producer).last_name}` : "-"}</div>
+                    <div><span className="text-gray-400">Email:</span> {(selectedMovie.User || selectedMovie.Producer)?.email || "-"}</div>
+                    <div><span className="text-gray-400">Source:</span> {(selectedMovie.User || selectedMovie.Producer)?.known_by_mars_ai || "-"}</div>
+                  </div>
+                  </div>
+
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                  <h4 className="text-xs uppercase text-gray-400 mb-2">IA & METHODOLOGIE</h4>
+                  <div className="text-xs text-gray-300 grid grid-cols-2 gap-2">
+                    <div><span className="text-gray-400">Classification:</span> {selectedMovie.production || "-"}</div>
+                    <div><span className="text-gray-400">Methodologie:</span> {selectedMovie.workshop || "-"}</div>
+                    <div className="col-span-2"><span className="text-gray-400">Outil IA:</span> {selectedMovie.ai_tool || "-"}</div>
+                  </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                  <h4 className="text-xs uppercase text-gray-400 mb-2">Synopsis (FR)</h4>
+                  <p className="text-xs text-gray-300">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
+                  </div>
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                  <h4 className="text-xs uppercase text-gray-400 mb-2">Synopsis (EN)</h4>
+                  <p className="text-xs text-gray-300">{selectedMovie.synopsis_anglais || "-"}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-3 text-xs text-gray-300">
                     <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
                     <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
@@ -470,9 +502,9 @@ export default function JuryHome() {
                     )}
                   </div>
                 )}
-              </div>
+                </div>
 
-              <div className="mt-3 border-t border-gray-800 pt-3">
+              <div className="border-t border-gray-800 pt-3">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-base font-semibold text-white">Votre vote</h4>
                   {votesByMovie[selectedMovie.id_movie] && (
@@ -485,7 +517,7 @@ export default function JuryHome() {
                           Modifié {votesByMovie[selectedMovie.id_movie].modification_count}×
                         </span>
                       )}
-                      {selectedMovie.selection_status === "selected" && (
+                      {(selectedMovie.selection_status === "selected" || selectedMovie.selection_status === "to_discuss") && (
                         <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
                           ✓ Modifiable
                         </span>
@@ -575,6 +607,7 @@ export default function JuryHome() {
                   </button>
                 </form>
               </div>
+            </div>
             </div>
           </div>
         )}

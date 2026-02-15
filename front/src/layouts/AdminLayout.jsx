@@ -27,7 +27,7 @@ export default function AdminLayout() {
     { path: "/admin", icon: "📊", label: "Overview", exact: true },
     { path: "/admin/movies", icon: "🎬", label: "Gestion films" },
     { path: "/admin/categories", icon: "📂", label: "Catégories" },
-    { path: "/admin/awards", icon: "🏆", label: "Prix" },
+    { path: "/admin/awards", icon: "🏆", label: "Films premiés" },
     { path: "/admin/users", icon: "👥", label: "Gestion utilisateurs" },
     { path: "/admin/jury", icon: "👥", label: "Distribution & Jury" },
     { path: "/admin/results", icon: "📈", label: "Résultats & classement" },
