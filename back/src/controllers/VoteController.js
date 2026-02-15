@@ -151,6 +151,16 @@ function deleteVote(req, res) {
         .catch(err => res.status(500).json({ error: err.message }));
 }
 
+function deleteVotesByMovie(req, res) {
+    const { id_movie } = req.params;
+
+    Vote.destroy({ where: { id_movie } })
+        .then((deletedCount) => {
+            res.status(200).json({ message: "Votes supprimés", deletedCount });
+        })
+        .catch(err => res.status(500).json({ error: err.message }));
+}
+
 function updateVote(req, res) {
     const { id_vote } = req.params;
     let { note, commentaire } = req.body;
@@ -197,5 +207,6 @@ export default {
     deleteVote,
     updateVote,
     getVoteById,
-    findVoteByNote
+    findVoteByNote,
+    deleteVotesByMovie
 };

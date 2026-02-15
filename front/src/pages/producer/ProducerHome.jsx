@@ -440,15 +440,16 @@ export default function ProducerHome() {
                           <div><span className="text-gray-400">Durée:</span> {movie.duration || movie.durationSeconds}s</div>
                           <div><span className="text-gray-400">Langue:</span> {movie.main_language || movie.filmLanguage || "-"}</div>
                           <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
-                          <div className="pt-2">
+                          <div className="pt-2 flex items-center gap-2">
+                            <span className="text-gray-400">Statut:</span>
                             <span className={`inline-block px-2 py-1 rounded text-white text-xs font-semibold ${
-                              movie.selection_status === "accepted" ? "bg-green-600" :
-                              movie.selection_status === "rejected" ? "bg-red-600" :
+                              movie.selection_status === "selected" ? "bg-green-600" :
+                              movie.selection_status === "refused" ? "bg-red-600" :
                               "bg-yellow-600"
                             }`}>
-                              {movie.selection_status === "accepted" ? "Accepté" :
-                               movie.selection_status === "rejected" ? "Rejeté" :
-                               "Soumis"}
+                              {movie.selection_status === "selected" ? "Approuvé" :
+                               movie.selection_status === "refused" ? "Refusé" :
+                               "En attente"}
                             </span>
                           </div>
                         </div>
