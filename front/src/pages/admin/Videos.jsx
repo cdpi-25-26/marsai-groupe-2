@@ -1076,6 +1076,20 @@ function Videos() {
                               <span className="font-semibold text-white">{voteLabels[getVoteCategory(vote.note)] || vote.note}</span>
                             </div>
                             {vote.commentaire && <p className="text-[11px] text-gray-400 line-clamp-2">{vote.commentaire}</p>}
+                            {(vote.history || []).length > 0 && (
+                              <div className="mt-2 border-t border-gray-800 pt-2">
+                                <p className="text-[10px] uppercase text-gray-500 mb-1">Historique</p>
+                                <div className="space-y-1">
+                                  {vote.history.map((entry, index) => (
+                                    <div key={`vote-history-${vote.id_vote}-${entry.id_vote_history || index}`} className="text-[11px] text-gray-400">
+                                      <span className="text-gray-500">Vote {index + 1}:</span>{" "}
+                                      <span className="text-gray-300">{voteLabels[getVoteCategory(entry.note)] || entry.note}</span>
+                                      {entry.commentaire ? ` — ${entry.commentaire}` : ""}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         );
                       })}

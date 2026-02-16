@@ -20,6 +20,7 @@ export default function JuryHome() {
   const [votesByMovie, setVotesByMovie] = useState({});
   const [voteForm, setVoteForm] = useState({ note: "", commentaire: "" });
   const [voteFeedback, setVoteFeedback] = useState(null);
+  const [voteNotice, setVoteNotice] = useState(null);
   const [voteLoading, setVoteLoading] = useState(false);
   const [hasWatched, setHasWatched] = useState(false);
   const [confirmedWatched, setConfirmedWatched] = useState(false);
@@ -66,6 +67,12 @@ export default function JuryHome() {
   }, [archivedMovieIds]);
 
   useEffect(() => {
+    if (!voteNotice) return;
+    const timeoutId = setTimeout(() => setVoteNotice(null), 4000);
+    return () => clearTimeout(timeoutId);
+  }, [voteNotice]);
+
+  useEffect(() => {
     if (selectedMovie) {
       const existingVote = votesByMovie[selectedMovie.id_movie];
       if (existingVote) {
@@ -78,6 +85,7 @@ export default function JuryHome() {
       }
       setHasWatched(false);
       setConfirmedWatched(false);
+      setVoteFeedback(null);
     }
   }, [selectedMovie, votesByMovie]);
 
@@ -134,26 +142,48 @@ export default function JuryHome() {
     setVoteFeedback(null);
     setVoteLoading(true);
     try {
+      const existingVote = votesByMovie[selectedMovie.id_movie];
+      const isSecondVoteOpen = selectedMovie.selection_status === "selected" || selectedMovie.selection_status === "to_discuss";
+      if (existingVote && !isSecondVoteOpen) {
+        setVoteFeedback("Le second vote n'est pas encore ouvert pour ce film.");
+        return;
+      }
       const res = await submitMyVote(selectedMovie.id_movie, voteForm);
       const vote = res.data?.vote;
       if (vote) {
-        setVotesByMovie((prev) => ({ ...prev, [vote.id_movie]: vote }));
         setArchivedMovieIds((prev) => (prev.includes(vote.id_movie) ? prev : [...prev, vote.id_movie]));
-        setSelectedMovie(null);
       }
+      const refreshedVotes = await getMyVotes();
+      const mapped = (refreshedVotes.data || []).reduce((acc, item) => {
+        acc[item.id_movie] = item;
+        return acc;
+      }, {});
+      setVotesByMovie(mapped);
       setVoteFeedback("Vote enregistré.");
+      setVoteNotice("Vote enregistré avec succès.");
     } catch (err) {
-      setVoteFeedback("Erreur lors de l'enregistrement du vote.");
+      const message = err?.response?.data?.error || "Erreur lors de l'enregistrement du vote.";
+      setVoteFeedback(message);
     } finally {
       setVoteLoading(false);
     }
   }
 
-  const voteAllowed = selectedMovie
-    ? getTrailer(selectedMovie)
-      ? hasWatched
-      : confirmedWatched
+  const selectedVote = selectedMovie ? votesByMovie[selectedMovie.id_movie] : null;
+  const isSecondVoteOpen = selectedMovie
+    ? selectedMovie.selection_status === "selected" || selectedMovie.selection_status === "to_discuss"
     : false;
+  const canEditVote = selectedMovie ? !selectedVote || isSecondVoteOpen : false;
+  const voteAllowed = selectedMovie
+    ? (getTrailer(selectedMovie) ? hasWatched : confirmedWatched) && canEditVote
+    : false;
+
+  const voteLabels = {
+    1: "Refusé",
+    2: "À discuter",
+    3: "Validé"
+  };
+  const getVoteLabel = (note) => voteLabels[Number(note)] || note;
 
   const awaitingVoteMovies = assignedMovies.filter(
     (movie) => !votesByMovie[movie.id_movie]
@@ -172,6 +202,12 @@ export default function JuryHome() {
           <h1 className="text-4xl font-bold text-[#AD46FF]">Espace Jury</h1>
           <p className="text-gray-400 mt-2">Bienvenue {user.first_name} {user.last_name}</p>
         </div>
+
+        {voteNotice && (
+          <div className="bg-green-900/30 border border-green-600 text-green-300 px-4 py-3 rounded-lg mb-6">
+            {voteNotice}
+          </div>
+        )}
 
         {moviesError && (
           <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg mb-6">
@@ -398,9 +434,9 @@ export default function JuryHome() {
         )}
       </div>
 
-      {selectedMovie && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
+        {selectedMovie && (
+          <div className="fixed inset-0 z-50 bg-black/70 overflow-y-auto flex items-start justify-center p-4">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden p-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
                 <button
@@ -412,7 +448,7 @@ export default function JuryHome() {
                 </button>
               </div>
 
-              <div className="mt-3 space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+              <div className="mt-3 space-y-3">
                 <p className="text-gray-400 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -517,7 +553,7 @@ export default function JuryHome() {
                           Modifié {votesByMovie[selectedMovie.id_movie].modification_count}×
                         </span>
                       )}
-                      {(selectedMovie.selection_status === "selected" || selectedMovie.selection_status === "to_discuss") && (
+                      {isSecondVoteOpen && (
                         <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
                           ✓ Modifiable
                         </span>
@@ -525,6 +561,42 @@ export default function JuryHome() {
                     </div>
                   )}
                 </div>
+
+                {selectedVote?.history?.length > 0 && (
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2 mb-3">
+                    <h5 className="text-xs uppercase text-gray-400 mb-2">Historique des votes</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-300">
+                      {selectedVote.history.map((entry, index) => (
+                        <div key={`history-${entry.id_vote_history || index}`} className="bg-gray-950 border border-gray-800 rounded-lg p-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-gray-400">Vote {index + 1}</span>
+                            <span className="font-semibold text-white">{getVoteLabel(entry.note)}</span>
+                          </div>
+                          {entry.commentaire && (
+                            <p className="text-[11px] text-gray-400 line-clamp-2">{entry.commentaire}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedVote && (
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2 mb-3">
+                    <h5 className="text-xs uppercase text-gray-400 mb-2">Vote actuel</h5>
+                    <div className="flex items-center justify-between text-xs text-gray-300">
+                      <span>{getVoteLabel(selectedVote.note)}</span>
+                      {selectedVote.modification_count > 0 && (
+                        <span className="text-[10px] bg-orange-900/40 text-orange-200 px-2 py-0.5 rounded">
+                          Modifié {selectedVote.modification_count}x
+                        </span>
+                      )}
+                    </div>
+                    {selectedVote.commentaire && (
+                      <p className="text-[11px] text-gray-400 line-clamp-2 mt-1">{selectedVote.commentaire}</p>
+                    )}
+                  </div>
+                )}
 
                 {getTrailer(selectedMovie) ? (
                   <p className="text-xs text-gray-400 mb-2">
@@ -543,6 +615,11 @@ export default function JuryHome() {
                 )}
 
                 {voteFeedback && <p className="text-xs text-gray-300 mb-2">{voteFeedback}</p>}
+                {!canEditVote && selectedVote && (
+                  <p className="text-xs text-orange-200 bg-orange-900/30 border border-orange-700/50 px-3 py-2 rounded-lg mb-2">
+                    Le second vote n'est pas encore ouvert. Votre vote actuel est enregistré.
+                  </p>
+                )}
 
                 <form onSubmit={handleVoteSubmit} className="space-y-3">
                   <div className="flex flex-col gap-2">

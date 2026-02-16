@@ -1,13 +1,14 @@
 import db from "../models/index.js";
 
-const { Vote, MovieJury, User, Movie } = db;
+const { Vote, VoteHistory, MovieJury, User, Movie } = db;
 
 async function getVote(req, res) {
     try {
         const votes = await Vote.findAll({
             include: [
                 { model: User, attributes: ["id_user", "first_name", "last_name", "email"], required: false },
-                { model: Movie, attributes: ["id_movie", "title"], required: false }
+                { model: Movie, attributes: ["id_movie", "title"], required: false },
+                { model: VoteHistory, as: "history", required: false, separate: true, order: [["createdAt", "ASC"]] }
             ]
         });
         return res.json(votes);
@@ -48,7 +49,8 @@ async function getMyVotes(req, res) {
         const votes = await Vote.findAll({
             where: { id_user },
             include: [
-                { model: Movie, attributes: ["id_movie", "title"], required: false }
+                { model: Movie, attributes: ["id_movie", "title"], required: false },
+                { model: VoteHistory, as: "history", required: false, separate: true, order: [["createdAt", "ASC"]] }
             ]
         });
         return res.json(votes);
@@ -66,7 +68,8 @@ async function getMyVoteByMovie(req, res) {
         const vote = await Vote.findOne({
             where: { id_user, id_movie },
             include: [
-                { model: Movie, attributes: ["id_movie", "title"], required: false }
+                { model: Movie, attributes: ["id_movie", "title"], required: false },
+                { model: VoteHistory, as: "history", required: false, separate: true, order: [["createdAt", "ASC"]] }
             ]
         });
         if (!vote) {
@@ -112,8 +115,22 @@ async function createOrUpdateMyVote(req, res) {
                 existingVote.modification_count = (existingVote.modification_count || 0) + 1;
             }
             
+            const normalizedComment = String(commentaire || "");
+            const existingComment = String(existingVote.commentaire || "");
+            const hasChanges = Number(existingVote.note) !== noteFloat || existingComment !== normalizedComment;
+
+            if (hasChanges) {
+                await VoteHistory.create({
+                    id_vote: existingVote.id_vote,
+                    id_movie,
+                    id_user,
+                    note: existingVote.note,
+                    commentaire: existingVote.commentaire
+                });
+            }
+
             existingVote.note = noteFloat;
-            existingVote.commentaire = commentaire;
+            existingVote.commentaire = normalizedComment;
             await existingVote.save();
             return res.json({ 
                 message: "Vote mis à jour", 
