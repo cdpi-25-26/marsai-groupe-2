@@ -11,6 +11,10 @@ import Reassure from "../../components/home/Reassure";
 import Goals from "../../components/home/Goals";
 import Protocole from "../../components/home/Protocole";
 import Program from "../../components/home/program";
+import Party from "../../components/home/Party";
+import Promoters from "../../components/home/Promoters";
+import Localisation from "../../components/home/Localisation";
+import Statistics from "../../components/home/Statistics";
 import "./Home.css";
 
 /**
@@ -34,6 +38,11 @@ function Home() {
       <Goals />
       <Protocole />
       <Program />
+      <Party />
+      <Promoters />
+      <Localisation />
+      <Statistics />
+
     </>
   );
 }

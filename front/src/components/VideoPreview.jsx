@@ -112,7 +112,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export function VideoPreview({ src, poster, title }) {
+export function VideoPreview({ src, poster, title, onEnded }) {
   const videoRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
