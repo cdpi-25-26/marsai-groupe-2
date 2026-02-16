@@ -1,0 +1,18 @@
+[
+  {
+    "image": "topito",
+    "title": "Topito",
+    "description": "Humour & culture pop",
+    "accentColor": "#4da6ff",
+    "borderColor": "border-blue-400/40",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.4)]"
+  },
+  {
+    "image": "bioguia",
+    "title": "Bioguia",
+    "description": "Écologie & bien-être",
+    "accentColor": "#7ed957",
+    "borderColor": "border-green-400/40",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(126,217,87,0.4)]"
+  }
+]
