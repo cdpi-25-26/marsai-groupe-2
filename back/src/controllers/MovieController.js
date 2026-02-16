@@ -1,6 +1,7 @@
 import db from "../models/index.js";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
+import { Op } from "sequelize";
 
 const {
   Movie,
@@ -420,9 +421,18 @@ async function deleteMovie(req, res) {
 async function updateMovieStatus(req, res) {
   try {
     const { id } = req.params;
-    const { selection_status } = req.body;
+    const { selection_status, jury_comment } = req.body;
 
-    const allowed = ["submitted", "refused", "to_discuss", "selected", "finalist"];
+    const allowed = [
+      "submitted",
+      "assigned",
+      "to_discuss",
+      "candidate",
+      "awarded",
+      "refused",
+      "selected",
+      "finalist"
+    ];
     if (!allowed.includes(selection_status)) {
       return res.status(400).json({ error: "Statut invalide" });
     }
@@ -433,6 +443,9 @@ async function updateMovieStatus(req, res) {
     }
 
     movie.selection_status = selection_status;
+    if (typeof jury_comment === "string" && jury_comment.trim()) {
+      movie.jury_comment = jury_comment.trim();
+    }
     await movie.save();
 
     res.json({ message: "Statut mis à jour", movie });
@@ -448,6 +461,11 @@ async function getAssignedMovies(req, res) {
     const id_user = req.user.id_user;
 
     const movies = await Movie.findAll({
+      where: {
+        selection_status: {
+          [Op.in]: ["assigned", "to_discuss", "candidate", "selected", "finalist"]
+        }
+      },
       include: [
         {
           model: Categorie,
@@ -456,6 +474,10 @@ async function getAssignedMovies(req, res) {
         {
           model: Collaborator,
           through: { attributes: [] }
+        },
+        {
+          model: Award,
+          required: false
         },
         {
           model: User,

@@ -108,7 +108,7 @@ async function createOrUpdateMyVote(req, res) {
         if (existingVote) {
             // Verifica se il film è stato approvato dall'admin
             const movie = await Movie.findByPk(id_movie);
-            const isApproved = movie?.selection_status === 'selected' || movie?.selection_status === 'to_discuss';
+            const isApproved = movie?.selection_status === 'to_discuss';
             
             // Incrementa il counter solo se il film è già approvato
             if (isApproved) {

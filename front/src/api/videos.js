@@ -25,8 +25,8 @@ async function getAssignedMovies() {
  * Met à jour le statut d'un film
  * Endpoint: PUT /movies/:id/status
  */
-async function updateMovieStatus(id, selection_status) {
-  return await instance.put(`movies/${id}/status`, { selection_status });
+async function updateMovieStatus(id, selection_status, payload = {}) {
+  return await instance.put(`movies/${id}/status`, { selection_status, ...payload });
 }
 
 /**

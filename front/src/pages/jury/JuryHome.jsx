@@ -6,7 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "../../api/users";
-import { getAssignedMovies } from "../../api/videos";
+import { getAssignedMovies, updateMovieStatus } from "../../api/videos";
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 
@@ -21,6 +21,7 @@ export default function JuryHome() {
   const [voteForm, setVoteForm] = useState({ note: "", commentaire: "" });
   const [voteFeedback, setVoteFeedback] = useState(null);
   const [voteNotice, setVoteNotice] = useState(null);
+  const [modalNotice, setModalNotice] = useState(null);
   const [voteLoading, setVoteLoading] = useState(false);
   const [hasWatched, setHasWatched] = useState(false);
   const [confirmedWatched, setConfirmedWatched] = useState(false);
@@ -71,6 +72,12 @@ export default function JuryHome() {
     const timeoutId = setTimeout(() => setVoteNotice(null), 4000);
     return () => clearTimeout(timeoutId);
   }, [voteNotice]);
+
+  useEffect(() => {
+    if (!modalNotice) return;
+    const timeoutId = setTimeout(() => setModalNotice(null), 4000);
+    return () => clearTimeout(timeoutId);
+  }, [modalNotice]);
 
   useEffect(() => {
     if (selectedMovie) {
@@ -136,6 +143,15 @@ export default function JuryHome() {
     setVoteForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  async function refreshAssignedMovies() {
+    try {
+      const res = await getAssignedMovies();
+      setAssignedMovies(res.data || []);
+    } catch {
+      // ignore refresh errors
+    }
+  }
+
   async function handleVoteSubmit(e) {
     e.preventDefault();
     if (!selectedMovie) return;
@@ -143,7 +159,7 @@ export default function JuryHome() {
     setVoteLoading(true);
     try {
       const existingVote = votesByMovie[selectedMovie.id_movie];
-      const isSecondVoteOpen = selectedMovie.selection_status === "selected" || selectedMovie.selection_status === "to_discuss";
+        const isSecondVoteOpen = selectedMovie.selection_status === "to_discuss";
       if (existingVote && !isSecondVoteOpen) {
         setVoteFeedback("Le second vote n'est pas encore ouvert pour ce film.");
         return;
@@ -161,6 +177,8 @@ export default function JuryHome() {
       setVotesByMovie(mapped);
       setVoteFeedback("Vote enregistré.");
       setVoteNotice("Vote enregistré avec succès.");
+      setModalNotice("Vote enregistré avec succès.");
+      await refreshAssignedMovies();
     } catch (err) {
       const message = err?.response?.data?.error || "Erreur lors de l'enregistrement du vote.";
       setVoteFeedback(message);
@@ -169,14 +187,31 @@ export default function JuryHome() {
     }
   }
 
+  async function handlePromoteCandidate() {
+    if (!selectedMovie) return;
+    try {
+      const message = window.prompt("Message pour l'admin (optionnel):", "");
+      await updateMovieStatus(selectedMovie.id_movie, "candidate", {
+        jury_comment: message || ""
+      });
+      setModalNotice("Film promu à la candidature.");
+      await refreshAssignedMovies();
+      setSelectedMovie(null);
+    } catch (err) {
+      const message = err?.response?.data?.error || "Impossible de promouvoir le film.";
+      setVoteFeedback(message);
+    }
+  }
+
   const selectedVote = selectedMovie ? votesByMovie[selectedMovie.id_movie] : null;
   const isSecondVoteOpen = selectedMovie
-    ? selectedMovie.selection_status === "selected" || selectedMovie.selection_status === "to_discuss"
+    ? selectedMovie.selection_status === "to_discuss"
     : false;
   const canEditVote = selectedMovie ? !selectedVote || isSecondVoteOpen : false;
   const voteAllowed = selectedMovie
     ? (getTrailer(selectedMovie) ? hasWatched : confirmedWatched) && canEditVote
     : false;
+  const canPromoteCandidate = isSecondVoteOpen && selectedVote && (selectedVote.modification_count || 0) > 0;
 
   const voteLabels = {
     1: "Refusé",
@@ -185,15 +220,25 @@ export default function JuryHome() {
   };
   const getVoteLabel = (note) => voteLabels[Number(note)] || note;
 
-  const awaitingVoteMovies = assignedMovies.filter(
-    (movie) => !votesByMovie[movie.id_movie]
-  );
-  const votedAwaitingApprovalMovies = assignedMovies.filter(
-    (movie) => votesByMovie[movie.id_movie]
-  );
-  const approvedAwaitingSecondVoteMovies = assignedMovies.filter(
-    (movie) => movie.selection_status === "selected" && !votesByMovie[movie.id_movie]
-  );
+  const awaitingVoteMovies = assignedMovies.filter((movie) => {
+    const status = movie.selection_status || "submitted";
+    const vote = votesByMovie[movie.id_movie];
+    if (status === "assigned") return !vote;
+    if (status === "to_discuss") return !vote || (vote?.modification_count || 0) === 0;
+    return false;
+  });
+
+  const votedMovies = assignedMovies.filter((movie) => {
+    const status = movie.selection_status || "submitted";
+    const vote = votesByMovie[movie.id_movie];
+    if (status === "assigned") return Boolean(vote);
+    if (status === "to_discuss") return Boolean(vote) && (vote.modification_count || 0) > 0;
+    return false;
+  });
+
+  const candidateMovies = assignedMovies.filter((movie) => (
+    ["candidate", "selected", "finalist"].includes(movie.selection_status)
+  ));
 
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
@@ -218,7 +263,7 @@ export default function JuryHome() {
         {!activeFolder ? (
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
-            {/* Cartella 1: Film Assegnati Non Votati */}
+            {/* Cartella 1: Films à voter */}
             <button
               onClick={() => setActiveFolder('assigned')}
               className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
@@ -229,15 +274,15 @@ export default function JuryHome() {
                     <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">Films Assignés</h2>
-                <p className="text-gray-400 mb-4">En attente de vote</p>
+                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">À voter</h2>
+                <p className="text-gray-400 mb-4">1ère / 2e votation</p>
                 <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-full font-bold text-xl shadow-lg">
                   {awaitingVoteMovies.length}
                 </div>
               </div>
             </button>
 
-            {/* Cartella 2: Film Votati in Attesa di Approvazione */}
+            {/* Cartella 2: Films votés */}
             <button
               onClick={() => setActiveFolder('voted')}
               className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
@@ -248,15 +293,15 @@ export default function JuryHome() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">Films Votés</h2>
-                <p className="text-gray-400 mb-4">En attente d'approbation</p>
+                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">Votés</h2>
+                <p className="text-gray-400 mb-4">Votes enregistrés</p>
                 <div className="inline-block px-4 py-2 bg-gradient-to-r from-purple-700 to-[#AD46FF] text-white rounded-full font-bold text-xl shadow-lg">
-                  {votedAwaitingApprovalMovies.length}
+                  {votedMovies.length}
                 </div>
               </div>
             </button>
 
-            {/* Cartella 3: Film Approvati per Seconda Votazione */}
+            {/* Cartella 3: Films promus */}
             <button
               onClick={() => setActiveFolder('approved')}
               className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#F6339A]/20"
@@ -267,10 +312,10 @@ export default function JuryHome() {
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#F6339A] transition-colors">Films Approuvés</h2>
-                <p className="text-gray-400 mb-4">Seconde votation</p>
+                <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#F6339A] transition-colors">Candidats</h2>
+                <p className="text-gray-400 mb-4">Promus à la candidature</p>
                 <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#F6339A] to-pink-700 text-white rounded-full font-bold text-xl shadow-lg">
-                  {approvedAwaitingSecondVoteMovies.length}
+                  {candidateMovies.length}
                 </div>
               </div>
             </button>
@@ -290,9 +335,9 @@ export default function JuryHome() {
                 <span>Retour</span>
               </button>
               <h2 className="text-2xl font-bold text-white">
-                {activeFolder === 'assigned' && 'Films Assignés - En Attente de Vote'}
-                {activeFolder === 'voted' && 'Films Votés - En Attente d\'Approbation'}
-                {activeFolder === 'approved' && 'Films Approuvés - Seconde Votation'}
+                {activeFolder === 'assigned' && 'Films à voter'}
+                {activeFolder === 'voted' && 'Films votés'}
+                {activeFolder === 'approved' && 'Films candidats'}
               </h2>
               <div className="w-24"></div>
             </div>
@@ -300,7 +345,7 @@ export default function JuryHome() {
             {/* Griglia Film */}
             {activeFolder === 'assigned' && (
               awaitingVoteMovies.length === 0 ? (
-                <p className="text-center text-gray-400 py-12">Aucun film en attente de vote.</p>
+                <p className="text-center text-gray-400 py-12">Aucun film à voter.</p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                   {awaitingVoteMovies.map((movie) => {
@@ -310,8 +355,22 @@ export default function JuryHome() {
                         key={`awaiting-${movie.id_movie}`}
                         type="button"
                         onClick={() => setSelectedMovie(movie)}
-                        className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group"
+                        className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group relative"
                       >
+                        {((movie.Awards || []).length > 0 || movie.selection_status === "to_discuss") && (
+                          <div className="absolute top-1 left-1 z-10 flex flex-col gap-1">
+                            {(movie.Awards || []).length > 0 && (
+                              <span className="bg-yellow-500/90 text-black text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                🏆 {(movie.Awards || []).length}
+                              </span>
+                            )}
+                            {movie.selection_status === "to_discuss" && (
+                              <span className="bg-green-900/80 text-green-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                Second vote
+                              </span>
+                            )}
+                          </div>
+                        )}
                         <div className="aspect-video bg-gray-800 relative">
                           {poster ? (
                             <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
@@ -339,11 +398,11 @@ export default function JuryHome() {
             )}
 
             {activeFolder === 'voted' && (
-              votedAwaitingApprovalMovies.length === 0 ? (
-                <p className="text-center text-gray-400 py-12">Aucun film en attente d'approbation.</p>
+              votedMovies.length === 0 ? (
+                <p className="text-center text-gray-400 py-12">Aucun film voté.</p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {votedAwaitingApprovalMovies.map((movie) => {
+                  {votedMovies.map((movie) => {
                     const poster = getPoster(movie);
                     const vote = votesByMovie[movie.id_movie];
                     return (
@@ -353,6 +412,20 @@ export default function JuryHome() {
                         onClick={() => setSelectedMovie(movie)}
                         className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group relative"
                       >
+                        {((movie.Awards || []).length > 0 || movie.selection_status === "to_discuss") && (
+                          <div className="absolute top-1 left-1 z-10 flex flex-col gap-1">
+                            {(movie.Awards || []).length > 0 && (
+                              <span className="bg-yellow-500/90 text-black text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                🏆 {(movie.Awards || []).length}
+                              </span>
+                            )}
+                            {movie.selection_status === "to_discuss" && (
+                              <span className="bg-green-900/80 text-green-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                Second vote
+                              </span>
+                            )}
+                          </div>
+                        )}
                         {vote && (
                           <div className="absolute top-1 right-1 z-10">
                             <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
@@ -387,11 +460,11 @@ export default function JuryHome() {
             )}
 
             {activeFolder === 'approved' && (
-              approvedAwaitingSecondVoteMovies.length === 0 ? (
-                <p className="text-center text-gray-400 py-12">Aucun film approuvé pour le moment.</p>
+              candidateMovies.length === 0 ? (
+                <p className="text-center text-gray-400 py-12">Aucun film candidat pour le moment.</p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {approvedAwaitingSecondVoteMovies.map((movie) => {
+                  {candidateMovies.map((movie) => {
                     const poster = getPoster(movie);
                     return (
                       <button
@@ -400,6 +473,20 @@ export default function JuryHome() {
                         onClick={() => setSelectedMovie(movie)}
                         className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition group relative"
                       >
+                        {((movie.Awards || []).length > 0 || movie.selection_status === "to_discuss") && (
+                          <div className="absolute top-1 left-1 z-10 flex flex-col gap-1">
+                            {(movie.Awards || []).length > 0 && (
+                              <span className="bg-yellow-500/90 text-black text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                🏆 {(movie.Awards || []).length}
+                              </span>
+                            )}
+                            {movie.selection_status === "to_discuss" && (
+                              <span className="bg-green-900/80 text-green-200 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                                Second vote
+                              </span>
+                            )}
+                          </div>
+                        )}
                         <div className="absolute top-1 right-1 z-10">
                           <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
                             ★
@@ -435,10 +522,22 @@ export default function JuryHome() {
       </div>
 
         {selectedMovie && (
-          <div className="fixed inset-0 z-50 bg-black/70 overflow-y-auto flex items-start justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden p-4">
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-7xl max-h-[92vh] overflow-hidden p-5">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
+                <div className="flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
+                  {isSecondVoteOpen && (
+                    <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
+                      Mode second vote
+                    </span>
+                  )}
+                  {(selectedMovie.Awards || []).length > 0 && (
+                    <span className="text-xs bg-yellow-500/90 text-black px-2 py-1 rounded font-bold">
+                      🏆 {(selectedMovie.Awards || []).length}
+                    </span>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => setSelectedMovie(null)}
@@ -448,243 +547,267 @@ export default function JuryHome() {
                 </button>
               </div>
 
-              <div className="mt-3 space-y-3">
-                <p className="text-gray-400 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
-                  <h4 className="text-xs uppercase text-gray-400 mb-2">Producteur</h4>
-                  <div className="text-xs text-gray-300 grid grid-cols-2 gap-2">
-                    <div><span className="text-gray-400">Nom:</span> {(selectedMovie.User || selectedMovie.Producer) ? `${(selectedMovie.User || selectedMovie.Producer).first_name} ${(selectedMovie.User || selectedMovie.Producer).last_name}` : "-"}</div>
-                    <div><span className="text-gray-400">Email:</span> {(selectedMovie.User || selectedMovie.Producer)?.email || "-"}</div>
-                    <div><span className="text-gray-400">Source:</span> {(selectedMovie.User || selectedMovie.Producer)?.known_by_mars_ai || "-"}</div>
-                  </div>
-                  </div>
-
-                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
-                  <h4 className="text-xs uppercase text-gray-400 mb-2">IA & METHODOLOGIE</h4>
-                  <div className="text-xs text-gray-300 grid grid-cols-2 gap-2">
-                    <div><span className="text-gray-400">Classification:</span> {selectedMovie.production || "-"}</div>
-                    <div><span className="text-gray-400">Methodologie:</span> {selectedMovie.workshop || "-"}</div>
-                    <div className="col-span-2"><span className="text-gray-400">Outil IA:</span> {selectedMovie.ai_tool || "-"}</div>
-                  </div>
-                  </div>
+              {modalNotice && (
+                <div className="mt-3 bg-green-900/30 border border-green-600 text-green-300 px-3 py-2 rounded-lg text-xs">
+                  {modalNotice}
                 </div>
+              )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="mt-3 grid grid-cols-12 gap-3 text-[11px]">
+                <div className="col-span-12 xl:col-span-7 space-y-2">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                    <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                      <h4 className="text-xs uppercase text-gray-400 mb-1">Producteur</h4>
+                      <div className="text-gray-300 grid grid-cols-2 gap-2">
+                        <div><span className="text-gray-400">Nom:</span> {(selectedMovie.User || selectedMovie.Producer) ? `${(selectedMovie.User || selectedMovie.Producer).first_name} ${(selectedMovie.User || selectedMovie.Producer).last_name}` : "-"}</div>
+                        <div><span className="text-gray-400">Email:</span> {(selectedMovie.User || selectedMovie.Producer)?.email || "-"}</div>
+                        <div><span className="text-gray-400">Source:</span> {(selectedMovie.User || selectedMovie.Producer)?.known_by_mars_ai || "-"}</div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                      <h4 className="text-xs uppercase text-gray-400 mb-1">IA & Methodologie</h4>
+                      <div className="text-gray-300 grid grid-cols-2 gap-2">
+                        <div><span className="text-gray-400">Classification:</span> {selectedMovie.production || "-"}</div>
+                        <div><span className="text-gray-400">Methodologie:</span> {selectedMovie.workshop || "-"}</div>
+                        <div className="col-span-2"><span className="text-gray-400">Outil IA:</span> {selectedMovie.ai_tool || "-"}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                    <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                      <h4 className="text-xs uppercase text-gray-400 mb-1">Synopsis (FR)</h4>
+                      <p className="text-gray-300 line-clamp-4">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
+                    </div>
+                    <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                      <h4 className="text-xs uppercase text-gray-400 mb-1">Synopsis (EN)</h4>
+                      <p className="text-gray-300 line-clamp-4">{selectedMovie.synopsis_anglais || "-"}</p>
+                    </div>
+                  </div>
+
                   <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
-                  <h4 className="text-xs uppercase text-gray-400 mb-2">Synopsis (FR)</h4>
-                  <p className="text-xs text-gray-300">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
-                  </div>
-                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
-                  <h4 className="text-xs uppercase text-gray-400 mb-2">Synopsis (EN)</h4>
-                  <p className="text-xs text-gray-300">{selectedMovie.synopsis_anglais || "-"}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-3 text-xs text-gray-300">
-                    <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
-                    <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
-                    <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
-                    <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 text-sm">
-                    {getTrailer(selectedMovie) && (
-                      <span className="text-xs text-gray-400">
-                        Trailer : cliquez pour plein écran
-                      </span>
-                    )}
-                    {typeof selectedMovie.subtitle === "string" && selectedMovie.subtitle.toLowerCase().endsWith(".srt") && (
-                      <a
-                        className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                        href={`${uploadBase}/${selectedMovie.subtitle}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        download
-                      >
-                        Sous-titres
-                      </a>
-                    )}
-                    {selectedMovie.youtube_link && (
-                      <a
-                        className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                        href={selectedMovie.youtube_link}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        YouTube
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {(getTrailer(selectedMovie) || selectedMovie.youtube_link) && (
-                  <div>
-                    {getTrailer(selectedMovie) ? (
-                      <VideoPreview
-                        title={selectedMovie.title}
-                        src={`${uploadBase}/${getTrailer(selectedMovie)}`}
-                        poster={getPoster(selectedMovie) || undefined}
-                        onEnded={() => setHasWatched(true)}
-                        openMode="fullscreen"
-                      />
-                    ) : (
-                      <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
-                        Ouvrir la vidéo
-                      </a>
-                    )}
-                  </div>
-                )}
-                </div>
-
-              <div className="border-t border-gray-800 pt-3">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-base font-semibold text-white">Votre vote</h4>
-                  {votesByMovie[selectedMovie.id_movie] && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded">
-                        Déjà voté
-                      </span>
-                      {votesByMovie[selectedMovie.id_movie].modification_count > 0 && (
-                        <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-1 rounded">
-                          Modifié {votesByMovie[selectedMovie.id_movie].modification_count}×
-                        </span>
+                    <h4 className="text-xs uppercase text-gray-400 mb-1">Infos film</h4>
+                    <div className="grid grid-cols-2 gap-2 text-gray-300">
+                      <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
+                      <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
+                      <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
+                      <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                      {getTrailer(selectedMovie) && (
+                        <span className="text-gray-400">Trailer plein ecran</span>
                       )}
-                      {isSecondVoteOpen && (
-                        <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
-                          ✓ Modifiable
-                        </span>
+                      {typeof selectedMovie.subtitle === "string" && selectedMovie.subtitle.toLowerCase().endsWith(".srt") && (
+                        <a
+                          className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                          href={`${uploadBase}/${selectedMovie.subtitle}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          download
+                        >
+                          Sous-titres
+                        </a>
+                      )}
+                      {selectedMovie.youtube_link && (
+                        <a
+                          className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
+                          href={selectedMovie.youtube_link}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          YouTube
+                        </a>
                       )}
                     </div>
-                  )}
+                  </div>
+
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                    <h4 className="text-xs uppercase text-gray-400 mb-1">Media</h4>
+                    {(getTrailer(selectedMovie) || selectedMovie.youtube_link) ? (
+                      <div className="aspect-video h-[170px]">
+                        {getTrailer(selectedMovie) ? (
+                          <VideoPreview
+                            title={selectedMovie.title}
+                            src={`${uploadBase}/${getTrailer(selectedMovie)}`}
+                            poster={getPoster(selectedMovie) || undefined}
+                            onEnded={() => setHasWatched(true)}
+                            openMode="fullscreen"
+                          />
+                        ) : (
+                          <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
+                            Ouvrir la vidéo
+                          </a>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">Aucune vidéo disponible.</p>
+                    )}
+                  </div>
                 </div>
 
-                {selectedVote?.history?.length > 0 && (
-                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2 mb-3">
-                    <h5 className="text-xs uppercase text-gray-400 mb-2">Historique des votes</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-300">
-                      {selectedVote.history.map((entry, index) => (
-                        <div key={`history-${entry.id_vote_history || index}`} className="bg-gray-950 border border-gray-800 rounded-lg p-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-gray-400">Vote {index + 1}</span>
-                            <span className="font-semibold text-white">{getVoteLabel(entry.note)}</span>
-                          </div>
-                          {entry.commentaire && (
-                            <p className="text-[11px] text-gray-400 line-clamp-2">{entry.commentaire}</p>
+                <div className="col-span-12 xl:col-span-5 space-y-2">
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-base font-semibold text-white">Votre vote</h4>
+                      {votesByMovie[selectedMovie.id_movie] && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs bg-blue-900/40 text-blue-200 px-2 py-1 rounded">
+                            Déjà voté
+                          </span>
+                          {votesByMovie[selectedMovie.id_movie].modification_count > 0 && (
+                            <span className="text-xs bg-orange-900/40 text-orange-200 px-2 py-1 rounded">
+                              Modifié {votesByMovie[selectedMovie.id_movie].modification_count}x
+                            </span>
+                          )}
+                          {isSecondVoteOpen && (
+                            <span className="text-xs bg-green-900/40 text-green-200 px-2 py-1 rounded">
+                              ✓ Second vote ouvert
+                            </span>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {selectedVote && (
-                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2 mb-3">
-                    <h5 className="text-xs uppercase text-gray-400 mb-2">Vote actuel</h5>
-                    <div className="flex items-center justify-between text-xs text-gray-300">
-                      <span>{getVoteLabel(selectedVote.note)}</span>
-                      {selectedVote.modification_count > 0 && (
-                        <span className="text-[10px] bg-orange-900/40 text-orange-200 px-2 py-0.5 rounded">
-                          Modifié {selectedVote.modification_count}x
-                        </span>
                       )}
                     </div>
-                    {selectedVote.commentaire && (
-                      <p className="text-[11px] text-gray-400 line-clamp-2 mt-1">{selectedVote.commentaire}</p>
+
+                    {selectedVote?.history?.length > 0 && (
+                      <div className="mt-2 bg-gray-950 border border-gray-800 rounded-lg p-2">
+                        <h5 className="text-xs uppercase text-gray-400 mb-2">Historique des votes</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-300">
+                          {selectedVote.history.map((entry, index) => (
+                            <div key={`history-${entry.id_vote_history || index}`} className="bg-gray-900 border border-gray-800 rounded-lg p-2">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-gray-400">Vote {index + 1}</span>
+                                <span className="font-semibold text-white">{getVoteLabel(entry.note)}</span>
+                              </div>
+                              {entry.commentaire && (
+                                <p className="text-[11px] text-gray-400 line-clamp-2">{entry.commentaire}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedVote && (
+                      <div className="mt-2 bg-gray-950 border border-gray-800 rounded-lg p-2">
+                        <h5 className="text-xs uppercase text-gray-400 mb-2">Vote actuel</h5>
+                        <div className="flex items-center justify-between text-xs text-gray-300">
+                          <span>{getVoteLabel(selectedVote.note)}</span>
+                          {selectedVote.modification_count > 0 && (
+                            <span className="text-[10px] bg-orange-900/40 text-orange-200 px-2 py-0.5 rounded">
+                              Modifié {selectedVote.modification_count}x
+                            </span>
+                          )}
+                        </div>
+                        {selectedVote.commentaire && (
+                          <p className="text-[11px] text-gray-400 line-clamp-2 mt-1">{selectedVote.commentaire}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {canPromoteCandidate && (
+                      <button
+                        type="button"
+                        onClick={handlePromoteCandidate}
+                        className="mt-2 w-full px-3 py-2 bg-green-600/80 text-white rounded-lg text-xs font-semibold hover:bg-green-600"
+                      >
+                        Promouvoir à la candidature
+                      </button>
                     )}
                   </div>
-                )}
 
-                {getTrailer(selectedMovie) ? (
-                  <p className="text-xs text-gray-400 mb-2">
-                    Vous devez visionner le film en entier avant de voter.
-                  </p>
-                ) : (
-                  <label className="flex items-center gap-2 text-xs text-gray-400 mb-2">
-                    <input
-                      type="checkbox"
-                      checked={confirmedWatched}
-                      onChange={(event) => setConfirmedWatched(event.target.checked)}
-                      className="accent-[#AD46FF]"
-                    />
-                    Je confirme avoir visionné le film en entier.
-                  </label>
-                )}
-
-                {voteFeedback && <p className="text-xs text-gray-300 mb-2">{voteFeedback}</p>}
-                {!canEditVote && selectedVote && (
-                  <p className="text-xs text-orange-200 bg-orange-900/30 border border-orange-700/50 px-3 py-2 rounded-lg mb-2">
-                    Le second vote n'est pas encore ouvert. Votre vote actuel est enregistré.
-                  </p>
-                )}
-
-                <form onSubmit={handleVoteSubmit} className="space-y-3">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm uppercase text-gray-400">Décision</label>
-                    <div className="flex flex-wrap gap-4">
-                      <label className="flex items-center gap-2 text-gray-300">
+                  <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-2">
+                    {getTrailer(selectedMovie) ? (
+                      <p className="text-xs text-gray-400 mb-2">
+                        Vous devez visionner le film en entier avant de voter.
+                      </p>
+                    ) : (
+                      <label className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                         <input
-                          type="radio"
-                          name="note"
-                          value="3"
-                          checked={voteForm.note === "3" || voteForm.note === 3}
+                          type="checkbox"
+                          checked={confirmedWatched}
+                          onChange={(event) => setConfirmedWatched(event.target.checked)}
+                          className="accent-[#AD46FF]"
+                        />
+                        Je confirme avoir visionné le film en entier.
+                      </label>
+                    )}
+
+                    {voteFeedback && <p className="text-xs text-gray-300 mb-2">{voteFeedback}</p>}
+                    {!canEditVote && selectedVote && (
+                      <p className="text-xs text-orange-200 bg-orange-900/30 border border-orange-700/50 px-3 py-2 rounded-lg mb-2">
+                        Le second vote n'est pas encore ouvert. Votre vote actuel est enregistré.
+                      </p>
+                    )}
+
+                    <form onSubmit={handleVoteSubmit} className="space-y-3">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm uppercase text-gray-400">Décision</label>
+                        <div className="grid grid-cols-1 gap-2">
+                          <label className={`flex items-center gap-3 text-gray-300 bg-gray-900/60 border border-gray-800 rounded-lg px-3 py-2 ${!voteAllowed ? "opacity-50" : "cursor-pointer"}`}>
+                            <input
+                              type="radio"
+                              name="note"
+                              value="3"
+                              checked={voteForm.note === "3" || voteForm.note === 3}
+                              onChange={handleVoteChange}
+                              required
+                              disabled={!voteAllowed}
+                              className="accent-[#AD46FF]"
+                            />
+                            <span className="text-sm">Validé / J'aime / Bon 👍</span>
+                          </label>
+                          <label className={`flex items-center gap-3 text-gray-300 bg-gray-900/60 border border-gray-800 rounded-lg px-3 py-2 ${!voteAllowed ? "opacity-50" : "cursor-pointer"}`}>
+                            <input
+                              type="radio"
+                              name="note"
+                              value="2"
+                              checked={voteForm.note === "2" || voteForm.note === 2}
+                              onChange={handleVoteChange}
+                              required
+                              disabled={!voteAllowed}
+                              className="accent-[#AD46FF]"
+                            />
+                            <span className="text-sm">À discuter avec l'admin</span>
+                          </label>
+                          <label className={`flex items-center gap-3 text-gray-300 bg-gray-900/60 border border-gray-800 rounded-lg px-3 py-2 ${!voteAllowed ? "opacity-50" : "cursor-pointer"}`}>
+                            <input
+                              type="radio"
+                              name="note"
+                              value="1"
+                              checked={voteForm.note === "1" || voteForm.note === 1}
+                              onChange={handleVoteChange}
+                              required
+                              disabled={!voteAllowed}
+                              className="accent-[#AD46FF]"
+                            />
+                            <span className="text-sm">Refusé / Je n'aime pas 👎</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-sm uppercase text-gray-400">Commentaire</label>
+                        <textarea
+                          name="commentaire"
+                          value={voteForm.commentaire}
                           onChange={handleVoteChange}
                           required
+                          rows={3}
                           disabled={!voteAllowed}
+                          className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
                         />
-                        Validé / J'aime / Bon 👍
-                      </label>
-                      <label className="flex items-center gap-2 text-gray-300">
-                        <input
-                          type="radio"
-                          name="note"
-                          value="2"
-                          checked={voteForm.note === "2" || voteForm.note === 2}
-                          onChange={handleVoteChange}
-                          required
-                          disabled={!voteAllowed}
-                        />
-                        À discuter avec l'admin
-                      </label>
-                      <label className="flex items-center gap-2 text-gray-300">
-                        <input
-                          type="radio"
-                          name="note"
-                          value="1"
-                          checked={voteForm.note === "1" || voteForm.note === 1}
-                          onChange={handleVoteChange}
-                          required
-                          disabled={!voteAllowed}
-                        />
-                        Refusé / Je n'aime pas 👎
-                      </label>
-                    </div>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={!voteAllowed || voteLoading}
+                        className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
+                      >
+                        {voteLoading ? "Envoi..." : "Enregistrer le vote"}
+                      </button>
+                    </form>
                   </div>
-                  <div className="flex flex-col">
-                    <label className="text-sm uppercase text-gray-400">Commentaire</label>
-                    <textarea
-                      name="commentaire"
-                      value={voteForm.commentaire}
-                      onChange={handleVoteChange}
-                      required
-                      rows={3}
-                      disabled={!voteAllowed}
-                      className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={!voteAllowed || voteLoading}
-                    className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
-                  >
-                    {voteLoading ? "Envoi..." : "Enregistrer le vote"}
-                  </button>
-                </form>
+                </div>
               </div>
-            </div>
             </div>
           </div>
         )}
