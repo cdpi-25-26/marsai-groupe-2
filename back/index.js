@@ -22,8 +22,17 @@ const PORT = process.env.PORT || 3000;
  * Configuration des middlewares
  */
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  credentials: true
+  origin: function (origin, callback) {
+    // In development, allow all localhost origins
+    if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -52,8 +61,11 @@ async function startServer() {
     console.log("✓ Connexion à la base de données MySQL établie avec succès");
 
     // Démarrage du serveur
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`✓ API disponible sur http://localhost:${PORT}`);
+    });
+    server.on("error", (err) => {
+      console.error("✗ Erreur serveur:", err.message);
     });
   } catch (error) {
     console.error("✗ Erreur de connexion à la base de données:", error.message);
