@@ -4,7 +4,7 @@ import TitleInBox from "../TitleInBox.jsx";
 import sponsors from "../../assets/data/sponsors.json";
 
 // 🔥 Import automatique de toutes les images du dossier
-const images = import.meta.glob("../../assets/images/*.{png,jpg,jpeg,webp}", {
+const images = import.meta.glob("../../assets/images/sponsors/*.{png,jpg,jpeg,webp}", {
   eager: true,
   import: "default"
 });
@@ -20,8 +20,6 @@ export default function Sponsors() {
       <OneCardWithImage
         key={index}
         image={images[imageKey]}
-        title={sponsor.title}
-        description={sponsor.description}
         accentColor={sponsor.accentColor}
         borderColor={sponsor.borderColor}
         hoverShadow={sponsor.hoverShadow}

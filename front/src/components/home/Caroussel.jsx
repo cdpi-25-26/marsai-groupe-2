@@ -9,8 +9,8 @@ export default function Carousel({ items, interval = 3000 }) {
     const updateVisible = () => {
       if (window.innerWidth < 500) setVisible(1);
       else if (window.innerWidth < 800) setVisible(2);
-      else if (window.innerWidth < 1200) setVisible(3);
-      else setVisible(4);
+      else if (window.innerWidth < 1200) setVisible(4);
+      else setVisible(5);
     };
 
     updateVisible();
