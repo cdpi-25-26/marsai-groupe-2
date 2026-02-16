@@ -1,207 +1,3 @@
-// import { VideoPreview } from "./VideoPreview.jsx";
-
-// export function VideoModal({
-//   movie,
-//   onClose,
-//   categories,
-//   juries,
-//   categorySelection,
-//   onCategoryChange,
-//   onCategorySave,
-//   jurySelection,
-//   onJuryToggle,
-//   onJurySave,
-//   onStatusUpdate,
-//   onDelete,
-//   getPoster,
-//   uploadBase,
-//   isUpdatingCategories,
-//   isUpdatingJuries
-// }) {
-//   if (!movie) return null;
-
-//   const poster = getPoster(movie);
-
-//   return (
-//     <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3">
-//       <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
-//         <div className="flex items-center justify-between">
-//           <h3 className="text-2xl font-bold text-white">{movie.title}</h3>
-//           <button
-//             type="button"
-//             onClick={onClose}
-//             className="text-gray-400 hover:text-white"
-//           >
-//             ✕
-//           </button>
-//         </div>
-
-//         <p className="text-gray-400 mt-2">{movie.synopsis || movie.description || "-"}</p>
-
-//         <div className="grid grid-cols-2 gap-3 mt-4 text-sm text-gray-300">
-//           <div><span className="text-gray-400">Durée:</span> {movie.duration ? `${movie.duration}s` : "-"}</div>
-//           <div><span className="text-gray-400">Langue:</span> {movie.main_language || "-"}</div>
-//           <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
-//           <div><span className="text-gray-400">Statut:</span> {movie.selection_status || "submitted"}</div>
-//           <div><span className="text-gray-400">Producteur:</span> {(movie.User || movie.Producer) ? `${(movie.User || movie.Producer).first_name} ${(movie.User || movie.Producer).last_name}` : "-"}</div>
-//           <div><span className="text-gray-400">Comment avez-vous connu le Festival ?</span> {(movie.User || movie.Producer)?.known_by_mars_ai || "-"}</div>
-//         </div>
-
-//         <div className="mt-4 flex flex-wrap gap-3">
-//           {movie.trailer && (
-//             <a
-//               className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-//               href={`${uploadBase}/${movie.trailer}`}
-//               target="_blank"
-//               rel="noreferrer"
-//             >
-//               Ouvrir la vidéo
-//             </a>
-//           )}
-//           {typeof movie.subtitle === "string" && movie.subtitle.toLowerCase().endsWith(".srt") && (
-//             <a
-//               className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-//               href={`${uploadBase}/${movie.subtitle}`}
-//               target="_blank"
-//               rel="noreferrer"
-//               download
-//             >
-//               Télécharger les sous-titres
-//             </a>
-//           )}
-//           {movie.youtube_link && (
-//             <a
-//               className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-//               href={movie.youtube_link}
-//               target="_blank"
-//               rel="noreferrer"
-//             >
-//               Voir sur YouTube
-//             </a>
-//           )}
-//         </div>
-
-//         {(movie.trailer || movie.youtube_link) && (
-//           <div className="mt-4">
-//             {movie.trailer ? (
-//               <VideoPreview
-//                 title={movie.title}
-//                 src={`${uploadBase}/${movie.trailer}`}
-//                 poster={poster || undefined}
-//               />
-//             ) : (
-//               <a className="text-[#AD46FF] hover:text-[#F6339A]" href={movie.youtube_link} target="_blank" rel="noreferrer">
-//                 Ouvrir la vidéo
-//               </a>
-//             )}
-//           </div>
-//         )}
-
-//         <div className="mt-6 flex flex-wrap gap-3">
-//           <button
-//             type="button"
-//             onClick={() => onStatusUpdate(movie.id_movie, "selected")}
-//             className="px-4 py-2 bg-green-600/80 text-white rounded-lg hover:bg-green-600"
-//           >
-//             Approuver
-//           </button>
-//           <button
-//             type="button"
-//             onClick={() => onStatusUpdate(movie.id_movie, "refused")}
-//             className="px-4 py-2 bg-red-600/80 text-white rounded-lg hover:bg-red-600"
-//           >
-//             Refuser
-//           </button>
-//           <button
-//             type="button"
-//             onClick={() => {
-//               if (window.confirm("Supprimer définitivement ce film ?")) {
-//                 onDelete(movie.id_movie);
-//               }
-//             }}
-//             className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-//           >
-//             Supprimer
-//           </button>
-//         </div>
-
-//         <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-//           <div>
-//             <h4 className="text-sm uppercase text-gray-400 mb-3">Catégories</h4>
-//             {categories.length === 0 ? (
-//               <p className="text-gray-500 text-sm">Aucune catégorie disponible.</p>
-//             ) : (
-//               <select
-//                 value={(categorySelection[movie.id_movie] || [""])[0] || ""}
-//                 onChange={(event) => {
-//                   const value = event.target.value;
-//                   onCategoryChange(movie.id_movie, value ? [Number(value)] : []);
-//                 }}
-//                 className="w-full bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-//               >
-//                 <option value="">Sélectionner une catégorie</option>
-//                 {categories.map((category) => (
-//                   <option key={`${movie.id_movie}-cat-${category.id_categorie}`} value={category.id_categorie}>
-//                     {category.name}
-//                   </option>
-//                 ))}
-//               </select>
-//             )}
-//             <button
-//               type="button"
-//               onClick={() => onCategorySave(movie.id_movie)}
-//               disabled={isUpdatingCategories}
-//               className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
-//             >
-//               {isUpdatingCategories ? "Enregistrement..." : "Enregistrer catégories"}
-//             </button>
-//           </div>
-
-//           <div>
-//             <h4 className="text-sm uppercase text-gray-400 mb-3">Assigner jurys</h4>
-//             {juries.length === 0 ? (
-//               <p className="text-gray-500 text-sm">Aucun jury disponible.</p>
-//             ) : (
-//               <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
-//                 {juries.map((jury) => {
-//                   const selected = (jurySelection[movie.id_movie] || []).includes(jury.id_user);
-//                   return (
-//                     <label key={`${movie.id_movie}-jury-${jury.id_user}`} className="flex items-center gap-2">
-//                       <input
-//                         type="checkbox"
-//                         checked={selected}
-//                         onChange={() => onJuryToggle(movie.id_movie, jury.id_user)}
-//                         className="accent-[#AD46FF]"
-//                       />
-//                       {jury.first_name} {jury.last_name}
-//                     </label>
-//                   );
-//                 })}
-//               </div>
-//             )}
-//             <button
-//               type="button"
-//               onClick={() => onJurySave(movie.id_movie)}
-//               disabled={isUpdatingJuries}
-//               className="mt-3 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
-//             >
-//               {isUpdatingJuries ? "Enregistrement..." : "Enregistrer jurys"}
-//             </button>
-//           </div>
-//         </div>
-
-//         <div className="mt-6 grid grid-cols-2 gap-3">
-//           {[movie.picture1, movie.picture2, movie.picture3].filter(Boolean).map((pic, idx) => (
-//             <div key={`${movie.id_movie}-pic-${idx}`} className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-//               <img src={`${uploadBase}/${pic}`} alt="Vignette" className="w-full h-full object-cover" />
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { VideoPreview } from "./VideoPreview.jsx";
 
 export function VideoModal({
@@ -438,8 +234,8 @@ export function VideoModal({
                   </h3>
                 </div>
 
-                <div className="bg-black/50 border border-white/10 rounded-lg p-3 hover:border-white/20 transition-colors shadow-inner">
-                  <p className="text-sm text-white/80 leading-relaxed italic border-l-2 border-blue-400/70 pl-3">
+                <div className="bg-black/50 border border-white/10 rounded-lg p-3 hover:border-white/20 transition-colors shadow-inner max-h-[200px] overflow-y-auto scrollbar-thin-dark">
+                  <p className="text-sm text-white/80 leading-relaxed italic border-l-2 border-blue-400/70 pl-3 break-words">
                     {movie.synopsis ||
                       movie.description ||
                       "Aucune description disponible."}
@@ -450,7 +246,7 @@ export function VideoModal({
 
             {/* Colonne centrale - 4/12 : Galerie d'images + Métadonnées (liste) */}
             <div className="col-span-4 space-y-2 ">
-              {/* Section Galerie d'images - PLUS D'ESPACE */}
+              {/* Section Galerie d'images */}
               {[movie.picture1, movie.picture2, movie.picture3].filter(Boolean)
                 .length > 0 && (
                 <div className="bg-gradient-to-br from-black/40 to-black/20 rounded-lg p-3 border border-white/10 shadow-lg ">
@@ -485,7 +281,7 @@ export function VideoModal({
                     </span>
                   </div>
 
-                  {/* GRILLE 2 COLONNES - plus d'espace pour les images */}
+                  {/* GRILLE 2 COLONNES */}
                   <div className="grid grid-cols-2 gap-3">
                     {[movie.picture1, movie.picture2, movie.picture3]
                       .filter(Boolean)
@@ -957,7 +753,7 @@ export function VideoModal({
             </div>
           </div>
 
-          {/* FOOTER: Dernière modification - STYLE APPLIQUÉ */}
+          {/* FOOTER */}
           <div className="pt-4 border-t border-white/10">
             <div className="flex items-center justify-between">
               <span className="text-xs text-white/40">
