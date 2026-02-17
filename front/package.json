@@ -17,6 +17,7 @@
     "@vidstack/react": "^1.12.13",
     "axios": "^1.13.2",
     "i18next": "^25.8.4",
+    "lucide-react": "^0.564.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.1",

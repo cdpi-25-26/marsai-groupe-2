@@ -265,3 +265,153 @@ export default function Navbar() {
     </div>
   );
 }
+
+
+
+// import { Link } from "react-router";
+// import { Home, CalendarDays, Scale, Handshake, Info, User } from "lucide-react";
+
+// export default function Navbar() {
+//   const firstName = localStorage.getItem("firstName");
+//   const lastName = localStorage.getItem("lastName");
+
+//   function handleLogout() {
+//     localStorage.clear();
+//     window.location.href = "/";
+//   }
+
+//   return (
+//     <div className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl z-50">
+//       {/* Glassmorphism Navbar */}
+//       <div
+//         className="flex items-center justify-between px-5 py-2
+//         rounded-full border border-white/20
+//         bg-white/10 backdrop-blur-xl
+//         shadow-[0_6px_24px_rgba(0,0,0,0.35)]
+//         text-white">
+
+//         {/* Logo */}
+//         <Link to="/">
+//           <div className="flex items-center gap-2">
+//             <span className="text-xl font-bold tracking-wide">Mars</span>
+//             <span
+//               className="text-xl font-bold
+//               bg-gradient-to-b from-[#AD46FF] to-[#F6339A]
+//               bg-clip-text text-transparent">
+//               AI
+//             </span>
+//           </div>
+//         </Link>
+
+//         {/* Navigation */}
+//         <div className="flex items-center gap-4">
+//           <NavIcon to="/" label="Home">
+//             <Home className="w-5 h-5" />
+//           </NavIcon>
+
+//           <NavIcon to="/agenda" label="Agenda">
+//             <CalendarDays className="w-5 h-5" />
+//           </NavIcon>
+
+//           <NavIcon to="/jury" label="Jury">
+//             <Scale className="w-5 h-5" />
+//           </NavIcon>
+
+//           <NavIcon to="/sponsors" label="Sponsors">
+//             <Handshake className="w-5 h-5" />
+//           </NavIcon>
+
+//           <NavIcon to="/infos" label="Infos">
+//             <Info className="w-5 h-5" />
+//           </NavIcon>
+//         </div>
+
+//         {/* Right Section */}
+//         <div className="flex items-center gap-4">
+//           {/* Language Flag (restored) */}
+//           <Link
+//             to="/"
+//             className="p-1.5 rounded-full
+//             bg-white/5 hover:bg-white/20
+//             transition backdrop-blur-md">
+//             <svg
+//               height="18"
+//               width="18"
+//               viewBox="0 0 512 512"
+//               xmlns="http://www.w3.org/2000/svg">
+//               <mask id="circleFlagsEn0">
+//                 <circle cx="256" cy="256" fill="#fff" r="256" />
+//               </mask>
+//               <g mask="url(#circleFlagsEn0)">
+//                 <path
+//                   d="m0 0l8 22l-8 23v23l32 54l-32 54v32l32 48l-32 48v32l32 54l-32 54v68l22-8l23 8h23l54-32l54 32h32l48-32l48 32h32l54-32l54 32h68l-8-22l8-23v-23l-32-54l32-54v-32l-32-48l32-48v-32l-32-54l32-54V0l-22 8l-23-8h-23l-54 32l-54-32h-32l-48 32l-48-32h-32l-54 32L68 0z"
+//                   fill="#eee"
+//                 />
+//                 <path
+//                   d="M336 0v108L444 0Zm176 68L404 176h108zM0 176h108L0 68ZM68 0l108 108V0Zm108 512V404L68 512ZM0 444l108-108H0Zm512-108H404l108 108Zm-68 176L336 404v108z"
+//                   fill="#0052b4"
+//                 />
+//                 <path
+//                   d="M0 0v45l131 131h45zm208 0v208H0v96h208v208h96V304h208v-96H304V0zm259 0L336 131v45L512 0zM176 336L0 512h45l131-131zm160 0l176 176v-45L381 336z"
+//                   fill="#d80027"
+//                 />
+//               </g>
+//             </svg>
+//           </Link>
+
+//           {/* User */}
+//           {firstName ? (
+//             <div className="flex items-center gap-2 text-sm">
+//               <span className="whitespace-nowrap opacity-90">
+//                 Hello, {firstName}
+//                 {lastName && ` ${lastName}`}
+//               </span>
+
+//               <button
+//                 onClick={handleLogout}
+//                 className="px-2.5 py-1 text-xs rounded-md
+//                 bg-white/10 hover:bg-white/25
+//                 border border-white/20
+//                 transition">
+//                 Logout
+//               </button>
+//             </div>
+//           ) : (
+//             <Link
+//               to="/auth/login"
+//               className="p-1.5 rounded-full
+//               bg-white/5 hover:bg-white/20
+//               border border-white/20
+//               transition">
+//               <User className="w-5 h-5" />
+//             </Link>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* Nav Icon with Tooltip */
+// function NavIcon({ to, children, label }) {
+//   return (
+//     <Link
+//       to={to}
+//       className="group relative p-1.5 rounded-full
+//       bg-white/5 hover:bg-white/20
+//       border border-transparent hover:border-white/20
+//       transition">
+//       {children}
+
+//       {/* Tooltip */}
+//       <span
+//         className="absolute -bottom-8 left-1/2 -translate-x-1/2
+//         text-xs px-2 py-0.5 rounded-md
+//         bg-black/70 backdrop-blur-md
+//         opacity-0 group-hover:opacity-100
+//         transition whitespace-nowrap">
+//         {label}
+//       </span>
+//     </Link>
+//   );
+// }
