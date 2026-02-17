@@ -203,9 +203,6 @@ function Categories() {
                 >
                   <div>
                     <h3 className="text-white font-semibold">{category.name}</h3>
-                    <p className="text-xs text-gray-400 mt-1">
-                      ID: {category.id_categorie}
-                    </p>
                   </div>
                   <div className="flex gap-2">
                     <button

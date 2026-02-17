@@ -714,27 +714,36 @@ export default function Movies() {
     const awardCount = (movie.Awards || []).length;
     
     return (
-      <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden relative">
-        {rank !== null && (
-          <div className="absolute top-2 left-2 z-10">
-            <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-              #{rank}
-            </span>
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={() => setSelectedMovie(movie)}
-          className="w-full text-left p-2 hover:bg-gray-900 transition flex gap-2 items-center"
-        >
-          <div className="w-16 h-16 flex-shrink-0 bg-gray-800 rounded overflow-hidden">
-            {poster ? (
-              <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
+      <div key={movie.id_movie} className="bg-gray-950 border border-gray-800 rounded-lg hover:bg-gray-900/50 transition-all">
+        <div className="flex items-center gap-3 p-2">
+          {/* Thumbnail */}
+          <button
+            type="button"
+            onClick={() => setSelectedMovie(movie)}
+            className="relative flex-shrink-0"
+          >
+            <div className="w-12 h-12 bg-gray-800 rounded overflow-hidden">
+              {poster ? (
+                <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
+              )}
+            </div>
+            {rank !== null && (
+              <div className="absolute -top-1 -left-1">
+                <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-lg">
+                  #{rank}
+                </span>
+              </div>
             )}
-          </div>
-          <div className="flex-1 min-w-0">
+          </button>
+          
+          {/* Info */}
+          <button
+            type="button"
+            onClick={() => setSelectedMovie(movie)}
+            className="flex-1 min-w-0 text-left"
+          >
             <h3 className="text-xs font-semibold text-white truncate">{movie.title}</h3>
             <div className="mt-0.5 flex items-center gap-2 text-[10px] text-gray-400">
               <span>Moy: <span className="text-white font-semibold">{avgScore}</span></span>
@@ -742,47 +751,49 @@ export default function Movies() {
               <span>🗣️ {summary?.["TO DISCUSS"] || 0}</span>
               <span>👎 {summary?.NO || 0}</span>
             </div>
-          </div>
-        </button>
-        {showActions && (
-          <div className="p-2 pt-0 flex gap-1.5">
-            {movie.selection_status === "assigned" ? (
+          </button>
+          
+          {/* Awards badge */}
+          {awardCount > 0 && (
+            <span className="bg-yellow-500/90 text-black text-[10px] px-2 py-0.5 rounded-full font-bold">
+              🏆 {awardCount}
+            </span>
+          )}
+          
+          {/* Actions */}
+          {showActions && (
+            <div className="flex gap-1.5 flex-shrink-0">
+              {movie.selection_status === "assigned" ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm("Ouvrir le second vote pour ce film ?")) {
+                      secondVoteMutation.mutate(movie.id_movie);
+                    }
+                  }}
+                  className="px-2 py-1 bg-yellow-600/80 text-white rounded text-[10px] hover:bg-yellow-600"
+                >
+                  Ouvrir 2e vote
+                </button>
+              ) : (
+                <span className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-[10px]">
+                  2e vote ouvert
+                </span>
+              )}
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (window.confirm("Ouvrir le second vote pour ce film ?")) {
-                    secondVoteMutation.mutate(movie.id_movie);
-                  }
+                  statusMutation.mutate({ id: movie.id_movie, status: "refused" });
                 }}
-                className="flex-1 px-2 py-1 bg-yellow-600/80 text-white rounded text-[10px] hover:bg-yellow-600"
+                className="px-2 py-1 bg-red-600/80 text-white rounded text-[10px] hover:bg-red-600"
               >
-                Ouvrir 2e vote
+                Refuser
               </button>
-            ) : (
-              <span className="flex-1 px-2 py-1 bg-gray-800 text-gray-300 rounded text-[10px] text-center">
-                2e vote ouvert
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                statusMutation.mutate({ id: movie.id_movie, status: "refused" });
-              }}
-              className="flex-1 px-2 py-1 bg-red-600/80 text-white rounded text-[10px] hover:bg-red-600"
-            >
-              Refuser
-            </button>
-          </div>
-        )}
-        {awardCount > 0 && (
-          <div className="absolute top-2 right-2 z-10">
-            <span className="bg-yellow-500/90 text-black text-[10px] px-2 py-0.5 rounded-full font-bold">
-              🏆 {awardCount}
-            </span>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -932,7 +943,7 @@ export default function Movies() {
                 groupedMovies.firstVote.length === 0 ? (
                   <p className="text-center text-gray-400 py-12">Aucun film assigné.</p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="space-y-1">
                     {groupedMovies.firstVote.map(({ movie }) => renderMovieCard(movie, false))}
                   </div>
                 )
@@ -942,7 +953,7 @@ export default function Movies() {
                 decisionMovies.length === 0 ? (
                   <p className="text-center text-gray-400 py-12">Aucun film en évaluation.</p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="space-y-1">
                     {decisionMovies.map(({ movie }, index) => renderMovieCard(movie, true, index + 1))}
                   </div>
                 )
