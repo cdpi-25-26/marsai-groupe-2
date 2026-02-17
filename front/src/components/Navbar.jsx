@@ -77,9 +77,11 @@
 //   );
 // }
 
+
 import { Link } from "react-router";
-//import LanguageSwitcher from './LanguageSwitcher';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+
 
 export default function Navbar() {
   const { i18n } = useTranslation();
