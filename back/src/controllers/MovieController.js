@@ -235,12 +235,12 @@ async function createMovie(req, res) {
     }
 
     // -3.5- Mettre à jour l'origine de connaissance du festival si fournie
-    if (knownByMarsAi) {
-      await User.update(
-        { known_by_mars_ai: knownByMarsAi },
-        { where: { id_user } }
-      );
-    }
+    // if (knownByMarsAi) {
+    //   await User.update(
+    //     { known_by_mars_ai: knownByMarsAi },
+    //     { where: { id_user } }
+    //   );
+    // }
 
     // -4-Création du film
     const newMovie = await Movie.create({

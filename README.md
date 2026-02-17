@@ -32,9 +32,13 @@ npm run back
 ## Lancer le serveur front
 
 ```sh
-npm run front
+npm run fron
 ```
 
 ## Lecture vidéo
 
 La lecture des films côté front utilise Vidstack (@vidstack/react). Les styles sont importés dans les pages admin/jury/producer.
+
+```sh
+install npm install recharts
+```

@@ -37,6 +37,7 @@ import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
+
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
