@@ -45,7 +45,7 @@ export function VideoPreview({ src, poster, title, onEnded, openMode = "overlay"
   return (
     <>
       <div
-        className="relative w-full aspect-video bg-black rounded-lg overflow-hidden cursor-pointer"
+        className="group relative w-full aspect-video bg-black/80 border border-white/10 rounded-lg overflow-hidden cursor-pointer hover:border-blue-500/50 transition-all duration-300 shadow-lg shadow-black/30"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={openFullscreen}
@@ -67,43 +67,61 @@ export function VideoPreview({ src, poster, title, onEnded, openMode = "overlay"
           loop
           preload="metadata"
         />
-        <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition flex items-center justify-center">
-          <span className="text-white font-semibold text-sm">Cliquer pour plein écran</span>
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Play Button */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full bg-blue-600/90 flex items-center justify-center border-2 border-white/30 shadow-xl transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300">
+            <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+        
+        {/* Time Badge */}
+        <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-white/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <span className="text-[10px] text-white/90">Cliquer pour agrandir</span>
+        </div>
+        
+        {/* Title Badge */}
+        <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-white/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <span className="text-[10px] text-white/90 font-medium truncate max-w-[200px]">{title}</span>
         </div>
       </div>
 
       {isOpen && (
-        <div className={openMode === "fullscreen" ? "fixed inset-0 z-50 bg-black flex items-center justify-center" : "fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"}>
-          <div className={openMode === "fullscreen" ? "w-full h-full" : "w-full max-w-6xl"}>
-            <div className={openMode === "fullscreen" ? "absolute top-4 left-4 right-4 flex items-center justify-between z-10" : "flex items-center justify-between mb-3"}>
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+          <div className="w-full max-w-6xl">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-semibold text-lg">{title}</h3>
               <button
-                type="button"
                 onClick={closeFullscreen}
-                className="text-white/80 hover:text-white"
+                className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
               >
-                Fermer
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
             <video
-              className={openMode === "fullscreen" ? "w-full h-full object-contain bg-black" : "w-full h-auto max-h-[80vh] bg-black rounded-lg"}
+              className="w-full h-auto max-h-[80vh] bg-black rounded-lg"
               src={src}
               poster={poster || undefined}
               controls
               autoPlay
               onEnded={onEnded}
             />
-            {openMode !== "fullscreen" && (
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  onClick={requestNativeFullscreen}
-                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Plein écran
-                </button>
-              </div>
-            )}
+            <div className="mt-3 flex justify-end">
+              <button
+                type="button"
+                onClick={requestNativeFullscreen}
+                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              >
+                Plein écran
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "../../api/users";
 import { getVideos } from "../../api/videos";
@@ -10,7 +9,6 @@ export default function Dashboard() {
     queryKey: ["users"],
     queryFn: getUsers,
   });
-
   const { data: videosData, isLoading: loadingVideos } = useQuery({
     queryKey: ["listVideos"],
     queryFn: getVideos,
