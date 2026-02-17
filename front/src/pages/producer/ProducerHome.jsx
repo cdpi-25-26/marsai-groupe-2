@@ -330,7 +330,7 @@ export default function ProducerHome() {
             <h2 className="text-2xl font-bold">Vos informations personnelles</h2>
             {!editMode && (
               <button
-                className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold"
+                className="bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold"
                 onClick={() => setEditMode(true)}
               >
                 Modifier
@@ -422,7 +422,7 @@ export default function ProducerHome() {
                 <input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
               </div>
               <div className="md:col-span-2 flex gap-3">
-                <button type="submit" className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold">Enregistrer</button>
+                <button type="submit" className="bg-linear-to-rrom-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold">Enregistrer</button>
                 <button type="button" className="border border-gray-700 px-4 py-2 rounded-lg" onClick={() => { setEditMode(false); setForm(user); setSuccess(null); }}>Annuler</button>
               </div>
             </form>
@@ -898,7 +898,7 @@ export default function ProducerHome() {
               <button
                 type="submit"
                 disabled={createMovieMutation.isPending}
-                className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+                className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
               >
                 {createMovieMutation.isPending ? "Soumission en cours..." : "Soumettre le film"}
               </button>

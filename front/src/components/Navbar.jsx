@@ -122,7 +122,7 @@ export default function Navbar() {
           </svg>
         </Link>
         {/* agenda */}
-        <Link to="/" className="mr-4 hover:text-[#F6339A]">
+        <Link to="/program" className="mr-4 hover:text-[#F6339A]">
           <svg
             height="20"
             width="20"
@@ -136,7 +136,7 @@ export default function Navbar() {
           </svg>
         </Link>
         {/* jury*/}
-        <Link to="/" className="mr-4 hover:text-[#F6339A]">
+        <Link to="/juryPublic" className="mr-4 hover:text-[#F6339A]">
           <svg
             height="30"
             width="30"
@@ -151,7 +151,7 @@ export default function Navbar() {
           </svg>
         </Link>
         {/* sponsors */}
-        <Link to="/" className="mr-4 hover:text-[#F6339A]">
+        <Link to="/sponsors" className="mr-4 hover:text-[#F6339A]">
           <svg
             height="30"
             width="30"
@@ -165,7 +165,7 @@ export default function Navbar() {
           </svg>
         </Link>
         {/* infos */}
-        <Link to="/" className="mr-4 hover:text-[#F6339A]">
+        <Link to="/infos" className="mr-4 hover:text-[#F6339A]">
           <svg
             height="30"
             width="30"
