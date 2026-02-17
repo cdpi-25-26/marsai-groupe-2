@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUsers } from "../../api/users.js";
 import { getVideos, updateMovieJuries } from "../../api/videos.js";
 import { getCategories } from "../../api/videos.js";
+import TutorialBox from "../../components/TutorialBox.jsx";
 
 export default function JuryManagement() {
   const queryClient = useQueryClient();
@@ -111,6 +112,16 @@ export default function JuryManagement() {
         </h1>
         <p className="text-gray-400 mt-2">Assignez les films aux jurys pour la votation</p>
       </div>
+
+      <TutorialBox
+        title="Tutoriel — Distribution Jury"
+        steps={[
+          "Sélectionnez un jury dans la colonne de gauche.",
+          "Filtrez les films par catégorie ou affichez tout.",
+          "Cochez les films un par un ou utilisez Tout sélectionner.",
+          "Cliquez sur Assigner pour lier les films au jury choisi."
+        ]}
+      />
 
       {notice && (
         <div className="bg-gradient-to-r from-[#AD46FF]/20 to-[#F6339A]/20 border border-[#AD46FF] text-white px-4 py-3 rounded-lg">

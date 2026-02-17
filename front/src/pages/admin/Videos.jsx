@@ -381,6 +381,7 @@ import {
 } from "../../api/videos.js";
 import { getVotes, deleteVotesByMovie } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import TutorialBox from "../../components/TutorialBox.jsx";
 
 export default function Movies() {
   const queryClient = useQueryClient();
@@ -813,6 +814,16 @@ export default function Movies() {
   // Affichage de la liste des vidéos ou message si aucune vidéo n'existe
   return (
     <div className="space-y-6">
+      <TutorialBox
+        title="Tutoriel — Gestion des films"
+        steps={[
+          "Choisissez un dossier: 1ère votation, 2e votation, candidats, refusés, primés.",
+          "Utilisez les cases à cocher pour des actions en lot (sélection totale ou partielle).",
+          "Le passage à la candidature se fait uniquement après 2e votation validée.",
+          "Dans Refusés, vous pouvez réémettre au jury, effacer les votes ou supprimer définitivement."
+        ]}
+      />
+
       {filteredMovies.length > 0 ? (
         <>
           {!activeFolder ? (
@@ -982,18 +993,18 @@ export default function Movies() {
                         type="button"
                         onClick={() => {
                           const eligible = displayedFirstVoteMovies.filter(
-                            (movie) => selectedFirstVoteIds.includes(movie.id_movie) && movie.selection_status === "assigned" && hasVotesForMovie(movie)
+                            (movie) => selectedFirstVoteIds.includes(movie.id_movie)
                           );
                           runBatch(
                             eligible.map((movie) => movie.id_movie),
-                            (id) => updateMovieStatus(id, "to_discuss"),
-                            "Films envoyés vers la 2e votation."
+                            (id) => updateMovieStatus(id, "refused"),
+                            "Films refusés."
                           );
                           clearSelection(setSelectedFirstVoteIds);
                         }}
-                        className="px-3 py-1.5 bg-yellow-600/80 text-white rounded-lg text-xs hover:bg-yellow-600"
+                        className="px-3 py-1.5 bg-red-700/90 text-white rounded-lg text-xs hover:bg-red-700"
                       >
-                        Envoyer en 2e dossier
+                        Refuser sélection
                       </button>
                     </div>
 
@@ -1250,6 +1261,26 @@ export default function Movies() {
                         className="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs hover:bg-gray-700"
                       >
                         Désélectionner
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const ids = groupedMovies.refused
+                            .map(({ movie }) => movie.id_movie)
+                            .filter((id) => selectedRefusedIds.includes(id));
+                          runBatch(
+                            ids,
+                            async (id) => {
+                              await updateMovieStatus(id, "submitted");
+                              await updateMovieJuries(id, []);
+                            },
+                            "Films réémis au jury pour un nouveau parcours."
+                          );
+                          clearSelection(setSelectedRefusedIds);
+                        }}
+                        className="px-3 py-1.5 bg-[#5EEAD4]/80 text-white rounded-lg text-xs hover:bg-[#5EEAD4]"
+                      >
+                        Réemettre au jury sélection
                       </button>
                       <button
                         type="button"

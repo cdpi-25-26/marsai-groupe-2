@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/videos.js";
+import TutorialBox from "../../components/TutorialBox.jsx";
 
 function Categories() {
   const queryClient = useQueryClient();
@@ -113,6 +114,18 @@ function Categories() {
           <p className="text-gray-400 mt-2">
             Créez, modifiez et supprimez les catégories de films
           </p>
+        </div>
+
+        <div className="mb-8">
+          <TutorialBox
+            title="Tutoriel — Gestion des catégories"
+            steps={[
+              "Créez une catégorie avec un nom clair et unique.",
+              "Utilisez Modifier pour corriger les noms existants.",
+              "Supprimez une catégorie uniquement si elle n'est plus utilisée.",
+              "Vérifiez le message de confirmation après chaque action."
+            ]}
+          />
         </div>
 
         {/* Feedback */}

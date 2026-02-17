@@ -9,6 +9,7 @@ import { getCurrentUser } from "../../api/users";
 import { getAssignedMovies, updateMovieStatus } from "../../api/videos";
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import TutorialBox from "../../components/TutorialBox.jsx";
 
 export default function JuryHome() {
   const [user, setUser] = useState(null);
@@ -246,6 +247,19 @@ export default function JuryHome() {
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-[#AD46FF]">Espace Jury</h1>
           <p className="text-gray-400 mt-2">Bienvenue {user.first_name} {user.last_name}</p>
+        </div>
+
+        <div className="mb-8">
+          <TutorialBox
+            title="Tutoriel — Parcours Jury"
+            steps={[
+              "Ouvrez le dossier À voter pour traiter les films assignés.",
+              "Regardez la vidéo (ou confirmez le visionnage) avant de voter.",
+              "Saisissez note et commentaire puis enregistrez le vote.",
+              "Lors de la 2e votation, mettez à jour votre vote si l'admin l'a ouverte.",
+              "Après le second vote, vous pouvez proposer un film à la candidature."
+            ]}
+          />
         </div>
 
         {voteNotice && (

@@ -7,6 +7,7 @@ import { useState, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
+import TutorialBox from "../../components/TutorialBox.jsx";
 
 function Awards() {
   const queryClient = useQueryClient();
@@ -237,6 +238,16 @@ function Awards() {
           )}
         </div>
       </div>
+
+      <TutorialBox
+        title="Tutoriel — Gestion des prix"
+        steps={[
+          "Cliquez sur une carte film candidat pour ouvrir la modale de création de prix.",
+          "Saisissez un nom de prix clair puis validez la création.",
+          "Quand un film a ses prix, utilisez le bouton pour le passer en films primés.",
+          "Dans l'onglet Films primés, vous pouvez supprimer un prix si nécessaire."
+        ]}
+      />
 
       {/* Feedback */}
       {feedback && (

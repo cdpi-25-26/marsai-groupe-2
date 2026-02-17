@@ -3,6 +3,7 @@ import { getUsers } from "../../api/users";
 import { getVideos } from "../../api/videos";
 import { getVotes } from "../../api/votes";
 import { getAwards } from "../../api/awards";
+import TutorialBox from "../../components/TutorialBox.jsx";
 
 export default function Dashboard() {
   const { data: usersData, isLoading: loadingUsers } = useQuery({
@@ -61,6 +62,16 @@ export default function Dashboard() {
         </h1>
         <p className="text-gray-400 mt-2">Vue d'ensemble du festival Mars AI</p>
       </div>
+
+      <TutorialBox
+        title="Tutoriel — Dashboard"
+        steps={[
+          "Consultez les statistiques globales: utilisateurs, films, votes et prix.",
+          "Utilisez les actions rapides pour accéder directement à la gestion Films, Catégories et Prix.",
+          "Surveillez les films récents pour repérer les statuts en attente, approuvés ou refusés.",
+          "Commencez chaque session admin ici pour prioriser les tâches urgentes."
+        ]}
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
