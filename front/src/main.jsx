@@ -11,12 +11,13 @@
  * - /jury (JURY uniquement): Page d'accueil jury
  */
 
+import './i18n';
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { LanguageProvider } from "./context/LanguageContext";
 
 
 // import "./i18n"; // Désactivé tant que i18next n'est pas installé correctement

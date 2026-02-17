@@ -77,9 +77,14 @@
 //   );
 // }
 
+
 import { Link } from "react-router";
+import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+
 
 export default function Navbar() {
+  const { i18n } = useTranslation();
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
 
@@ -93,10 +98,8 @@ export default function Navbar() {
       {/*logo */}
       <Link to="/">
         <div className=" ml-3 flex gap-2.5 items-center">
-          <div className="text-white text-3xl uppercase font-bold">Mars</div>
-          <div className="text-3xl font-boldtext-3xl uppercase font-bold bg-linear-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
-            AI
-          </div>
+          <div className="text-white text-3xl uppercase font-bold">Mars</div> 
+          <div className="text-3xl font-boldtext-3xl uppercase font-bold bg-linear-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">AI</div>
         </div>
       </Link>
 
@@ -188,37 +191,88 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className=" flex items-center gap-7">
-        <div>
+
+
+
+
+
+
+
+<div className="flex items-center gap-2">
+  <button 
+    onClick={() => i18n.changeLanguage('fr')}
+    title="Français"
+    style={{
+      opacity: i18n.language === 'fr' ? 1 : 0.5,
+      cursor: 'pointer',
+      transition: 'opacity 0.3s',
+      background: 'none',
+      border: 'none'
+    }}
+  >
+    {/*SVG Drapeau FR */}
+    <svg height="25" width="25" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <mask id="circleFlagsFr0">
+        <circle cx="256" cy="256" fill="#fff" r="256"/>
+      </mask>
+      <g mask="url(#circleFlagsFr0)">
+        <path d="M167 0h178l25.9 252.3L345 512H167l-29.8-253.4z" fill="#eee"/>
+        <path d="M0 0h167v512H0z" fill="#0052b4"/>
+        <path d="M345 0h167v512H345z" fill="#d80027"/>
+      </g>
+    </svg>
+  </button>
+
+  <button 
+    onClick={() => i18n.changeLanguage('en')}
+    title="English"
+    style={{
+      opacity: i18n.language === 'en' ? 1 : 0.5,
+      cursor: 'pointer',
+      transition: 'opacity 0.3s',
+      background: 'none',
+      border: 'none'
+    }}
+  >
+     {/*SVG Drapeau EN */}
+    <svg height="25" width="25" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <mask id="circleFlagsEn0">
+        <circle cx="256" cy="256" fill="#fff" r="256"/>
+      </mask>
+      <g mask="url(#circleFlagsEn0)">
+        <path d="m0 0l8 22l-8 23v23l32 54l-32 54v32l32 48l-32 48v32l32 54l-32 54v68l22-8l23 8h23l54-32l54 32h32l48-32l48 32h32l54-32l54 32h68l-8-22l8-23v-23l-32-54l32-54v-32l-32-48l32-48v-32l-32-54l32-54V0l-22 8l-23-8h-23l-54 32l-54-32h-32l-48 32l-48-32h-32l-54 32L68 0z" fill="#eee"/>
+        <path d="M336 0v108L444 0Zm176 68L404 176h108zM0 176h108L0 68ZM68 0l108 108V0Zm108 512V404L68 512ZM0 444l108-108H0Zm512-108H404l108 108Zm-68 176L336 404v108z" fill="#0052b4"/>
+        <path d="M0 0v45l131 131h45zm208 0v208H0v96h208v208h96V304h208v-96H304V0zm259 0L336 131v45L512 0zM176 336L0 512h45l131-131zm160 0l176 176v-45L381 336z" fill="#d80027"/>
+      </g>
+    </svg>
+  </button>
+  
+
+
+
+
+
+
+
+
+
+   {/*}div className=" flex items-center gap-7"> 
+      <div>
           <Link to="/">
-            {/* langue*/}
-            <svg
-              height="25"
-              width="25"
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <mask id="circleFlagsEn0">
-                <circle cx="256" cy="256" fill="#fff" r="256" />
-              </mask>
-              <g mask="url(#circleFlagsEn0)">
-                <path
-                  d="m0 0l8 22l-8 23v23l32 54l-32 54v32l32 48l-32 48v32l32 54l-32 54v68l22-8l23 8h23l54-32l54 32h32l48-32l48 32h32l54-32l54 32h68l-8-22l8-23v-23l-32-54l32-54v-32l-32-48l32-48v-32l-32-54l32-54V0l-22 8l-23-8h-23l-54 32l-54-32h-32l-48 32l-48-32h-32l-54 32L68 0z"
-                  fill="#eee"
-                />
-                <path
-                  d="M336 0v108L444 0Zm176 68L404 176h108zM0 176h108L0 68ZM68 0l108 108V0Zm108 512V404L68 512ZM0 444l108-108H0Zm512-108H404l108 108Zm-68 176L336 404v108z"
-                  fill="#0052b4"
-                />
-                <path
-                  d="M0 0v45l131 131h45zm208 0v208H0v96h208v208h96V304h208v-96H304V0zm259 0L336 131v45L512 0zM176 336L0 512h45l131-131zm160 0l176 176v-45L381 336z"
-                  fill="#d80027"
-                />
-              </g>
-            </svg>
-          </Link>
-          {/* langue fr 
-         <Link to="/">
+          {/* langue*/}
+         {/*} <svg height="25" width="25" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+	<mask id="circleFlagsEn0">
+		<circle cx="256" cy="256" fill="#fff" r="256"/>
+	</mask>
+	<g mask="url(#circleFlagsEn0)">
+		<path d="m0 0l8 22l-8 23v23l32 54l-32 54v32l32 48l-32 48v32l32 54l-32 54v68l22-8l23 8h23l54-32l54 32h32l48-32l48 32h32l54-32l54 32h68l-8-22l8-23v-23l-32-54l32-54v-32l-32-48l32-48v-32l-32-54l32-54V0l-22 8l-23-8h-23l-54 32l-54-32h-32l-48 32l-48-32h-32l-54 32L68 0z" fill="#eee"/>
+		<path d="M336 0v108L444 0Zm176 68L404 176h108zM0 176h108L0 68ZM68 0l108 108V0Zm108 512V404L68 512ZM0 444l108-108H0Zm512-108H404l108 108Zm-68 176L336 404v108z" fill="#0052b4"/>
+		<path d="M0 0v45l131 131h45zm208 0v208H0v96h208v208h96V304h208v-96H304V0zm259 0L336 131v45L512 0zM176 336L0 512h45l131-131zm160 0l176 176v-45L381 336z" fill="#d80027"/>
+	</g> 
+</svg>  
+        </Link>
+   {/* langue fr */}
+         {/*<Link to="/">
        
           <svg height="25" width="25" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
 	<mask id="circleFlagsFr0">
@@ -230,8 +284,18 @@ export default function Navbar() {
 		<path d="M345 0h167v512H345z" fill="#d80027"/>
 	</g>
 </svg>
-        </Link>*/}
-        </div>
+        </Link>
+        </div>*/}
+
+
+
+
+
+
+
+
+
+
 
         <div className=" mr-3">
           {firstName ? (
@@ -263,5 +327,7 @@ export default function Navbar() {
         </div>
       </div>
     </div>
+    
+  
   );
 }
