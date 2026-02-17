@@ -143,8 +143,8 @@
         "subtitle": "THE TEMPORAL PROTOCOL",
         "year": "2026",
         "title1": "IMAGINE",
-        "title2": "DESIRABLE",
-        "title3": "FUTURES",
+        "title2": "FUTURES",
+        "title3": "DESIRABLE",
         "description1": "The festival of 60-second short films created by AI.",
         "description2": "Two days of immersion in the heart of Marseille.",
         "button": "submit your film ➝"
@@ -271,6 +271,59 @@
     },
     "termsAccepted": {
       "required": "You must accept the terms"
+    }
+  },
+  "pages": {
+    "home": {
+      "hero": {
+        "subtitle": "THE TEMPORAL PROTOCOL",
+        "year": "2026",
+        "title1": "IMAGINE",
+        "title2": "DESIRABLE",
+        "title3": "FUTURES",
+        "description1": "The festival of 60-second short films created by AI.",
+        "description2": "Two days of immersion in the heart of Marseille.",
+        "button": "submit your film ➝"
+      },
+      "reassure": {
+        "card1": { "title": "1 MINUTE", "description": "Ultra-short format for maximum impact" },
+        "card2": { "title": "FREE", "description": "Accessible conferences and workshops." },
+        "card3": { "title": "FOR EVERYONE", "description": "Professionals, students and curious minds." },
+        "card4": { "title": "EXPERTISE", "description": "World leaders in generative AI." }
+      },
+      "goals": {
+        "title": "Festival",
+        "titleAccent": "Objectives",
+        "card1": { "title": "HUMAN-CENTERED", "description": "Put humans at the heart of creation to preserve emotion." },
+        "card2": { "title": "CREATIVE CHALLENGE", "description": "Challenge creativity with an ultra-short 60s format." },
+        "card3": { "title": "DESIRABLE FUTURES", "description": "Explore desirable futures through emerging technologies." }
+      },
+      "protocole": {
+        "immersion": "Total Immersion",
+        "title": "THE TEMPORAL",
+        "titleAccent": "PROTOCOL",
+        "titleEnd": "",
+        "card1": { "title": "2 MONTHS", "description": "OF PREPARATION" },
+        "card2": { "title": "50 FILMS", "description": "IN SELECTION" },
+        "card3": { "title": "WEB 3.0", "description": "EXPERIENCE" },
+        "card4": { "title": "DAY 4", "description": "MARSEILLE" },
+        "button": "Join the adventure ➝"
+      },
+      "program": {
+        "title": "TWO DAYS OF",
+        "titleAccent": "FREE CONFERENCES",
+        "agendaLabel": "agenda",
+        "debateItem": "Engaged debates on ethics and the future",
+        "confrontationItem": "Confrontations of ideas between artists and tech",
+        "interrogationItem": "Stimulating questions about creation",
+        "projectionsTitle": "screenings",
+        "projectionsDescription": "Screening on a giant screen in the presence of the filmmakers and the festival team.",
+        "workshopsTitle": "workshops",
+        "workshopsDescription": "Practical sessions to discover AI creation tools and experiment live with artists and technicians.",
+        "awardsTitle": "AWARDS",
+        "awardsDescription": "Prize ceremony with an expert jury and a passionate audience.",
+        "fullAgendaButton": "full agenda ➝"
+      }
     }
   },
   "common": {

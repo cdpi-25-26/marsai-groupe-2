@@ -136,6 +136,7 @@
 
 
 
+    
   "pages": {
     "home": {
       "hero": {
@@ -174,6 +175,7 @@
       }
     }
   },
+
 
 
 
@@ -267,6 +269,59 @@
     },
     "termsAccepted": {
       "required": "Vous devez accepter les conditions"
+    }
+  },
+  "pages": {
+    "home": {
+      "hero": {
+        "subtitle": "LE PROTOCOLE TEMPOREL",
+        "year": "2026",
+        "title1": "IMAGINEZ DES",
+        "title2": "FUTURS",
+        "title3": "SOUHAITABLES",
+        "description1": "Le festival de courts-métrages de 60 secondes réalisés par IA.",
+        "description2": "Deux jours d'immersion au cœur de Marseille.",
+        "button": "inscrivez votre film ➝"
+      },
+      "reassure": {
+        "card1": { "title": "1 MINUTE", "description": "Format ultra-court pour un impact maximum" },
+        "card2": { "title": "GRATUITÉ", "description": "Conférences et workshops accessibles." },
+        "card3": { "title": "POUR TOUS", "description": "Professionnels, étudiants et curieux." },
+        "card4": { "title": "EXPERTISE", "description": "Leaders mondiaux de l'IA générative." }
+      },
+      "goals": {
+        "title": "Objectifs du",
+        "titleAccent": "festival",
+        "card1": { "title": "L'HUMAIN AU CENTRE", "description": "Mettre l'humain au cœur de la création pour ne pas perdre l'émotion." },
+        "card2": { "title": "CHALLENGE CRÉATIF", "description": "Challenger la créativité grâce à un format ultra-court de 60s." },
+        "card3": { "title": "FUTURS SOUHAITABLES", "description": "Explorer les futurs désirables via les technologies émergentes." }
+      },
+      "protocole": {
+        "immersion": "Immersion Totale",
+        "title": "LE",
+        "titleAccent": "PROTOCOLE",
+        "titleEnd": "TEMPOREL",
+        "card1": { "title": "2 MOIS", "description": "DE PRÉPARATION" },
+        "card2": { "title": "50 FILMS", "description": "EN SÉLECTION" },
+        "card3": { "title": "WEB 3.0", "description": "EXPÉRIENCE" },
+        "card4": { "title": "J4", "description": "MARSEILLE" },
+        "button": "Rejoindre l'aventure ➝"
+      },
+      "program": {
+        "title": "DEUX JOURNÉES DE",
+        "titleAccent": "CONFÉRENCES gratuites",
+        "agendaLabel": "agenda",
+        "debateItem": "Débats engagés sur l'éthique et le future",
+        "confrontationItem": "Confrontations d'idées entre artistes et tech",
+        "interrogationItem": "Interrogations stimulantes sur la création",
+        "projectionsTitle": "projections",
+        "projectionsDescription": "Diffusion sur écran géant en présence des réalisateurs et de l'équipe du festival.",
+        "workshopsTitle": "workshops",
+        "workshopsDescription": "Sessions pratiques pour découvrir les outils de création IA et expérimenter en direct avec des artistes et techniciens.",
+        "awardsTitle": "AWARDS",
+        "awardsDescription": "Cérémonie de remise des prix avec un jury d'experts et une audience passionnée.",
+        "fullAgendaButton": "agenda complet ➝"
+      }
     }
   },
   "common": {
