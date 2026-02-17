@@ -12,6 +12,7 @@ import sequelize from "./src/db/connection.js";
 import db from "./src/models/index.js";
 import routes from "./src/routes/index.js";
 import startYoutubeWatcher from "./src/utils/youtubewatcher.js";
+import youtubeController from "./src/controllers/YoutubeController.js";
 
 // Charge les variables d'environnement
 dotenv.config();
@@ -51,6 +52,9 @@ async function startServer() {
     // Test de connexion à la base de données
     await sequelize.authenticate();
     console.log("✓ Connexion à la base de données MySQL établie avec succès");
+
+    // Initialise le token YouTube et refresh automatique
+    await youtubeController.initYoutubeAuth();
 
     // Démarrage du serveur
     app.listen(PORT, () => {
