@@ -7,7 +7,6 @@ import { useState, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
-import { getCategories } from "../../api/videos.js";
 
 function Awards() {
   const queryClient = useQueryClient();
@@ -27,14 +26,8 @@ function Awards() {
     queryFn: getVideos,
   });
 
-  const { data: categoriesData } = useQuery({
-    queryKey: ["categories"],
-    queryFn: getCategories,
-  });
-
   const awards = awardsData?.data || [];
   const movies = moviesData?.data || [];
-  const categories = categoriesData?.data || [];
 
   // Films candidats (status: candidate, selected, finalist) qui peuvent recevoir un prix
   const candidateMovies = useMemo(() => {
@@ -46,6 +39,10 @@ function Awards() {
   // Films déjà primés (status: awarded)
   const awardedMovies = useMemo(() => {
     return movies.filter((movie) => movie.selection_status === "awarded");
+  }, [movies]);
+
+  const proposedMovies = useMemo(() => {
+    return movies.filter((movie) => movie.selection_status === "selected" || movie.selection_status === "finalist");
   }, [movies]);
 
   // Grouper les prix par film
@@ -192,14 +189,6 @@ function Awards() {
           : null;
   };
 
-  // Filtrer les films affichés
-  const filteredMovies = useMemo(() => {
-    if (!filterMovie) return candidateMovies;
-    return candidateMovies.filter((movie) =>
-      movie.title.toLowerCase().includes(filterMovie.toLowerCase())
-    );
-  }, [candidateMovies, filterMovie]);
-
   if (awardsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -289,7 +278,7 @@ function Awards() {
       {activeTab === "create" && (
         <>
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
               <p className="text-gray-400 text-sm">Total des prix</p>
               <p className="text-3xl font-bold text-white mt-1">{awards.length}</p>
@@ -301,10 +290,6 @@ function Awards() {
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
               <p className="text-gray-400 text-sm">Films primés</p>
               <p className="text-3xl font-bold text-white mt-1">{awardedMovies.length}</p>
-            </div>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <p className="text-gray-400 text-sm">Catégories</p>
-              <p className="text-3xl font-bold text-white mt-1">{categories.length}</p>
             </div>
           </div>
 
@@ -319,11 +304,22 @@ function Awards() {
                   const poster = getPoster(movie);
                   const movieAwards = (movie.Awards || []);
                   return (
-                    <button
+                    <div
                       key={movie.id_movie}
-                      onClick={() => handleOpenModal(movie)}
                       className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden hover:border-[#AD46FF] hover:scale-105 transition-all text-left"
                     >
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleOpenModal(movie)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleOpenModal(movie);
+                          }
+                        }}
+                        className="w-full text-left cursor-pointer"
+                      >
                       <div className="relative aspect-[3/4] bg-gray-800">
                         {poster ? (
                           <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
@@ -355,8 +351,22 @@ function Awards() {
                             </span>
                           ))}
                         </div>
+                        {movieAwards.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAwardMovie(movie.id_movie);
+                            }}
+                            disabled={markAsAwardedMutation.isPending}
+                            className="w-full mt-2 px-2 py-1 bg-green-600/80 text-white rounded text-[10px] hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Passer en films primés
+                          </button>
+                        )}
                       </div>
-                    </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -367,6 +377,20 @@ function Awards() {
 
       {activeTab === "awarded" && (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <h2 className="text-xl font-semibold mb-3">Films proposés à la candidature</h2>
+          {proposedMovies.length === 0 ? (
+            <p className="text-gray-500 text-sm mb-6">Aucun film proposé pour le moment.</p>
+          ) : (
+            <div className="mb-6 space-y-2">
+              {proposedMovies.map((movie) => (
+                <div key={`proposed-${movie.id_movie}`} className="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 flex items-center justify-between">
+                  <span className="text-white text-sm truncate">{movie.title}</span>
+                  <span className="text-[11px] bg-green-900/40 text-green-200 px-2 py-0.5 rounded-full">Proposé</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           <h2 className="text-xl font-semibold mb-4">Films primés</h2>
           {awardedMovies.length === 0 ? (
             <p className="text-gray-400 text-center py-8">Aucun film primé pour le moment.</p>

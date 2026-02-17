@@ -5,7 +5,7 @@
  */
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCategories } from "../../api/videos.js";
+import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/videos.js";
 
 function Categories() {
   const queryClient = useQueryClient();
@@ -20,45 +20,23 @@ function Categories() {
 
   const categories = data?.data || [];
 
-  // Note: Vous devrez créer ces endpoints dans votre API
   const createCategoryMutation = useMutation({
-    mutationFn: async (name) => {
-      const response = await fetch("http://localhost:3000/api/categories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ name }),
-      });
-      if (!response.ok) throw new Error("Erreur lors de la création");
-      return response.json();
-    },
+    mutationFn: (name) => createCategory(name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       setCategoryName("");
       setFeedback({ type: "success", message: "Catégorie créée avec succès" });
       setTimeout(() => setFeedback(null), 3000);
     },
-    onError: () => {
-      setFeedback({ type: "error", message: "Erreur lors de la création" });
+    onError: (err) => {
+      const message = err?.response?.data?.error || "Erreur lors de la création";
+      setFeedback({ type: "error", message });
       setTimeout(() => setFeedback(null), 3000);
     },
   });
 
   const updateCategoryMutation = useMutation({
-    mutationFn: async ({ id, name }) => {
-      const response = await fetch(`http://localhost:3000/api/categories/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ name }),
-      });
-      if (!response.ok) throw new Error("Erreur lors de la modification");
-      return response.json();
-    },
+    mutationFn: ({ id, name }) => updateCategory(id, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       setEditingCategory(null);
@@ -66,30 +44,23 @@ function Categories() {
       setFeedback({ type: "success", message: "Catégorie modifiée avec succès" });
       setTimeout(() => setFeedback(null), 3000);
     },
-    onError: () => {
-      setFeedback({ type: "error", message: "Erreur lors de la modification" });
+    onError: (err) => {
+      const message = err?.response?.data?.error || "Erreur lors de la modification";
+      setFeedback({ type: "error", message });
       setTimeout(() => setFeedback(null), 3000);
     },
   });
 
   const deleteCategoryMutation = useMutation({
-    mutationFn: async (id) => {
-      const response = await fetch(`http://localhost:3000/api/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (!response.ok) throw new Error("Erreur lors de la suppression");
-      return response.json();
-    },
+    mutationFn: (id) => deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       setFeedback({ type: "success", message: "Catégorie supprimée avec succès" });
       setTimeout(() => setFeedback(null), 3000);
     },
-    onError: () => {
-      setFeedback({ type: "error", message: "Erreur lors de la suppression" });
+    onError: (err) => {
+      const message = err?.response?.data?.error || "Erreur lors de la suppression";
+      setFeedback({ type: "error", message });
       setTimeout(() => setFeedback(null), 3000);
     },
   });
