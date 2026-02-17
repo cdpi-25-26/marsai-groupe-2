@@ -653,7 +653,6 @@ export default function Movies() {
   }, [awards]);
 
   const groupedMovies = useMemo(() => {
-    const assignJury = [];
     const firstVote = [];
     const decision = [];
     const candidate = [];
@@ -694,13 +693,14 @@ export default function Movies() {
         return;
       }
 
-      assignJury.push({ movie, summary });
+      // Films avec status "submitted" vont directement en firstVote
+      firstVote.push({ movie, summary });
     });
 
     decision.sort((a, b) => (b.score || 0) - (a.score || 0));
     candidate.sort((a, b) => (b.summary?.average || 0) - (a.summary?.average || 0));
 
-    return { assignJury, firstVote, decision, candidate, awarded, refused };
+    return { firstVote, decision, candidate, awarded, refused };
   }, [filteredMovies, voteSummaryByMovie]);
 
   const decisionMovies = useMemo(() => {
@@ -812,24 +812,6 @@ export default function Movies() {
           {!activeFolder ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5 max-w-7xl w-full">
-                <button
-                  onClick={() => setActiveFolder("assign")}
-                  className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#AD46FF] transition-all shadow-2xl group hover:shadow-[#AD46FF]/20"
-                >
-                  <div className="text-center">
-                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-[#AD46FF] to-[#F6339A] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                      <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-                      </svg>
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-[#AD46FF] transition-colors">À assigner jury</h2>
-                    <p className="text-gray-400 mb-4">Nouveaux films</p>
-                    <div className="inline-block px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-full font-bold text-xl shadow-lg">
-                      {groupedMovies.assignJury.length}
-                    </div>
-                  </div>
-                </button>
-
                 <button
                   onClick={() => setActiveFolder("assigned")}
                   className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#5EEAD4] transition-all shadow-2xl group hover:shadow-[#5EEAD4]/20"
@@ -945,63 +927,6 @@ export default function Movies() {
                 </h2>
                 <div className="w-24"></div>
               </div>
-
-              {activeFolder === "assign" && (
-                groupedMovies.assignJury.length === 0 ? (
-                  <p className="text-center text-gray-400 py-12">Aucun film à assigner.</p>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {groupedMovies.assignJury.map(({ movie }) => {
-                      const poster = getPoster(movie);
-                      const juriesCount = (movie.Juries || []).length;
-                      return (
-                        <div key={`assign-${movie.id_movie}`} className="bg-gray-950 border border-gray-800 rounded-lg overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedMovie(movie)}
-                            className="w-full text-left p-2 hover:bg-gray-900 transition flex gap-2 items-center"
-                          >
-                            <div className="w-16 h-16 flex-shrink-0 bg-gray-800 rounded overflow-hidden">
-                              {poster ? (
-                                <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-xs font-semibold text-white truncate">{movie.title}</h3>
-                              <div className="mt-0.5 flex items-center gap-2 text-[10px] text-gray-400">
-                                <span>Jurys: {juriesCount}</span>
-                              </div>
-                            </div>
-                          </button>
-                          <div className="p-2 pt-0 flex gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedMovie(movie)}
-                              className="flex-1 px-2 py-1 bg-gray-800 text-white rounded text-[10px] hover:bg-gray-700"
-                            >
-                              Assigner jurys
-                            </button>
-                            <button
-                              type="button"
-                              disabled={juriesCount === 0}
-                              onClick={() => {
-                                if (window.confirm("Lancer la première votation pour ce film ?")) {
-                                  statusMutation.mutate({ id: movie.id_movie, status: "assigned" });
-                                }
-                              }}
-                              className="flex-1 px-2 py-1 bg-[#5EEAD4]/80 text-white rounded text-[10px] hover:bg-[#5EEAD4] disabled:opacity-50"
-                            >
-                              Confirmer vote
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )
-              )}
 
               {activeFolder === "assigned" && (
                 groupedMovies.firstVote.length === 0 ? (
@@ -1753,4 +1678,6 @@ export default function Movies() {
           </div>
         </div>
       )}
+    </div>
+  );
 }

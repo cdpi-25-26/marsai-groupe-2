@@ -39,6 +39,7 @@ import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
 import Categories from "./pages/admin/Categories.jsx";
 import Awards from "./pages/admin/Awards.jsx";
+import JuryManagement from "./pages/admin/JuryManagement.jsx";
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
@@ -105,6 +106,9 @@ createRoot(document.getElementById("root")).render(
             
             {/* Gestion des prix */}
             <Route path="awards" element={<Awards />} />
+            
+            {/* Distribution & Gestion des jurys */}
+            <Route path="jury" element={<JuryManagement />} />
           </Route>
 
           {/* ========================================
