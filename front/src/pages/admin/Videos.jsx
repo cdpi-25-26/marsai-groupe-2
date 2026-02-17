@@ -495,6 +495,142 @@
  */
 
 
+// import { useState } from "react";
+// import { useVideosData } from "../../hooks/useVideosData";
+// import VideosList from "../../components/admin/VideosList";
+
+// export default function Movies() {
+
+//   // Pagination state
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+
+//   const {
+//     videos,
+//     categories,
+//     juries,
+//     categorySelection,
+//     setCategorySelection,
+//     jurySelection,
+//     setJurySelection,
+//     selectedMovie,
+//     setSelectedMovie,
+//     updateStatus,
+//     updateCategories,
+//     updateJuries,
+//     deleteMovie,
+//     getPoster,
+//     uploadBase,
+//     isUpdatingCategories,
+//     isUpdatingJuries,
+//     isLoading,
+//     isError,
+//     error
+//   } = useVideosData();
+
+//   const handleCategoryChange = (movieId, cats) => {
+//     setCategorySelection(prev => ({ ...prev, [movieId]: cats }));
+//   };
+
+//   const handleCategorySave = (movieId) => {
+//     updateCategories({ id: movieId, categories: categorySelection[movieId] || [] });
+//   };
+
+//   const handleJuryToggle = (movieId, juryId) => {
+//     setJurySelection((prev) => {
+//       const current = prev[movieId] || [];
+//       return {
+//         ...prev,
+//         [movieId]: current.includes(juryId)
+//           ? current.filter(id => id !== juryId)
+//           : [...current, juryId]
+//       };
+//     });
+//   };
+
+//   const handleJurySave = (movieId) => {
+//     updateJuries({ id: movieId, juryIds: jurySelection[movieId] || [] });
+//   };
+
+//   const handleStatusUpdate = (movieId, status) => {
+//     updateStatus({ id: movieId, status });
+//   };
+
+//   const handleDelete = (movieId) => {
+//     deleteMovie(movieId);
+//     setSelectedMovie(null);
+//   };
+
+//   // Pagination handlers
+//   const handlePageChange = (page) => {
+//     setCurrentPage(page);
+//   };
+
+//   const handleItemsPerPageChange = (items) => {
+//     setItemsPerPage(items);
+//     setCurrentPage(1); // Reset to first page when changing items per page
+//   };
+
+//   if (isLoading) return (
+//     <div className="flex items-center justify-center h-64">
+//       <div className="text-gray-400 flex items-center gap-2 bg-[#1a1c20]/80 border border-white/10 rounded-lg px-4 py-2">
+//         <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+//         <span className="text-sm">Chargement des vidéos...</span>
+//       </div>
+//     </div>
+//   );
+  
+//   if (isError) return (
+//     <div className="flex items-center justify-center h-64">
+//       <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">
+//         Erreur: {error.message}
+//       </div>
+//     </div>
+//   );
+
+//   return (
+//     <div className="space-y-4">
+//       <div className="flex items-center justify-between">
+//         <div>
+//           <h1 className="text-xl font-semibold text-white">Gestion des films</h1>
+//           <p className="text-xs text-gray-400 mt-1">
+//             {videos.length} film{videos.length !== 1 ? 's' : ''} enregistré{videos.length !== 1 ? 's' : ''}
+//           </p>
+//         </div>
+//       </div>
+
+//       <VideosList
+//         videos={videos}
+//         categories={categories}
+//         juries={juries}
+//         categorySelection={categorySelection}
+//         jurySelection={jurySelection}
+//         selectedMovie={selectedMovie}
+//         onMovieSelect={setSelectedMovie}
+//         onModalClose={() => setSelectedMovie(null)}
+//         onCategoryChange={handleCategoryChange}
+//         onCategorySave={handleCategorySave}
+//         onJuryToggle={handleJuryToggle}
+//         onJurySave={handleJurySave}
+//         onStatusUpdate={handleStatusUpdate}
+//         onDelete={handleDelete}
+//         getPoster={getPoster}
+//         uploadBase={uploadBase}
+//         isUpdatingCategories={isUpdatingCategories}
+//         isUpdatingJuries={isUpdatingJuries}
+//         showPagination={true}
+//         currentPage={currentPage}
+//         totalPages={Math.ceil(videos.length / itemsPerPage)}
+//         itemsPerPage={itemsPerPage}
+//         onPageChange={handlePageChange}
+//         onItemsPerPageChange={handleItemsPerPageChange}
+//       />
+//     </div>
+//   );
+// }
+
+
 import { useState } from "react";
 import { useVideosData } from "../../hooks/useVideosData";
 import VideosList from "../../components/admin/VideosList";
@@ -573,28 +709,28 @@ export default function Movies() {
   };
 
   if (isLoading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-gray-400 flex items-center gap-2 bg-[#1a1c20]/80 border border-white/10 rounded-lg px-4 py-2">
-        <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-        <span className="text-sm">Chargement des vidéos...</span>
+    <div className="flex items-center justify-center h-48 sm:h-64">
+      <div className="text-gray-400 flex items-center gap-2 bg-[#1a1c20]/80 border border-white/10 rounded-lg px-3 sm:px-4 py-2">
+        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+        <span className="text-xs sm:text-sm">Chargement des vidéos...</span>
       </div>
     </div>
   );
   
   if (isError) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">
+    <div className="flex items-center justify-center h-48 sm:h-64">
+      <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-red-400 text-xs sm:text-sm max-w-[90%]">
         Erreur: {error.message}
       </div>
     </div>
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3 sm:space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl font-semibold text-white">Gestion des films</h1>
-          <p className="text-xs text-gray-400 mt-1">
+          <h1 className="text-lg sm:text-xl font-semibold text-white">Gestion des films</h1>
+          <p className="text-[10px] sm:text-xs text-gray-400 mt-1">
             {videos.length} film{videos.length !== 1 ? 's' : ''} enregistré{videos.length !== 1 ? 's' : ''}
           </p>
         </div>
