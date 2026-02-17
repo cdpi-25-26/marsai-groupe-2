@@ -1,0 +1,113 @@
+Button effects
+
+
+/* Approuver */
+from-green-600/90 to-green-700/90  /* Fond */
+border-green-500/30                 /* Bordure */
+hover:shadow-green-500/40           /* Ombre */
+
+/* Refuser */
+from-red-600/90 to-red-700/90       /* Fond */
+border-red-500/30                    /* Bordure */
+hover:shadow-red-500/40              /* Ombre */
+
+/* Supprimer (état normal) */
+from-gray-700/90 to-gray-800/90      /* Fond */
+border-white/10                       /* Bordure */
+
+/* Supprimer (hover) */
+hover:from-red-700 hover:to-red-800  /* Fond devient rouge */
+hover:border-red-500/30               /* Bordure devient rouge */
+hover:shadow-red-500/40               /* Ombre devient rouge */
+
+
+
+*********   EFFETS GLASS
+
+
+1. Fond Transparent (Background)
+bg-green-500/10 - Fond vert à 10% d'opacité
+
+bg-red-500/10 - Fond rouge à 10% d'opacité
+
+bg-gray-500/10 - Fond gris à 10% d'opacité
+
+hover:bg-green-500/20 - Au survol, le fond passe à 20% d'opacité
+
+hover:bg-red-500/20 - Au survol, le fond passe à 20% d'opacité
+
+2. Flou d'Arrière-plan (Backdrop Blur)
+backdrop-blur-sm - Applique un petit flou sur les éléments situés derrière le bouton
+
+3. Bordures Semi-transparentes (Borders)
+border border-green-500/30 - Bordure verte à 30% d'opacité
+
+border border-red-500/30 - Bordure rouge à 30% d'opacité
+
+border border-white/10 - Bordure blanche à 10% d'opacité
+
+hover:border-green-500/50 - Au survol, bordure à 50% d'opacité
+
+hover:border-red-500/50 - Au survol, bordure à 50% d'opacité
+
+4. Couleurs de Texte (Text Colors)
+text-green-300 - Texte vert clair
+
+text-red-300 - Texte rouge clair
+
+text-gray-300 - Texte gris clair
+
+hover:text-green-200 - Au survol, texte vert plus clair
+
+hover:text-red-200 - Au survol, texte rouge plus clair
+
+✨ EFFETS D'INTERACTION
+5. Effet d'Échelle (Scale)
+hover:scale-[1.02] - Le bouton s'agrandit de 2% au survol
+
+active:scale-[0.98] - Le bouton se réduit de 2% au clic (effet d'enfoncement)
+
+6. Ombres Portées (Shadows)
+shadow-lg - Ombre standard
+
+hover:shadow-green-500/20 - Ombre verte à 20% au survol
+
+hover:shadow-red-500/20 - Ombre rouge à 20% au survol
+
+7. Transition Fluide
+transition-all duration-200 - Toutes les propriétés animées sur 200ms
+
+📊 RÉSUMÉ PAR BOUTON
+Effet	Approuver	Refuser	Supprimer
+Fond transparent	bg-green-500/10	bg-red-500/10	bg-gray-500/10
+Fond au survol	hover:bg-green-500/20	hover:bg-red-500/20	hover:bg-red-500/20
+Flou arrière-plan	✅ backdrop-blur-sm	✅ backdrop-blur-sm	✅ backdrop-blur-sm
+Bordure	border-green-500/30	border-red-500/30	border-white/10
+Bordure au survol	hover:border-green-500/50	hover:border-red-500/50	hover:border-red-500/50
+Texte	text-green-300	text-red-300	text-gray-300
+Texte au survol	hover:text-green-200	hover:text-red-200	hover:text-red-200
+Scale hover	✅ hover:scale-[1.02]	✅ hover:scale-[1.02]	✅ hover:scale-[1.02]
+Scale active	✅ active:scale-[0.98]	✅ active:scale-[0.98]	✅ active:scale-[0.98]
+Ombre	✅ shadow-lg	✅ shadow-lg	✅ shadow-lg
+Ombre colorée survol	hover:shadow-green-500/20	hover:shadow-red-500/20	hover:shadow-red-500/20
+Transition	✅ duration-200	✅ duration-200	✅ duration-200
+🎯 CODE COULEURS
+css
+/* Opacités utilisées */
+/10 = 10% d'opacité
+/20 = 20% d'opacité
+/30 = 30% d'opacité
+/50 = 50% d'opacité
+
+/* Niveaux de texte */
+text-green-300 = vert clair (niveau 300)
+text-green-200 = vert plus clair (niveau 200)
+text-red-300 = rouge clair (niveau 300)
+text-red-200 = rouge plus clair (niveau 200)
+text-gray-300 = gris clair (niveau 300)
+Ces effets combinés créent un style glass moderne, épuré et cohérent avec le reste de l'interface !
+
+
+
+{/* shimmer effect*/}
+<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />

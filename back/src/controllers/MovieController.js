@@ -6,7 +6,8 @@ const {
   Movie,
   Categorie,
   Collaborator,
-  User
+  User,
+  Award
 } = db;
 
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -44,6 +45,10 @@ async function getMovies(req, res) {
         {
           model: Collaborator,
           through: { attributes: [] }
+        },
+        {
+          model: Award,
+          required: false
         },
         {
           model: User,
@@ -117,6 +122,7 @@ async function getMovieById(req, res) {
         { model: Collaborator,
           through: { attributes: [] } 
          },
+        { model: Award, required: false },
         { model: User, as: "Producer", attributes: ["id_user", "first_name", "last_name"] },
         {
           model: User,
@@ -229,12 +235,12 @@ async function createMovie(req, res) {
     }
 
     // -3.5- Mettre à jour l'origine de connaissance du festival si fournie
-    if (knownByMarsAi) {
-      await User.update(
-        { known_by_mars_ai: knownByMarsAi },
-        { where: { id_user } }
-      );
-    }
+    // if (knownByMarsAi) {
+    //   await User.update(
+    //     { known_by_mars_ai: knownByMarsAi },
+    //     { where: { id_user } }
+    //   );
+    // }
 
     // -4-Création du film
     const newMovie = await Movie.create({
