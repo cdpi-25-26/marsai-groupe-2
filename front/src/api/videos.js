@@ -22,6 +22,14 @@ async function getAssignedMovies() {
 }
 
 /**
+ * Promotion candidature (JURY)
+ * Endpoint: PUT /movies/:id/jury-candidate
+ */
+async function promoteMovieToCandidateByJury(id, jury_comment = "") {
+  return await instance.put(`movies/${id}/jury-candidate`, { jury_comment });
+}
+
+/**
  * Met à jour le statut d'un film
  * Endpoint: PUT /movies/:id/status
  */
@@ -96,6 +104,7 @@ async function deleteCategory(id) {
 export {
   getVideos,
   getAssignedMovies,
+  promoteMovieToCandidateByJury,
   updateMovieStatus,
   updateMovie,
   updateMovieCategories,

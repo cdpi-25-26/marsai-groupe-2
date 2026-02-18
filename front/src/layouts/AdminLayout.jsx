@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 
 export default function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
   const firstName = localStorage.getItem("firstName") || "Admin";
@@ -17,6 +18,25 @@ export default function AdminLayout() {
   useEffect(() => {
     if (!token) navigate("/auth/login", { replace: true });
   }, [token, navigate]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    const applyMobileState = (matches) => {
+      setIsMobile(matches);
+      if (matches) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    applyMobileState(mediaQuery.matches);
+
+    const handler = (event) => applyMobileState(event.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  const isSidebarExpanded = !isMobile && isSidebarOpen;
 
   const handleLogout = () => {
     localStorage.clear();
@@ -143,7 +163,7 @@ export default function AdminLayout() {
       {/* ================= SIDEBAR ================= */}
       <aside
         className={`
-          ${isSidebarOpen ? "w-64" : "w-20"}
+          ${isMobile ? "w-16" : isSidebarExpanded ? "w-64" : "w-20"}
           bg-gradient-to-b from-[#111318]/90 to-[#0c0e11]/90
           backdrop-blur-xl
           border-r border-white/10
@@ -157,23 +177,23 @@ export default function AdminLayout() {
         <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-blue-500/0 via-blue-500/50 to-blue-500/0" />
         
         {/* Profile */}
-        <div className="p-5 border-b border-white/10">
+        <div className={`${isMobile ? "p-3" : "p-5"} border-b border-white/10`}>
           <div
             className={`flex ${
-              isSidebarOpen ? "items-center space-x-3" : "flex-col items-center"
+              isSidebarExpanded ? "items-center space-x-3" : "flex-col items-center"
             }`}
           >
             {/* Avatar avec effet glass */}
             <div className="relative group/avatar">
               <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full scale-0 group-hover/avatar:scale-150 transition-transform duration-500" />
-              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 border-2 border-white/20 flex items-center justify-center font-bold shadow-lg shadow-blue-500/20 backdrop-blur-sm">
-                <span className="text-lg text-white">{firstName.charAt(0).toUpperCase()}</span>
+              <div className={`${isMobile ? "w-10 h-10" : "w-12 h-12"} relative rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 border-2 border-white/20 flex items-center justify-center font-bold shadow-lg shadow-blue-500/20 backdrop-blur-sm`}>
+                <span className={`${isMobile ? "text-base" : "text-lg"} text-white`}>{firstName.charAt(0).toUpperCase()}</span>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[#111318] animate-pulse"></span>
               </div>
             </div>
 
             {/* Text */}
-            {isSidebarOpen && (
+            {isSidebarExpanded && (
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white truncate">{firstName}</p>
                 <div className="flex items-center gap-1 mt-0.5">
@@ -188,15 +208,16 @@ export default function AdminLayout() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin-dark">
+        <nav className={`flex-1 overflow-y-auto ${isMobile ? "py-2 px-2" : "py-4 px-3"} scrollbar-thin-dark`}>
           {menuItems.map((item, index) => (
             <NavLink
               key={index}
               to={item.path}
               end={item.exact}
+              title={item.label}
               className={({ isActive }) =>
                 `
-                group relative flex items-center px-3 py-2 mb-1 rounded-xl transition-all duration-200
+                group relative flex items-center ${isSidebarExpanded ? "px-3" : "justify-center px-2"} py-2 mb-1 rounded-xl transition-all duration-200
                 ${
                   isActive
                     ? "bg-gradient-to-r from-blue-600/20 to-blue-400/10 border border-blue-500/30 shadow-lg shadow-blue-500/10"
@@ -212,7 +233,7 @@ export default function AdminLayout() {
                 {item.icon("w-5 h-5")}
               </span>
 
-              {isSidebarOpen && (
+              {isSidebarExpanded && (
                 <>
                   <span className="relative text-sm font-medium flex-1 ml-3">
                     {item.label}
@@ -225,13 +246,19 @@ export default function AdminLayout() {
                   )}
                 </>
               )}
+
+              {!isSidebarExpanded && item.badge && (
+                <span className="absolute top-1 right-1 bg-blue-600 text-white text-[9px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center">
+                  {item.badge}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
 
         {/* Bottom Card */}
         <div className="p-4 border-t border-white/10">
-          {isSidebarOpen ? (
+          {isSidebarExpanded ? (
             <div className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl p-4 shadow-xl shadow-black/30 hover:border-blue-500/30 transition-all duration-300 overflow-hidden">
               
               {/* Effet de brillance */}
@@ -292,7 +319,7 @@ export default function AdminLayout() {
       <main className="flex-1 flex flex-col overflow-hidden">
         
         {/* Header */}
-        <header className="bg-gradient-to-r from-[#111318]/80 to-[#0f1116]/80 backdrop-blur-xl border-b border-white/10 px-6 py-3 flex items-center justify-between shadow-xl shadow-black/20">
+        <header className="bg-gradient-to-r from-[#111318]/80 to-[#0f1116]/80 backdrop-blur-xl border-b border-white/10 px-3 md:px-6 py-3 flex items-center justify-between shadow-xl shadow-black/20">
           
           <div className="flex items-center space-x-4">
             {/* Sidebar Toggle */}
@@ -318,7 +345,7 @@ export default function AdminLayout() {
           {/* Right header */}
           <div className="flex items-center space-x-3">
             {/* Search */}
-            <div className="relative group/search">
+            <div className="relative group/search hidden md:block">
               <input
                 type="text"
                 placeholder="Rechercher..."
@@ -344,21 +371,21 @@ export default function AdminLayout() {
             </div>
 
             {/* Icons */}
-            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center overflow-hidden">
+            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 items-center justify-center overflow-hidden hidden md:flex">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
             </button>
 
-            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center overflow-hidden">
+            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 items-center justify-center overflow-hidden hidden md:flex">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </button>
 
-            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center overflow-hidden">
+            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 items-center justify-center overflow-hidden hidden md:flex">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -368,7 +395,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[#0a0c0f] via-[#0c0e11] to-[#0d0f12] p-6 scrollbar-thin-dark">
+        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[#0a0c0f] via-[#0c0e11] to-[#0d0f12] p-3 md:p-6 scrollbar-thin-dark">
           <Outlet />
         </div>
       </main>

@@ -866,7 +866,10 @@ export default function Movies() {
                 </button>
 
                 <button
-                  onClick={() => setActiveFolder("approved")}
+                  onClick={() => {
+                    setCandidateSourceFilter("all");
+                    setActiveFolder("approved");
+                  }}
                   className="bg-gray-900 rounded-2xl p-8 border-2 border-gray-800 hover:border-[#F6339A] transition-all shadow-2xl group hover:shadow-[#F6339A]/20"
                 >
                   <div className="text-center">
@@ -1125,7 +1128,18 @@ export default function Movies() {
 
               {activeFolder === "approved" && (
                 filteredCandidateMovies.length === 0 ? (
-                  <p className="text-center text-gray-400 py-12">Aucun film approuvé.</p>
+                  <div className="text-center text-gray-400 py-12 space-y-3">
+                    <p>Aucun film approuvé pour ce filtre.</p>
+                    {groupedMovies.candidate.length > 0 && candidateSourceFilter !== "all" && (
+                      <button
+                        type="button"
+                        onClick={() => setCandidateSourceFilter("all")}
+                        className="px-3 py-1.5 bg-gray-800 text-white rounded-lg text-xs hover:bg-gray-700"
+                      >
+                        Réinitialiser le filtre (Tous)
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">

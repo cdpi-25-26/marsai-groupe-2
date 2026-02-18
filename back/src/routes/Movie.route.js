@@ -47,6 +47,7 @@ movieRouter.post("/upload", AuthMiddleware(["PRODUCER"]),
 // JURY
 // Films assignés (JURY)
 movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssignedMovies);
+movieRouter.put("/:id/jury-candidate", AuthMiddleware(["JURY"]), MovieController.promoteMovieToCandidateByJury);
 
 // Voir un film par ID (public)
 movieRouter.get("/:id", MovieController.getMovieById);
