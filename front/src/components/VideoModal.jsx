@@ -785,6 +785,7 @@
 
 
 
+import { useState } from "react";
 import { VideoPreview } from "./VideoPreview.jsx";
 
 export function VideoModal({
@@ -805,6 +806,10 @@ export function VideoModal({
   isUpdatingCategories,
   isUpdatingJuries,
 }) {
+  // Optimistic local status — updates immediately on click
+  // so the badge reflects the change without waiting for the refetch
+  const [localStatus, setLocalStatus] = useState(movie?.selection_status);
+
   if (!movie) return null;
 
   const poster = getPoster(movie);
@@ -848,27 +853,27 @@ export function VideoModal({
                 <div className="flex items-center gap-2 text-xs mt-0 flex-wrap">
                   <span className="text-white/40">ID: {movie.id_movie}</span>
                   <span className="text-white/20 hidden xs:inline">•</span>
-                  <span className="text-white/40 hidden sm:inline">
-                    {new Date(
-                      movie.created_at || Date.now(),
-                    ).toLocaleDateString("fr-FR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
+                   <span className="text-white/40 hidden sm:inline">
+                    {movie.created_at
+                      ? new Date(movie.created_at).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : "Date inconnue"}
                   </span>
                   <span
                     className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full border ${
-                      movie.selection_status === "selected"
+                      localStatus === "selected"
                         ? "bg-green-500/20 text-green-300 border-green-500/30"
-                        : movie.selection_status === "refused"
+                        : localStatus === "refused"
                           ? "bg-red-500/20 text-red-300 border-red-500/30"
                           : "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
                     }`}
                   >
-                    {movie.selection_status === "selected"
+                    {localStatus === "selected"
                       ? "Sélectionné"
-                      : movie.selection_status === "refused"
+                      : localStatus === "refused"
                         ? "Refusé"
                         : "En attente"}
                   </span>
@@ -1208,7 +1213,10 @@ export function VideoModal({
                 <div className="flex flex-row lg:flex-col gap-2">
                   <button
                     type="button"
-                    onClick={() => onStatusUpdate(movie.id_movie, "selected")}
+                    onClick={() => {
+                      setLocalStatus("selected");
+                      onStatusUpdate(movie.id_movie, "selected");
+                    }}
                     className="group relative flex-1 lg:w-full px-3 py-1.5 bg-green-500/10 backdrop-blur-sm border border-green-500/30 text-green-300 text-xs font-medium rounded-lg hover:bg-green-500/20 hover:text-green-200 hover:border-green-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-1.5 overflow-hidden cursor-pointer"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -1230,7 +1238,10 @@ export function VideoModal({
 
                   <button
                     type="button"
-                    onClick={() => onStatusUpdate(movie.id_movie, "refused")}
+                    onClick={() => {
+                      setLocalStatus("refused");
+                      onStatusUpdate(movie.id_movie, "refused");
+                    }}
                     className="group relative flex-1 lg:w-full px-3 py-1.5 bg-red-500/10 backdrop-blur-sm border border-red-500/30 text-red-300 text-xs font-medium rounded-lg hover:bg-red-500/20 hover:text-red-200 hover:border-red-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-red-500/20 flex items-center justify-center gap-1.5 overflow-hidden cursor-pointer"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />

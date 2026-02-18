@@ -359,9 +359,6 @@
 // }
 
 
-
-
-
 import { Outlet, NavLink, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 
@@ -510,20 +507,21 @@ export default function AdminLayout() {
           transition-all duration-300
           shadow-2xl shadow-black/40
           relative
+          overflow-x-hidden
         `}
       >
         {/* Effet de lueur latéral */}
         <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-blue-500/0 via-blue-500/50 to-blue-500/0" />
         
         {/* Profile */}
-        <div className="p-5 border-b border-white/10">
+        <div className="p-5 border-b border-white/10 overflow-x-hidden">
           <div
             className={`flex ${
               isSidebarOpen ? "items-center space-x-3" : "flex-col items-center"
             }`}
           >
             {/* Avatar avec effet glass */}
-            <div className="relative group/avatar">
+            <div className="relative group/avatar flex-shrink-0">
               <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full scale-0 group-hover/avatar:scale-150 transition-transform duration-500" />
               <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 border-2 border-white/20 flex items-center justify-center font-bold shadow-lg shadow-blue-500/20 backdrop-blur-sm">
                 <span className="text-base sm:text-lg text-white">{firstName.charAt(0).toUpperCase()}</span>
@@ -533,11 +531,11 @@ export default function AdminLayout() {
 
             {/* Text */}
             {isSidebarOpen && (
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="font-semibold text-white truncate text-sm sm:text-base">{firstName}</p>
                 <div className="flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-                  <p className="text-[10px] text-white/40 uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0" />
+                  <p className="text-[10px] text-white/40 uppercase tracking-wider truncate">
                     {role}
                   </p>
                 </div>
@@ -547,7 +545,7 @@ export default function AdminLayout() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin-dark">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 scrollbar-thin-dark">
           {menuItems.map((item, index) => (
             <NavLink
               key={index}
@@ -574,12 +572,12 @@ export default function AdminLayout() {
 
               {isSidebarOpen && (
                 <>
-                  <span className="relative text-xs sm:text-sm font-medium flex-1 ml-3">
+                  <span className="relative text-xs sm:text-sm font-medium flex-1 ml-3 truncate">
                     {item.label}
                   </span>
 
                   {item.badge && (
-                    <span className="relative bg-blue-600 text-white text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shadow-lg shadow-blue-600/30">
+                    <span className="relative bg-blue-600 text-white text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full shadow-lg shadow-blue-600/30 flex-shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -590,7 +588,7 @@ export default function AdminLayout() {
         </nav>
 
         {/* Bottom Card */}
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 overflow-x-hidden">
           {isSidebarOpen ? (
             <div className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl p-3 sm:p-4 shadow-xl shadow-black/30 hover:border-blue-500/30 transition-all duration-300 overflow-hidden">
               
@@ -599,15 +597,15 @@ export default function AdminLayout() {
               
               {/* Info utilisateur */}
               <div className="relative flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 pb-2 sm:pb-3 border-b border-white/10">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center flex-shrink-0">
                   <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                   </svg>
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 overflow-hidden">
                   <h3 className="text-xs sm:text-sm font-semibold text-white truncate">Mars AI</h3>
                   <p className="text-[8px] sm:text-[10px] text-white/40 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-green-400 rounded-full animate-pulse" />
+                    <span className="w-1 h-1 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
                     Dashboard Admin
                   </p>
                 </div>
@@ -623,7 +621,7 @@ export default function AdminLayout() {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
                 
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4 relative flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 <span className="relative text-xs sm:text-sm">Se déconnecter</span>
@@ -640,7 +638,7 @@ export default function AdminLayout() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 relative flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>
@@ -651,13 +649,18 @@ export default function AdminLayout() {
       {/* ================= MOBILE HEADER ================= */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-[#111318]/90 to-[#0f1116]/90 backdrop-blur-xl border-b border-white/10 px-4 py-2 flex items-center justify-between shadow-xl shadow-black/20">
         <div className="flex items-center gap-3">
+          {/* Mobile menu toggle with original animation */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            // className="p-2 rounded-lg hover:bg-white/10 transition-colors"
           >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <span
+              className={`inline-block transition-all duration-500 ${
+                isMobileMenuOpen ? "rotate-90" : "rotate-0"
+              } text-xl sm:text-2xl hover:scale-120`}
+            >
+              {isMobileMenuOpen ? "✕" : "☰"}
+            </span>
           </button>
           <div className="flex items-center">
             <span className="text-lg font-light bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">MARS</span>
@@ -691,6 +694,7 @@ export default function AdminLayout() {
           flex flex-col
           transition-transform duration-300
           shadow-2xl shadow-black/40
+          overflow-x-hidden
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
@@ -698,11 +702,11 @@ export default function AdminLayout() {
         <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-gradient-to-b from-blue-500/0 via-blue-500/50 to-blue-500/0" />
         
         {/* Profile */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-white/10 overflow-x-hidden">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 min-w-0">
               {/* Avatar */}
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600/30 to-purple-600/30 border-2 border-white/20 flex items-center justify-center">
                   <span className="text-base text-white">{firstName.charAt(0).toUpperCase()}</span>
                 </div>
@@ -710,30 +714,31 @@ export default function AdminLayout() {
               </div>
 
               {/* Text */}
-              <div>
-                <p className="font-semibold text-white text-sm">{firstName}</p>
+              <div className="min-w-0 overflow-hidden">
+                <p className="font-semibold text-white text-sm truncate">{firstName}</p>
                 <div className="flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full" />
-                  <p className="text-[10px] text-white/40 uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0" />
+                  <p className="text-[10px] text-white/40 uppercase tracking-wider truncate">
                     {role}
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Mobile close button with original animation */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-1 rounded-lg hover:bg-white/10"
+              // className="p-1 rounded-lg hover:bg-white/10 flex-shrink-0"
             >
-              <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <span className="text-xl hover:scale-120 transition-transform duration-200 inline-block">
+                ✕
+              </span>
             </button>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin-dark">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 scrollbar-thin-dark">
           {menuItems.map((item, index) => (
             <NavLink
               key={index}
@@ -755,12 +760,12 @@ export default function AdminLayout() {
                 {item.icon("w-5 h-5")}
               </span>
 
-              <span className="relative text-sm font-medium flex-1 ml-3">
+              <span className="relative text-sm font-medium flex-1 ml-3 truncate">
                 {item.label}
               </span>
 
               {item.badge && (
-                <span className="relative bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-blue-600/30">
+                <span className="relative bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg shadow-blue-600/30 flex-shrink-0">
                   {item.badge}
                 </span>
               )}
@@ -769,20 +774,20 @@ export default function AdminLayout() {
         </nav>
 
         {/* Bottom Card */}
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 overflow-x-hidden">
           <div className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl p-3 shadow-xl shadow-black/30 overflow-hidden">
             
             {/* Info utilisateur */}
             <div className="relative flex items-center gap-2 mb-2 pb-2 border-b border-white/10">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center flex-shrink-0">
                 <svg className="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                 </svg>
               </div>
-              <div>
-                <h3 className="text-xs font-semibold text-white">Mars AI</h3>
+              <div className="min-w-0 overflow-hidden">
+                <h3 className="text-xs font-semibold text-white truncate">Mars AI</h3>
                 <p className="text-[8px] text-white/40 flex items-center gap-1">
-                  <span className="w-1 h-1 bg-green-400 rounded-full animate-pulse" />
+                  <span className="w-1 h-1 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
                   Dashboard Admin
                 </p>
               </div>
@@ -798,7 +803,7 @@ export default function AdminLayout() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
               
-              <svg className="w-3 h-3 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 relative flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               <span className="relative">Se déconnecter</span>
@@ -810,18 +815,22 @@ export default function AdminLayout() {
       {/* ================= MAIN ================= */}
       <main className="flex-1 flex flex-col overflow-hidden lg:ml-0">
         
-        {/* Header - Desktop */}
+        {/* Header - Desktop with original animation */}
         <header className="hidden lg:flex bg-gradient-to-r from-[#111318]/80 to-[#0f1116]/80 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 py-2 sm:py-3 items-center justify-between shadow-xl shadow-black/20">
           
           <div className="flex items-center space-x-3 sm:space-x-4">
-            {/* Sidebar Toggle */}
+            {/* Sidebar Toggle with original animation */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg transition-all duration-500"
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <span
+                className={`inline-block transition-all duration-500 ${
+                  isSidebarOpen ? "rotate-0" : "rotate-90"
+                } text-xl sm:text-2xl hover:scale-120`}
+              >
+                {isSidebarOpen ? "☰" : "✕"}
+              </span>
             </button>
 
             <div className="flex items-center">
@@ -833,7 +842,7 @@ export default function AdminLayout() {
           {/* Right header */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Search - hidden on smaller screens */}
-            <div className="relative group/search hidden md:block">
+            {/* <div className="relative group/search hidden md:block">
               <input
                 type="text"
                 placeholder="Rechercher..."
@@ -856,7 +865,7 @@ export default function AdminLayout() {
               <svg className="absolute left-2.5 sm:left-3 top-2 sm:top-2.5 w-3 h-3 sm:w-4 sm:h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </div>
+            </div> */}
 
             {/* Icons */}
             <button className="group relative w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center overflow-hidden">
