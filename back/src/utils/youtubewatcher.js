@@ -9,65 +9,55 @@ const allowedExtensions = [".mp4", ".avi", ".m4v", ".mov", ".mpg", ".mpeg", ".wm
 const queue = [];
 let isUploading = false;
 
-// Vérifie que le fichier est stable avant upload
-async function waitForFileStable(filePath, checkInterval = 1000, stableChecks = 3) {
-  return new Promise((resolve, reject) => {
-    let lastSize = -1;
-    let stableCount = 0;
-
-    const check = () => {
-      if (!fs.existsSync(filePath)) return reject(new Error("Fichier introuvable"));
-      const size = fs.statSync(filePath).size;
-
-      if (size === lastSize) {
-        stableCount++;
-        if (stableCount >= stableChecks) return resolve();
-      } else {
-        lastSize = size;
-        stableCount = 0;
-      }
-      setTimeout(check, checkInterval);
-    };
-    check();
-  });
-}
-
-// Upload avec retry
+// Tentative de upload (si erreur reseau ou server -> retries n fois)
 async function uploadWithRetry(filePath, filename, retries = 3) {
+  // filePath: chemin vers le fichier à upload
+  // filename: nom du fichier 
+  // retries: nombre max de tentatives
+
+  // boucle for qui tente l'upload
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const data = await youtubeController.uploadVideo(
+      // supprime l'extension pour affichage
+      const titleWithoutExt = path.parse(filename).name;
+      // appelle la fonction d'upload sur Youtube
+      return await youtubeController.uploadVideo(
         filePath,
-        `Upload automatique - ${filename}`,
-        "Vidéo uploadée automatiquement",
-        "unlisted" // changer en "public" pour publier directement
+        titleWithoutExt,
+        "marsai",
+        "unlisted"
       );
-      return data;
     } catch (err) {
-      console.warn(`Tentative ${attempt} échouée pour ${filename} : ${err.message}`);
-      if (attempt === retries) throw err;
-      await new Promise(res => setTimeout(res, 2000));
+      const retryable =
+        err.code === "ECONNRESET" ||
+        err.code === "ETIMEDOUT" ||
+        err.response?.status >= 500;
+
+      if (!retryable || attempt === retries) throw err;
+
+      console.warn(`Retry ${attempt} pour ${filename}...`);
+      await new Promise(res => setTimeout(res, 2000 * attempt));
     }
   }
 }
 
-// Traitement de la file d’attente
+// Traitement de la file d’attente (s'assurer que les fichiers sont uploadés un  par un et retry auto si server error)
 async function processQueue() {
+  // booléen qui indique si un uload est en cours
   if (isUploading || queue.length === 0) return;
-
+  // extraction du premier fichier, retire le premier élément de la queue et le retourne
   const { filePath, filename } = queue.shift();
   isUploading = true;
 
   try {
-    console.log(`Attente que le fichier soit stable : ${filename}`);
-    await waitForFileStable(filePath);
-
     console.log(`Upload en cours : ${filename}`);
     const data = await uploadWithRetry(filePath, filename);
 
-    console.log(`Upload terminé : ${data.data.id}`);
-    console.log(`URL YouTube : https://www.youtube.com/watch?v=${data.data.id}`);
+    console.log(`Upload terminé : ${data.id}`);
+    console.log(`Content licensed : ${data.licensedContent}`);
+    console.log(`URL YouTube : https://www.youtube.com/watch?v=${data.id}`);
 
+     // déplace le fichier uploader vers back/uploads/uploaded
     if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
     const destPath = path.join(uploadedFolder, `${Date.now()}-${filename}`);
     fs.renameSync(filePath, destPath);
@@ -76,19 +66,25 @@ async function processQueue() {
   } catch (err) {
     console.error(`Erreur upload pour ${filename} : ${err.message}`);
   } finally {
+    // on continue la queue
     isUploading = false;
     processQueue();
   }
 }
 
-// Démarrage du watcher
+// Démarrage du watcher sur le dossier uploads
 function startYoutubeWatcher() {
+  // vérifie présence des dossiers et créé si besoin
   if (!fs.existsSync(uploadFolder)) fs.mkdirSync(uploadFolder, { recursive: true });
   if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
 
+  // surveille les fichiers dans uploads
   const watcher = chokidar.watch(uploadFolder, {
+    // ignore les fichiers présents au démarrage
     ignoreInitial: true,
+    // ignore tous les fichiers dans /back/uploads
     ignored: /\/uploaded\//,
+    // verif de la stabilité du file avant de add
     awaitWriteFinish: { stabilityThreshold: 3000, pollInterval: 100 },
   });
 

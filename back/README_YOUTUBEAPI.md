@@ -39,15 +39,13 @@ Allez dans API et services > Écran de consentement OAuth
 
 **Choisissez le type :**
 
-Externe (si l’application est destinée à des utilisateurs Google externes)
+Externe 
 
 **Remplissez :**
 
 Nom de l’application
 
 Email de support
-
-Domaine (si applicable)
 
 Email développeur
 
@@ -60,11 +58,12 @@ Exemples pour YouTube :
 https://www.googleapis.com/auth/youtube.readonly 
 → Lecture seule
 
-https://www.googleapis.com/auth/youtube.upload 
-→ Upload de vidéos
-
 https://www.googleapis.com/auth/youtube 
 → Accès complet au compte YouTube
+
+**SCOPE RECOMMANDE:**
+https://www.googleapis.com/auth/youtube.upload 
+→ Upload de vidéos
 
 **Principe de sécurité :**
 Demandez uniquement les scopes nécessaires (principe du moindre privilège).
@@ -121,7 +120,7 @@ ou directement un access token (selon le flow utilisé)
 
 Lorsqu’une soumission de film est effectuée :
 
-L’application vérifie si un youtube_token.json existe
+Le backend vérifie si un youtube_token.json existe
 
 Si aucun token valide n’est présent :
 

@@ -53,13 +53,13 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("✓ Connexion à la base de données MySQL établie avec succès");
 
-    // Initialise le token YouTube et refresh automatique
+    // Initialise le token YouTube 
     await youtubeController.initYoutubeAuth();
 
     // Démarrage du serveur
     app.listen(PORT, () => {
       console.log(`✓ API disponible sur http://localhost:${PORT}`);
-
+      // Démarrage du watcher (back/uploads)
       startYoutubeWatcher();
     });
   } catch (error) {
