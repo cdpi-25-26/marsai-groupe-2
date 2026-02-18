@@ -33,7 +33,21 @@ body {
 
 
 
-/* video display */
+/* login display */
+@keyframes sway {
+  0%, 100% { transform: translateX(0) rotate(12deg); }
+  50% { transform: translateX(30px) rotate(12deg); }
+}
 
 
 
+/* Correction pour l'autofill des navigateurs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white;
+  transition: background-color 5000s ease-in-out 0s;
+  background-color: transparent !important;
+}

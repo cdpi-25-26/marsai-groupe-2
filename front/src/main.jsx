@@ -64,6 +64,7 @@ createRoot(document.getElementById("root")).render(
     
   <StrictMode>  
     <BrowserRouter>
+    
       <QueryClientProvider client={queryClient}>
         <Routes>
           {/* ========================================

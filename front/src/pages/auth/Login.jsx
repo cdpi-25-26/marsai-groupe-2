@@ -165,6 +165,7 @@
 // }
 
 
+
 import { Link, useNavigate } from "react-router";
 import { login } from "../../api/auth.js";
 import { useMutation } from "@tanstack/react-query";
@@ -293,161 +294,205 @@ export function Login() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0c0f] via-[#0c0e11] to-[#0d0f12] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0c0f] via-[#0c0e11] to-[#0d0f12] flex items-center justify-center p-4 relative overflow-hidden">
       
-      {/* Éléments décoratifs */}
+      {/* Éléments décoratifs - arrière-plan */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
+        {/* Projecteurs animés */}
+        <div className="absolute top-0 -left-20 w-40 h-full bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent rotate-12 animate-pulse" />
+        <div className="absolute top-0 -right-20 w-40 h-full bg-gradient-to-l from-transparent via-yellow-500/10 to-transparent -rotate-12 animate-pulse delay-1000" />
+        
+        {/* Cercles de lumière */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        
+        {/* Tapis rouge subtil */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-red-600/10 to-transparent" />
+        
+        {/* Effet de rideau sur les côtés */}
+        <div className="absolute top-0 left-0 bottom-0 w-32 bg-gradient-to-r from-black/40 to-transparent" />
+        <div className="absolute top-0 right-0 bottom-0 w-32 bg-gradient-to-l from-black/40 to-transparent" />
       </div>
       
-      <div className="max-w-md w-full relative">
-        
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-light bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent mb-2">
-            Connexion
-          </h1>
-          <p className="text-sm text-white/40">
-            Accédez à votre espace MarsAI
-          </p>
-        </div>
-
-        {/* Formulaire avec glassmorphism */}
-        <div className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-2xl p-8 shadow-2xl shadow-black/40 hover:border-blue-500/30 transition-all duration-500 overflow-hidden">
+      <div className="max-w-md w-full relative z-10">
+        {/* Carte principale */}
+        <div className="group relative">
+          {/* Effet de halo lumineux autour de la carte */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/30 via-purple-600/30 to-pink-600/30 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition duration-1000" />
           
-          {/* Effet de brillance */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
-          
-          <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-5">
-            <input type="hidden" id="id" {...register("id")} />
-
-            {/* Champ Email */}
-            <div className="flex flex-col">
-              <label htmlFor="email" className="text-xs font-medium text-white/60 uppercase tracking-wider mb-2">
-                Adresse email
-              </label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/30">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                </div>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="vous@exemple.com"
-                  {...register("email")}
-                  className="w-full bg-black/40 border border-white/10 text-white pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-white/30"
-                  required
-                />
-              </div>
-              {errors.email && (
-                <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {errors.email.message}
-                </p>
-              )}
+          {/* Carte avec tout le contenu */}
+          <div className="relative backdrop-blur-xl bg-transparent border border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
+            
+            {/* Effet de brillance principal */}
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-all duration-1000 pointer-events-none" />
+             */}
+            {/* Effets de reflets */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/40 to-transparent" />
+            <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/40 to-transparent" />
+            
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-light bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent mb-2 tracking-tight">
+                Connexion
+              </h1>
+              <p className="text-sm text-white/50 backdrop-blur-sm px-4 py-2 rounded-full inline-block border border-white/5">
+                Accédez à votre espace MarsAI
+              </p>
             </div>
+            
+            {/* Formulaire */}
+            <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-6">
+              <input type="hidden" id="id" {...register("id")} />
 
-            {/* Champ Mot de passe */}
-            <div className="flex flex-col">
-              <label htmlFor="password" className="text-xs font-medium text-white/60 uppercase tracking-wider mb-2">
-                Mot de passe
-              </label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/30">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  {...register("password")}
-                  className="w-full bg-black/40 border border-white/10 text-white pl-10 pr-12 py-3 rounded-xl focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder-white/30"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white transition-colors"
-                >
-                  {showPassword ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
+              {/* Champ Email - avec correction autofill améliorée */}
+              <div className="flex flex-col">
+                <label htmlFor="email" className="text-xs font-medium text-white/70 uppercase tracking-wider mb-2 flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+                  Adresse email
+                </label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    </svg>
+                  </div>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="vous@exemple.com"
+                    {...register("email")}
+                   className="w-full bg-transparent border border-white/20 text-white pl-11 pr-12 py-3 rounded-xl focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all placeholder-white/30"
+                    // required
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Bouton de connexion - EFFET GLASS COLORÉ (comme VideoModal) */}
+              {/* Champ Mot de passe - avec correction autofill améliorée */}
+              <div className="flex flex-col">
+                <label htmlFor="password" className="text-xs font-medium text-white/70 uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  Mot de passe
+                </label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    {...register("password")}
+                    className="w-full bg-transparent border border-white/20 text-white pl-11 pr-12 py-3 rounded-xl focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all placeholder-white/30 
+                    [&:-webkit-autofill]:bg-transparent 
+                    [&:-webkit-autofill]:text-white 
+                    [&:-webkit-autofill]:[-webkit-text-fill-color:white] 
+                    [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_rgba(0,0,0,0.5)]
+                    [&:-webkit-autofill]:[transition:background-color_0s_0s,color_0s_0s]"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                  >
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-red-400 text-xs mt-2 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+             {/* Bouton de connexion */}
 <button
   type="submit"
   disabled={loginMutation.isPending}
   className="
-    group relative w-full overflow-hidden
-    bg-gradient-to-r from-blue-600/40 to-pink-500/40
-    backdrop-blur-sm
-    border border-white/10 hover:border-blue-500/40
+    group/btn relative w-full overflow-hidden
+    bg-gradient-to-br from-blue-400/20 via-blue-500/30 to-blue-600/20
+    backdrop-blur-xl
+    border border-white/30 hover:border-blue-400/50
     text-white text-sm font-medium
-    py-3.5 px-6 rounded-xl
-    transform transition-all duration-200
-    hover:from-blue-700/30 hover:to-pink-800/30 hover:text-white
+    py-4 px-6 rounded-xl
+    transform transition-all duration-300
+    hover:shadow-2xl hover:shadow-blue-500/30
     hover:scale-[1.02] active:scale-[0.98]
     disabled:opacity-50 disabled:cursor-not-allowed
     disabled:hover:scale-100
     flex items-center justify-center gap-2
-    shadow-lg hover:shadow-blue-500/20
+    before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-200%] before:hover:translate-x-[200%] before:transition-transform before:duration-1000
   "
 >
-  {/* Effet de brillance */}
-  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-xl" />
+  {/* Effet de reflet supérieur */}
+  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
   
-  {/* Contenu */}
-  <span className="relative flex items-center justify-center gap-2">
+  {/* Effet de reflet latéral */}
+  <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
+  <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
+  
+  <span className="relative flex items-center justify-center gap-2 z-10">
     {loginMutation.isPending ? (
       <>
-        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
         </svg>
-        <span>Connexion...</span>
+        <span>Connexion en cours...</span>
       </>
     ) : (
-      <span>Se connecter</span>
+      <>
+        <span>Se connecter</span>
+        {/* <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg> */}
+      </>
     )}
   </span>
 </button>
-          </form>
-        </div>
+            </form>
 
-        {/* Lien inscription */}
-        <p className="text-center text-sm text-white/40 mt-6">
-          Pas encore de compte ?{" "}
-          <Link 
-            to="/auth/register" 
-            className="text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            S'inscrire
-          </Link>
-        </p>
+            {/* Lien inscription */}
+            <p className="text-center text-sm text-white/50 mt-8">
+              Pas encore de compte ?{" "}
+              <Link 
+                to="/auth/register" 
+                className="text-white hover:text-blue-300 transition-colors font-medium relative group/link"
+              >
+                <span className="relative z-10">S'inscrire</span>
+                <span className="absolute bottom-0 left-0 w-0 h-px bg-gradient-to-r from-blue-400 to-purple-400 group-hover/link:w-full transition-all duration-300" />
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
