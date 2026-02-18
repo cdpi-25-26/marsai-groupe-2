@@ -318,6 +318,32 @@
       }
     }
   },
+
+
+
+"footer": {
+  "description": "La plateforme mondiale de la narration générative, ancrée dans la lumière de Marseille.",
+  "navigation": {
+    "title": "NAVIGATION",
+    "jury": "Jury",
+    "program": "Programme",
+    "ticketing": "Billetterie"
+  },
+  "legal": {
+    "title": "LÉGAL",
+    "partners": "Partenaires",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "bottom": {
+    "copyright": "© 2026 MARS.A.I PROTOCOL • MARSEILLE HUB",
+    "design": "DESIGN SYSTÈME CYBER-PREMIUM",
+    "legal": "LÉGAL"
+  }
+},
+
+
+
   "common": {
     "required": "Ce champ est requis",
     "optional": "Optionnel",

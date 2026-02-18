@@ -17,10 +17,10 @@ export default (sequelize, DataTypes) => {
       allowNull: false
     },
     note: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.ENUM('YES', 'NO', 'TO DISCUSS'),
       allowNull: false
     },
-    commentaire: {
+    comments: {
       type: DataTypes.TEXT,
       allowNull: true
     },

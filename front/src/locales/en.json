@@ -317,6 +317,28 @@
 
 
 
+"footer": {
+  "description": "The global platform for generative storytelling, rooted in the light of Marseille.",
+  "navigation": {
+    "title": "NAVIGATION",
+    "jury": "Jury",
+    "program": "Program",
+    "ticketing": "Ticketing"
+  },
+  "legal": {
+    "title": "LEGAL",
+    "partners": "Partners",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "bottom": {
+    "copyright": "© 2026 MARS.A.I PROTOCOL • MARSEILLE HUB",
+    "design": "CYBER-PREMIUM DESIGN SYSTEM",
+    "legal": "LEGAL"
+  }
+},
+
+
 
   "common": {
     "required": "This field is required",
