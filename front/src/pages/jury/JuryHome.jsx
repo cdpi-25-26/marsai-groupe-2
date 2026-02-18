@@ -536,8 +536,8 @@ export default function JuryHome() {
       </div>
 
         {selectedMovie && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-7xl max-h-[92vh] overflow-hidden p-5">
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 mobile-modal-overlay">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-7xl max-h-[92vh] overflow-hidden p-5 mobile-modal-panel">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>

@@ -92,8 +92,8 @@ export function VideoPreview({ src, poster, title, onEnded, openMode = "overlay"
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
-          <div className="w-full max-w-6xl">
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 mobile-modal-overlay">
+          <div className="w-full max-w-6xl mobile-modal-panel">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-semibold text-lg">{title}</h3>
               <button

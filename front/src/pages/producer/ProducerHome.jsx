@@ -491,7 +491,7 @@ export default function ProducerHome() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmitMovie(onSubmitMovie)} className="space-y-8">
+            <form onSubmit={handleSubmitMovie(onSubmitMovie)} className="space-y-8 pb-24 sm:pb-0">
               {formStep === 1 && (
                 <section className="space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -904,7 +904,7 @@ export default function ProducerHome() {
               </>
             )}
 
-            <div className="flex flex-col gap-4 pt-2">
+            <div className="flex flex-col gap-4 pt-2 mobile-form-footer">
               {formStep === 1 && (
                 <button
                   type="button"
@@ -950,8 +950,8 @@ export default function ProducerHome() {
         )}
 
         {showCollaboratorsModal && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 mobile-modal-overlay">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 mobile-modal-panel">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Gérer les collaborateurs</h3>
                 <button
@@ -1043,8 +1043,8 @@ export default function ProducerHome() {
         )}
 
         {showTermsModal && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 mobile-modal-overlay">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 mobile-modal-panel">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-white">Conditions de Participation & Politique de Confidentialité</h3>
                 <button
@@ -1127,8 +1127,8 @@ export default function ProducerHome() {
         )}
 
         {selectedMovie && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 mobile-modal-overlay">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4 mobile-modal-panel">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
                 <button

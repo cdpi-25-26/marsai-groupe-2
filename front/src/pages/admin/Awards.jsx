@@ -467,8 +467,8 @@ function Awards() {
 
       {/* Modal pour créer un prix */}
       {showModal && selectedMovie && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 mobile-modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md mobile-modal-panel" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Créer un prix</h2>
               <button

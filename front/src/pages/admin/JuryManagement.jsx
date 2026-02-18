@@ -48,6 +48,19 @@ export default function JuryManagement() {
     }
   });
 
+  const unassignJuryMutation = useMutation({
+    mutationFn: ({ movieId, juryIds }) => updateMovieJuries(movieId, juryIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+      setNotice("Désassignations mises à jour avec succès.");
+      setTimeout(() => setNotice(null), 3000);
+    },
+    onError: () => {
+      setNotice("Erreur lors de la désassignation.");
+      setTimeout(() => setNotice(null), 3000);
+    }
+  });
+
   const filteredMovies = useMemo(() => {
     if (selectedCategory === "all") return videos;
     return videos.filter((movie) =>
@@ -93,6 +106,28 @@ export default function JuryManagement() {
     setSelectedMovies([]);
   };
 
+  const handleUnassignFromJury = () => {
+    if (!selectedJury || selectedMovies.length === 0) {
+      setNotice("Sélectionnez un jury et au moins un film.");
+      setTimeout(() => setNotice(null), 3000);
+      return;
+    }
+
+    selectedMovies.forEach((movieId) => {
+      const movie = videos.find((m) => m.id_movie === movieId);
+      const currentJuries = (movie?.Juries || []).map((j) => j.id_user);
+
+      if (currentJuries.includes(selectedJury)) {
+        unassignJuryMutation.mutate({
+          movieId,
+          juryIds: currentJuries.filter((id) => id !== selectedJury)
+        });
+      }
+    });
+
+    setSelectedMovies([]);
+  };
+
   const uploadBase = "http://localhost:3000/uploads";
   const getPoster = (movie) => (
     movie.thumbnail
@@ -119,7 +154,8 @@ export default function JuryManagement() {
           "Sélectionnez un jury dans la colonne de gauche.",
           "Filtrez les films par catégorie ou affichez tout.",
           "Cochez les films un par un ou utilisez Tout sélectionner.",
-          "Cliquez sur Assigner pour lier les films au jury choisi."
+          "Cliquez sur Assigner pour lier les films au jury choisi.",
+          "Cliquez sur Retirer pour désassigner les films sélectionnés du jury choisi."
         ]}
       />
 
@@ -184,6 +220,13 @@ export default function JuryManagement() {
                   className="w-full px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                 >
                   Assigner {selectedMovies.length} film{selectedMovies.length !== 1 ? 's' : ''}
+                </button>
+                <button
+                  onClick={handleUnassignFromJury}
+                  disabled={selectedMovies.length === 0}
+                  className="w-full px-4 py-2 bg-red-700/90 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                >
+                  Retirer {selectedMovies.length} film{selectedMovies.length !== 1 ? 's' : ''}
                 </button>
                 <button
                   onClick={() => setSelectedMovies([])}
