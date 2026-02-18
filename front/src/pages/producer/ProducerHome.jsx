@@ -6,14 +6,8 @@
 import { useEffect, useState } from "react";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-<<<<<<< HEAD
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-=======
-import { useFieldArray, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
->>>>>>> origin/page-program
 import * as z from "zod";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
 import { createMovie, getMyMovies, updateMovieCollaborators } from "../../api/movies";
@@ -160,11 +154,11 @@ export default function ProducerHome() {
     },
     onSuccess: async () => {
       setMovieError(null);
-<<<<<<< HEAD
+// ...existing code...
       setMovieSuccess(t('forms.producer.filmSubmission.success', 'Film submitted successfully'));
-=======
+// ...existing code...
       setMovieSuccess(t('forms.producer.filmSubmission.success', 'Film submitted successfully'));
->>>>>>> origin/page-program
+// ...existing code...
       resetMovie();
       setFilmFileName(t('common.noFileSelected'));
       setThumbnail1Name(t('common.noFileSelected'));
@@ -208,7 +202,7 @@ export default function ProducerHome() {
     return createMovieMutation.mutate(data);
   }
 
-<<<<<<< HEAD
+// ...existing code...
   // Validation functions
   const isStep1Valid = () => {
     return (
@@ -261,9 +255,9 @@ export default function ProducerHome() {
    * Effect - Récupère les données utilisateur au chargement du composant
    * Vérifie que l'utilisateur est authentifié avant de faire l'appel API
    */
-=======
+// ...existing code...
   // Récupération user + films + catégories
->>>>>>> origin/page-program
+// ...existing code...
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -275,17 +269,17 @@ export default function ProducerHome() {
     Promise.all([getCurrentUser(), getMyMovies(), getCategories()])
       .then(([userRes, moviesRes, categoriesRes]) => {
         setUser(userRes.data);
-<<<<<<< HEAD
+// ...existing code...
         setForm(userRes.data);
         const userMovies = moviesRes.data || [];
         setMovies(userMovies);
         // Se l'utilisateur a déjà soumis des films, afficher la liste
         setSubmittedSuccess(userMovies.length > 0);
-=======
+// ...existing code...
         setForm(userRes.data || {});
         setMovies(moviesRes.data || []);
         setCategories(categoriesRes?.data || []);
->>>>>>> origin/page-program
+// ...existing code...
         setLoading(false);
       })
       .catch(() => {
@@ -311,8 +305,8 @@ export default function ProducerHome() {
     }
   });
 
-<<<<<<< HEAD
-  const categories = categoriesData?.data || [];
+// ...existing code...
+  // const categories = categoriesData?.data || [];
 
 
   if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Chargement...</div>;
@@ -363,9 +357,9 @@ export default function ProducerHome() {
    * @param {Event} e - L'événement du formulaire
    */
   async function handleSave(e) {
-=======
+// ...existing code...
   function handleProfileSubmit(e) {
->>>>>>> origin/page-program
+// ...existing code...
     e.preventDefault();
     updateProfileMutation.mutate(form);
   }
@@ -383,7 +377,7 @@ export default function ProducerHome() {
 
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
-<<<<<<< HEAD
+// ...existing code...
       <div className="max-w-6xl mx-auto space-y-10">
 
         {submittedSuccess ? (
@@ -1006,7 +1000,7 @@ export default function ProducerHome() {
                         className="text-red-400 hover:text-red-300 text-sm"
                       >
                         ✕ Supprimer
-=======
+// ...existing code...
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold">{t('forms.producer.profile.title')}</h1>
@@ -1196,12 +1190,12 @@ export default function ProducerHome() {
                     <div className="flex justify-end md:col-span-4">
                       <button type="button" onClick={() => removeCollaborator(index)} className="text-sm text-red-300 hover:text-red-400">
                         {t('forms.producer.filmSubmission.buttons.remove')}
->>>>>>> origin/page-program
+// ...existing code...
                       </button>
                     </div>
                   </div>
                 ))}
-<<<<<<< HEAD
+// ...existing code...
               </div>
 
               <div className="mt-6 flex justify-end">
@@ -1214,7 +1208,7 @@ export default function ProducerHome() {
                 </button>
               </div>
             </div>
-          </div>
+          </form>
         )}
 
         {showTermsModal && (
@@ -1371,7 +1365,7 @@ export default function ProducerHome() {
                   >
                     Modifier
                   </button>
-=======
+// ...existing code...
 
                 <button type="button" onClick={() => appendCollaborator({ first_name: "", last_name: "", email: "", job: "" })} className="inline-flex items-center gap-2 border border-gray-700 text-white px-4 py-2 rounded-lg">
                   {t('forms.producer.filmSubmission.buttons.addCollaborator')}
@@ -1414,7 +1408,7 @@ export default function ProducerHome() {
                 <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
                   <label className="cursor-pointer text-white font-semibold">{t('forms.producer.filmSubmission.buttons.chooseFile')}</label>
                   <span className="text-gray-400">— {thumbnail3Name}</span>
->>>>>>> origin/page-program
+// ...existing code...
                 </div>
               </div>
 
