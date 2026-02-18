@@ -285,21 +285,38 @@ export default function ProducerHome() {
   // categories state
   const [categories, setCategories] = useState([]);
 
-  // Skeleton JSX: solo submission film, lista film, modali
   if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Chargement...</div>;
   if (error) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{error}</div>;
 
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
-      <div className="max-w-3xl mx-auto">
-        <div className="animate-pulse flex flex-col gap-6">
-          <div className="h-10 bg-gray-800 rounded w-1/2" />
-          <div className="h-6 bg-gray-800 rounded w-1/3" />
-          <div className="h-40 bg-gray-800 rounded" />
-          <div className="h-6 bg-gray-800 rounded w-1/4" />
-          <div className="h-6 bg-gray-800 rounded w-1/2" />
-          <div className="h-6 bg-gray-800 rounded w-1/3" />
-        </div>
+      <div className="max-w-4xl mx-auto space-y-10">
+        {/* Form di invio film (placeholder base) */}
+        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <h2 className="text-2xl font-bold mb-6">{t('forms.producer.filmSubmission.title', 'Invia un nuovo film')}</h2>
+          <form>
+            <div className="mb-4">[Qui andrà il form di invio film]</div>
+            <button type="button" className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition">Invia</button>
+          </form>
+        </section>
+
+        {/* Lista film inviati (placeholder base) */}
+        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+          <h2 className="text-2xl font-bold mb-6">{t('forms.producer.filmSubmission.listTitle', 'I tuoi film inviati')}</h2>
+          {movies && movies.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {movies.map((movie) => (
+                <div key={movie.id || movie.id_movie} className="bg-gray-800 rounded-lg p-4">
+                  <div className="font-semibold text-lg mb-2">{movie.filmTitleOriginal || movie.title}</div>
+                  <div className="text-gray-400 text-sm">ID: {movie.id || movie.id_movie}</div>
+                  {/* Altri dettagli film qui */}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-400">{t('forms.producer.filmSubmission.noMovies', 'Nessun film inviato ancora.')}</div>
+          )}
+        </section>
       </div>
     </div>
   );
