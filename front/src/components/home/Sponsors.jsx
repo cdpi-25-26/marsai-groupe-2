@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Carousel from "./Caroussel";
 import OneCardWithImage from "./cards/OneCardWithImage";
 import TitleInBox from "../TitleInBox.jsx";
@@ -10,6 +11,7 @@ const images = import.meta.glob("../../assets/images/sponsors/*.{png,jpg,jpeg,we
 });
 
 export default function Sponsors() {
+  const { t } = useTranslation();
   const cards = sponsors.map((sponsor, index) => {
     // On cherche l’image correspondante
     const imageKey = Object.keys(images).find((path) =>
@@ -40,12 +42,12 @@ export default function Sponsors() {
             </svg>
           }
           iconcolor="#AD46FF"
-          title="Nos Soutiens"
+          title={t("pages.home.sponsors.ourSupport")}
         />
       </div>
 
       <h2 className="pt-10 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-center text-white uppercase leading-tight">
-        ILS SOUTIENNENT <span className="text-[#F6339A]">le futur</span>
+        {t("pages.home.sponsors.theySupportFuture")} <span className="text-[#F6339A]">{t("pages.home.sponsors.theySupportFutureAccent")}</span>
       </h2>
 
       <div className="w-full pt-10">

@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import TitleInBox from "../TitleInBox.jsx";
 import OneCard from "./cards/OneCard.jsx";
 
 export default function Localisation() {
+    const { t } = useTranslation();
     return (
     <div>
 <div className="px-10 sm:px-10 md:px-20  pb-4">
@@ -16,29 +18,29 @@ export default function Localisation() {
 </svg>
           }
           iconcolor="#AD46FF"
-          title="comment s'y rendre ?"
+          title={t("pages.home.localisation.howToGetThere")}
         />
       </div>
 <div className="pt-6 pb-12 w-full grid grid-cols-1 md:grid-cols-3 place-items-center gap-10">
 
     <p className="text-[#FB64B6] text-center text-base uppercase pt-6 px-6">
-        Marseille, Hub Créatif
+        {t("pages.home.localisation.city")}
     </p>
 
      <p className="text-white text-center text-base uppercase pt-6 px-6">
-        12 Rue d'Uzes, 13002 Marseille
+        {t("pages.home.localisation.address")}
     </p>
 
     <p className="text-white text-center text-base uppercase pt-6 px-6">
-       Accès Tram T2/T3 Arrêt Arenc Le Silo
+       {t("pages.home.localisation.transport")}
     </p>
 </div>
 <div className="pt-6 pb-12 w-full flex justify-center">
   <div className="w-full max-w-280 grid grid-cols-1 md:grid-cols-2 gap-20">
     <OneCard
       width="200"
-      title="Salle des Sucres"
-      description="Futur sanctuaire des conférences et de la remise des prix de Mars.A.I. Un espace majestueux alliant patrimoine et technologie."
+      title={t("pages.home.localisation.room1Title")}
+      description={t("pages.home.localisation.room1Description")}
       accentColor="#2B7FFF"
       borderColor="border-[rgba(43,127,255,0.40)]"
       hoverShadow="hover:shadow-[0_0_40px_rgba(43,127,255,0.7)]"
@@ -46,8 +48,8 @@ export default function Localisation() {
 
     <OneCard
       width="200"
-      title="Salle PLAZA"
-      description="L'épicentre du festival : accueil, animations, workshops et restauration. Le point de rencontre de tous les participants."
+      title={t("pages.home.localisation.room2Title")}
+      description={t("pages.home.localisation.room2Description")}
       accentColor="#C27AFF"
       borderColor="border-[rgba(194,122,255,0.40)]"
       hoverShadow="hover:shadow-[0_0_40px_rgba(173,70,255,0.7)]"
