@@ -1,1 +1,344 @@
-{}
+{
+  "forms": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Access your MarsAI space",
+      "email": "Email",
+      "password": "Password",
+      "placeholders": {
+        "email": "Your email",
+        "password": "Your password"
+      },
+      "buttons": {
+        "submit": "Sign in",
+        "submitting": "Signing in..."
+      },
+      "links": {
+        "noAccount": "Don't have an account?",
+        "register": "Register"
+      }
+    },
+    "register": {
+      "pageTitle": "Submit a film",
+      "subtitle": "Submit the technical elements, AI usage and your team composition. All fields marked with an asterisk (*) are required.",
+      "sections": {
+        "filmIdentity": "Film identity",
+        "aiUsage": "AI usage declaration",
+        "profile": "My profile",
+        "collaborators": "Collaborators",
+        "certificate": "Ownership certificate"
+      },
+      "labels": {
+        "filmTitleOriginal": "Original title",
+        "durationSeconds": "Exact duration (in seconds)",
+        "filmLanguage": "Film language / main language",
+        "releaseYear": "Release year",
+        "nationality": "Nationality",
+        "translation": "Title translation",
+        "youtubeLink": "YouTube link (public / unlisted)",
+        "synopsisOriginal": "Synopsis original language (max 300 characters)",
+        "synopsisEnglish": "English synopsis (max 300 characters)",
+        "filmFile": "Film file",
+        "thumbnail1": "Thumbnail 1 (16:9)",
+        "thumbnail2": "Thumbnail 2 (16:9)",
+        "thumbnail3": "Thumbnail 3 (16:9)",
+        "subtitlesSrt": "Subtitles file (.srt)",
+        "aiClassification": "Work classification",
+        "aiStack": "Technological stack",
+        "aiMethodology": "Creative methodology",
+        "lastName": "Last name",
+        "firstName": "First name",
+        "email": "Email address",
+        "phone": "Phone",
+        "mobile": "Mobile",
+        "birthDate": "Birth date",
+        "street": "Street",
+        "postalCode": "Postal code",
+        "city": "City",
+        "country": "Country",
+        "biography": "My biography",
+        "job": "Job",
+        "portfolio": "My links",
+        "youtube": "YouTube",
+        "instagram": "Instagram",
+        "linkedin": "LinkedIn",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "knownByMarsAi": "Known by MarsAI",
+        "password": "Password",
+        "collaborators": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "email": "Email",
+          "job": "Role"
+        },
+        "termsAccepted": "I certify that I am the legitimate owner of this film and have all necessary rights to submit it to this festival, in accordance with the terms of use and internal regulations."
+      },
+      "placeholders": {
+        "filmTitleOriginal": "ORIGINAL TITLE",
+        "durationSeconds": "EX: 60",
+        "filmLanguage": "LANGUAGE",
+        "releaseYear": "2026",
+        "nationality": "NATIONALITY",
+        "translation": "TRANSLATION",
+        "youtubeLink": "HTTPS://WWW.YOUTUBE.COM/WATCH?V=...",
+        "synopsisOriginal": "SUMMARIZE THE INTENTION OF YOUR FILM AND THE STORY IN A FEW LINES...",
+        "synopsisEnglish": "SUMMARIZE THE INTENTION OF YOUR FILM AND THE STORY IN A FEW LINES...",
+        "lastName": "LAST NAME",
+        "firstName": "FIRST NAME",
+        "email": "EMAIL@EXAMPLE.COM",
+        "phone": "+33 6 12 34 56 78",
+        "birthDate": "",
+        "street": "STREET",
+        "postalCode": "POSTAL CODE",
+        "city": "CITY",
+        "country": "COUNTRY",
+        "biography": "CANADIAN ARTIST BASED IN MARSEILLE - I EXPLORE THE BOUNDARIES BETWEEN TRADITIONAL CINEMATOGRAPHIC ART AND GENERATIVE ALGORITHMS...",
+        "portfolio": "HTTPS://WEBSITE.COM",
+        "youtube": "@USERNAME_YT",
+        "instagram": "@USERNAME_IG",
+        "linkedin": "@USERNAME_LINKEDIN",
+        "facebook": "@USERNAME_FB",
+        "tiktok": "@USERNAME_TK",
+        "aiStack": "LIST THE TOOLS USED (EX: MIDJOURNEY FOR VISUALS, ELEVENLABS FOR VOICES, RUNWAY FOR ANIMATION...)",
+        "aiMethodology": "DESCRIBE THE INTERACTION BETWEEN HUMAN AND MACHINE IN THIS PROCESS..."
+      },
+      "hints": {
+        "durationMax": "Maximum duration: 2 minutes (120 seconds).",
+        "charCount": "{{count}}/300",
+        "dropFile": "Drop your file here or click to select",
+        "dropImage": "Drop the image or click to select",
+        "dropSrt": "Drop the .srt file or click to select"
+      },
+      "aiClassificationOptions": {
+        "integrale": "Full generation (100% AI)",
+        "hybride": "Hybrid production (Real footage + AI contributions)"
+      },
+      "jobOptions": {
+        "ACTOR": "Actor",
+        "DIRECTOR": "Director",
+        "PRODUCER": "Producer",
+        "WRITER": "Writer",
+        "OTHER": "Other"
+      },
+      "knownByOptions": {
+        "YES": "Yes",
+        "NO": "No"
+      },
+      "buttons": {
+        "submit": "Submit my application",
+        "submitting": "Submission in progress...",
+        "addCollaborator": "Add collaborator",
+        "remove": "Remove",
+        "chooseFile": "Choose file"
+      }
+    },
+
+
+
+
+  "pages": {
+    "home": {
+      "hero": {
+        "subtitle": "THE TEMPORAL PROTOCOL",
+        "year": "2026",
+        "title1": "IMAGINE",
+        "title2": "FUTURES",
+        "title3": "DESIRABLE",
+        "description1": "The festival of 60-second short films created by AI.",
+        "description2": "Two days of immersion in the heart of Marseille.",
+        "button": "submit your film ➝"
+      },
+      "reassure": {
+        "card1": { "title": "1 MINUTE", "description": "Ultra-short format for maximum impact" },
+        "card2": { "title": "FREE", "description": "Accessible conferences and workshops." },
+        "card3": { "title": "FOR EVERYONE", "description": "Professionals, students and curious minds." },
+        "card4": { "title": "EXPERTISE", "description": "World leaders in generative AI." }
+      },
+      "goals": {
+        "title": "Festival",
+        "titleAccent": "Objectives",
+        "card1": { "title": "HUMAN-CENTERED", "description": "Put humans at the heart of creation to preserve emotion." },
+        "card2": { "title": "CREATIVE CHALLENGE", "description": "Challenge creativity with an ultra-short 60s format." },
+        "card3": { "title": "DESIRABLE FUTURES", "description": "Explore desirable futures through emerging technologies." }
+      },
+      "protocole": {
+        "immersion": "Total Immersion",
+        "title": "THE TEMPORAL",
+        "titleAccent": "PROTOCOL",
+        "titleEnd": "",
+        "card1": { "title": "2 MONTHS", "description": "OF PREPARATION" },
+        "card2": { "title": "50 FILMS", "description": "IN SELECTION" },
+        "card3": { "title": "WEB 3.0", "description": "EXPERIENCE" },
+        "card4": { "title": "DAY 4", "description": "MARSEILLE" },
+        "button": "Join the adventure ➝"
+      }
+    }
+  },
+
+
+
+
+
+"producer": {
+  "profile": {
+    "title": "My Profile",
+    "editMode": "Edit Mode",
+    "viewMode": "View Mode",
+    "successUpdate": "Profile updated successfully",
+    "errorUpdate": "Error updating profile"
+  },
+  "filmSubmission": {
+    "title": "Submit a Film",
+    "sections": {
+      "filmIdentity": "Film Identity",
+      "aiUsage": "AI Usage",
+      "collaborators": "Collaborators"
+    },
+    "labels": {
+      "filmTitleOriginal": "Original title",
+      "durationSeconds": "Duration (seconds)",
+      "filmLanguage": "Film language",
+      "releaseYear": "Release year",
+      "nationality": "Nationality",
+      "translation": "Title translation",
+      "youtubeLink": "YouTube link",
+      "synopsisOriginal": "Synopsis (original language)",
+      "synopsisEnglish": "Synopsis (English)",
+      "aiClassification": "Work classification",
+      "aiStack": "Technological stack",
+      "aiMethodology": "Creative methodology",
+      "knownByMarsAi": "Known by MarsAI",
+      "filmFile": "Film file",
+      "thumbnail1": "Thumbnail 1",
+      "thumbnail2": "Thumbnail 2",
+      "thumbnail3": "Thumbnail 3",
+      "subtitlesSrt": "Subtitles",
+      "category": "Category"
+    },
+    "buttons": {
+      "submit": "Submit Film",
+      "save": "Save",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "addCollaborator": "Add Collaborator",
+      "remove": "Remove"
+    }
+  }
+}
+
+
+    
+  },
+  "validation": {
+    "firstName": {
+      "required": "First name is required"
+    },
+    "lastName": {
+      "required": "Last name is required"
+    },
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email format"
+    },
+    "password": {
+      "required": "Password is required",
+      "minLength": "At least 6 characters"
+    },
+    "filmTitleOriginal": {
+      "required": "Film title is required"
+    },
+    "durationSeconds": {
+      "required": "Duration is required",
+      "integer": "Duration must be a whole number",
+      "min": "Duration must be at least 1",
+      "max": "Maximum duration is 120 seconds"
+    },
+    "synopsisOriginal": {
+      "required": "Original synopsis is required"
+    },
+    "synopsisEnglish": {
+      "required": "English synopsis is required"
+    },
+    "aiClassification": {
+      "required": "Work classification is required"
+    },
+    "aiStack": {
+      "required": "Technological stack is required"
+    },
+    "aiMethodology": {
+      "required": "Creative methodology is required"
+    },
+    "termsAccepted": {
+      "required": "You must accept the terms"
+    }
+  },
+  "pages": {
+    "home": {
+      "hero": {
+        "subtitle": "THE TEMPORAL PROTOCOL",
+        "year": "2026",
+        "title1": "IMAGINE",
+        "title2": "DESIRABLE",
+        "title3": "FUTURES",
+        "description1": "The festival of 60-second short films created by AI.",
+        "description2": "Two days of immersion in the heart of Marseille.",
+        "button": "submit your film ➝"
+      },
+      "reassure": {
+        "card1": { "title": "1 MINUTE", "description": "Ultra-short format for maximum impact" },
+        "card2": { "title": "FREE", "description": "Accessible conferences and workshops." },
+        "card3": { "title": "FOR EVERYONE", "description": "Professionals, students and curious minds." },
+        "card4": { "title": "EXPERTISE", "description": "World leaders in generative AI." }
+      },
+      "goals": {
+        "title": "Festival",
+        "titleAccent": "Objectives",
+        "card1": { "title": "HUMAN-CENTERED", "description": "Put humans at the heart of creation to preserve emotion." },
+        "card2": { "title": "CREATIVE CHALLENGE", "description": "Challenge creativity with an ultra-short 60s format." },
+        "card3": { "title": "DESIRABLE FUTURES", "description": "Explore desirable futures through emerging technologies." }
+      },
+      "protocole": {
+        "immersion": "Total Immersion",
+        "title": "THE TEMPORAL",
+        "titleAccent": "PROTOCOL",
+        "titleEnd": "",
+        "card1": { "title": "2 MONTHS", "description": "OF PREPARATION" },
+        "card2": { "title": "50 FILMS", "description": "IN SELECTION" },
+        "card3": { "title": "WEB 3.0", "description": "EXPERIENCE" },
+        "card4": { "title": "DAY 4", "description": "MARSEILLE" },
+        "button": "Join the adventure ➝"
+      },
+      "program": {
+        "title": "TWO DAYS OF",
+        "titleAccent": "FREE CONFERENCES",
+        "agendaLabel": "agenda",
+        "debateItem": "Engaged debates on ethics and the future",
+        "confrontationItem": "Confrontations of ideas between artists and tech",
+        "interrogationItem": "Stimulating questions about creation",
+        "projectionsTitle": "screenings",
+        "projectionsDescription": "Screening on a giant screen in the presence of the filmmakers and the festival team.",
+        "workshopsTitle": "workshops",
+        "workshopsDescription": "Practical sessions to discover AI creation tools and experiment live with artists and technicians.",
+        "awardsTitle": "AWARDS",
+        "awardsDescription": "Prize ceremony with an expert jury and a passionate audience.",
+        "fullAgendaButton": "full agenda ➝"
+      }
+    }
+  },
+  "common": {
+    "required": "This field is required",
+    "optional": "Optional",
+    "noFileSelected": "No file selected",
+    "alreadyLoggedIn": "You are already logged in as {{email}}",
+    "goHome": "Go home",
+    "error": "Error",
+    "success": "Success"
+  },
+  "messages": {
+    "registrationSuccess": "Registration successful! Automatic login in progress...",
+    "registrationError": "Registration successful, but automatic login failed. Please log in manually.",
+    "loginError": "Login error. Please try again.",
+    "submissionError": "Submission error. Please try again."
+  }
+}

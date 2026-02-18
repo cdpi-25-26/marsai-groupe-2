@@ -23,14 +23,21 @@ export default function Program() {
       </div>
 
       {/* GRID RESPONSIVE */}
-      <div className="pt-12 pb-12 w-full grid grid-cols-1 md:grid-cols-2 max-w-350 mx-auto justify-center place-items-center">
-        {/* TEXTE GAUCHE */} 
-        <div className="max-w-200 mx-auto text-left"> 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white uppercase leading-none"> MARS.A.I </h2> 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#F6339A] uppercase leading-none mb-6"> night </h2> 
-          <p className="text-lg sm:text-xl md:text-2xl text-white leading-relaxed max-w-xl"> 
-            Fête Électro mêlant IA et futurs souhaitables.<br /> Une expérience immersive sonore et visuelle. </p> 
-            </div>
+      <div className="pt-12 pb-12 w-full grid grid-cols-1 md:grid-cols-2 max-w-350 mx-auto justify-center place-items-center gap-10 px-6">
+
+        {/* TEXTE GAUCHE */}
+        <div className="max-w-200 mx-auto text-left">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white uppercase leading-none">
+            MARS.A.I
+          </h2>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#F6339A] uppercase leading-none mb-6">
+            night
+          </h2>
+          <p className="text-lg sm:text-xl md:text-2xl text-white leading-relaxed max-w-xl">
+            Fête Électro mêlant IA et futurs souhaitables.<br />
+            Une expérience immersive sonore et visuelle.
+          </p>
+        </div>
 
         {/* CARD DROITE */}
         <div className="flex justify-center w-full max-w-300 mx-auto">

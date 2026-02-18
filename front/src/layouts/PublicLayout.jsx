@@ -23,6 +23,7 @@ export default function PublicLayout() {
     localStorage.removeItem("role");
     localStorage.removeItem("token");
     navigate("/auth/login");
+
   };
   
   // Vérifier si l'utilisateur est connecté
