@@ -35,7 +35,7 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false
       },
-      commentaire: {
+      comments: {
         type: Sequelize.TEXT,
         allowNull: true
       },

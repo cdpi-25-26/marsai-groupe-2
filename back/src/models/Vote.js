@@ -20,7 +20,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false
     },
-    commentaire: {
+    comments: {
       type: DataTypes.TEXT,
       allowNull: true
     },
