@@ -32,7 +32,7 @@ export default function Localisation() {
         </p>
 
         <p className="text-white text-center text-base uppercase pt-6">
-          12 Rue d'Uzes, 13002 Marseille
+         155 rue Peyssonnel, 13002 Marseille
         </p>
 
         <p className="text-white text-center text-base uppercase pt-6">
