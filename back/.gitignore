@@ -2,3 +2,5 @@ node_modules
 .env
 back/config/config.json
 connection.js
+uploads/
+logs/
