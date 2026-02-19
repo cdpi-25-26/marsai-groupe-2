@@ -47,11 +47,12 @@ Le dossier `uploads` contient les fichiers téléchargés par les utilisateurs (
 Pour vérifier quels fichiers sont réellement utilisés par les films :
 
 1. Exécutez :
+
    ```sh
    node scripts/check-used-uploads.js
    ```
-   Cela générera deux fichiers :
 
+   Cela générera deux fichiers :
    - `uploads-used.json` : fichiers utilisés par les films (à conserver)
    - `uploads-unused.json` : fichiers non référencés (vous pouvez les supprimer en toute sécurité)
 
