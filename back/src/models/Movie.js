@@ -87,7 +87,8 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'submitted'
     },
-
+    youtube_status: DataTypes.STRING(255),
+    youtube_movie_id: DataTypes.STRING(255),
     // Clé étrangère: Producteur qui a soumis le film
     id_user: {
       type: DataTypes.INTEGER,
