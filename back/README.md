@@ -14,7 +14,6 @@ npm install
 npm start
 ```
 
-
 ## Exporter et importer les utilisateurs et les films (seed JSON)
 
 Pour partager les données des utilisateurs et des films avec vos collègues :
@@ -52,7 +51,17 @@ Pour vérifier quels fichiers sont réellement utilisés par les films :
    node scripts/check-used-uploads.js
    ```
    Cela générera deux fichiers :
+
    - `uploads-used.json` : fichiers utilisés par les films (à conserver)
    - `uploads-unused.json` : fichiers non référencés (vous pouvez les supprimer en toute sécurité)
+
+Pour supprimer automatiquement tous les fichiers non utilisés :
+
+1. Vérifiez que `uploads-unused.json` est à jour (générez-le avec le script précédent).
+2. Exécutez :
+   ```sh
+   node scripts/delete-unused-uploads.js
+   ```
+   Ce script supprimera tous les fichiers listés dans `uploads-unused.json` du dossier `uploads` et mettra à jour ce fichier (il sera vidé).
 
 Si vous partagez uniquement les données structurées (films, utilisateurs), vous pouvez ignorer ou vider `uploads`. Si les films référencent des fichiers présents dans ce dossier (ex : images), leur absence peut entraîner des erreurs ou des images manquantes dans l’application.
