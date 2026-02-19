@@ -1,4 +1,5 @@
 // scripts/export-movies-users.js
+// Exports all users (without passwords) and all movies to JSON files for sharing or backup.
 import fs from 'fs';
 import db from '../src/models/index.js';
 
@@ -13,7 +14,7 @@ async function exportMoviesAndUsers() {
     // Export all movies
     const movies = await Movie.findAll({ raw: true });
 
-    // Write to JSON files
+    // Write users and movies to JSON files
     fs.writeFileSync('exported-users.json', JSON.stringify(users, null, 2));
     fs.writeFileSync('exported-movies.json', JSON.stringify(movies, null, 2));
     console.log('✅ Export completed: exported-users.json, exported-movies.json');

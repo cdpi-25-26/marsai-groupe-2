@@ -1,11 +1,12 @@
 // scripts/import-movies-users.js
+// Imports users and movies from exported JSON files into the database. Skips existing entries.
 import fs from 'fs';
 import db from '../src/models/index.js';
 
 async function importMoviesAndUsers() {
   try {
     const { Movie, User } = db;
-    // Read JSON files
+    // Read users and movies from JSON files
     const users = JSON.parse(fs.readFileSync('exported-users.json', 'utf-8'));
     const movies = JSON.parse(fs.readFileSync('exported-movies.json', 'utf-8'));
 
