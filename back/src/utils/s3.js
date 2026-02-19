@@ -22,7 +22,7 @@ const BUCKET_NAME = process.env.SCW_BUCKET;
 const FOLDER = "grp2";
 
 // Verif d'upload
-listFiles();
+// listFiles();
 
 // Liste des fichiers dans le dossier "grp3"
 async function listFiles() {
