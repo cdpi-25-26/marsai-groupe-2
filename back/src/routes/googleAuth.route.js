@@ -39,7 +39,7 @@ googleRouter.get("/oauth2callback", async (req, res) => {
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
 
-    // --- Écrit simplement le token dans le fichier ---
+    // Écrit le token dans le fichier
     const tokenPath = path.join(process.cwd(), "config/youtube_token.json");
     fs.writeFileSync(tokenPath, JSON.stringify(tokens, null, 2));
     console.log("Tokens sauvegardés dans :", tokenPath);

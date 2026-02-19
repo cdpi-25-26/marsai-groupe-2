@@ -14,7 +14,6 @@ voteRouter.get("/:id", VoteController.getVoteById);
 
 voteRouter.delete("/:id", VoteController.deleteVote);
 
-
 voteRouter.put("/:id_vote", VoteController.updateVote);
 
 export default voteRouter;

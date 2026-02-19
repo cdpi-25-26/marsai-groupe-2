@@ -2,6 +2,7 @@ import chokidar from "chokidar";
 import fs from "fs";
 import path from "path";
 import youtubeController from "../controllers/YoutubeController.js";
+import { uploadFile } from "./s3.js";
 
 const uploadFolder = path.join(process.cwd(), "uploads");
 const uploadedFolder = path.join(uploadFolder, "uploaded");
@@ -51,13 +52,17 @@ async function processQueue() {
 
   try {
     console.log(`Upload en cours : ${filename}`);
+
     const data = await uploadWithRetry(filePath, filename);
 
     console.log(`Upload terminé : ${data.id}`);
     console.log(`Content licensed : ${data.licensedContent}`);
     console.log(`URL YouTube : https://www.youtube.com/watch?v=${data.id}`);
 
-     // déplace le fichier uploader vers back/uploads/uploaded
+    // Appelle de la fonction de s3.js pour upload dans Scaleway
+    await uploadFile(filePath);
+
+    // déplace le fichier uploader vers back/uploads/uploaded
     if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
     const destPath = path.join(uploadedFolder, `${Date.now()}-${filename}`);
     fs.renameSync(filePath, destPath);
