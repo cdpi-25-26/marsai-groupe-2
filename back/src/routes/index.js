@@ -10,6 +10,7 @@ import reservationRouter from "./Reservation.route.js";
 import eventRouter from "./Event.route.js";
 import dashboardRouter from "./Dashboard.route.js";
 import googleRouter from "./googleAuth.route.js";
+import youtubeRouter from "./Youtube.route.js";
 
 
 const router = express.Router();
@@ -38,5 +39,8 @@ router.use("/events", eventRouter); // Routes de gestion réservations
 router.use("/admin/dashboard", dashboardRouter); // Routes de gestion du dashboard admin
 
 router.use("/google", googleRouter) // Routes d'authentification Google
+
+// pour test via CLIENT HTTP
+// router.use("/youtube", youtubeRouter);
 
 export default router;

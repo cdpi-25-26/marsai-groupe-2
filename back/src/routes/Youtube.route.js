@@ -1,7 +1,7 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
-import youtubeController from "../controllers/youtubeController.js";
+import youtubeController from "../controllers/YoutubeController.js";
 
 const youtubeRouter = express.Router();
 
