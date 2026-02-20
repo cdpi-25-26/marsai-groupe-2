@@ -286,43 +286,7 @@ export default function ProducerHome() {
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
       <div className="max-w-4xl mx-auto space-y-10">
-        {/* 1. Profilo produttore */}
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">{t('forms.producer.profile.title', 'Profilo produttore')}</h2>
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.firstName', 'Nome')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.register.placeholders.firstName', 'Nome')} />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.lastName', 'Cognome')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.register.placeholders.lastName', 'Cognome')} />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.email', 'Email')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.register.placeholders.email', 'Email')} />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.phone', 'Telefono')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.register.placeholders.phone', 'Telefono')} />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.city', 'Città')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.register.placeholders.city', 'Città')} />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.postalCode', 'CAP')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.register.placeholders.postalCode', 'CAP')} />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block mb-1 font-semibold">{t('forms.register.labels.biography', 'Biografia')}</label>
-                <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={3} placeholder={t('forms.register.placeholders.biography', 'Biografia')}></textarea>
-              </div>
-            </div>
-            <button type="button" className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition mt-4">{t('forms.producer.profile.save', 'Salva profilo')}</button>
-          </form>
-        </section>
+
 
         {/* 2. Form submission film */}
         <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">

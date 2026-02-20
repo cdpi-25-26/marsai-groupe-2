@@ -300,81 +300,16 @@ export function Register() {
                   </select>
                 </div>
 
-                <div className="flex flex-col">
+                <div className="flex flex-col md:col-span-2">
                   <label htmlFor="portfolio" className="text-white font-semibold mb-2 text-sm uppercase">
-                    {t('forms.register.labels.portfolio')}
+                    {t('forms.register.labels.socialLink', 'Lien réseau social ou site web')}
                   </label>
                   <input
                     id="portfolio"
                     type="text"
-                    placeholder={t('forms.register.placeholders.portfolio')}
+                    placeholder="https://siteweb.com ou lien social"
                     {...register("portfolio")}
                     className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="youtube" className="text-white font-semibold mb-2 text-sm uppercase">
-                    {t('forms.register.labels.youtube')}
-                  </label>
-                  <input
-                    id="youtube"
-                    type="text"
-                    placeholder={t('forms.register.placeholders.youtube')}
-                    {...register("youtube")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="instagram" className="text-white font-semibold mb-2 text-sm uppercase">
-                    {t('forms.register.labels.instagram')}
-                  </label>
-                  <input
-                    id="instagram"
-                    type="text"
-                    placeholder={t('forms.register.placeholders.instagram')}
-                    {...register("instagram")}
-                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="linkedin" className="text-white font-semibold mb-2 text-sm uppercase">
-                    {t('forms.register.labels.linkedin')}
-                  </label>
-                  <input
-                    id="linkedin"
-                    type="text"
-                    placeholder={t('forms.register.placeholders.linkedin')}
-                    {...register("linkedin")}
-                    className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="facebook" className="text-white font-semibold mb-2 text-sm uppercase">
-                    {t('forms.register.labels.facebook')}
-                  </label>
-                  <input
-                    id="facebook"
-                    type="text"
-                    placeholder={t('forms.register.placeholders.facebook')}
-                    {...register("facebook")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="tiktok" className="text-white font-semibold mb-2 text-sm uppercase">
-                    {t('forms.register.labels.tiktok')}
-                  </label>
-                  <input
-                    id="tiktok"
-                    type="text"
-                    placeholder={t('forms.register.placeholders.tiktok')}
-                    {...register("tiktok")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                   />
                 </div>
 
@@ -405,15 +340,6 @@ export function Register() {
               >
                 {registerMutation.isPending ? `${t('forms.register.buttons.submit')}...` : t('forms.register.buttons.submit')}
               </button>
-              <div className="text-center text-sm text-gray-400">
-                {t('forms.login.links.noAccount')}
-                <Link
-                  to="/auth/login"
-                  className="ml-2 inline-flex items-center justify-center border border-gray-700 text-white px-3 py-1 rounded-lg hover:border-[#AD46FF] transition"
-                >
-                  {t('forms.login.links.register')}
-                </Link>
-              </div>
             </div>
 
             {registerMutation.isError && (
