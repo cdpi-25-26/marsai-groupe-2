@@ -50,9 +50,7 @@ const movieSchema = z.object({
     )
     .optional(),
   filmFile: z.any().optional(),
-  thumbnail1: z.any().optional(),
-  thumbnail2: z.any().optional(),
-  thumbnail3: z.any().optional(),
+  thumbnails: z.array(z.any()).optional(),
   subtitlesSrt: z.any().optional(),
   acceptTerms: z.boolean().refine(val => val === true, {
     message: "Vous devez accepter les conditions de participation"
@@ -80,9 +78,7 @@ export default function ProducerHome() {
   const [editingMovieId, setEditingMovieId] = useState(null);
   const [collabDrafts, setCollabDrafts] = useState({});
   const [filmFileName, setFilmFileName] = useState("Aucun fichier sélectionné");
-  const [thumbnail1Name, setThumbnail1Name] = useState("Aucun fichier sélectionné");
-  const [thumbnail2Name, setThumbnail2Name] = useState("Aucun fichier sélectionné");
-  const [thumbnail3Name, setThumbnail3Name] = useState("Aucun fichier sélectionné");
+  const [thumbnailNames, setThumbnailNames] = useState(["Aucun fichier sélectionné"]);
   const [subtitlesName, setSubtitlesName] = useState("Aucun fichier sélectionné");
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [formStep, setFormStep] = useState(1);
@@ -123,6 +119,9 @@ export default function ProducerHome() {
     name: "collaborators"
   });
 
+  // Dynamic thumbnails field array
+  const { fields, append, remove } = useFieldArray({ control: movieControl, name: "thumbnails" });
+
   const createMovieMutation = useMutation({
     mutationFn: async (data) => {
       const formData = new FormData();
@@ -156,9 +155,11 @@ export default function ProducerHome() {
 
 
       if (data.filmFile?.[0]) formData.append("filmFile", data.filmFile[0]);
-      if (data.thumbnail1?.[0]) formData.append("thumbnail1", data.thumbnail1[0]);
-      if (data.thumbnail2?.[0]) formData.append("thumbnail2", data.thumbnail2[0]);
-      if (data.thumbnail3?.[0]) formData.append("thumbnail3", data.thumbnail3[0]);
+      if (data.thumbnails?.length) {
+        data.thumbnails.forEach((file, idx) => {
+          if (file) formData.append(`thumbnails`, file);
+        });
+      }
       if (data.subtitlesSrt?.[0]) formData.append("subtitlesSrt", data.subtitlesSrt[0]);
 
       return await createMovie(formData);
@@ -170,9 +171,7 @@ export default function ProducerHome() {
       setFormStep(1);
       resetMovie();
       setFilmFileName("Aucun fichier sélectionné");
-      setThumbnail1Name("Aucun fichier sélectionné");
-      setThumbnail2Name("Aucun fichier sélectionné");
-      setThumbnail3Name("Aucun fichier sélectionné");
+      setThumbnailNames(["Aucun fichier sélectionné"]);
       setSubtitlesName("Aucun fichier sélectionné");
       try {
         const moviesRes = await getMyMovies();
@@ -766,84 +765,44 @@ export default function ProducerHome() {
                   </div>
                 </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="thumbnail1" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Vignette 1
-                  </label>
-                  {(() => {
-                    const { onChange, ...rest } = registerMovie("thumbnail1");
-                    return (
-                      <input
-                        id="thumbnail1"
-                        type="file"
-                        {...rest}
-                        className="sr-only"
-                        onChange={(event) => {
-                          onChange(event);
-                          handleFileName(event, setThumbnail1Name);
-                        }}
-                      />
-                    );
-                  })()}
-                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
-                    <label htmlFor="thumbnail1" className="cursor-pointer text-white font-semibold text-sm">
-                      Choisir
-                    </label>
-                    <span className="text-gray-400 text-xs truncate">{thumbnail1Name}</span>
-                  </div>
-                </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="thumbnail2" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Vignette 2
-                  </label>
-                  {(() => {
-                    const { onChange, ...rest } = registerMovie("thumbnail2");
-                    return (
-                      <input
-                        id="thumbnail2"
-                        type="file"
-                        {...rest}
-                        className="sr-only"
-                        onChange={(event) => {
-                          onChange(event);
-                          handleFileName(event, setThumbnail2Name);
-                        }}
-                      />
-                    );
-                  })()}
-                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
-                    <label htmlFor="thumbnail2" className="cursor-pointer text-white font-semibold text-sm">
-                      Choisir
-                    </label>
-                    <span className="text-gray-400 text-xs truncate">{thumbnail2Name}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="thumbnail3" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Vignette 3
-                  </label>
-                  {(() => {
-                    const { onChange, ...rest } = registerMovie("thumbnail3");
-                    return (
-                      <input
-                        id="thumbnail3"
-                        type="file"
-                        {...rest}
-                        className="sr-only"
-                        onChange={(event) => {
-                          onChange(event);
-                          handleFileName(event, setThumbnail3Name);
-                        }}
-                      />
-                    );
-                  })()}
-                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
-                    <label htmlFor="thumbnail3" className="cursor-pointer text-white font-semibold text-sm">
-                      Choisir
-                    </label>
-                    <span className="text-gray-400 text-xs truncate">{thumbnail3Name}</span>
+                {/* Dynamic thumbnails upload */}
+                <div className="flex flex-col md:col-span-3">
+                  <label className="text-white font-semibold mb-1 text-xs uppercase">Vignettes</label>
+                  {/* Move useFieldArray to top of component */}
+                  {/* Dynamic thumbnails upload */}
+                  <div className="flex flex-col md:col-span-3">
+                    <label className="text-white font-semibold mb-1 text-xs uppercase">Vignettes</label>
+                    {fields.map((field, idx) => (
+                      <div key={field.id} className="flex items-center gap-2 mb-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          {...registerMovie(`thumbnails.${idx}`)}
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setThumbnailNames(prev => {
+                                const next = [...prev];
+                                next[idx] = file.name;
+                                return next;
+                              });
+                              // Add a new empty field if last
+                              if (idx === fields.length - 1) append({});
+                            }
+                          }}
+                          className="sr-only"
+                          id={`thumbnail-upload-${idx}`}
+                        />
+                        <label htmlFor={`thumbnail-upload-${idx}`} className="cursor-pointer text-white font-semibold text-sm bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                          Choisir
+                        </label>
+                        <span className="text-gray-400 text-xs truncate">{thumbnailNames[idx]}</span>
+                        {idx > 0 && (
+                          <button type="button" onClick={() => remove(idx)} className="text-red-500 text-xs ml-2">Supprimer</button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
