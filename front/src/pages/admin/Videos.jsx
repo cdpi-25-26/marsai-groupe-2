@@ -681,6 +681,10 @@ export default function Movies() {
       await queryClient.invalidateQueries({ queryKey: ["listVideos"] });
       await queryClient.invalidateQueries({ queryKey: ["votes"] });
       setModalNotice(successMessage);
+      // Aggiorna la vista candidati se promozione
+      if (successMessage && successMessage.toLowerCase().includes("candidature")) {
+        setActiveTab && setActiveTab("candidates");
+      }
     } catch (error) {
       const message = error?.response?.data?.error || error?.message || "Erreur inconnue";
       alert(`Erreur: ${message}`);

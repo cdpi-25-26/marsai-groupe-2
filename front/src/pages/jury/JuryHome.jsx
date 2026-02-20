@@ -164,7 +164,9 @@ export default function JuryHome() {
         setVoteFeedback("Le second vote n'est pas encore ouvert pour ce film.");
         return;
       }
-      const res = await submitMyVote(selectedMovie.id_movie, voteForm);
+      // Invia il campo corretto 'comments' invece di 'commentaire'
+      const { note, commentaire, ...rest } = voteForm;
+      const res = await submitMyVote(selectedMovie.id_movie, { note, comments: commentaire, ...rest });
       const vote = res.data?.vote;
       if (vote) {
         setArchivedMovieIds((prev) => (prev.includes(vote.id_movie) ? prev : [...prev, vote.id_movie]));
@@ -196,6 +198,8 @@ export default function JuryHome() {
       });
       setModalNotice("Film promu à la candidature.");
       await refreshAssignedMovies();
+      // Aggiorna anche la lista dei film candidati
+      setActiveFolder('approved');
       setSelectedMovie(null);
     } catch (err) {
       const message = err?.response?.data?.error || "Impossible de promouvoir le film.";
