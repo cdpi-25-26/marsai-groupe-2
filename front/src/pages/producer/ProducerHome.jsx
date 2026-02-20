@@ -1,4 +1,3 @@
-
 /**
  * Composant ProducerHome (Accueil Producteur)
  * Page permettant aux producteurs de voir et modifier leur profil complet
@@ -11,6 +10,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,6 +60,7 @@ const movieSchema = z.object({
 });
 
 export default function ProducerHome() {
+  const { t } = useTranslation();
   // État pour stocker les données utilisateur
   const [user, setUser] = useState(null);
   // État pour indiquer si les données sont en cours de chargement
@@ -235,7 +236,7 @@ export default function ProducerHome() {
 
   const handleNextStep = () => {
     if (!isStep1Valid()) {
-      alert("⚠️ Veuillez compléter tous les champs obligatoires de l'étape 1:\n- Titre original\n- Durée (en secondes)\n- Synopsis");
+      alert(t('producerHome.alertStep1'));
       return;
     }
     setFormStep(2);
@@ -293,9 +294,9 @@ export default function ProducerHome() {
   const categories = categoriesData?.data || [];
 
 
-  if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Chargement...</div>;
+  if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{t('common.loading')}</div>;
   if (error) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{error}</div>;
-  if (!user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Utilisateur introuvable</div>;
+  if (!user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{t('common.userNotFound')}</div>;
 
   const uploadBase = "http://localhost:3000/uploads";
   const getPoster = (movie) => (
@@ -911,7 +912,7 @@ export default function ProducerHome() {
                   onClick={handleNextStep}
                   className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition"
                 >
-                  Suivant
+                  {t('common.next')}
                 </button>
               )}
               {formStep === 2 && (
@@ -921,14 +922,14 @@ export default function ProducerHome() {
                     onClick={handlePreviousStep}
                     className="w-full border border-gray-600 text-white font-bold py-4 rounded-lg uppercase hover:bg-gray-800 transition"
                   >
-                    Retour
+                    {t('common.back')}
                   </button>
                   <button
                     type="submit"
                     disabled={createMovieMutation.isPending || !acceptTerms}
                     className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
                   >
-                    {createMovieMutation.isPending ? "Soumission en cours..." : "Soumettre"}
+                    {createMovieMutation.isPending ? t('producerHome.submitting') : t('producerHome.submit')}
                   </button>
                 </>
               )}

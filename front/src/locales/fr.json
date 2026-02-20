@@ -331,11 +331,15 @@
     "alreadyLoggedIn": "Vous êtes déjà connecté en tant que {{email}}",
     "goHome": "Aller à l'accueil",
     "error": "Erreur",
-    "success": "Succès"
+    "success": "Succès",
+    "loading": "Chargement...",
+    "userNotFound": "Utilisateur introuvable",
+    "next": "Suivant",
+    "back": "Retour"
   },
   "messages": {
     "registrationSuccess": "Enregistrement réussi ! Connexion automatique en cours...",
-    "registrationError": "Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.",
+    "registrationSuccessButLoginFailed": "Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.",
     "loginError": "Erreur de connexion. Veuillez réessayer.",
     "submissionError": "Erreur lors de la soumission. Veuillez réessayer."
   }

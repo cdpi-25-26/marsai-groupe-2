@@ -107,7 +107,7 @@ export function Register() {
           localStorage.removeItem("lastName");
           localStorage.removeItem("role");
           localStorage.removeItem("token");
-          alert("Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.");
+          alert(t('messages.registrationSuccessButLoginFailed'));
           navigate("/auth/login");
           return;
         }
