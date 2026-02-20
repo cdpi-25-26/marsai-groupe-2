@@ -132,8 +132,9 @@
         "remove": "Remove",
         "chooseFile": "Choose file"
       }
-    }
   },
+
+
   "producer": {
   "profile": {
     "title": "My Profile",
@@ -143,7 +144,20 @@
     "errorUpdate": "Error updating profile"
   },
   "filmSubmission": {
+    "placeholders": {
+  "filmTitleOriginal": "Original title",
+  "durationSeconds": "Duration in seconds",
+  "filmLanguage": "Language",
+  "releaseYear": "Year",
+  "synopsisOriginal": "Film summary...",
+  "success": "Film submitted successfully",
+  "error": "Error submitting film",
+  "collaboratorUpdateError": "Error updating collaborators"
+
+},
+
     "title": "Submit a Film",
+    "myFilms": "My Films",
     "sections": {
       "filmIdentity": "Film Identity",
       "aiUsage": "AI Usage",
@@ -176,12 +190,14 @@
       "edit": "Edit",
       "cancel": "Cancel",
       "addCollaborator": "Add Collaborator",
-      "remove": "Remove"
+      "remove": "Remove",
+      "chooseFile": "Choose file"
     }
   }
-},
+}
 
-  
+
+}, 
   "validation": {
     "firstName": {
       "required": "First name is required"
@@ -397,7 +413,8 @@
     "alreadyLoggedIn": "You are already logged in as {{email}}",
     "goHome": "Go home",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "loading": "Loading..."
   },
   "messages": {
     "registrationSuccess": "Registration successful! Automatic login in progress...",

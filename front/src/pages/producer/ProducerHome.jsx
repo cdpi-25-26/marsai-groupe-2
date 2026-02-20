@@ -15,7 +15,7 @@ import { createMovie, getMyMovies, updateMovieCollaborators } from "../../api/mo
 import { getCategories } from "../../api/videos.js";
 
 const movieSchema = z.object({
-  filmTitleOriginal: z.string().min(1, "validation.filmTitleRequired"),
+  filmTitleOriginal: z.string().min(1, "validation.filmTitleOriginal.required"),
   durationSeconds: z.coerce
     .number()
     .int("validation.durationSeconds.integer")
@@ -26,7 +26,7 @@ const movieSchema = z.object({
   nationality: z.string().optional(),
   translation: z.string().optional(),
   youtubeLink: z.string().optional(),
-  synopsisOriginal: z.string().min(1, "validation.synopsisRequired"),
+  synopsisOriginal: z.string().min(1, "validation.synopsisOriginal.required"),
   synopsisEnglish: z.string().optional(),
   aiClassification: z.string().optional(),
   aiStack: z.string().optional(),
@@ -355,7 +355,7 @@ export default function ProducerHome() {
                 <label className="block text-sm font-semibold mb-1">{t('forms.producer.filmSubmission.labels.filmTitleOriginal')}</label>
                 <input
                   {...registerMovie("filmTitleOriginal")}
-                  placeholder={t('forms.producer.filmSubmission.placeholders?.filmTitleOriginal') || ''}
+                  placeholder={t('forms.producer.filmSubmission.placeholders.filmTitleOriginal') || ''}
                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg"
                 />
                 {movieErrors.filmTitleOriginal && <p className="text-red-400 text-sm mt-1">{t(movieErrors.filmTitleOriginal.message)}</p>}
@@ -366,7 +366,7 @@ export default function ProducerHome() {
                 <input
                   {...registerMovie("durationSeconds")}
                   type="number"
-                  placeholder={t('forms.producer.filmSubmission.placeholders?.durationSeconds') || ''}
+                  placeholder={t('forms.producer.filmSubmission.placeholders.durationSeconds') || ''}
                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg"
                 />
                 {movieErrors.durationSeconds && <p className="text-red-400 text-sm mt-1">{t(movieErrors.durationSeconds.message)}</p>}
@@ -377,7 +377,7 @@ export default function ProducerHome() {
                 <label className="block text-sm font-semibold mb-1">{t('forms.producer.filmSubmission.labels.filmLanguage')}</label>
                 <input
                   {...registerMovie("filmLanguage")}
-                  placeholder={t('forms.producer.filmSubmission.placeholders?.filmLanguage') || ''}
+                  placeholder={t('forms.producer.filmSubmission.placeholders.filmLanguage') || ''}
                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg"
                 />
               </div>
@@ -386,7 +386,7 @@ export default function ProducerHome() {
                 <label className="block text-sm font-semibold mb-1">{t('forms.producer.filmSubmission.labels.releaseYear')}</label>
                 <input
                   {...registerMovie("releaseYear")}
-                  placeholder={t('forms.producer.filmSubmission.placeholders?.releaseYear') || ''}
+                  placeholder={t('forms.producer.filmSubmission.placeholders.releaseYear') || ''}
                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg"
                 />
               </div>
@@ -395,7 +395,7 @@ export default function ProducerHome() {
                 <label className="block text-sm font-semibold mb-1">{t('forms.producer.filmSubmission.labels.synopsisOriginal')}</label>
                 <textarea
                   {...registerMovie("synopsisOriginal")}
-                  placeholder={t('forms.producer.filmSubmission.placeholders?.synopsisOriginal') || ''}
+                  placeholder={t('forms.producer.filmSubmission.placeholders.synopsisOriginal') || ''}
                   rows={4}
                   className="w-full bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg resize-none"
                 />
@@ -505,7 +505,7 @@ export default function ProducerHome() {
 
         {/* Liste des films */}
         <div className="mt-8">
-          <h3 className="text-2xl font-semibold mb-4">{t('forms.producer.filmSubmission.title')}</h3>
+          <h3 className="text-2xl font-semibold mb-4">{t('forms.producer.filmSubmission.myFilms')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {movies.map((m) => (
               <div key={m.id} className="bg-gray-900 rounded-lg p-4 border border-gray-800">

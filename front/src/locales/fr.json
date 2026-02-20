@@ -135,8 +135,6 @@
     },
 
 
-
-
 "producer": {
   "profile": {
     "title": "Mon Profil",
@@ -146,7 +144,18 @@
     "errorUpdate": "Erreur lors de la mise à jour du profil"
   },
   "filmSubmission": {
+    "placeholders": {
+      "filmTitleOriginal": "Titre original",
+      "durationSeconds": "Durée en secondes",
+      "filmLanguage": "Langue",
+      "releaseYear": "Année",
+      "synopsisOriginal": "Résumé du film...",
+      "success": "Film soumis avec succès",
+      "error": "Erreur lors de la soumission",
+      "collaboratorUpdateError": "Erreur lors de la mise à jour des collaborateurs"
+    },
     "title": "Déposer un film",
+    "myFilms": "Mes films",
     "sections": {
       "filmIdentity": "Identité du film",
       "aiUsage": "Déclaration IA",
@@ -179,7 +188,8 @@
       "edit": "Modifier",
       "cancel": "Annuler",
       "addCollaborator": "Ajouter un collaborateur",
-      "remove": "Supprimer"
+      "remove": "Supprimer",
+      "chooseFile": "Choisir un fichier"
     }
   }
 }
@@ -449,7 +459,8 @@
     "alreadyLoggedIn": "Vous êtes déjà connecté en tant que {{email}}",
     "goHome": "Aller à l'accueil",
     "error": "Erreur",
-    "success": "Succès"
+    "success": "Succès",
+    "loading": "Chargement..."
   },
   "messages": {
     "registrationSuccess": "Enregistrement réussi ! Connexion automatique en cours...",
