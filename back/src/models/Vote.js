@@ -17,11 +17,18 @@ export default (sequelize, DataTypes) => {
       allowNull: false
     },
     note: {
-      type: DataTypes.ENUM("YES", "NO", "TO DISCUSS")
+      type: DataTypes.ENUM('YES', 'NO', 'TO DISCUSS'),
+      allowNull: false
     },
     comments: {
-      type: DataTypes.TEXT
-    } 
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    modification_count: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    }
   }, 
   {
     tableName: 'votes',
@@ -34,7 +41,8 @@ export default (sequelize, DataTypes) => {
     });
 
     Vote.belongsTo(models.Movie, {
-      foreignKey: 'id_movie'
+      foreignKey: 'id_movie',
+      targetKey: 'id_movie'
     });
   };
 

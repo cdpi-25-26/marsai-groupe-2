@@ -52,7 +52,16 @@ movieRouter.get("/assigned", AuthMiddleware(["JURY"]),MovieController.getAssigne
 movieRouter.get("/:id", MovieController.getMovieById);
 
 // Soumettre un film (PRODUCER & ADMIN uniquement)
-movieRouter.post("/", AuthMiddleware(["ADMIN","PRODUCER"]),MovieController.createMovie
+movieRouter.post("/", 
+  AuthMiddleware(["ADMIN","PRODUCER"]),
+  upload.fields([
+    { name: "filmFile", maxCount: 1 },
+    { name: "thumbnail1", maxCount: 1 },
+    { name: "thumbnail2", maxCount: 1 },
+    { name: "thumbnail3", maxCount: 1 },
+    { name: "subtitlesSrt", maxCount: 1 }
+  ]),
+  MovieController.createMovie
 );
 
 

@@ -18,6 +18,17 @@ const sequelize = new Sequelize(
   process.env.DB_NAME || "marsai_migrate",
   process.env.DB_USER || "root",
   process.env.DB_PASSWORD || "1234",
+//  * - Nom de la base: marsai_db
+//  * - Utilisateur: marsai
+//  * - Mot de passe: Mars2026!
+//  * - Host: localhost (serveur local)
+//  * - Port: 3306 (port par défaut MySQL)
+//  * - Dialect: mysql (type de base de données)
+//  */
+// const sequelize = new Sequelize(
+//   process.env.DB_NAME || "marsai",
+//   process.env.DB_USER || "root",
+//   process.env.DB_PASSWORD || "josantos",
   {
     host: process.env.DB_HOST || "127.0.0.1",
     port: Number(process.env.DB_PORT) || 3306,

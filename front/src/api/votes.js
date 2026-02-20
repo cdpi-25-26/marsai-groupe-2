@@ -47,3 +47,38 @@ export async function getVotingStats() {
   const response = await instance.get('/votes/stats');
   return response.data;
 }
+import instance from "./config.js";
+
+/**
+ * Récupère les votes du jury connecté
+ * Endpoint: GET /votes/mine
+ */
+async function getMyVotes() {
+  return await instance.get("votes/mine");
+}
+
+/**
+ * Récupère tous les votes (ADMIN)
+ * Endpoint: GET /votes
+ */
+async function getVotes() {
+  return await instance.get("votes");
+}
+
+/**
+ * Récupère mon vote pour un film
+ * Endpoint: GET /votes/mine/:id_movie
+ */
+async function getMyVoteByMovie(id_movie) {
+  return await instance.get(`votes/mine/${id_movie}`);
+}
+
+/**
+ * Crée ou met à jour mon vote pour un film
+ * Endpoint: POST /votes/mine/:id_movie
+ */
+async function submitMyVote(id_movie, payload) {
+  return await instance.post(`votes/mine/${id_movie}`, payload);
+}
+
+export { getMyVotes, getMyVoteByMovie, submitMyVote, getVotes };

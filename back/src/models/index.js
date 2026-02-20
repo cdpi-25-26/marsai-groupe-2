@@ -17,6 +17,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Sequelize } from 'sequelize';
 import process from 'process';
+import dotenv from 'dotenv';
 
 /**
  * Obtient le répertoire courant du module
@@ -39,6 +40,17 @@ const configFile = JSON.parse(
   fs.readFileSync(path.join(__dirname, '../../config/config.json'), 'utf8')
 );
 const config = configFile[env];
+dotenv.config();
+
+// const config = {
+//   username: process.env.DB_USER || 'root',
+//   password: process.env.DB_PASSWORD || 'root',
+//   database: process.env.DB_NAME || 'marsai',
+//   host: process.env.DB_HOST || '127.0.0.1',
+//   port: Number(process.env.DB_PORT) || 3306,
+//   dialect: 'mysql',
+//   logging: false,
+// };
 
 const db = {};
 
@@ -58,6 +70,12 @@ if (config.use_env_variable) {
     config
   );
 }
+// const sequelize = new Sequelize(
+//   config.database,
+//   config.username,
+//   config.password,
+//   config
+// );
 
 /**
  * Fonction asynchrone pour charger tous les modèles

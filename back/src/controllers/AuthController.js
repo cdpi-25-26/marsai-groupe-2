@@ -37,15 +37,22 @@ function login(req, res) {
     );
 
 
-    // Retourner le token et les infos utilisateur
-      return res.status(200).json({
+    // Ritornare il token e le info utente con wrapper data
+      const responseData = {
         message: "Connexion réussie",
-        email: user.email,
-        first_name: user.first_name,
-        role: user.role,
-        token,
-      });
+        data: {
+          email: user.email,
+          first_name: user.first_name,
+          role: user.role,
+          token,
+        }
+      };
+      return res.status(200).json(responseData);
+    }).catch(err => {
+      return res.status(500).json({ error: "Erreur serveur" });
     });
+  }).catch(err => {
+    return res.status(500).json({ error: "Erreur serveur" });
   });
 }
 
