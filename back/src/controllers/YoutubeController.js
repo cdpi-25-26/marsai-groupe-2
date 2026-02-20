@@ -31,7 +31,7 @@ async function initYoutubeAuth() {
     console.log("Token mis à jour dans le JSON");
   });
 
-  console.log("Auth YouTube prête");
+  console.log("✓ initYoutubeAuth ON");
 }
 
 // Retourne le client OAuth2 déjà initialisé

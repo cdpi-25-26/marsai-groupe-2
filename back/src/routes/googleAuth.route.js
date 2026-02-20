@@ -45,7 +45,7 @@ googleRouter.get("/oauth2callback", async (req, res) => {
     console.log("Tokens sauvegardés dans :", tokenPath);
     console.log("Tokens obtenus :", tokens);
 
-    res.send("Authentification réussie ! Vous pouvez maintenant uploader des vidéos via le controller.");
+    res.send("✓ Authentification réussie ! Vous pouvez maintenant uploader des vidéos via le controller.");
   } catch (error) {
     console.error("Erreur OAuth :", error);
     res.status(500).send("Erreur d'authentification");

@@ -107,7 +107,7 @@ function startYoutubeWatcher() {
     processQueue();
   });
 
-  console.log("Surveillance du dossier back/uploads :", uploadFolder);
+  console.log("✓ youtubewatcher on back/uploads :", uploadFolder);
 }
 
 export default startYoutubeWatcher;
