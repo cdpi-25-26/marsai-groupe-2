@@ -340,6 +340,56 @@
 
 
 
+"jury": {
+  "home": {
+    "title": "Jury Space",
+    "welcome": "Welcome {{firstName}} {{lastName}}",
+    "sections": {
+      "awaitingVote": "1. Assigned films awaiting vote",
+      "awaitingApproval": "2. Already voted films awaiting approval for second phase",
+      "approvedSecondVote": "3. Approved films awaiting second vote and awards"
+    },
+    "noMovies": {
+      "awaitingVote": "No films awaiting vote at the moment.",
+      "awaitingApproval": "No films awaiting approval at the moment.",
+      "approved": "No approved films at the moment."
+    },
+    "movie": {
+      "duration": "Duration",
+      "language": "Language",
+      "nationality": "Nationality",
+      "status": "Status",
+      "noThumbnail": "No thumbnail",
+      "alreadyVoted": "Already voted",
+      "modified": "Modified {{count}}×",
+      "approved": "Approved"
+    },
+    "vote": {
+      "title": "Your Vote",
+      "watchRequired": "You must watch the entire film before voting.",
+      "confirmWatched": "I confirm I have watched the entire film.",
+      "decision": "Decision",
+      "comment": "Comment",
+      "submit": "Save vote",
+      "submitting": "Submitting...",
+      "saved": "Vote saved.",
+      "error": "Error saving vote."
+    }
+  },
+  "evaluation": {
+    "title": "Film Evaluation",
+    "rate": "Rate",
+    "rating": "Rating (1-10)",
+    "comment": "Comment",
+    "submit": "Submit vote",
+    "submitting": "Submitting...",
+    "success": "Vote submitted successfully!",
+    "feedbackPlaceholder": "Your feedback..."
+  }
+},
+
+
+
   "common": {
     "required": "This field is required",
     "optional": "Optional",

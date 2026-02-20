@@ -344,6 +344,104 @@
 
 
 
+"jury": {
+  "home": {
+    "title": "Espace Jury",
+    "welcome": "Bienvenue {{firstName}} {{lastName}}",
+    "sections": {
+      "awaitingVote": "1. Films assignés en attente de vote",
+      "awaitingApproval": "2. Films déjà votés en attente d'approbation pour la deuxième phase",
+      "approvedSecondVote": "3. Films approuvés en attente de seconde votation et prix"
+    },
+    "noMovies": {
+      "awaitingVote": "Aucun film en attente de vote pour le moment.",
+      "awaitingApproval": "Aucun film en attente d'approbation pour le moment.",
+      "approved": "Aucun film approuvé pour le moment."
+    },
+    "movie": {
+      "duration": "Durée",
+      "language": "Langue",
+      "nationality": "Nationalité",
+      "status": "Statut",
+      "noThumbnail": "Aucune vignette",
+      "alreadyVoted": "Déjà voté",
+      "modified": "Modifié {{count}}×",
+      "approved": "Approuvé"
+    },
+
+    "errors": {
+  "notAuthenticated": "Non authentifié",
+  "userLoad": "Erreur lors de la récupération des données utilisateur",
+  "moviesLoad": "Erreur lors du chargement des films assignés",
+  "votesLoad": "Erreur lors du chargement des votes",
+  "userNotFound": "Utilisateur introuvable"
+},
+"loading": "Chargement...",
+"noPoster": "Aucune vignette",
+
+"details": {
+  "duration": "Durée :",
+  "language": "Langue :",
+  "nationality": "Nationalité :",
+  "status": "Statut :"
+},
+
+"links": {
+  "openVideo": "Ouvrir la vidéo",
+  "downloadSubtitles": "Télécharger les sous-titres",
+  "youtube": "Voir sur YouTube"
+},
+
+"previousVote": {
+  "title": "Vote précédent :",
+  "note": "Note : {{note}}",
+  "comment": "Commentaire : {{comment}}"
+},
+
+"badges": {
+  "alreadyVoted": "Déjà voté",
+  "modified": "Modifié {{count}}×",
+  "approved": "Approuvé"
+},
+    "vote": {
+      "title": "Votre vote",
+  "infoTitle": "Informations de vote",
+  "mustWatch": "Vous devez visionner le film en entier avant de voter.",
+  "confirmWatch": "Je confirme avoir visionné le film en entier.",
+  "decision": "Décision",
+  "comment": "Commentaire",
+  "submit": "Enregistrer le vote",
+  "sending": "Envoi...",
+  "saved": "Vote enregistré.",
+  "error": "Erreur lors de l'enregistrement du vote.",
+  "rules": {
+    "watch": "Regardez le film en entier avant de voter.",
+    "comment": "Le commentaire est obligatoire.",
+    "modify": "Vous pouvez modifier votre vote.",
+    "influence": "Votre vote influence la moyenne du film.",
+    "archive": "Vous pouvez archiver le film après vote."
+  },
+  "options": {
+    "approved": "Validé / J'aime / Bon 👍",
+    "discuss": "À discuter avec l'admin",
+    "rejected": "Refusé / Je n'aime pas 👎"
+  }
+    }
+  },
+  "evaluation": {
+    "title": "Évaluation des films",
+    "rate": "Noter",
+    "rating": "Note (1-10)",
+    "comment": "Commentaire",
+    "submit": "Envoyer le vote",
+    "submitting": "Envoi...",
+    "success": "Vote envoyé avec succès !",
+    "feedbackPlaceholder": "Votre avis..."
+  }
+},
+
+
+
   "common": {
     "required": "Ce champ est requis",
     "optional": "Optionnel",
