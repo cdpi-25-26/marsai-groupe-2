@@ -54,7 +54,13 @@ async function startServer() {
     console.log("✓ Connexion à la base de données MySQL établie avec succès");
 
     // Initialise le token YouTube 
-    await youtubeController.initYoutubeAuth();
+    // await youtubeController.initYoutubeAuth();
+    try {
+      await youtubeController.initYoutubeAuth();
+      console.log("✓ Auth YouTube initialisée");
+    } catch (err) {
+      console.warn("X Token YouTube manquant ou non initialisé. Connectez-vous via http://localhost:3000/google/auth pour générer le token.");
+    }
 
     // Démarrage du serveur
     app.listen(PORT, () => {

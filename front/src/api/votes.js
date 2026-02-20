@@ -1,4 +1,4 @@
-import instance from './config.js';
+// import instance from './config.js';
 
 /**
  * Submit a vote for a film
