@@ -68,7 +68,7 @@ export default function ProducerHome() {
   const [thumbnail3Name, setThumbnail3Name] = useState(t('common.noFileSelected'));
   const [subtitlesName, setSubtitlesName] = useState(t('common.noFileSelected'));
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [formStep, setFormStep] = useState(1);
+  const [formStep, setFormStep] = useState(3); // 3=lista film, 1=form
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const [showCollaboratorsModal, setShowCollaboratorsModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -390,12 +390,12 @@ export default function ProducerHome() {
 
         {/* 3. Lista film caricati */}
         <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">{t('forms.producer.filmSubmission.listTitle', 'Films soumis')}</h2>
+          <h2 className="text-2xl font-bold mb-6">{t('forms.producer.filmSubmission.listTitle', 'Films candidati')}</h2>
           {movies && movies.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {movies.map((movie) => (
                 <div key={movie.id || movie.id_movie} className="bg-gray-800 rounded-lg p-4 flex gap-4 items-center">
-                  {/* Vignetta/thumbnail */}
+                  {/* Solo vignetta e stato */}
                   {movie.thumbnail1 ? (
                     <img src={typeof movie.thumbnail1 === 'string' ? movie.thumbnail1 : URL.createObjectURL(movie.thumbnail1)} alt="thumbnail" className="w-24 h-24 object-cover rounded-lg" />
                   ) : (
@@ -403,13 +403,11 @@ export default function ProducerHome() {
                   )}
                   <div className="flex-1">
                     <div className="font-semibold text-lg mb-1">{movie.filmTitleOriginal || movie.title}</div>
-                    <div className="text-gray-400 text-sm mb-1">{t('forms.producer.filmSubmission.labels.durationSeconds', 'Durée')}: {movie.durationSeconds || movie.duration || '-'}</div>
-                    <div className="text-gray-400 text-sm mb-1">{t('forms.producer.filmSubmission.labels.synopsisOriginal', 'Synopsis')}: {movie.synopsisOriginal || movie.synopsis || '-'}</div>
                     <div className="text-xs mt-1">
                       <span className="inline-block px-2 py-1 rounded text-white font-semibold " style={{backgroundColor: movie.selection_status === 'selected' ? '#16a34a' : movie.selection_status === 'refused' ? '#dc2626' : '#facc15'}}>
-                        {movie.selection_status === 'selected' ? t('forms.producer.filmSubmission.status.selected', 'Approuvé') :
-                         movie.selection_status === 'refused' ? t('forms.producer.filmSubmission.status.refusé', 'Refusé') :
-                         t('forms.producer.filmSubmission.status.pending', 'En attente')}
+                        {movie.selection_status === 'selected' ? t('forms.producer.filmSubmission.status.selected', 'Approvato') :
+                         movie.selection_status === 'refused' ? t('forms.producer.filmSubmission.status.refusé', 'Rifiutato') :
+                         t('forms.producer.filmSubmission.status.pending', 'In attesa')}
                       </span>
                     </div>
                   </div>
@@ -417,8 +415,9 @@ export default function ProducerHome() {
               ))}
             </div>
           ) : (
-            <div className="text-gray-400">{t('forms.producer.filmSubmission.noMovies', 'Aucun film soumis pour le moment.')}</div>
+            <div className="text-gray-400">{t('forms.producer.filmSubmission.noMovies', 'Nessun film candidato al momento.')}</div>
           )}
+          <button className="mt-8 px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition" onClick={() => { setFormStep(1); }}>Sottoscrivi un nuovo film</button>
         </section>
       </div>
     </div>

@@ -12,7 +12,9 @@ async function checkUsedUploads() {
     // Fields that may contain references to files in uploads
     const fileFields = [
       'display_picture', 'picture1', 'picture2', 'picture3',
-      'trailer', 'thumbnail', 'youtube_link'
+      'trailer', 'thumbnail', 'youtube_link',
+      'film_file', 'thumbnail1', 'thumbnail2', 'thumbnail3',
+      'subtitles_srt'
     ];
     const movies = await Movie.findAll({ raw: true });
     // Collect all referenced files
