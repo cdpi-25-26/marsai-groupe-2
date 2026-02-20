@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import * as z from "zod";
 import { getCurrentUser, updateCurrentUser } from "../../api/users";
 import { createMovie, getMyMovies, updateMovieCollaborators } from "../../api/movies";
@@ -34,10 +34,10 @@ const movieSchema = z.object({
   youtubeLink: z.string().optional(),
   synopsisOriginal: z.string().min(1, "Le synopsis est requis"),
   synopsisEnglish: z.string().optional(),
-  aiClassification: z.string().optional(),
+  aiClassification: z.string().min(1, "La classification IA est obligatoire"),
   aiStack: z.string().optional(),
   aiMethodology: z.string().optional(),
-  categoryId: z.string().optional(),
+  categoryId: z.string().min(1, "La catégorie est obligatoire"),
   knownByMarsAi: z.string().optional(),
   collaborators: z
     .array(
@@ -53,7 +53,10 @@ const movieSchema = z.object({
   thumbnail1: z.any().optional(),
   thumbnail2: z.any().optional(),
   thumbnail3: z.any().optional(),
-  subtitlesSrt: z.any().optional()
+  subtitlesSrt: z.any().optional(),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: "Vous devez accepter les conditions de participation"
+  })
 });
 
 export default function ProducerHome() {
@@ -81,6 +84,10 @@ export default function ProducerHome() {
   const [thumbnail3Name, setThumbnail3Name] = useState("Aucun fichier sélectionné");
   const [subtitlesName, setSubtitlesName] = useState("Aucun fichier sélectionné");
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [formStep, setFormStep] = useState(1);
+  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [showCollaboratorsModal, setShowCollaboratorsModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const handleFileName = (event, setter) => {
     const file = event.target.files?.[0];
@@ -96,6 +103,15 @@ export default function ProducerHome() {
   } = useForm({
     resolver: zodResolver(movieSchema)
   });
+
+  // Watch form fields for validation
+  const filmTitleOriginal = useWatch({ control: movieControl, name: "filmTitleOriginal" });
+  const durationSeconds = useWatch({ control: movieControl, name: "durationSeconds" });
+  const synopsisOriginal = useWatch({ control: movieControl, name: "synopsisOriginal" });
+  const acceptRules = useWatch({ control: movieControl, name: "acceptRules" });
+  const aiClassification = useWatch({ control: movieControl, name: "aiClassification" });
+  const categoryId = useWatch({ control: movieControl, name: "categoryId" });
+  const acceptTerms = useWatch({ control: movieControl, name: "acceptTerms" });
 
   const {
     fields: collaboratorFields,
@@ -149,6 +165,8 @@ export default function ProducerHome() {
     onSuccess: async () => {
       setMovieError(null);
       setMovieSuccess("Film soumis avec succès.");
+      setSubmittedSuccess(true);
+      setFormStep(1);
       resetMovie();
       setFilmFileName("Aucun fichier sélectionné");
       setThumbnail1Name("Aucun fichier sélectionné");
@@ -192,6 +210,54 @@ export default function ProducerHome() {
     return createMovieMutation.mutate(data);
   }
 
+  // Validation functions
+  const isStep1Valid = () => {
+    return (
+      filmTitleOriginal && 
+      filmTitleOriginal.trim().length > 0 &&
+      durationSeconds && 
+      durationSeconds > 0 && 
+      durationSeconds <= 120 &&
+      synopsisOriginal && 
+      synopsisOriginal.trim().length > 0
+    );
+  };
+
+  const isStep2Valid = () => {
+    return (
+      acceptRules === true &&
+      aiClassification && 
+      aiClassification.trim().length > 0 &&
+      categoryId && 
+      categoryId.toString().trim().length > 0
+    );
+  };
+
+  const handleNextStep = () => {
+    if (!isStep1Valid()) {
+      alert("⚠️ Veuillez compléter tous les champs obligatoires de l'étape 1:\n- Titre original\n- Durée (en secondes)\n- Synopsis");
+      return;
+    }
+    setFormStep(2);
+  };
+
+  const handlePreviousStep = () => {
+    setFormStep(1);
+  };
+
+  const handleResetForm = () => {
+    setSubmittedSuccess(false);
+    setFormStep(1);
+    setMovieSuccess(null); // Nascondere il messaggio di successo
+    setMovieError(null); // Nascondere eventuali errori
+    resetMovie();
+    setFilmFileName("Aucun fichier sélectionné");
+    setThumbnail1Name("Aucun fichier sélectionné");
+    setThumbnail2Name("Aucun fichier sélectionné");
+    setThumbnail3Name("Aucun fichier sélectionné");
+    setSubtitlesName("Aucun fichier sélectionné");
+  };
+
   /**
    * Effect - Récupère les données utilisateur au chargement du composant
    * Vérifie que l'utilisateur est authentifié avant de faire l'appel API
@@ -207,7 +273,10 @@ export default function ProducerHome() {
       .then(([userRes, moviesRes]) => {
         setUser(userRes.data);
         setForm(userRes.data);
-        setMovies(moviesRes.data || []);
+        const userMovies = moviesRes.data || [];
+        setMovies(userMovies);
+        // Se l'utilisateur a déjà soumis des films, afficher la liste
+        setSubmittedSuccess(userMovies.length > 0);
         setLoading(false);
       })
       .catch(() => {
@@ -236,7 +305,20 @@ export default function ProducerHome() {
         ? `${uploadBase}/${movie.display_picture}`
         : movie.picture1
           ? `${uploadBase}/${movie.picture1}`
-          : null
+          : movie.picture2
+            ? `${uploadBase}/${movie.picture2}`
+            : movie.picture3
+              ? `${uploadBase}/${movie.picture3}`
+              : null
+  );
+
+  const getTrailer = (movie) => (
+    movie.trailer
+      || movie.trailer_video
+      || movie.trailerVideo
+      || movie.filmFile
+      || movie.video
+      || null
   );
 
   /**
@@ -320,157 +402,109 @@ export default function ProducerHome() {
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
       <div className="max-w-6xl mx-auto space-y-10">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold">Espace Producteur</h1>
-          <p className="text-gray-400 mt-2">Bienvenue {user.first_name} {user.last_name}</p>
-        </div>
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Vos informations personnelles</h2>
-            {!editMode && (
-              <button
-                className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold"
-                onClick={() => setEditMode(true)}
-              >
-                Modifier
-              </button>
-            )}
-          </div>
-
-          {success && <div className="text-green-400 mb-4">{success}</div>}
-
-          {editMode ? (
-            <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Prénom</label>
-                <input name="first_name" value={form.first_name || ""} onChange={handleEditChange} required className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Nom</label>
-                <input name="last_name" value={form.last_name || ""} onChange={handleEditChange} required className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Téléphone</label>
-                <input name="phone" value={form.phone || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Mobile</label>
-                <input name="mobile" value={form.mobile || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Date de naissance</label>
-                <input name="birth_date" type="date" value={form.birth_date ? form.birth_date.substring(0,10) : ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Rue</label>
-                <input name="street" value={form.street || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Code postal</label>
-                <input name="postal_code" value={form.postal_code || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Ville</label>
-                <input name="city" value={form.city || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Pays</label>
-                <input name="country" value={form.country || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col md:col-span-2">
-                <label className="text-sm uppercase text-gray-400 mb-1">Biographie</label>
-                <textarea name="biography" value={form.biography || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Profession</label>
-                <select name="job" value={form.job || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg">
-                  <option value="">-</option>
-                  <option value="PRODUCER">Producteur</option>
-                  <option value="ACTOR">Acteur</option>
-                  <option value="DIRECTOR">Réalisateur</option>
-                  <option value="WRITER">Scénariste</option>
-                  <option value="OTHER">Autre</option>
-                </select>
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Portfolio</label>
-                <input name="portfolio" value={form.portfolio || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">YouTube</label>
-                <input name="youtube" value={form.youtube || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Instagram</label>
-                <input name="instagram" value={form.instagram || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">LinkedIn</label>
-                <input name="linkedin" value={form.linkedin || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">Facebook</label>
-                <input name="facebook" value={form.facebook || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm uppercase text-gray-400 mb-1">TikTok</label>
-                <input name="tiktok" value={form.tiktok || ""} onChange={handleEditChange} className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="flex flex-col md:col-span-2">
-                <label className="text-sm uppercase text-gray-400 mb-1">Mot de passe (changer uniquement si nécessaire)</label>
-                <input name="password" type="password" value={form.password || ""} onChange={handleEditChange} autoComplete="new-password" className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg" />
-              </div>
-              <div className="md:col-span-2 flex gap-3">
-                <button type="submit" className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold">Enregistrer</button>
-                <button type="button" className="border border-gray-700 px-4 py-2 rounded-lg" onClick={() => { setEditMode(false); setForm(user); setSuccess(null); }}>Annuler</button>
-              </div>
-            </form>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
-              <div><span className="text-gray-400">Email:</span> {user.email}</div>
-              <div><span className="text-gray-400">Téléphone:</span> {user.phone || "-"}</div>
-              <div><span className="text-gray-400">Mobile:</span> {user.mobile || "-"}</div>
-              <div><span className="text-gray-400">Date de naissance:</span> {user.birth_date ? user.birth_date.substring(0,10) : "-"}</div>
-              <div className="md:col-span-2"><span className="text-gray-400">Adresse:</span> {user.street || "-"}, {user.postal_code || "-"} {user.city || "-"}, {user.country || "-"}</div>
-              <div className="md:col-span-2"><span className="text-gray-400">Biographie:</span> {user.biography || "-"}</div>
-              <div><span className="text-gray-400">Profession:</span> {user.job || "-"}</div>
-              <div><span className="text-gray-400">Portfolio:</span> {user.portfolio || "-"}</div>
-              <div><span className="text-gray-400">YouTube:</span> {user.youtube || "-"}</div>
-              <div><span className="text-gray-400">Instagram:</span> {user.instagram || "-"}</div>
-              <div><span className="text-gray-400">LinkedIn:</span> {user.linkedin || "-"}</div>
-              <div><span className="text-gray-400">Facebook:</span> {user.facebook || "-"}</div>
-              <div><span className="text-gray-400">TikTok:</span> {user.tiktok || "-"}</div>
+        {submittedSuccess ? (
+          <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-[#AD46FF] mb-2">Succès ! 🎬</h2>
+              <p className="text-gray-300">{movieSuccess || "Votre film a été soumis avec succès au festival."}</p>
             </div>
-          )}
-        </section>
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <div className="text-center mb-8">
-            <p className="text-sm uppercase tracking-widest text-gray-400">Film</p>
-            <h2 className="text-3xl font-bold mt-2">Soumettre un film</h2>
-            <p className="text-gray-400 text-base mt-2">
-              Ajoutez votre film, vos vignettes et vos sous-titres. Tous les champs marqués d'une étoile (*) sont obligatoires.
-            </p>
-          </div>
+            {movies.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-white mb-6">Mes films soumis</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {movies.map((movie) => (
+                    <div
+                      key={movie.id_movie}
+                      onClick={() => setSelectedMovie(movie)}
+                      className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition cursor-pointer group"
+                    >
+                      {getPoster(movie) && (
+                        <div className="relative overflow-hidden h-40 bg-gray-800">
+                          <img
+                            src={getPoster(movie)}
+                            alt={movie.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <h4 className="text-white font-semibold truncate group-hover:text-[#AD46FF] transition">
+                          {movie.title || movie.filmTitleOriginal}
+                        </h4>
+                        <p className="text-gray-400 text-sm mt-2 line-clamp-2">
+                          {movie.synopsis || movie.synopsisOriginal || "Pas de synopsis"}
+                        </p>
+                        <div className="mt-3 space-y-1 text-xs text-gray-500">
+                          <div><span className="text-gray-400">Durée:</span> {movie.duration || movie.durationSeconds}s</div>
+                          <div><span className="text-gray-400">Langue:</span> {movie.main_language || movie.filmLanguage || "-"}</div>
+                          <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
+                          <div className="pt-2 flex items-center gap-2">
+                            <span className="text-gray-400">Statut:</span>
+                            <span className={`inline-block px-2 py-1 rounded text-white text-xs font-semibold ${
+                              movie.selection_status === "selected" ? "bg-green-600" :
+                              movie.selection_status === "refused" ? "bg-red-600" :
+                              "bg-yellow-600"
+                            }`}>
+                              {movie.selection_status === "selected" ? "Approuvé" :
+                               movie.selection_status === "refused" ? "Refusé" :
+                               "En attente"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          <form onSubmit={handleSubmitMovie(onSubmitMovie)} className="space-y-10">
-            <section>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="text-[#AD46FF]">●</span> Identité du Film
-              </h3>
+            <div className="flex justify-center">
+              <button
+                onClick={handleResetForm}
+                className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition"
+              >
+                Soumettre un nouveau film
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+            <div className="mb-8">
+              <div className="flex items-center justify-center gap-4">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
+                  formStep >= 1 ? "bg-[#AD46FF] text-white" : "bg-gray-700 text-gray-400"
+                }`}>
+                  1
+                </div>
+                <div className={`flex-1 h-1 ${formStep >= 2 ? "bg-[#AD46FF]" : "bg-gray-700"}`}></div>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
+                  formStep >= 2 ? "bg-[#AD46FF] text-white" : "bg-gray-700 text-gray-400"
+                }`}>
+                  2
+                </div>
+              </div>
+              <div className="flex justify-between mt-3 text-sm">
+                <span className={formStep >= 1 ? "text-white font-semibold" : "text-gray-400"}>Données du film</span>
+                <span className={formStep >= 2 ? "text-white font-semibold" : "text-gray-400"}>IA, Fichiers & Collaborateurs</span>
+              </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col">
-                  <label htmlFor="filmTitleOriginal" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Titre original *
-                  </label>
-                  <input
-                    id="filmTitleOriginal"
-                    type="text"
-                    placeholder="TITRE ORIGINAL"
+            <form onSubmit={handleSubmitMovie(onSubmitMovie)} className="space-y-8">
+              {formStep === 1 && (
+                <section className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="flex flex-col">
+                      <label htmlFor="filmTitleOriginal" className="text-white font-semibold mb-1 text-xs uppercase">
+                        Titre original *
+                      </label>
+                      <input
+                        id="filmTitleOriginal"
+                        type="text"
+                        placeholder="TITRE ORIGINAL"
                     {...registerMovie("filmTitleOriginal")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
                   {movieErrors.filmTitleOriginal && (
                     <p className="text-red-400 text-sm mt-1">{movieErrors.filmTitleOriginal.message}</p>
@@ -478,70 +512,70 @@ export default function ProducerHome() {
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="durationSeconds" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Durée exacte (en secondes) *
+                  <label htmlFor="durationSeconds" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Durée (sec) *
                   </label>
                   <input
                     id="durationSeconds"
                     type="number"
-                    placeholder="EX: 60"
+                    placeholder="60"
                     {...registerMovie("durationSeconds")}
                     max={120}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
-                  <p className="text-xs text-gray-400 mt-2">Durée maximale : 2 minutes (120 secondes).</p>
+                  <p className="text-xs text-gray-300 mt-0.5">Max 120s</p>
                   {movieErrors.durationSeconds && (
                     <p className="text-red-400 text-sm mt-1">{movieErrors.durationSeconds.message}</p>
                   )}
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="filmLanguage" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Langue parlée / principale du film
+                  <label htmlFor="filmLanguage" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Langue
                   </label>
                   <input
                     id="filmLanguage"
                     type="text"
-                    placeholder="LANGUE"
+                    placeholder="Français"
                     {...registerMovie("filmLanguage")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="releaseYear" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Année de sortie
+                  <label htmlFor="releaseYear" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Année
                   </label>
                   <input
                     id="releaseYear"
                     type="number"
                     placeholder="2026"
                     {...registerMovie("releaseYear")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="nationality" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="nationality" className="text-white font-semibold mb-1 text-xs uppercase">
                     Nationalité
                   </label>
                   <input
                     id="nationality"
                     type="text"
-                    placeholder="NATIONALITÉ"
+                    placeholder="France"
                     {...registerMovie("nationality")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="knownByMarsAi" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Comment avez-vous connu le Festival ?
+                  <label htmlFor="knownByMarsAi" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Comment connu ?
                   </label>
                   <select
                     id="knownByMarsAi"
                     {...registerMovie("knownByMarsAi")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   >
                     <option value="">Sélectionner</option>
                     <option value="Par un ami">Par un ami</option>
@@ -551,13 +585,15 @@ export default function ProducerHome() {
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="categoryId" className="text-white font-semibold mb-2 text-sm uppercase">
+                  <label htmlFor="categoryId" className="text-white font-semibold mb-1 text-xs uppercase">
                     Catégorie
                   </label>
                   <select
                     id="categoryId"
                     {...registerMovie("categoryId")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className={`bg-gray-800 border text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm ${
+                      movieErrors.categoryId ? "border-red-500 bg-red-950/20" : "border-gray-700"
+                    }`}
                   >
                     <option value="">Sélectionner une catégorie</option>
                     {categories.map((category) => (
@@ -566,198 +602,144 @@ export default function ProducerHome() {
                       </option>
                     ))}
                   </select>
+                  {movieErrors.categoryId && (
+                    <p className="text-red-400 text-sm mt-1">{movieErrors.categoryId.message}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="translation" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Traduction du titre
+                  <label htmlFor="translation" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Traduction titre
                   </label>
                   <input
                     id="translation"
                     type="text"
-                    placeholder="TRADUCTION"
+                    placeholder="English"
                     {...registerMovie("translation")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="youtubeLink" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Lien YouTube (public / non-répertorié)
-                  </label>
-                  <input
-                    id="youtubeLink"
-                    type="text"
-                    placeholder="HTTPS://WWW.YOUTUBE.COM/WATCH?V=..."
-                    {...registerMovie("youtubeLink")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
                 </div>
 
                 <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="synopsisOriginal" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Synopsis langue originale * (max. 300 caractères)
+                  <label htmlFor="youtubeLink" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Lien YouTube
+                  </label>
+                  <input
+                    id="youtubeLink"
+                    type="text"
+                    placeholder="https://youtube.com/watch?v=..."
+                    {...registerMovie("youtubeLink")}
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                  />
+                </div>
+
+                <div className="flex flex-col md:col-span-3">
+                  <label htmlFor="synopsisOriginal" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Synopsis original * (300 char max)
                   </label>
                   <textarea
                     id="synopsisOriginal"
-                    rows="4"
-                    placeholder="RÉSUMEZ L'INTENTION DE VOTRE FILM ET L'HISTOIRE QU'IL RACONTE EN QUELQUES LIGNES..."
+                    rows="2"
+                    placeholder="Résumez votre film en quelques lignes..."
                     {...registerMovie("synopsisOriginal")}
                     maxLength={300}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
                   />
                   {movieErrors.synopsisOriginal && (
                     <p className="text-red-400 text-sm mt-1">{movieErrors.synopsisOriginal.message}</p>
                   )}
                 </div>
 
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="synopsisEnglish" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Synopsis anglais (max. 300 caractères)
+                <div className="flex flex-col md:col-span-3">
+                  <label htmlFor="synopsisEnglish" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Synopsis anglais (300 char max)
                   </label>
                   <textarea
                     id="synopsisEnglish"
-                    rows="4"
-                    placeholder="RÉSUMEZ L'INTENTION DE VOTRE FILM ET L'HISTOIRE QU'IL RACONTE EN QUELQUES LIGNES..."
+                    rows="2"
+                    placeholder="Summary in English..."
                     {...registerMovie("synopsisEnglish")}
                     maxLength={300}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
                   />
                 </div>
               </div>
             </section>
+            )}
 
-            <section>
-              <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <span className="text-[#F6339A]">●</span> Déclaration Usage de l'IA
-              </h3>
-              <p className="text-gray-400 mb-6">
-                MARS.A.I exige une transparence totale sur l'utilisation de l'Intelligence Artificielle. Sélectionnez tous les outils génératifs sollicités dans votre processus créatif.
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col md:col-span-2">
-                  <label className="text-white font-semibold mb-2 text-sm uppercase">
-                    Classification de l'Œuvre : Choix exclusif entre :
+            {formStep === 2 && (
+              <>
+            <section className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="flex flex-col md:col-span-3">
+                  <label className="text-white font-semibold mb-1 text-xs uppercase">
+                    Classification IA *
                   </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                      <input type="radio" value="integrale" {...registerMovie("aiClassification")} />
-                      <span>Génération intégrale (100% IA)</span>
+                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-2 border rounded-lg p-2 ${
+                    movieErrors.aiClassification
+                      ? "border-red-500 bg-red-950/20"
+                      : "border-transparent"
+                  }`}>
+                    <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="radio" value="integrale" {...registerMovie("aiClassification")} className="cursor-pointer" />
+                      <span className="text-sm">100% IA</span>
                     </label>
-                    <label className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                      <input type="radio" value="hybride" {...registerMovie("aiClassification")} />
-                      <span>Production hybride (Prises de vues réelles + apports IA)</span>
+                    <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
+                      <input type="radio" value="hybride" {...registerMovie("aiClassification")} className="cursor-pointer" />
+                      <span className="text-sm">Hybride (Réel + IA)</span>
                     </label>
                   </div>
+                  {movieErrors.aiClassification && (
+                    <p className="text-red-400 text-sm mt-2">{movieErrors.aiClassification.message}</p>
+                  )}
                 </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="aiStack" className="text-white font-semibold mb-2 text-sm uppercase">
+                <div className="flex flex-col md:col-span-3">
+                  <label htmlFor="aiStack" className="text-white font-semibold mb-1 text-xs uppercase">
                     Stack Technologique
                   </label>
                   <textarea
                     id="aiStack"
-                    rows="3"
+                    rows="2"
                     maxLength={500}
                     {...registerMovie("aiStack")}
-                    placeholder="LISTEZ LES OUTILS UTILISÉS (EX: MIDJOURNEY POUR LES VISUELS, ELEVENLABS POUR LES VOIX, RUNWAY POUR L'ANIMATION...)"
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                    placeholder="Listez les outils IA utilisés (ex: Midjourney, Runway, ElevenLabs...)"
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="aiMethodology" className="text-white font-semibold mb-2 text-sm uppercase">
+                <div className="flex flex-col md:col-span-3">
+                  <label htmlFor="aiMethodology" className="text-white font-semibold mb-1 text-xs uppercase">
                     Méthodologie Créative
                   </label>
                   <textarea
                     id="aiMethodology"
-                    rows="3"
+                    rows="2"
                     maxLength={500}
                     {...registerMovie("aiMethodology")}
-                    placeholder="DÉCRIVEZ L'INTERACTION ENTRE L'HUMAIN ET LA MACHINE DANS CE PROCESSUS.."
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                    placeholder="Décrivez l'interaction humain-machine dans le processus créatif..."
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
                   />
+                </div>
+                <div className="flex flex-col md:col-span-3">
+                  <label className="text-white font-semibold mb-1 text-xs uppercase">
+                    Collaborateurs ({collaboratorFields.length})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowCollaboratorsModal(true)}
+                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg hover:bg-gray-700 transition text-sm text-left"
+                  >
+                    {collaboratorFields.length === 0 ? "Gérer les collaborateurs" : `${collaboratorFields.length} collaborateur(s) ajouté(s) - Cliquez pour modifier`}
+                  </button>
                 </div>
               </div>
             </section>
 
-            <section>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <span className="text-[#AD46FF]">●</span> Collaborateurs
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => appendCollaborator({ first_name: "", last_name: "", email: "", job: "" })}
-                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Ajouter un collaborateur
-                </button>
-              </div>
-
-              {collaboratorFields.length === 0 && (
-                <p className="text-gray-400">Aucun collaborateur ajouté.</p>
-              )}
-
-              <div className="space-y-4">
-                {collaboratorFields.map((field, index) => (
-                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-950 border border-gray-800 p-4 rounded-xl">
-                    <div className="flex flex-col">
-                      <label className="text-sm uppercase text-gray-400 mb-1">Prénom</label>
-                      <input
-                        type="text"
-                        {...registerMovie(`collaborators.${index}.first_name`)}
-                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label className="text-sm uppercase text-gray-400 mb-1">Nom</label>
-                      <input
-                        type="text"
-                        {...registerMovie(`collaborators.${index}.last_name`)}
-                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label className="text-sm uppercase text-gray-400 mb-1">Email</label>
-                      <input
-                        type="email"
-                        {...registerMovie(`collaborators.${index}.email`)}
-                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label className="text-sm uppercase text-gray-400 mb-1">Rôle</label>
-                      <input
-                        type="text"
-                        {...registerMovie(`collaborators.${index}.job`)}
-                        className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg"
-                      />
-                    </div>
-                    <div className="md:col-span-4 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => removeCollaborator(index)}
-                        className="text-red-400 hover:text-red-300 text-sm"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-
-            <section>
-              <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="text-[#AD46FF]">●</span> Fichiers
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="filmFile" className="text-white font-semibold mb-2 text-sm uppercase">
+            <section className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="flex flex-col md:col-span-3">
+                  <label htmlFor="filmFile" className="text-white font-semibold mb-1 text-xs uppercase">
                     Fichier du film
                   </label>
                   {(() => {
@@ -775,17 +757,17 @@ export default function ProducerHome() {
                       />
                     );
                   })()}
-                  <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                    <label htmlFor="filmFile" className="cursor-pointer text-white font-semibold">
-                      Choisir un fichier
+                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                    <label htmlFor="filmFile" className="cursor-pointer text-white font-semibold text-sm">
+                      Choisir
                     </label>
-                    <span className="text-gray-400">— {filmFileName}</span>
+                    <span className="text-gray-400 text-sm truncate">{filmFileName}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="thumbnail1" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Vignette 1 (16:9)
+                  <label htmlFor="thumbnail1" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Vignette 1
                   </label>
                   {(() => {
                     const { onChange, ...rest } = registerMovie("thumbnail1");
@@ -802,17 +784,17 @@ export default function ProducerHome() {
                       />
                     );
                   })()}
-                  <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                    <label htmlFor="thumbnail1" className="cursor-pointer text-white font-semibold">
-                      Choisir un fichier
+                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                    <label htmlFor="thumbnail1" className="cursor-pointer text-white font-semibold text-sm">
+                      Choisir
                     </label>
-                    <span className="text-gray-400">— {thumbnail1Name}</span>
+                    <span className="text-gray-400 text-xs truncate">{thumbnail1Name}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="thumbnail2" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Vignette 2 (16:9)
+                  <label htmlFor="thumbnail2" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Vignette 2
                   </label>
                   {(() => {
                     const { onChange, ...rest } = registerMovie("thumbnail2");
@@ -829,17 +811,17 @@ export default function ProducerHome() {
                       />
                     );
                   })()}
-                  <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                    <label htmlFor="thumbnail2" className="cursor-pointer text-white font-semibold">
-                      Choisir un fichier
+                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                    <label htmlFor="thumbnail2" className="cursor-pointer text-white font-semibold text-sm">
+                      Choisir
                     </label>
-                    <span className="text-gray-400">— {thumbnail2Name}</span>
+                    <span className="text-gray-400 text-xs truncate">{thumbnail2Name}</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="thumbnail3" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Vignette 3 (16:9)
+                  <label htmlFor="thumbnail3" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Vignette 3
                   </label>
                   {(() => {
                     const { onChange, ...rest } = registerMovie("thumbnail3");
@@ -856,17 +838,17 @@ export default function ProducerHome() {
                       />
                     );
                   })()}
-                  <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                    <label htmlFor="thumbnail3" className="cursor-pointer text-white font-semibold">
-                      Choisir un fichier
+                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                    <label htmlFor="thumbnail3" className="cursor-pointer text-white font-semibold text-sm">
+                      Choisir
                     </label>
-                    <span className="text-gray-400">— {thumbnail3Name}</span>
+                    <span className="text-gray-400 text-xs truncate">{thumbnail3Name}</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="subtitlesSrt" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Fichier de sous-titres (.srt)
+                <div className="flex flex-col md:col-span-3">
+                  <label htmlFor="subtitlesSrt" className="text-white font-semibold mb-1 text-xs uppercase">
+                    Sous-titres (.srt)
                   </label>
                   {(() => {
                     const { onChange, ...rest } = registerMovie("subtitlesSrt");
@@ -884,24 +866,72 @@ export default function ProducerHome() {
                       />
                     );
                   })()}
-                  <div className="flex items-center gap-3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
-                    <label htmlFor="subtitlesSrt" className="cursor-pointer text-white font-semibold">
-                      Choisir un fichier
+                  <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                    <label htmlFor="subtitlesSrt" className="cursor-pointer text-white font-semibold text-sm">
+                      Choisir
                     </label>
-                    <span className="text-gray-400">— {subtitlesName}</span>
+                    <span className="text-gray-400 text-sm truncate">{subtitlesName}</span>
                   </div>
                 </div>
               </div>
             </section>
 
+            <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+              <input
+                id="acceptTerms"
+                type="checkbox"
+                {...registerMovie("acceptTerms")}
+                className="w-4 h-4 cursor-pointer"
+              />
+              <label htmlFor="acceptTerms" className="text-white text-xs cursor-pointer flex-1">
+                J'accepte les{" "}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowTermsModal(true);
+                  }}
+                  className="text-[#AD46FF] hover:text-[#F6339A] underline font-semibold"
+                >
+                  conditions de participation
+                </button>
+              </label>
+            </div>
+
+            {movieErrors.acceptTerms && (
+              <p className="text-red-400 text-sm">{movieErrors.acceptTerms.message}</p>
+            )}
+              </>
+            )}
+
             <div className="flex flex-col gap-4 pt-2">
-              <button
-                type="submit"
-                disabled={createMovieMutation.isPending}
-                className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
-              >
-                {createMovieMutation.isPending ? "Soumission en cours..." : "Soumettre le film"}
-              </button>
+              {formStep === 1 && (
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition"
+                >
+                  Suivant
+                </button>
+              )}
+              {formStep === 2 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePreviousStep}
+                    className="w-full border border-gray-600 text-white font-bold py-4 rounded-lg uppercase hover:bg-gray-800 transition"
+                  >
+                    Retour
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createMovieMutation.isPending || !acceptTerms}
+                    className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+                  >
+                    {createMovieMutation.isPending ? "Soumission en cours..." : "Soumettre"}
+                  </button>
+                </>
+              )}
             </div>
 
             {movieSuccess && (
@@ -917,51 +947,190 @@ export default function ProducerHome() {
             )}
           </form>
         </section>
+        )}
 
-        <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6">Votre film soumis</h2>
-          {movies.length === 0 ? (
-            <p className="text-gray-400">Aucun film soumis pour le moment.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {movies.map((movie) => {
-                const poster = getPoster(movie);
-                return (
-                  <button
-                    key={movie.id_movie}
-                    type="button"
-                    onClick={() => setSelectedMovie(movie)}
-                    className="text-left bg-gray-950 border border-gray-800 rounded-xl p-4 hover:border-gray-600 transition"
-                  >
-                    <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden">
-                      {poster ? (
-                        <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Aucune vignette</div>
-                      )}
+        {showCollaboratorsModal && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Gérer les collaborateurs</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowCollaboratorsModal(false)}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => appendCollaborator({ first_name: "", last_name: "", email: "", job: "" })}
+                  className="px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition"
+                >
+                  + Ajouter un collaborateur
+                </button>
+              </div>
+
+              {collaboratorFields.length === 0 && (
+                <p className="text-gray-400 text-center py-8">Aucun collaborateur ajouté.</p>
+              )}
+
+              <div className="space-y-3">
+                {collaboratorFields.map((field, index) => (
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-900 border border-gray-800 p-3 rounded-xl">
+                    <div className="flex flex-col">
+                      <label className="text-xs uppercase text-gray-400 mb-1">Prénom</label>
+                      <input
+                        type="text"
+                        {...registerMovie(`collaborators.${index}.first_name`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                        placeholder="Prénom"
+                      />
                     </div>
-                    <div className="mt-3">
-                      <h3 className="text-lg font-semibold text-white">{movie.title}</h3>
-                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{movie.synopsis || movie.description || "-"}</p>
-                      <div className="mt-2 text-xs text-gray-400 flex flex-wrap gap-3">
-                        <span>{movie.duration ? `${movie.duration}s` : "-"}</span>
-                        <span>{movie.main_language || "-"}</span>
-                        <span>{movie.nationality || "-"}</span>
-                        <span>{movie.selection_status || "submitted"}</span>
-                      </div>
+                    <div className="flex flex-col">
+                      <label className="text-xs uppercase text-gray-400 mb-1">Nom</label>
+                      <input
+                        type="text"
+                        {...registerMovie(`collaborators.${index}.last_name`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                        placeholder="Nom"
+                      />
                     </div>
-                  </button>
-                );
-              })}
+                    <div className="flex flex-col">
+                      <label className="text-xs uppercase text-gray-400 mb-1">Email</label>
+                      <input
+                        type="email"
+                        {...registerMovie(`collaborators.${index}.email`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-xs uppercase text-gray-400 mb-1">Rôle</label>
+                      <input
+                        type="text"
+                        {...registerMovie(`collaborators.${index}.job`)}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                        placeholder="Réalisateur, Acteur..."
+                      />
+                    </div>
+                    <div className="md:col-span-4 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removeCollaborator(index)}
+                        className="text-red-400 hover:text-red-300 text-sm"
+                      >
+                        ✕ Supprimer
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowCollaboratorsModal(false)}
+                  className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
+                >
+                  Fermer
+                </button>
+              </div>
             </div>
-          )}
-        </section>
+          </div>
+        )}
+
+        {showTermsModal && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Conditions de Participation & Politique de Confidentialité</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowTermsModal(false)}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4 text-gray-300 text-sm">
+                <section>
+                  <h4 className="text-white font-bold text-base mb-2">1. Conditions de Participation</h4>
+                  <p className="mb-2">
+                    En soumettant votre film au Festival MARS AI, vous acceptez que :
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Votre film doit être une création originale utilisant l'intelligence artificielle</li>
+                    <li>La durée maximale est de 2 minutes (120 secondes)</li>
+                    <li>Vous détenez tous les droits nécessaires sur votre œuvre</li>
+                    <li>Le festival peut utiliser des extraits à des fins promotionnelles</li>
+                    <li>La décision du jury est finale et sans appel</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h4 className="text-white font-bold text-base mb-2">2. Droits d'Auteur</h4>
+                  <p>
+                    Vous conservez tous les droits d'auteur sur votre film. Le festival obtient uniquement 
+                    une licence non-exclusive pour diffuser votre œuvre dans le cadre de l'événement et de sa promotion.
+                  </p>
+                </section>
+
+                <section>
+                  <h4 className="text-white font-bold text-base mb-2">3. Politique de Confidentialité</h4>
+                  <p className="mb-2">
+                    Vos données personnelles sont collectées uniquement pour :
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>La gestion de votre inscription au festival</li>
+                    <li>La communication concernant votre soumission</li>
+                    <li>Les statistiques anonymisées du festival</li>
+                  </ul>
+                  <p className="mt-2">
+                    Vos données ne seront jamais vendues ou partagées avec des tiers sans votre consentement explicite.
+                  </p>
+                </section>
+
+                <section>
+                  <h4 className="text-white font-bold text-base mb-2">4. Utilisation de l'IA</h4>
+                  <p>
+                    Vous devez indiquer de manière transparente les outils d'IA utilisés dans la création de votre film 
+                    et la méthodologie employée. Le non-respect de cette obligation peut entraîner la disqualification.
+                  </p>
+                </section>
+
+                <section>
+                  <h4 className="text-white font-bold text-base mb-2">5. Contact</h4>
+                  <p>
+                    Pour toute question concernant ces conditions ou vos données personnelles, contactez-nous à : 
+                    <a href="mailto:contact@marsaifestival.com" className="text-[#AD46FF] hover:text-[#F6339A] ml-1">
+                      contact@marsaifestival.com
+                    </a>
+                  </p>
+                </section>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowTermsModal(false)}
+                  className="px-6 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition"
+                >
+                  J'ai compris
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {selectedMovie && (
           <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-white">{selectedMovie.title}</h3>
+                <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
                 <button
                   type="button"
                   onClick={() => setSelectedMovie(null)}
@@ -971,60 +1140,53 @@ export default function ProducerHome() {
                 </button>
               </div>
 
-              <p className="text-gray-400 mt-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
-              <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-300">
-                <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
-                <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
-                <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
-                <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
-                <div><span className="text-gray-400">Outils IA:</span> {selectedMovie.ai_tool || "-"}</div>
-                <div><span className="text-gray-400">Méthodologie:</span> {selectedMovie.workshop || "-"}</div>
-                <div><span className="text-gray-400">Production:</span> {selectedMovie.production || "-"}</div>
-                <div><span className="text-gray-400">Sous-titres:</span> {selectedMovie.subtitle ? (
-                  <a className="text-[#AD46FF] hover:text-[#F6339A]" href={`${uploadBase}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer">Télécharger</a>
-                ) : "-"}</div>
-              </div>
+              <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
 
-              <div className="mt-4 flex flex-wrap gap-3">
-                {selectedMovie.trailer && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={`${uploadBase}/${selectedMovie.trailer}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Ouvrir la vidéo
-                  </a>
-                )}
-                {selectedMovie.youtube_link && (
-                  <a
-                    className="text-[#AD46FF] hover:text-[#F6339A] font-semibold"
-                    href={selectedMovie.youtube_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Voir sur YouTube
-                  </a>
-                )}
-              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3 text-xs text-gray-300">
+                    <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
+                    <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
+                    <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
+                    <div><span className="text-gray-400">Statut:</span> {selectedMovie.selection_status || "submitted"}</div>
+                    <div><span className="text-gray-400">Outils IA:</span> {selectedMovie.ai_tool || "-"}</div>
+                    <div><span className="text-gray-400">Méthodologie:</span> {selectedMovie.workshop || "-"}</div>
+                  </div>
 
-              {(selectedMovie.trailer || selectedMovie.youtube_link) && (
-                <div className="mt-4">
-                  {selectedMovie.trailer ? (
-                    <VideoPreview
-                      title={selectedMovie.title}
-                      src={`${uploadBase}/${selectedMovie.trailer}`}
-                      poster={getPoster(selectedMovie) || undefined}
-                    />
-                  ) : (
-                    <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
-                      Ouvrir la vidéo
-                    </a>
-                  )}
+                  <div className="flex flex-wrap gap-3 text-sm">
+                    {getTrailer(selectedMovie) && (
+                      <span className="text-xs text-gray-400">
+                        Trailer : cliquez pour plein écran
+                      </span>
+                    )}
+                    {selectedMovie.subtitle ? (
+                      <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={`${uploadBase}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer">Sous-titres</a>
+                    ) : null}
+                    {selectedMovie.youtube_link && (
+                      <a className="text-[#AD46FF] hover:text-[#F6339A] font-semibold" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">YouTube</a>
+                    )}
+                  </div>
                 </div>
-              )}
 
-              <div className="mt-6">
+                {(getTrailer(selectedMovie) || selectedMovie.youtube_link) && (
+                  <div>
+                    {getTrailer(selectedMovie) ? (
+                      <VideoPreview
+                        title={selectedMovie.title}
+                        src={`${uploadBase}/${getTrailer(selectedMovie)}`}
+                        poster={getPoster(selectedMovie) || undefined}
+                        openMode="fullscreen"
+                      />
+                    ) : (
+                      <a className="text-[#AD46FF] hover:text-[#F6339A]" href={selectedMovie.youtube_link} target="_blank" rel="noreferrer">
+                        Ouvrir la vidéo
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-3 border-t border-gray-800 pt-3">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm uppercase text-gray-400">Collaborateurs</h4>
                   <button
