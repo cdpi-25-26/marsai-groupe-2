@@ -149,6 +149,9 @@ async function getMovieById(req, res) {
 /////////////////////////////////////////////////////////////////////////////// Soumettre un film
  
 async function createMovie(req, res) {
+    // DEBUG: logga tutto ciò che arriva
+    console.log("[DEBUG] req.body:", req.body);
+    console.log("[DEBUG] req.files:", req.files);
   try {
 
     // -1- Récupérer utilisateur connecté

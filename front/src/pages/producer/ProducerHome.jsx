@@ -27,7 +27,7 @@ const movieSchema = z.object({
   translation: z.string().optional(),
   youtubeLink: z.string().optional(),
   synopsisOriginal: z.string().min(1, "validation.synopsisRequired"),
-  synopsisEnglish: z.string().optional(),
+  // synopsisEnglish: z.string().optional(), // Rimosso campo synopsis inglese
   aiClassification: z.string().min(1, "La classification IA est obligatoire"),
   aiStack: z.string().optional(),
   aiMethodology: z.string().optional(),
@@ -119,7 +119,7 @@ export default function ProducerHome() {
       formData.append("translation", data.translation || "");
       formData.append("youtubeLink", data.youtubeLink || "");
       formData.append("synopsisOriginal", data.synopsisOriginal || "");
-      formData.append("synopsisEnglish", data.synopsisEnglish || "");
+      // formData.append("synopsisEnglish", data.synopsisEnglish || ""); // Rimosso campo synopsis inglese
       formData.append("aiClassification", data.aiClassification || "");
       formData.append("aiStack", data.aiStack || "");
       formData.append("aiMethodology", data.aiMethodology || "");
@@ -285,55 +285,47 @@ export default function ProducerHome() {
 
   return (
     <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
-      <div className="max-w-4xl mx-auto space-y-10">
-
-
-        {/* 2. Form submission film */}
+      <div className="max-w-6xl mx-auto space-y-10">
+        {/* Form submission film completamente integrato e responsive */}
         <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
           <h2 className="text-2xl font-bold mb-6">{t('forms.producer.filmSubmission.title', 'Soumettre un nouveau film')}</h2>
-          <form className="space-y-4">
-            {/* ...tutti i campi film come già presenti... */}
-            <div>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-8" onSubmit={handleSubmitMovie(onSubmitMovie)} encType="multipart/form-data">
+            <div className="col-span-1 md:col-span-2">
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.filmTitleOriginal', 'Titre du film')}</label>
-              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.filmTitleOriginal', 'Titre du film')} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.durationSeconds', 'Durée (secondes)')}</label>
-                <input type="number" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder="60" />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.filmLanguage', 'Langue')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.filmLanguage', 'Français')} />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.releaseYear', 'Année')}</label>
-                <input type="number" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder="2026" />
-              </div>
-              <div>
-                <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.nationality', 'Nationalité')}</label>
-                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.nationality', 'France')} />
-              </div>
+              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.filmTitleOriginal', 'Titre du film')} {...registerMovie("filmTitleOriginal")} />
             </div>
             <div>
+              <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.durationSeconds', 'Durée (secondes)')}</label>
+              <input type="number" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder="60" {...registerMovie("durationSeconds")} />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.filmLanguage', 'Langue')}</label>
+              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.filmLanguage', 'Français')} {...registerMovie("filmLanguage")} />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.releaseYear', 'Année')}</label>
+              <input type="number" className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder="2026" {...registerMovie("releaseYear")} />
+            </div>
+            <div>
+              <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.nationality', 'Nationalité')}</label>
+              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.nationality', 'France')} {...registerMovie("nationality")} />
+            </div>
+            <div className="col-span-1 md:col-span-2">
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.translation', 'Traduction titre')}</label>
-              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.translation', 'English')} />
+              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder={t('forms.producer.filmSubmission.placeholders.translation', 'English')} {...registerMovie("translation")} />
             </div>
-            <div>
+            <div className="col-span-1 md:col-span-2">
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.youtubeLink', 'Lien YouTube')}</label>
-              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder="https://youtube.com/watch?v=..." />
+              <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" placeholder="https://youtube.com/watch?v=..." {...registerMovie("youtubeLink")} />
             </div>
-            <div>
+            <div className="col-span-1 md:col-span-2">
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.synopsisOriginal', 'Synopsis')}</label>
-              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder={t('forms.producer.filmSubmission.placeholders.synopsisOriginal', 'Résumé du film')}></textarea>
+              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder={t('forms.producer.filmSubmission.placeholders.synopsisOriginal', 'Résumé du film')} {...registerMovie("synopsisOriginal")} />
             </div>
-            <div>
-              <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.synopsisEnglish', 'Synopsis anglais')}</label>
-              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder={t('forms.producer.filmSubmission.placeholders.synopsisEnglish', 'Summary in English...')}></textarea>
-            </div>
+            {/* RIMOSSO SYNOPSIS INGLESE */}
             <div>
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.aiClassification', 'Classification IA')}</label>
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2">
+              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" {...registerMovie("aiClassification")}> 
                 <option value="">{t('forms.producer.filmSubmission.placeholders.aiClassification', 'Sélectionner')}</option>
                 <option value="integrale">100% IA</option>
                 <option value="hybride">Hybride (Réel + IA)</option>
@@ -341,24 +333,24 @@ export default function ProducerHome() {
             </div>
             <div>
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.aiStack', 'Stack Technologique')}</label>
-              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder="Listez les outils IA utilisés (ex: Midjourney, Runway, ElevenLabs...)"></textarea>
+              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder="Listez les outils IA utilisés (ex: Midjourney, Runway, ElevenLabs...)" {...registerMovie("aiStack")} />
             </div>
             <div>
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.aiMethodology', 'Méthodologie Créative')}</label>
-              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder="Décrivez l'interaction humain-machine dans le processus créatif..."></textarea>
+              <textarea className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" rows={2} placeholder="Décrivez l'interaction humain-machine dans le processus créatif..." {...registerMovie("aiMethodology")} />
             </div>
             <div>
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.categoryId', 'Catégorie')}</label>
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2">
+              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" {...registerMovie("categoryId")}> 
                 <option value="">{t('forms.producer.filmSubmission.placeholders.categoryId', 'Sélectionner une catégorie')}</option>
                 {categories.map((cat) => (
                   <option key={cat.id_categorie} value={cat.id_categorie}>{cat.name}</option>
                 ))}
               </select>
             </div>
-            <div>
+            <div className="col-span-1 md:col-span-2">
               <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.knownByMarsAi', 'Comment connu ?')}</label>
-              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2">
+              <select className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2" {...registerMovie("knownByMarsAi")}> 
                 <option value="">{t('forms.producer.filmSubmission.placeholders.knownByMarsAi', 'Sélectionner')}</option>
                 <option value="Par un ami">Par un ami</option>
                 <option value="Vu une publicité du festival">Vu une publicité du festival</option>
@@ -369,30 +361,30 @@ export default function ProducerHome() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.filmFile', 'Fichier du film')}</label>
-                <input type="file" className="w-full text-gray-300" />
+                <input type="file" className="w-full text-gray-300" {...registerMovie("filmFile")} />
               </div>
               <div>
                 <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.thumbnail1', 'Vignette 1')}</label>
-                <input type="file" className="w-full text-gray-300" />
+                <input type="file" className="w-full text-gray-300" {...registerMovie("thumbnail1")} />
               </div>
               <div>
                 <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.thumbnail2', 'Vignette 2')}</label>
-                <input type="file" className="w-full text-gray-300" />
+                <input type="file" className="w-full text-gray-300" {...registerMovie("thumbnail2")} />
               </div>
               <div>
                 <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.thumbnail3', 'Vignette 3')}</label>
-                <input type="file" className="w-full text-gray-300" />
+                <input type="file" className="w-full text-gray-300" {...registerMovie("thumbnail3")} />
               </div>
               <div>
                 <label className="block mb-1 font-semibold">{t('forms.producer.filmSubmission.labels.subtitlesSrt', 'Sous-titres (.srt)')}</label>
-                <input type="file" className="w-full text-gray-300" />
+                <input type="file" className="w-full text-gray-300" {...registerMovie("subtitlesSrt")} />
               </div>
             </div>
             <div className="flex items-center gap-2 mt-4">
-              <input type="checkbox" className="w-4 h-4" />
+              <input type="checkbox" className="w-4 h-4" {...registerMovie("acceptTerms")} />
               <span className="text-xs">{t('forms.producer.filmSubmission.labels.acceptTerms', 'J\'accepte les conditions de participation')}</span>
             </div>
-            <button type="button" className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition mt-4">{t('forms.producer.filmSubmission.buttons.submit', 'Soumettre')}</button>
+            <button type="submit" className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition mt-4">{t('forms.producer.filmSubmission.buttons.submit', 'Soumettre')}</button>
           </form>
         </section>
 

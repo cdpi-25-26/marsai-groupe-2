@@ -276,7 +276,15 @@ function Users() {
    * @param {Object} data - Les données du formulaire validées
    */
   function onCreateSubmit(data) {
-    createMutation.mutate(data);
+    // Converti i dati in snake_case per il backend
+    const snakeData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      password: data.password,
+      role: data.role
+    };
+    createMutation.mutate(snakeData);
   }
 
   /**
@@ -286,14 +294,19 @@ function Users() {
    * @param {Object} data - Les données du formulaire validées
    */
   function onUpdateSubmit(data) {
-    const userData = { ...data };
-    // Supprime le mot de passe si vide pour éviter de changer le mot de passe
-    if (!userData.password) {
-      delete userData.password;
+    // Converti i dati in snake_case per il backend
+    const userData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      role: data.role
+    };
+    if (data.password) {
+      userData.password = data.password;
     }
-    updateMutation.mutate({ 
-      id: editingUser.id_user, 
-      userData 
+    updateMutation.mutate({
+      id: editingUser.id_user,
+      userData
     });
   }
 
