@@ -37,6 +37,7 @@ import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
+import ProducerDashboard from "./pages/producer/Producerdashboard.jsx";
 
 /**
  * Configuration de TanStack Query
@@ -104,17 +105,20 @@ createRoot(document.getElementById("root")).render(
           {/* ========================================
               ROUTES PRODUCTEUR (Rôle PRODUCER)
               ======================================== */}
-          <Route
-            path="producer"
-            element={
-              <RoleGuard allowedRoles={["PRODUCER"]}>
-                <ProducerLayout />
-              </RoleGuard>
-            }
-          >
-            {/* Page d'accueil et profil du producteur */}
-            <Route index element={<ProducerHome />} />
-          </Route>
+         <Route
+  path="producer"
+  element={
+    <RoleGuard allowedRoles={["PRODUCER"]}>
+      <ProducerLayout />
+    </RoleGuard>
+  }
+>
+  {/* Menu principal du producteur */}
+  <Route index element={<ProducerDashboard />} />
+
+  {/* Page complète avec profil, formulaire et films */}
+  <Route path="home" element={<ProducerHome />} />
+</Route>
 
           {/* ========================================
               ROUTES JURY (Rôle JURY)
