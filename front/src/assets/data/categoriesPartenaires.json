@@ -1,0 +1,15 @@
+{
+  "officiels": [
+    { "name": "Partenaire A", "logo": "/logos/a.png", "color": "#F6339A", "url": "https://siteA.com" },
+    { "name": "Partenaire B", "logo": "/logos/b.png", "color": "#4ECDC4", "url": "https://siteB.com" }
+  ],
+  "medias": [
+    { "name": "Media 1", "logo": "/logos/m1.png", "color": "#1A73E8", "url": "https://media1.com" }
+  ],
+  "techniques": [
+    { "name": "Tech 1", "logo": "/logos/t1.png", "color": "#F7B801", "url": "https://tech1.com" }
+  ],
+  "divers": [
+    { "name": "Divers 1", "logo": "/logos/x1.png", "color": "#9B5DE5", "url": "https://divers1.com" }
+  ]
+}
