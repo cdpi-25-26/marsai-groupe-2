@@ -1,7 +1,7 @@
 /**
  * Composant ProducerHome (Accueil Producteur)
  * Page permettant aux producteurs de voir et modifier leur profil complet
- * Fonctionnalités: 
+* Fonctionnalités: 
  * - Affichage des informations utilisateur (18 champs optionnels)
  * - Mode édition pour modifier les informations
  * - Appel API getCurrentUser pour récupérer les données
@@ -12,6 +12,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import Navbar from "../../components/Navbar.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -400,7 +401,9 @@ export default function ProducerHome() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
       <div className="max-w-6xl mx-auto space-y-10">
 
         {submittedSuccess ? (
@@ -738,11 +741,9 @@ export default function ProducerHome() {
 
             <section className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-
-                {/* --- FILE UPLOAD --- */}
                 <div className="flex flex-col md:col-span-3">
                   <label htmlFor="filmFile" className="text-white font-semibold mb-1 text-xs uppercase">
-                    {t('forms.register.labels.filmFile')}
+                    Fichier du film
                   </label>
                   {(() => {
                     const { onChange, ...rest } = registerMovie("filmFile");
@@ -761,46 +762,56 @@ export default function ProducerHome() {
                   })()}
                   <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
                     <label htmlFor="filmFile" className="cursor-pointer text-white font-semibold text-sm">
-                      {t('forms.register.buttons.chooseFile')}
+                      Choisir
                     </label>
                     <span className="text-gray-400 text-sm truncate">{filmFileName}</span>
                   </div>
                 </div>
 
-                {/* --- THUMBNAILS UPLOAD (1-3, add/remove) --- */}
+
+                {/* Dynamic thumbnails upload */}
                 <div className="flex flex-col md:col-span-3">
-                  <label className="text-white font-semibold mb-1 text-xs uppercase">{t('forms.register.labels.thumbnail1')}</label>
+                  <label className="text-white font-semibold mb-1 text-xs uppercase">Vignettes</label>
+                  {/* Move useFieldArray to top of component */}
+                  {/* Dynamic thumbnails upload */}
                   <div className="flex flex-col md:col-span-3">
-                    {thumbnailFields.map((field, idx) => (
+                    <label className="text-white font-semibold mb-1 text-xs uppercase">Vignettes</label>
+                    {fields.map((field, idx) => (
                       <div key={field.id} className="flex items-center gap-2 mb-2">
                         <input
                           type="file"
                           accept="image/*"
                           {...registerMovie(`thumbnails.${idx}`)}
-                          onChange={e => handleThumbnailChange(e, idx)}
+                          onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setThumbnailNames(prev => {
+                                const next = [...prev];
+                                next[idx] = file.name;
+                                return next;
+                              });
+                              // Add a new empty field if last
+                              if (idx === fields.length - 1) append({});
+                            }
+                          }}
                           className="sr-only"
                           id={`thumbnail-upload-${idx}`}
                         />
                         <label htmlFor={`thumbnail-upload-${idx}`} className="cursor-pointer text-white font-semibold text-sm bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
-                          {t('forms.register.buttons.chooseFile')}
+                          Choisir
                         </label>
                         <span className="text-gray-400 text-xs truncate">{thumbnailNames[idx]}</span>
-                        {thumbnailFields.length > 1 && (
-                          <button type="button" onClick={() => handleRemoveThumbnail(idx)} className="text-red-500 text-xs ml-2">{t('forms.register.buttons.remove')}</button>
+                        {idx > 0 && (
+                          <button type="button" onClick={() => remove(idx)} className="text-red-500 text-xs ml-2">Supprimer</button>
                         )}
                       </div>
                     ))}
-                    {thumbnailFields.length < 3 && (
-                      <button type="button" onClick={addThumbnail} className="mt-2 px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition">
-                        {t('forms.register.buttons.addCollaborator')}
-                      </button>
-                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col md:col-span-3">
                   <label htmlFor="subtitlesSrt" className="text-white font-semibold mb-1 text-xs uppercase">
-                    {t('forms.register.labels.subtitlesSrt')}
+                    Sous-titres (.srt)
                   </label>
                   {(() => {
                     const { onChange, ...rest } = registerMovie("subtitlesSrt");
@@ -820,7 +831,7 @@ export default function ProducerHome() {
                   })()}
                   <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
                     <label htmlFor="subtitlesSrt" className="cursor-pointer text-white font-semibold text-sm">
-                      {t('forms.register.buttons.chooseFile')}
+                      Choisir
                     </label>
                     <span className="text-gray-400 text-sm truncate">{subtitlesName}</span>
                   </div>
@@ -836,7 +847,7 @@ export default function ProducerHome() {
                 className="w-4 h-4 cursor-pointer"
               />
               <label htmlFor="acceptTerms" className="text-white text-xs cursor-pointer flex-1">
-                {t('forms.register.labels.termsAccepted')}
+                J'accepte les{" "}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -845,7 +856,7 @@ export default function ProducerHome() {
                   }}
                   className="text-[#AD46FF] hover:text-[#F6339A] underline font-semibold"
                 >
-                  {t('forms.register.labels.termsAccepted')}
+                  conditions de participation
                 </button>
               </label>
             </div>
@@ -880,7 +891,7 @@ export default function ProducerHome() {
                     disabled={createMovieMutation.isPending || !acceptTerms}
                     className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
                   >
-                    {createMovieMutation.isPending ? t('forms.register.buttons.submitting') : t('forms.register.buttons.submitFilm')}
+                    {createMovieMutation.isPending ? t('producerHome.submitting') : t('producerHome.submit')}
                   </button>
                 </>
               )}
@@ -1237,6 +1248,7 @@ export default function ProducerHome() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
