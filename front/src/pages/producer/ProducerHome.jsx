@@ -122,6 +122,30 @@ export default function ProducerHome() {
   // Dynamic thumbnails field array
   const { fields, append, remove } = useFieldArray({ control: movieControl, name: "thumbnails" });
 
+  // Funzioni per la gestione delle vignette
+  const addThumbnail = () => {
+    append(undefined); // aggiunge un nuovo campo file
+    setThumbnailNames((prev) => [...prev, "Aucun fichier sélectionné"]);
+  };
+
+  const handleThumbnailChange = (event, idx) => {
+    const file = event.target.files?.[0];
+    setThumbnailNames((prev) => {
+      const arr = [...prev];
+      arr[idx] = file ? file.name : "Aucun fichier sélectionné";
+      return arr;
+    });
+  };
+
+  const handleRemoveThumbnail = (idx) => {
+    remove(idx);
+    setThumbnailNames((prev) => {
+      const arr = [...prev];
+      arr.splice(idx, 1);
+      return arr.length ? arr : ["Aucun fichier sélectionné"];
+    });
+  };
+
   const createMovieMutation = useMutation({
     mutationFn: async (data) => {
       const formData = new FormData();
@@ -412,181 +436,557 @@ export default function ProducerHome() {
 
             {movies.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-xl font-bold text-white mb-6">Mes films soumis</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {movies.map((movie) => (
-                    <div
-                      key={movie.id_movie}
-                      onClick={() => setSelectedMovie(movie)}
-                      className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition cursor-pointer group"
-                    >
-                      {getPoster(movie) && (
-                        <div className="relative overflow-hidden h-40 bg-gray-800">
-                          <img
-                            src={getPoster(movie)}
-                            alt={movie.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition"
-                          />
-                        </div>
-                      )}
-                      <div className="p-4">
-                        <h4 className="text-white font-semibold truncate group-hover:text-[#AD46FF] transition">
-                          {movie.title || movie.filmTitleOriginal}
-                        </h4>
-                        <p className="text-gray-400 text-sm mt-2 line-clamp-2">
-                          {movie.synopsis || movie.synopsisOriginal || "Pas de synopsis"}
-                        </p>
-                        <div className="mt-3 space-y-1 text-xs text-gray-500">
-                          <div><span className="text-gray-400">Durée:</span> {movie.duration || movie.durationSeconds}s</div>
-                          <div><span className="text-gray-400">Langue:</span> {movie.main_language || movie.filmLanguage || "-"}</div>
-                          <div><span className="text-gray-400">Nationalité:</span> {movie.nationality || "-"}</div>
-                          <div className="pt-2 flex items-center gap-2">
-                            <span className="text-gray-400">Statut:</span>
-                            <span className={`inline-block px-2 py-1 rounded text-white text-xs font-semibold ${
-                              movie.selection_status === "selected" ? "bg-green-600" :
-                              movie.selection_status === "refused" ? "bg-red-600" :
-                              "bg-yellow-600"
-                            }`}>
-                              {movie.selection_status === "selected" ? "Approuvé" :
-                               movie.selection_status === "refused" ? "Refusé" :
-                               "En attente"}
-                            </span>
-                          </div>
+                <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+                  <div className="max-w-6xl mx-auto space-y-10">
+                    {submittedSuccess ? (
+                  <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+                    <div className="text-center mb-8">
+                      <h2 className="text-3xl font-bold text-[#AD46FF] mb-2">Succès ! 🎬</h2>
+                      <p className="text-gray-300">{movieSuccess || t('forms.register.messages.success')}</p>
+                    </div>
+                    {movies.length > 0 && (
+                      <div className="mb-8">
+                        <h3 className="text-xl font-bold text-white mb-6">{t('forms.register.titles.myMovies')}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {movies.map((movie) => (
+                            <div
+                              key={movie.id_movie}
+                              onClick={() => setSelectedMovie(movie)}
+                              className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition cursor-pointer group"
+                            >
+                              {getPoster(movie) && (
+                                <div className="relative overflow-hidden h-40 bg-gray-800">
+                                  <img
+                                    src={getPoster(movie)}
+                                    alt={movie.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition"
+                                  />
+                                </div>
+                              )}
+                              <div className="p-4">
+                                <h4 className="text-white font-semibold truncate group-hover:text-[#AD46FF] transition">
+                                  {movie.title || movie.filmTitleOriginal}
+                                </h4>
+                                <p className="text-gray-400 text-sm mt-2 line-clamp-2">
+                                  {movie.synopsis || movie.synopsisOriginal || t('forms.register.messages.noSynopsis')}
+                                </p>
+                                <div className="mt-3 space-y-1 text-xs text-gray-500">
+                                  <div><span className="text-gray-400">{t('forms.register.labels.duration')}</span> {movie.duration || movie.durationSeconds}s</div>
+                                  <div><span className="text-gray-400">{t('forms.register.labels.language')}</span> {movie.main_language || movie.filmLanguage || "-"}</div>
+                                  <div><span className="text-gray-400">{t('forms.register.labels.nationality')}</span> {movie.nationality || "-"}</div>
+                                  <div className="pt-2 flex items-center gap-2">
+                                    <span className="text-gray-400">{t('forms.register.labels.status')}</span>
+                                    <span className={`inline-block px-2 py-1 rounded text-white text-xs font-semibold ${
+                                      movie.selection_status === "selected" ? "bg-green-600" :
+                                      movie.selection_status === "refused" ? "bg-red-600" :
+                                      "bg-yellow-600"
+                                    }`}>
+                                      {movie.selection_status === "selected" ? t('forms.register.status.approved') :
+                                       movie.selection_status === "refused" ? t('forms.register.status.refused') :
+                                       t('forms.register.status.pending')}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
+                    )}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={handleResetForm}
+                        className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition"
+                      >
+                        {t('forms.register.buttons.submitNewMovie')}
+                      </button>
                     </div>
-                  ))}
+                  </section>
+                            <h3 className="text-xl font-bold text-white mb-6">{t('forms.register.titles.myMovies')}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {movies.map((movie) => (
+                                <div
+                                  key={movie.id_movie}
+                                  onClick={() => setSelectedMovie(movie)}
+                                  className="bg-gray-950 border border-gray-800 rounded-xl overflow-hidden hover:border-[#AD46FF] transition cursor-pointer group"
+                                >
+                                  {getPoster(movie) && (
+                                    <div className="relative overflow-hidden h-40 bg-gray-800">
+                                      <img
+                                        src={getPoster(movie)}
+                                        alt={movie.title}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="p-4">
+                                    <h4 className="text-white font-semibold truncate group-hover:text-[#AD46FF] transition">
+                                      {movie.title || movie.filmTitleOriginal}
+                                    </h4>
+                                    <p className="text-gray-400 text-sm mt-2 line-clamp-2">
+                                      {movie.synopsis || movie.synopsisOriginal || t('forms.register.messages.noSynopsis')}
+                                    </p>
+                                    <div className="mt-3 space-y-1 text-xs text-gray-500">
+                                      <div><span className="text-gray-400">{t('forms.register.labels.duration')}</span> {movie.duration || movie.durationSeconds}s</div>
+                                      <div><span className="text-gray-400">{t('forms.register.labels.language')}</span> {movie.main_language || movie.filmLanguage || "-"}</div>
+                                      <div><span className="text-gray-400">{t('forms.register.labels.nationality')}</span> {movie.nationality || "-"}</div>
+                                      <div className="pt-2 flex items-center gap-2">
+                                        <span className="text-gray-400">{t('forms.register.labels.status')}</span>
+                                        <span className={`inline-block px-2 py-1 rounded text-white text-xs font-semibold ${
+                                          movie.selection_status === "selected" ? "bg-green-600" :
+                                          movie.selection_status === "refused" ? "bg-red-600" :
+                                          "bg-yellow-600"
+                                        }`}>
+                                          {movie.selection_status === "selected" ? t('forms.register.status.approved') :
+                                           movie.selection_status === "refused" ? t('forms.register.status.refused') :
+                                           t('forms.register.status.pending')}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex justify-center">
+                          <button
+                            onClick={handleResetForm}
+                            className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition"
+                          >
+                            {t('forms.register.buttons.submitNewMovie')}
+                          </button>
+                        </div>
+                      </section>
+                    ) : (
+                      <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
+                        <div className="mb-8">
+                          <div className="flex items-center justify-center gap-4">
+                            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
+                              formStep >= 1 ? "bg-[#AD46FF] text-white" : "bg-gray-700 text-gray-400"
+                            }`}>
+                              1
+                            </div>
+                            <div className={`flex-1 h-1 ${formStep >= 2 ? "bg-[#AD46FF]" : "bg-gray-700"}`}></div>
+                            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
+                              formStep >= 2 ? "bg-[#AD46FF] text-white" : "bg-gray-700 text-gray-400"
+                            }`}>
+                              2
+                            </div>
+                          </div>
+                          <div className="flex justify-between mt-3 text-sm">
+                            <span className={formStep >= 1 ? "text-white font-semibold" : "text-gray-400"}>{t('forms.register.titles.movieData')}</span>
+                            <span className={formStep >= 2 ? "text-white font-semibold" : "text-gray-400"}>{t('forms.register.titles.iaFilesCollaborators')}</span>
+                          </div>
+                        </div>
+                        <form onSubmit={handleSubmitMovie(onSubmitMovie)} className="space-y-8">
+                          {formStep === 1 && (
+                            <section className="space-y-3">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {/* ...existing code for step 1... */}
+                              </div>
+                            </section>
+                          )}
+                          {formStep === 2 && (
+                            <div>
+                              <section className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label className="text-white font-semibold mb-1 text-xs uppercase">
+                                      {t('forms.register.labels.aiClassification')}
+                                    </label>
+                                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-2 border rounded-lg p-2 ${
+                                      movieErrors.aiClassification
+                                        ? "border-red-500 bg-red-950/20"
+                                        : "border-transparent"
+                                    }`}>
+                                      <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
+                                        <input type="radio" value="integrale" {...registerMovie("aiClassification")} className="cursor-pointer" />
+                                        <span className="text-sm">{t('forms.register.options.aiIntegrale')}</span>
+                                      </label>
+                                      <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
+                                        <input type="radio" value="hybride" {...registerMovie("aiClassification")} className="cursor-pointer" />
+                                        <span className="text-sm">{t('forms.register.options.aiHybride')}</span>
+                                      </label>
+                                    </div>
+                                    {movieErrors.aiClassification && (
+                                      <p className="text-red-400 text-sm mt-2">{movieErrors.aiClassification.message}</p>
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label htmlFor="aiStack" className="text-white font-semibold mb-1 text-xs uppercase">
+                                      {t('forms.register.labels.aiStack')}
+                                    </label>
+                                    <textarea
+                                      id="aiStack"
+                                      rows={2}
+                                      maxLength={500}
+                                      {...registerMovie("aiStack")}
+                                      placeholder={t('forms.register.placeholders.aiStack')}
+                                      className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label htmlFor="aiMethodology" className="text-white font-semibold mb-1 text-xs uppercase">
+                                      {t('forms.register.labels.aiMethodology')}
+                                    </label>
+                                    <textarea
+                                      id="aiMethodology"
+                                      rows={2}
+                                      maxLength={500}
+                                      {...registerMovie("aiMethodology")}
+                                      placeholder={t('forms.register.placeholders.aiMethodology')}
+                                      className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
+                                    />
+                                  </div>
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label className="text-white font-semibold mb-1 text-xs uppercase">
+                                      {t('forms.register.labels.collaborators')} ({collaboratorFields.length})
+                                    </label>
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowCollaboratorsModal(true)}
+                                      className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg hover:bg-gray-700 transition text-sm text-left"
+                                    >
+                                      {collaboratorFields.length === 0 ? t('forms.register.buttons.manageCollaborators') : t('forms.register.buttons.collaboratorsAdded', { count: collaboratorFields.length })}
+                                    </button>
+                                  </div>
+                                </div>
+                              </section>
+                              <section className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label htmlFor="filmFile" className="text-white font-semibold mb-1 text-xs uppercase">
+                                      {t('forms.register.labels.filmFile')}
+                                    </label>
+                                    {(() => {
+                                      const { onChange, ...rest } = registerMovie("filmFile");
+                                      return (
+                                        <input
+                                          id="filmFile"
+                                          type="file"
+                                          {...rest}
+                                          className="sr-only"
+                                          onChange={(event) => {
+                                            onChange(event);
+                                            handleFileName(event, setFilmFileName);
+                                          }}
+                                        />
+                                      );
+                                    })()}
+                                    <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                                      <label htmlFor="filmFile" className="cursor-pointer text-white font-semibold text-sm">
+                                        {t('forms.register.buttons.chooseFile')}
+                                      </label>
+                                      <span className="text-gray-400 text-sm truncate">{filmFileName}</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label className="text-white font-semibold mb-1 text-xs uppercase">{t('forms.register.labels.thumbnail1')}</label>
+                                    <div className="flex flex-col md:col-span-3">
+                                      {fields.map((field, idx) => (
+                                        <div key={field.id} className="flex items-center gap-2 mb-2">
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            {...registerMovie(`thumbnails.${idx}`)}
+                                            onChange={e => handleThumbnailChange(e, idx)}
+                                            className="sr-only"
+                                            id={`thumbnail-upload-${idx}`}
+                                          />
+                                          <label htmlFor={`thumbnail-upload-${idx}`} className="cursor-pointer text-white font-semibold text-sm bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                                            {t('forms.register.buttons.chooseFile')}
+                                          </label>
+                                          <span className="text-gray-400 text-xs truncate">{thumbnailNames[idx]}</span>
+                                          {fields.length > 1 && (
+                                            <button type="button" onClick={() => handleRemoveThumbnail(idx)} className="text-red-500 text-xs ml-2">{t('forms.register.buttons.remove')}</button>
+                                          )}
+                                        </div>
+                                      ))}
+                                      {fields.length < 3 && (
+                                        <button type="button" onClick={addThumbnail} className="mt-2 px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition">
+                                          {t('forms.register.buttons.addCollaborator')}
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col md:col-span-3">
+                                    <label htmlFor="subtitlesSrt" className="text-white font-semibold mb-1 text-xs uppercase">
+                                      {t('forms.register.labels.subtitlesSrt')}
+                                    </label>
+                                    {(() => {
+                                      const { onChange, ...rest } = registerMovie("subtitlesSrt");
+                                      return (
+                                        <input
+                                          id="subtitlesSrt"
+                                          type="file"
+                                          accept=".srt"
+                                          {...rest}
+                                          className="sr-only"
+                                          onChange={(event) => {
+                                            onChange(event);
+                                            handleFileName(event, setSubtitlesName);
+                                          }}
+                                        />
+                                      );
+                                    })()}
+                                    <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                                      <label htmlFor="subtitlesSrt" className="cursor-pointer text-white font-semibold text-sm">
+                                        {t('forms.register.buttons.chooseFile')}
+                                      </label>
+                                      <span className="text-gray-400 text-sm truncate">{subtitlesName}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </section>
+                              <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5">
+                                <input
+                                  id="acceptTerms"
+                                  type="checkbox"
+                                  {...registerMovie("acceptTerms")}
+                                  className="w-4 h-4 cursor-pointer"
+                                />
+                                <label htmlFor="acceptTerms" className="text-white text-xs cursor-pointer flex-1">
+                                  {t('forms.register.labels.termsAccepted')}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setShowTermsModal(true);
+                                    }}
+                                    className="text-[#AD46FF] hover:text-[#F6339A] underline font-semibold"
+                                  >
+                                    {t('forms.register.labels.termsAccepted')}
+                                  </button>
+                                </label>
+                              </div>
+                              {movieErrors.acceptTerms && (
+                                <p className="text-red-400 text-sm">{movieErrors.acceptTerms.message}</p>
+                              )}
+                            </div>
+                                  </label>
+                                  <input
+                                    id="filmTitleOriginal"
+                                    type="text"
+                                    placeholder={t('forms.register.placeholders.filmTitleOriginal')}
+                                    {...registerMovie("filmTitleOriginal")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                  {movieErrors.filmTitleOriginal && (
+                                    <p className="text-red-400 text-sm mt-1">{movieErrors.filmTitleOriginal.message}</p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="durationSeconds" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.durationSeconds')}
+                                  </label>
+                                  <input
+                                    id="durationSeconds"
+                                    type="number"
+                                    placeholder={t('forms.register.placeholders.durationSeconds')}
+                                    {...registerMovie("durationSeconds")}
+                                    max={120}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                  <p className="text-xs text-gray-300 mt-0.5">{t('forms.register.hints.durationMax')}</p>
+                                  {movieErrors.durationSeconds && (
+                                    <p className="text-red-400 text-sm mt-1">{movieErrors.durationSeconds.message}</p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="filmLanguage" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.filmLanguage')}
+                                  </label>
+                                  <input
+                                    id="filmLanguage"
+                                    type="text"
+                                    placeholder={t('forms.register.placeholders.filmLanguage')}
+                                    {...registerMovie("filmLanguage")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="releaseYear" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.releaseYear')}
+                                  </label>
+                                  <input
+                                    id="releaseYear"
+                                    type="number"
+                                    placeholder={t('forms.register.placeholders.releaseYear')}
+                                    {...registerMovie("releaseYear")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="nationality" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.nationality')}
+                                  </label>
+                                  <input
+                                    id="nationality"
+                                    type="text"
+                                    placeholder={t('forms.register.placeholders.nationality')}
+                                    {...registerMovie("nationality")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="knownByMarsAi" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.knownByMarsAi')}
+                                  </label>
+                                  <select
+                                    id="knownByMarsAi"
+                                    {...registerMovie("knownByMarsAi")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  >
+                                    <option value="">{t('forms.register.options.select')}</option>
+                                    <option value="friend">{t('forms.register.options.friend')}</option>
+                                    <option value="festivalAd">{t('forms.register.options.festivalAd')}</option>
+                                    <option value="websiteApp">{t('forms.register.options.websiteApp')}</option>
+                                  </select>
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="categoryId" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.categoryId')}
+                                  </label>
+                                  <select
+                                    id="categoryId"
+                                    {...registerMovie("categoryId")}
+                                    className={`bg-gray-800 border text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm ${
+                                      movieErrors.categoryId ? "border-red-500 bg-red-950/20" : "border-gray-700"
+                                    }`}
+                                  >
+                                    <option value="">{t('forms.register.options.selectCategory')}</option>
+                                    {categories.map((category) => (
+                                      <option key={category.id_categorie} value={category.id_categorie}>
+                                        {t(`forms.register.options.categories.${category.id_categorie}`, { defaultValue: category.name })}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {movieErrors.categoryId && (
+                                    <p className="text-red-400 text-sm mt-1">{movieErrors.categoryId.message}</p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col">
+                                  <label htmlFor="translation" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.translation')}
+                                  </label>
+                                  <input
+                                    id="translation"
+                                    type="text"
+                                    placeholder={t('forms.register.placeholders.translation')}
+                                    {...registerMovie("translation")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                </div>
+                                <div className="flex flex-col md:col-span-2">
+                                  <label htmlFor="youtubeLink" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.youtubeLink')}
+                                  </label>
+                                  <input
+                                    id="youtubeLink"
+                                    type="text"
+                                    placeholder={t('forms.register.placeholders.youtubeLink')}
+                                    {...registerMovie("youtubeLink")}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
+                                  />
+                                </div>
+                                <div className="flex flex-col md:col-span-3">
+                                  <label htmlFor="synopsisOriginal" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.synopsisOriginal')}
+                                  </label>
+                                  <textarea
+                                    id="synopsisOriginal"
+                                    rows={2}
+                                    placeholder={t('forms.register.placeholders.synopsisOriginal')}
+                                    {...registerMovie("synopsisOriginal")}
+                                    maxLength={300}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
+                                  />
+                                  {movieErrors.synopsisOriginal && (
+                                    <p className="text-red-400 text-sm mt-1">{movieErrors.synopsisOriginal.message}</p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col md:col-span-3">
+                                  <label htmlFor="synopsisEnglish" className="text-white font-semibold mb-1 text-xs uppercase">
+                                    {t('forms.register.labels.synopsisEnglish')}
+                                  </label>
+                                  <textarea
+                                    id="synopsisEnglish"
+                                    rows={2}
+                                    placeholder={t('forms.register.placeholders.synopsisEnglish')}
+                                    {...registerMovie("synopsisEnglish")}
+                                    maxLength={300}
+                                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </section>
+                          )}
+                          <div className="flex flex-col gap-4 pt-2">
+                            {formStep === 1 && (
+                              <button
+                                type="button"
+                                onClick={handleNextStep}
+                                className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition"
+                              >
+                                {t('common.next')}
+                              </button>
+                            )}
+                            {formStep === 2 && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={handlePreviousStep}
+                                  className="w-full border border-gray-600 text-white font-bold py-4 rounded-lg uppercase hover:bg-gray-800 transition"
+                                >
+                                  {t('common.back')}
+                                </button>
+                                <button
+                                  type="submit"
+                                  disabled={createMovieMutation.isPending || !acceptTerms}
+                                  className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
+                                >
+                                  {createMovieMutation.isPending ? t('forms.register.buttons.submitting') : t('forms.register.buttons.submitFilm')}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                          {movieSuccess && (
+                            <div className="bg-green-900/30 border border-green-600 text-green-300 px-4 py-3 rounded-lg">
+                              {t(movieSuccess)}
+                            </div>
+                          )}
+                          {movieError && (
+                            <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg">
+                              {t(movieError)}
+                            </div>
+                          )}
+                        </form>
+                      </section>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-
-            <div className="flex justify-center">
-              <button
-                onClick={handleResetForm}
-                className="px-6 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold rounded-lg uppercase hover:opacity-90 transition"
-              >
-                Soumettre un nouveau film
-              </button>
-            </div>
-          </section>
-        ) : (
-          <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-            <div className="mb-8">
-              <div className="flex items-center justify-center gap-4">
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
-                  formStep >= 1 ? "bg-[#AD46FF] text-white" : "bg-gray-700 text-gray-400"
-                }`}>
-                  1
-                </div>
-                <div className={`flex-1 h-1 ${formStep >= 2 ? "bg-[#AD46FF]" : "bg-gray-700"}`}></div>
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${
-                  formStep >= 2 ? "bg-[#AD46FF] text-white" : "bg-gray-700 text-gray-400"
-                }`}>
-                  2
-                </div>
-              </div>
-              <div className="flex justify-between mt-3 text-sm">
-                <span className={formStep >= 1 ? "text-white font-semibold" : "text-gray-400"}>Données du film</span>
-                <span className={formStep >= 2 ? "text-white font-semibold" : "text-gray-400"}>IA, Fichiers & Collaborateurs</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmitMovie(onSubmitMovie)} className="space-y-8">
-              {formStep === 1 && (
-                <section className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="flex flex-col">
-                      <label htmlFor="filmTitleOriginal" className="text-white font-semibold mb-1 text-xs uppercase">
-                        Titre original *
-                      </label>
-                      <input
-                        id="filmTitleOriginal"
-                        type="text"
-                        placeholder="TITRE ORIGINAL"
-                    {...registerMovie("filmTitleOriginal")}
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
-                  />
-                  {movieErrors.filmTitleOriginal && (
-                    <p className="text-red-400 text-sm mt-1">{movieErrors.filmTitleOriginal.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="durationSeconds" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Durée (sec) *
-                  </label>
-                  <input
-                    id="durationSeconds"
-                    type="number"
-                    placeholder="60"
-                    {...registerMovie("durationSeconds")}
-                    max={120}
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
-                  />
-                  <p className="text-xs text-gray-300 mt-0.5">Max 120s</p>
-                  {movieErrors.durationSeconds && (
-                    <p className="text-red-400 text-sm mt-1">{movieErrors.durationSeconds.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="filmLanguage" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Langue
-                  </label>
-                  <input
-                    id="filmLanguage"
-                    type="text"
-                    placeholder="Français"
-                    {...registerMovie("filmLanguage")}
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="releaseYear" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Année
-                  </label>
-                  <input
-                    id="releaseYear"
-                    type="number"
-                    placeholder="2026"
-                    {...registerMovie("releaseYear")}
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="nationality" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Nationalité
-                  </label>
-                  <input
-                    id="nationality"
-                    type="text"
-                    placeholder="France"
-                    {...registerMovie("nationality")}
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
-                  />
                 </div>
 
                 <div className="flex flex-col">
                   <label htmlFor="knownByMarsAi" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Comment connu ?
+                    {t('forms.register.labels.knownByMarsAi')}
                   </label>
                   <select
                     id="knownByMarsAi"
                     {...registerMovie("knownByMarsAi")}
                     className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   >
-                    <option value="">Sélectionner</option>
-                    <option value="Par un ami">Par un ami</option>
-                    <option value="Vu une publicité du festival">Vu une publicité du festival</option>
-                    <option value="Via le site internet ou application de l'IA">Via le site internet ou application de l'IA</option>
+                    <option value="">{t('forms.register.options.select')}</option>
+                    <option value="friend">{t('forms.register.options.friend')}</option>
+                    <option value="festivalAd">{t('forms.register.options.festivalAd')}</option>
+                    <option value="websiteApp">{t('forms.register.options.websiteApp')}</option>
                   </select>
                 </div>
 
                 <div className="flex flex-col">
                   <label htmlFor="categoryId" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Catégorie
+                    {t('forms.register.labels.categoryId')}
                   </label>
                   <select
                     id="categoryId"
@@ -595,10 +995,10 @@ export default function ProducerHome() {
                       movieErrors.categoryId ? "border-red-500 bg-red-950/20" : "border-gray-700"
                     }`}
                   >
-                    <option value="">Sélectionner une catégorie</option>
+                    <option value="">{t('forms.register.options.selectCategory')}</option>
                     {categories.map((category) => (
                       <option key={category.id_categorie} value={category.id_categorie}>
-                        {category.name}
+                        {t(`forms.register.options.categories.${category.id_categorie}`, { defaultValue: category.name })}
                       </option>
                     ))}
                   </select>
@@ -609,12 +1009,12 @@ export default function ProducerHome() {
 
                 <div className="flex flex-col">
                   <label htmlFor="translation" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Traduction titre
+                    {t('forms.register.labels.translation')}
                   </label>
                   <input
                     id="translation"
                     type="text"
-                    placeholder="English"
+                    placeholder={t('forms.register.placeholders.translation')}
                     {...registerMovie("translation")}
                     className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
@@ -622,12 +1022,12 @@ export default function ProducerHome() {
 
                 <div className="flex flex-col md:col-span-2">
                   <label htmlFor="youtubeLink" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Lien YouTube
+                    {t('forms.register.labels.youtubeLink')}
                   </label>
                   <input
                     id="youtubeLink"
                     type="text"
-                    placeholder="https://youtube.com/watch?v=..."
+                    placeholder={t('forms.register.placeholders.youtubeLink')}
                     {...registerMovie("youtubeLink")}
                     className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition text-sm"
                   />
@@ -635,12 +1035,12 @@ export default function ProducerHome() {
 
                 <div className="flex flex-col md:col-span-3">
                   <label htmlFor="synopsisOriginal" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Synopsis original * (300 char max)
+                    {t('forms.register.labels.synopsisOriginal')}
                   </label>
                   <textarea
                     id="synopsisOriginal"
                     rows="2"
-                    placeholder="Résumez votre film en quelques lignes..."
+                    placeholder={t('forms.register.placeholders.synopsisOriginal')}
                     {...registerMovie("synopsisOriginal")}
                     maxLength={300}
                     className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
@@ -652,12 +1052,12 @@ export default function ProducerHome() {
 
                 <div className="flex flex-col md:col-span-3">
                   <label htmlFor="synopsisEnglish" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Synopsis anglais (300 char max)
+                    {t('forms.register.labels.synopsisEnglish')}
                   </label>
                   <textarea
                     id="synopsisEnglish"
                     rows="2"
-                    placeholder="Summary in English..."
+                    placeholder={t('forms.register.placeholders.synopsisEnglish')}
                     {...registerMovie("synopsisEnglish")}
                     maxLength={300}
                     className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
@@ -669,72 +1069,73 @@ export default function ProducerHome() {
 
             {formStep === 2 && (
               <>
-            <section className="space-y-2">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <div className="flex flex-col md:col-span-3">
-                  <label className="text-white font-semibold mb-1 text-xs uppercase">
-                    Classification IA *
-                  </label>
-                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-2 border rounded-lg p-2 ${
-                    movieErrors.aiClassification
-                      ? "border-red-500 bg-red-950/20"
-                      : "border-transparent"
-                  }`}>
-                    <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
-                      <input type="radio" value="integrale" {...registerMovie("aiClassification")} className="cursor-pointer" />
-                      <span className="text-sm">100% IA</span>
-                    </label>
-                    <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
-                      <input type="radio" value="hybride" {...registerMovie("aiClassification")} className="cursor-pointer" />
-                      <span className="text-sm">Hybride (Réel + IA)</span>
-                    </label>
+                <section className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="flex flex-col md:col-span-3">
+                      <label className="text-white font-semibold mb-1 text-xs uppercase">
+                        {t('forms.register.labels.aiClassification')}
+                      </label>
+                      <div className={`grid grid-cols-1 md:grid-cols-2 gap-2 border rounded-lg p-2 ${
+                        movieErrors.aiClassification
+                          ? "border-red-500 bg-red-950/20"
+                          : "border-transparent"
+                      }`}>
+                        <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
+                          <input type="radio" value="integrale" {...registerMovie("aiClassification")} className="cursor-pointer" />
+                          <span className="text-sm">{t('forms.register.options.aiIntegrale')}</span>
+                        </label>
+                        <label className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1.5 cursor-pointer">
+                          <input type="radio" value="hybride" {...registerMovie("aiClassification")} className="cursor-pointer" />
+                          <span className="text-sm">{t('forms.register.options.aiHybride')}</span>
+                        </label>
+                      </div>
+                      {movieErrors.aiClassification && (
+                        <p className="text-red-400 text-sm mt-2">{movieErrors.aiClassification.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col md:col-span-3">
+                      <label htmlFor="aiStack" className="text-white font-semibold mb-1 text-xs uppercase">
+                        {t('forms.register.labels.aiStack')}
+                      </label>
+                      <textarea
+                        id="aiStack"
+                        rows="2"
+                        maxLength={500}
+                        {...registerMovie("aiStack")}
+                        placeholder={t('forms.register.placeholders.aiStack')}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
+                      />
+                    </div>
+
+                    <div className="flex flex-col md:col-span-3">
+                      <label htmlFor="aiMethodology" className="text-white font-semibold mb-1 text-xs uppercase">
+                        {t('forms.register.labels.aiMethodology')}
+                      </label>
+                      <textarea
+                        id="aiMethodology"
+                        rows="2"
+                        maxLength={500}
+                        {...registerMovie("aiMethodology")}
+                        placeholder={t('forms.register.placeholders.aiMethodology')}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
+                      />
+                    </div>
+                    <div className="flex flex-col md:col-span-3">
+                      <label className="text-white font-semibold mb-1 text-xs uppercase">
+                        {t('forms.register.labels.collaborators')} ({collaboratorFields.length})
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowCollaboratorsModal(true)}
+                        className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg hover:bg-gray-700 transition text-sm text-left"
+                      >
+                        {collaboratorFields.length === 0 ? t('forms.register.buttons.manageCollaborators') : t('forms.register.buttons.collaboratorsAdded', { count: collaboratorFields.length })}
+                      </button>
+                    </div>
                   </div>
-                  {movieErrors.aiClassification && (
-                    <p className="text-red-400 text-sm mt-2">{movieErrors.aiClassification.message}</p>
-                  )}
-                </div>
-
-                <div className="flex flex-col md:col-span-3">
-                  <label htmlFor="aiStack" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Stack Technologique
-                  </label>
-                  <textarea
-                    id="aiStack"
-                    rows="2"
-                    maxLength={500}
-                    {...registerMovie("aiStack")}
-                    placeholder="Listez les outils IA utilisés (ex: Midjourney, Runway, ElevenLabs...)"
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
-                  />
-                </div>
-
-                <div className="flex flex-col md:col-span-3">
-                  <label htmlFor="aiMethodology" className="text-white font-semibold mb-1 text-xs uppercase">
-                    Méthodologie Créative
-                  </label>
-                  <textarea
-                    id="aiMethodology"
-                    rows="2"
-                    maxLength={500}
-                    {...registerMovie("aiMethodology")}
-                    placeholder="Décrivez l'interaction humain-machine dans le processus créatif..."
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none text-sm"
-                  />
-                </div>
-                <div className="flex flex-col md:col-span-3">
-                  <label className="text-white font-semibold mb-1 text-xs uppercase">
-                    Collaborateurs ({collaboratorFields.length})
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowCollaboratorsModal(true)}
-                    className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg hover:bg-gray-700 transition text-sm text-left"
-                  >
-                    {collaboratorFields.length === 0 ? "Gérer les collaborateurs" : `${collaboratorFields.length} collaborateur(s) ajouté(s) - Cliquez pour modifier`}
-                  </button>
-                </div>
-              </div>
-            </section>
+                </section>
+              </>
 
             <section className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -771,7 +1172,7 @@ export default function ProducerHome() {
                 <div className="flex flex-col md:col-span-3">
                   <label className="text-white font-semibold mb-1 text-xs uppercase">{t('forms.register.labels.thumbnail1')}</label>
                   <div className="flex flex-col md:col-span-3">
-                    {thumbnailFields.map((field, idx) => (
+                    {fields.map((field, idx) => (
                       <div key={field.id} className="flex items-center gap-2 mb-2">
                         <input
                           type="file"
@@ -785,12 +1186,12 @@ export default function ProducerHome() {
                           {t('forms.register.buttons.chooseFile')}
                         </label>
                         <span className="text-gray-400 text-xs truncate">{thumbnailNames[idx]}</span>
-                        {thumbnailFields.length > 1 && (
+                        {fields.length > 1 && (
                           <button type="button" onClick={() => handleRemoveThumbnail(idx)} className="text-red-500 text-xs ml-2">{t('forms.register.buttons.remove')}</button>
                         )}
                       </div>
                     ))}
-                    {thumbnailFields.length < 3 && (
+                    {fields.length < 3 && (
                       <button type="button" onClick={addThumbnail} className="mt-2 px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition">
                         {t('forms.register.buttons.addCollaborator')}
                       </button>
@@ -888,13 +1289,13 @@ export default function ProducerHome() {
 
             {movieSuccess && (
               <div className="bg-green-900/30 border border-green-600 text-green-300 px-4 py-3 rounded-lg">
-                {movieSuccess}
+                {t(movieSuccess)}
               </div>
             )}
 
             {movieError && (
               <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg">
-                {movieError}
+                {t(movieError)}
               </div>
             )}
           </form>
@@ -1001,98 +1402,98 @@ export default function ProducerHome() {
                 <h3 className="text-xl font-bold text-white">Conditions de Participation & Politique de Confidentialité</h3>
                 <button
                   type="button"
-                  onClick={() => setShowTermsModal(false)}
-                  className="text-gray-400 hover:text-white text-2xl"
-                >
-                  ✕
-                </button>
-              </div>
+                  {showCollaboratorsModal && (
+                    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+                      <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-bold text-white">{t('forms.register.modals.collaboratorsTitle')}</h3>
+                          <button
+                            type="button"
+                            onClick={() => setShowCollaboratorsModal(false)}
+                            className="text-gray-400 hover:text-white text-2xl"
+                          >
+                            ✕
+                          </button>
+                        </div>
 
-              <div className="space-y-4 text-gray-300 text-sm">
-                <section>
-                  <h4 className="text-white font-bold text-base mb-2">1. Conditions de Participation</h4>
-                  <p className="mb-2">
-                    En soumettant votre film au Festival MARS AI, vous acceptez que :
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Votre film doit être une création originale utilisant l'intelligence artificielle</li>
-                    <li>La durée maximale est de 2 minutes (120 secondes)</li>
-                    <li>Vous détenez tous les droits nécessaires sur votre œuvre</li>
-                    <li>Le festival peut utiliser des extraits à des fins promotionnelles</li>
-                    <li>La décision du jury est finale et sans appel</li>
-                  </ul>
-                </section>
+                        <div className="mb-4">
+                          <button
+                            type="button"
+                            onClick={() => appendCollaborator({ first_name: "", last_name: "", email: "", job: "" })}
+                            className="px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition"
+                          >
+                            {t('forms.register.buttons.addCollaborator')}
+                          </button>
+                        </div>
 
-                <section>
-                  <h4 className="text-white font-bold text-base mb-2">2. Droits d'Auteur</h4>
-                  <p>
-                    Vous conservez tous les droits d'auteur sur votre film. Le festival obtient uniquement 
-                    une licence non-exclusive pour diffuser votre œuvre dans le cadre de l'événement et de sa promotion.
-                  </p>
-                </section>
+                        {collaboratorFields.length === 0 && (
+                          <p className="text-gray-400 text-center py-8">{t('forms.register.messages.noCollaborator')}</p>
+                        )}
 
-                <section>
-                  <h4 className="text-white font-bold text-base mb-2">3. Politique de Confidentialité</h4>
-                  <p className="mb-2">
-                    Vos données personnelles sont collectées uniquement pour :
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>La gestion de votre inscription au festival</li>
-                    <li>La communication concernant votre soumission</li>
-                    <li>Les statistiques anonymisées du festival</li>
-                  </ul>
-                  <p className="mt-2">
-                    Vos données ne seront jamais vendues ou partagées avec des tiers sans votre consentement explicite.
-                  </p>
-                </section>
+                        <div className="space-y-3">
+                          {collaboratorFields.map((field, index) => (
+                            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-gray-900 border border-gray-800 p-3 rounded-xl">
+                              <div className="flex flex-col">
+                                <label className="text-xs uppercase text-gray-400 mb-1">{t('forms.register.labels.firstName')}</label>
+                                <input
+                                  type="text"
+                                  {...registerMovie(`collaborators.${index}.first_name`)}
+                                  className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                                  placeholder={t('forms.register.placeholders.firstName')}
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                <label className="text-xs uppercase text-gray-400 mb-1">{t('forms.register.labels.lastName')}</label>
+                                <input
+                                  type="text"
+                                  {...registerMovie(`collaborators.${index}.last_name`)}
+                                  className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                                  placeholder={t('forms.register.placeholders.lastName')}
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                <label className="text-xs uppercase text-gray-400 mb-1">{t('forms.register.labels.email')}</label>
+                                <input
+                                  type="email"
+                                  {...registerMovie(`collaborators.${index}.email`)}
+                                  className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                                  placeholder={t('forms.register.placeholders.email')}
+                                />
+                              </div>
+                              <div className="flex flex-col">
+                                <label className="text-xs uppercase text-gray-400 mb-1">{t('forms.register.labels.role')}</label>
+                                <input
+                                  type="text"
+                                  {...registerMovie(`collaborators.${index}.job`)}
+                                  className="bg-gray-800 border border-gray-700 text-white px-2 py-1.5 rounded-lg text-sm"
+                                  placeholder={t('forms.register.placeholders.role')}
+                                />
+                              </div>
+                              <div className="md:col-span-4 flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => removeCollaborator(index)}
+                                  className="text-red-400 hover:text-red-300 text-sm"
+                                >
+                                  ✕ {t('forms.register.buttons.removeCollaborator')}
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
 
-                <section>
-                  <h4 className="text-white font-bold text-base mb-2">4. Utilisation de l'IA</h4>
-                  <p>
-                    Vous devez indiquer de manière transparente les outils d'IA utilisés dans la création de votre film 
-                    et la méthodologie employée. Le non-respect de cette obligation peut entraîner la disqualification.
-                  </p>
-                </section>
-
-                <section>
-                  <h4 className="text-white font-bold text-base mb-2">5. Contact</h4>
-                  <p>
-                    Pour toute question concernant ces conditions ou vos données personnelles, contactez-nous à : 
-                    <a href="mailto:contact@marsaifestival.com" className="text-[#AD46FF] hover:text-[#F6339A] ml-1">
-                      contact@marsaifestival.com
-                    </a>
-                  </p>
-                </section>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowTermsModal(false)}
-                  className="px-6 py-2 bg-[#AD46FF] text-white rounded-lg hover:opacity-90 transition"
-                >
-                  J'ai compris
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {selectedMovie && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden p-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">{selectedMovie.title}</h3>
-                <button
-                  type="button"
-                  onClick={() => setSelectedMovie(null)}
-                  className="text-gray-400 hover:text-white"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
+                        <div className="mt-6 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setShowCollaboratorsModal(false)}
+                            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
+                          >
+                            {t('forms.register.buttons.close')}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
                 <div className="space-y-3">
