@@ -11,7 +11,8 @@
       },
       "buttons": {
         "submit": "Sign in",
-        "submitting": "Signing in..."
+        "submitting": "Signing in...",
+        "submitFilm": "Submit the movie"
       },
       "links": {
         "noAccount": "Don't have an account?",

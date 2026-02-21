@@ -11,7 +11,8 @@
       },
       "buttons": {
         "submit": "Se connecter",
-        "submitting": "Connexion..."
+        "submitting": "Connexion...",
+        "submitFilm": "Soumettre le film"
       },
       "links": {
         "noAccount": "Pas encore de compte ?",
