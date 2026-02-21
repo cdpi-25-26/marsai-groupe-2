@@ -957,6 +957,25 @@ export default function Movies() {
                 ) : (
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                // Trova tutti i film candidati con almeno un premio
+                                                const toAwarded = filteredCandidateMovies.filter((movie) => (movie.Awards || []).length > 0);
+                                                if (toAwarded.length === 0) {
+                                                  alert("Aucun film candidat n'a reçu de prix.");
+                                                  return;
+                                                }
+                                                runBatch(
+                                                  toAwarded.map((movie) => movie.id_movie),
+                                                  (id) => updateMovieStatus(id, "awarded"),
+                                                  "Films candidats promus dans 'Films premiés'."
+                                                );
+                                              }}
+                                              className="px-3 py-1.5 bg-[#5EEAD4]/80 text-white rounded-lg text-xs hover:bg-[#5EEAD4]"
+                                            >
+                                              Promouvoir les candidats primés
+                                            </button>
                       <select
                         value={firstVoteFilter}
                         onChange={(event) => setFirstVoteFilter(event.target.value)}
