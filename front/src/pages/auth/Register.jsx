@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
-import LanguageSwitcher from "../../components/LanguageSwitcher.jsx";
+import Navbar from "../../components/Navbar.jsx";
 
 /**
  * Schéma de validation pour le formulaire d'enregistrement
@@ -134,10 +134,8 @@ export function Register() {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <LanguageSwitcher />
-      </div>
-      <div className="min-h-screen bg-black text-white font-light pt-24 pb-6 px-3 md:pt-28">
+      <Navbar />
+      <div className="min-h-screen bg-black text-white font-light pt-32 pb-6 px-3 md:pt-36">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-4">
             <h1 className="text-3xl font-bold mt-1">Créer mon profil Producteur</h1>

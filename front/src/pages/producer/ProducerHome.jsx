@@ -12,6 +12,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import Navbar from "../../components/Navbar.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -400,7 +401,9 @@ export default function ProducerHome() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
       <div className="max-w-6xl mx-auto space-y-10">
 
         {submittedSuccess ? (
@@ -1245,6 +1248,7 @@ export default function ProducerHome() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

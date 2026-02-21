@@ -30,16 +30,16 @@ instance.interceptors.request.use(
   (error) => {
     console.log("Une erreur est survenue lors de la requête:", error);
     return Promise.reject(new Error(error));
-  },
-,
+  }
+);
+
+// Interceptor globale per gestire 401 Unauthorized
+instance.interceptors.response.use(
+  (response) => response,
   async (error) => {
-    // Gestione automatica 401 Unauthorized
     if (error.response && error.response.status === 401) {
-      // Rimuovi token non valido
       localStorage.removeItem("token");
-      // Messaggio utente
       alert("Sessione scaduta o non autorizzato. Effettua di nuovo il login.");
-      // Redirect automatico al login (se non già sulla pagina di login)
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
