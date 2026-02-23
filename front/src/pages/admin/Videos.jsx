@@ -382,8 +382,23 @@ import {
 import { getVotes, deleteVotesByMovie } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import TutorialBox from "../../components/TutorialBox.jsx";
+import { useEffect as useEffectReact, useState as useStateReact } from "react";
+import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 
 export default function Movies() {
+    const [tutorial, setTutorial] = useStateReact({ title: "Tutoriel", steps: [] });
+
+    useEffectReact(() => {
+      async function fetchTutorial() {
+        try {
+          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialFilms.fr.md");
+          setTutorial(tutorialData);
+        } catch (err) {
+          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
+        }
+      }
+      fetchTutorial();
+    }, []);
   const queryClient = useQueryClient();
   const { isPending, isError, data, error } = useQuery({
     queryKey: ["listVideos"],
@@ -818,15 +833,7 @@ export default function Movies() {
   // Affichage de la liste des vidéos ou message si aucune vidéo n'existe
   return (
     <div className="space-y-6">
-      <TutorialBox
-        title="Tutoriel — Gestion des films"
-        steps={[
-          "Choisissez un dossier: 1ère votation, 2e votation, candidats, refusés, primés.",
-          "Utilisez les cases à cocher pour des actions en lot (sélection totale ou partielle).",
-          "Le passage à la candidature se fait uniquement après 2e votation validée.",
-          "Dans Refusés, vous pouvez réémettre au jury, effacer les votes ou supprimer définitivement."
-        ]}
-      />
+      <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
 
       {filteredMovies.length > 0 ? (
         <>

@@ -4,8 +4,24 @@ import { getUsers } from "../../api/users.js";
 import { getVideos, updateMovieJuries } from "../../api/videos.js";
 import { getCategories } from "../../api/videos.js";
 import TutorialBox from "../../components/TutorialBox.jsx";
+import { useEffect as useEffectReact, useState as useStateReact } from "react";
+import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 
 export default function JuryManagement() {
+    const [tutorial, setTutorial] = useStateReact({ title: "Tutoriel", steps: [] });
+
+    useEffectReact(() => {
+      async function fetchTutorial() {
+        try {
+          // Use relative path for fetch
+          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialJury.fr.md");
+          setTutorial(tutorialData);
+        } catch (err) {
+          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
+        }
+      }
+      fetchTutorial();
+    }, []);
   const queryClient = useQueryClient();
   const [selectedJury, setSelectedJury] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -148,16 +164,7 @@ export default function JuryManagement() {
         <p className="text-gray-400 mt-2">Assignez les films aux jurys pour la votation</p>
       </div>
 
-      <TutorialBox
-        title="Tutoriel — Distribution Jury"
-        steps={[
-          "Sélectionnez un jury dans la colonne de gauche.",
-          "Filtrez les films par catégorie ou affichez tout.",
-          "Cochez les films un par un ou utilisez Tout sélectionner.",
-          "Cliquez sur Assigner pour lier les films au jury choisi.",
-          "Cliquez sur Retirer pour désassigner les films sélectionnés du jury choisi."
-        ]}
-      />
+      <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
 
       {notice && (
         <div className="bg-gradient-to-r from-[#AD46FF]/20 to-[#F6339A]/20 border border-[#AD46FF] text-white px-4 py-3 rounded-lg">

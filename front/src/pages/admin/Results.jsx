@@ -124,15 +124,7 @@ export default function Results() {
         <p className="text-gray-400 mt-1">Films les plus votés, primés, moyenne des votes et statuts acceptés/refusés.</p>
       </div>
 
-      <TutorialBox
-        title="Tutoriel — Résultats"
-        steps={[
-          "Consultez la liste des films les plus votés pour identifier les tendances.",
-          "Comparez la moyenne des votes et le nombre de prix dans chaque tableau.",
-          "Analysez séparément les films acceptés et refusés.",
-          "Utilisez cette page pour préparer les décisions finales de festival."
-        ]}
-      />
+      <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">

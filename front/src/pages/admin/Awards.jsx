@@ -8,8 +8,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
 import TutorialBox from "../../components/TutorialBox.jsx";
+import { useEffect as useEffectReact, useState as useStateReact } from "react";
+import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 
 function Awards() {
+    const [tutorial, setTutorial] = useStateReact({ title: "Tutoriel", steps: [] });
+
+    useEffectReact(() => {
+      async function fetchTutorial() {
+        try {
+          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialAwards.fr.md");
+          setTutorial(tutorialData);
+        } catch (err) {
+          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
+        }
+      }
+      fetchTutorial();
+    }, []);
   const queryClient = useQueryClient();
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -239,15 +254,7 @@ function Awards() {
         </div>
       </div>
 
-      <TutorialBox
-        title="Tutoriel — Gestion des prix"
-        steps={[
-          "Cliquez sur une carte film candidat pour ouvrir la modale de création de prix.",
-          "Saisissez un nom de prix clair puis validez la création.",
-          "Quand un film a ses prix, utilisez le bouton pour le passer en films primés.",
-          "Dans l'onglet Films primés, vous pouvez supprimer un prix si nécessaire."
-        ]}
-      />
+      <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
 
       {/* Feedback */}
       {feedback && (
