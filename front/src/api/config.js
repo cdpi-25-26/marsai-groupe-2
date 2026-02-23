@@ -32,7 +32,22 @@ instance.interceptors.request.use(
   (error) => {
     console.log("Une erreur est survenue lors de la requête:", error);
     return Promise.reject(new Error(error));
-  },
+  }
+);
+
+// Interceptor globale per gestire 401 Unauthorized
+instance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      alert("Sessione scaduta o non autorizzato. Effettua di nuovo il login.");
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default instance;

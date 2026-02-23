@@ -1,13 +1,14 @@
 import db from "../models/index.js";
 
-const { Vote, MovieJury, User, Movie } = db;
+const { Vote, VoteHistory, MovieJury, User, Movie } = db;
 
 async function getVote(req, res) {
     try {
         const votes = await Vote.findAll({
             include: [
                 { model: User, attributes: ["id_user", "first_name", "last_name", "email"], required: false },
-                { model: Movie, attributes: ["id_movie", "title"], required: false }
+                { model: Movie, attributes: ["id_movie", "title"], required: false },
+                { model: VoteHistory, as: "history", required: false, separate: true, order: [["createdAt", "ASC"]] }
             ]
         });
         return res.json(votes);
@@ -22,8 +23,7 @@ function createVote(req, res) {
         return res.status(400).json({ error: "Données manquantes" });
     }
 
-    // const { note, comments } = req.body;
-    let { note, commentaire } = req.body;
+    let { note, comments } = req.body;
     const { id_movie, id_user } = req.params;
 
     Vote.findOne({ where: { id_movie, id_user } })
@@ -36,7 +36,7 @@ function createVote(req, res) {
             if (Number.isNaN(noteFloat)) {
                 return res.status(400).json({ error: "Note invalide" });
             }
-            return Vote.create({ note: noteFloat, commentaire, id_movie, id_user });
+            return Vote.create({ note: noteFloat, comments, id_movie, id_user });
         })
         .then(newVote => {
             if (newVote) res.status(201).json({ message: "Vote créé", newVote });
@@ -50,7 +50,8 @@ async function getMyVotes(req, res) {
         const votes = await Vote.findAll({
             where: { id_user },
             include: [
-                { model: Movie, attributes: ["id_movie", "title"], required: false }
+                { model: Movie, attributes: ["id_movie", "title"], required: false },
+                { model: VoteHistory, as: "history", required: false, separate: true, order: [["createdAt", "ASC"]] }
             ]
         });
         return res.json(votes);
@@ -68,7 +69,8 @@ async function getMyVoteByMovie(req, res) {
         const vote = await Vote.findOne({
             where: { id_user, id_movie },
             include: [
-                { model: Movie, attributes: ["id_movie", "title"], required: false }
+                { model: Movie, attributes: ["id_movie", "title"], required: false },
+                { model: VoteHistory, as: "history", required: false, separate: true, order: [["createdAt", "ASC"]] }
             ]
         });
         if (!vote) {
@@ -85,7 +87,7 @@ async function createOrUpdateMyVote(req, res) {
     try {
         const id_user = req.user.id_user;
         const { id_movie } = req.params;
-        let { note, commentaire } = req.body || {};
+        let { note, comments } = req.body || {};
 
         // Convertisci note in float
         const noteFloat = parseFloat(note);
@@ -93,8 +95,8 @@ async function createOrUpdateMyVote(req, res) {
             return res.status(400).json({ error: "Note invalide" });
         }
 
-        if (!commentaire || !String(commentaire).trim()) {
-            return res.status(400).json({ error: "Commentaire requis" });
+        if (!comments || !String(comments).trim()) {
+            return res.status(400).json({ error: "Commento richiesto" });
         }
 
         const assigned = await MovieJury.findOne({ where: { id_movie, id_user } });
@@ -107,15 +109,29 @@ async function createOrUpdateMyVote(req, res) {
         if (existingVote) {
             // Verifica se il film è stato approvato dall'admin
             const movie = await Movie.findByPk(id_movie);
-            const isApproved = movie?.selection_status === 'selected';
+            const isApproved = movie?.selection_status === 'to_discuss';
             
             // Incrementa il counter solo se il film è già approvato
             if (isApproved) {
                 existingVote.modification_count = (existingVote.modification_count || 0) + 1;
             }
             
+            const normalizedComment = String(comments || "");
+            const existingComment = String(existingVote.comments || "");
+            const hasChanges = Number(existingVote.note) !== noteFloat || existingComment !== normalizedComment;
+
+            if (hasChanges) {
+                await VoteHistory.create({
+                    id_vote: existingVote.id_vote,
+                    id_movie,
+                    id_user,
+                    note: existingVote.note,
+                    comments: existingVote.comments
+                });
+            }
+
             existingVote.note = noteFloat;
-            existingVote.commentaire = commentaire;
+            existingVote.comments = normalizedComment;
             await existingVote.save();
             return res.json({ 
                 message: "Vote mis à jour", 
@@ -127,7 +143,7 @@ async function createOrUpdateMyVote(req, res) {
 
         const newVote = await Vote.create({ 
             note: noteFloat, 
-            commentaire, 
+            comments, 
             id_movie, 
             id_user,
             modification_count: 0
@@ -153,10 +169,19 @@ function deleteVote(req, res) {
         .catch(err => res.status(500).json({ error: err.message }));
 }
 
+function deleteVotesByMovie(req, res) {
+    const { id_movie } = req.params;
+
+    Vote.destroy({ where: { id_movie } })
+        .then((deletedCount) => {
+            res.status(200).json({ message: "Votes supprimés", deletedCount });
+        })
+        .catch(err => res.status(500).json({ error: err.message }));
+}
+
 function updateVote(req, res) {
     const { id_vote } = req.params;
-    // const { note, comments } = req.body;
-    let { note, commentaire } = req.body;
+    let { note, comments } = req.body;
 
     Vote.findOne({ where: { id_vote } })
         .then(vote => {
@@ -168,7 +193,7 @@ function updateVote(req, res) {
                 const noteFloat = parseFloat(note);
                 if (!Number.isNaN(noteFloat)) vote.note = noteFloat;
             }
-            if (commentaire) vote.commentaire = commentaire;
+            if (comments) vote.comments = comments;
 
             return vote.save();
         })
@@ -202,5 +227,6 @@ export default {
     deleteVote,
     updateVote,
     getVoteById,
-    findVoteByNote
+    findVoteByNote,
+    deleteVotesByMovie
 };

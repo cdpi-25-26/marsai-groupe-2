@@ -1,11 +1,15 @@
 'use strict';
 
 export default (sequelize, DataTypes) => {
-  const Vote = sequelize.define('Vote', {
-    id_vote: {
+  const VoteHistory = sequelize.define('VoteHistory', {
+    id_vote_history: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
+    },
+    id_vote: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
     id_user: {
       type: DataTypes.INTEGER,
@@ -16,39 +20,30 @@ export default (sequelize, DataTypes) => {
       allowNull: false
     },
     note: {
-      type: DataTypes.ENUM('YES', 'NO', 'TO DISCUSS'),
+      type: DataTypes.FLOAT,
       allowNull: false
     },
     comments: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    modification_count: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      allowNull: false
-    }
-  }, 
-  {
-    tableName: 'votes',
+  }, {
+    tableName: 'vote_histories',
     timestamps: true
   });
 
-  Vote.associate = function(models) {
-    Vote.belongsTo(models.User, {
+  VoteHistory.associate = function(models) {
+    VoteHistory.belongsTo(models.Vote, {
+      foreignKey: 'id_vote'
+    });
+    VoteHistory.belongsTo(models.User, {
       foreignKey: 'id_user'
     });
-
-    Vote.belongsTo(models.Movie, {
+    VoteHistory.belongsTo(models.Movie, {
       foreignKey: 'id_movie',
       targetKey: 'id_movie'
     });
-
-    Vote.hasMany(models.VoteHistory, {
-      foreignKey: 'id_vote',
-      as: 'history'
-    });
   };
 
-  return Vote;
+  return VoteHistory;
 };

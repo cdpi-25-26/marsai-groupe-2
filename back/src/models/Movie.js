@@ -8,7 +8,7 @@
  * - Identité: title, description, duration, release_year, nationality
  * - Médias: poster_image, image1-3, trailer_video, thumbnail
  * - Technique: main_language, subtitle, ai_tool, workshop, production
- * - Statut: selection_status (submitted, refused, to_discuss, selected, finalist)
+ * - Statut: selection_status (submitted, assigned, to_discuss, candidate, awarded, refused, selected, finalist)
  * - Propriétaire: id_user (producteur qui a soumis le film)
  * 
  * Associations:
@@ -74,15 +74,20 @@ export default (sequelize, DataTypes) => {
     subtitle: DataTypes.STRING(255),         // Langue des sous-titres
     ai_tool: DataTypes.STRING(255),          // Outil IA utilisé
     thumbnail: DataTypes.STRING(255),        // Image thumbnail
+    admin_comment: DataTypes.TEXT,           // Commentaire admin
+    jury_comment: DataTypes.TEXT,            // Message jury (candidature)
 
     // Statut de sélection du film dans le processus de jury
     selection_status: {
       type: DataTypes.ENUM(
         'submitted',   // Soumis (état initial)
+        'assigned',    // Assigné au jury, 1ère votation
+        'to_discuss',  // 2e votation ouverte
+        'candidate',   // Candidat à la récompense
+        'awarded',     // Film premié
         'refused',     // Rejeté par le jury
-        'to_discuss',  // À discuter par le jury
-        'selected',    // Sélectionné
-        'finalist'     // Film finaliste
+        'selected',    // Sélectionné (legacy)
+        'finalist'     // Film finaliste (legacy)
       ),
       allowNull: false,
       defaultValue: 'submitted'

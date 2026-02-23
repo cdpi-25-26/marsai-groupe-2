@@ -23,8 +23,8 @@ export function VideoModal({
   const poster = getPoster(movie);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 animate-fadeIn">
-      <div className="relative bg-gradient-to-br from-gray-900/90 to-gray-950/90 backdrop-blur-2xl border border-white/10 rounded-2xl w-full max-w-7xl max-h-[95vh] overflow-y-auto scrollbar-thin-dark shadow-2xl shadow-black/50 animate-slideUp">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 animate-fadeIn mobile-modal-overlay">
+      <div className="relative bg-gradient-to-br from-gray-900/90 to-gray-950/90 backdrop-blur-2xl border border-white/10 rounded-2xl w-full max-w-7xl max-h-[95vh] overflow-y-auto scrollbar-thin-dark shadow-2xl shadow-black/50 animate-slideUp mobile-modal-panel">
         {/* Effet de brillance subtil */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
 
