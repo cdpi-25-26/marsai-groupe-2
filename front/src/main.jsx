@@ -35,7 +35,10 @@ import JuryHome from "./pages/jury/JuryHome.jsx";
 import { Login } from "./pages/auth/Login.jsx";
 import { Register } from "./pages/auth/Register.jsx";
 import { RoleGuard } from "./middlewares/RoleGuard.jsx";
-
+import InfosPublic from "./pages/public/Infos.jsx";
+import ProgramPublic from "./pages/public/Program.jsx";
+import SponsorsPublic from "./pages/public/Sponsors.jsx";
+import JuryPublic from "./pages/public/Jury.jsx";
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
 /**
@@ -69,14 +72,18 @@ createRoot(document.getElementById("root")).render(
           {/* ========================================
               ROUTES PUBLIQUES (Accessible à tous)
               ======================================== */}
-          <Route path="/" element={<PublicLayout />}>
-            {/* Page d'accueil du festival */}
-            <Route index element={<Home />} />
-            {/* Page de connexion */}
-            <Route path="/auth/login" element={<Login />} />
-            {/* Page d'inscription */}
-            <Route path="/auth/register" element={<Register />} />
-          </Route>
+   <Route path="/" element={<PublicLayout />}>
+  <Route index element={<Home />} />
+  <Route path="infos" element={<InfosPublic />} />
+  <Route path="program" element={<ProgramPublic />} />
+  <Route path="sponsors" element={<SponsorsPublic />} />
+  <Route path="juryPublic" element={<JuryPublic />} />
+</Route>
+
+  {/* authentification*/}
+  <Route path="auth/login" element={<Login />} />
+  <Route path="auth/register" element={<Register />} />
+
 
           {/* ========================================
               ROUTES ADMIN (Rôle ADMIN uniquement)

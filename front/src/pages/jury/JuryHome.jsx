@@ -521,7 +521,7 @@ export default function JuryHome() {
                   <button
                     type="submit"
                     disabled={!voteAllowed || voteLoading}
-                    className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
+                    className="bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
                   >
                     {voteLoading
   ? t("jury.home.vote.sending")

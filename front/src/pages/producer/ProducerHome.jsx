@@ -327,7 +327,7 @@ export default function ProducerHome() {
             <div className="flex gap-4">
               <button
                 type="submit"
-                className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] px-6 py-2 rounded-lg font-bold"
+                className="bg-linear-to-r from-[#AD46FF] to-[#F6339A] px-6 py-2 rounded-lg font-bold"
               >
                 {t('forms.producer.profile.save', 'Save')}
               </button>
@@ -490,7 +490,7 @@ export default function ProducerHome() {
             </div>
 
             <div className="flex gap-4">
-              <button type="submit" disabled={createMovieMutation.isPending} className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] px-6 py-2 rounded-lg font-bold">
+              <button type="submit" disabled={createMovieMutation.isPending} className="bg-linear-to-r from-[#AD46FF] to-[#F6339A] px-6 py-2 rounded-lg font-bold">
                 {createMovieMutation.isPending ? `${t('forms.producer.filmSubmission.buttons.submit')}...` : t('forms.producer.filmSubmission.buttons.submit')}
               </button>
               <button type="button" onClick={() => resetMovie()} className="border border-gray-700 px-6 py-2 rounded-lg">
