@@ -77,7 +77,7 @@ export default function Hero() {
  <div className="flex justify-center pt-6 mt-6">
             <Button
               title="inscrivez votre film ➝"
-              href="/auth/register"
+              href="/submit"
               backgroundColor="bg-white"
               textColor="text-black"
               hoverBackgroundColor="hover:bg-[#F5F5F5]"

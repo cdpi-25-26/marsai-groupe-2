@@ -18,7 +18,6 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LanguageProvider } from "./context/LanguageContext";
 
-
 // import "./i18n"; // Désactivé tant que i18next n'est pas installé correctement
 import "./index.css";
 
@@ -38,6 +37,8 @@ import { RoleGuard } from "./middlewares/RoleGuard.jsx";
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
 import ProducerDashboard from "./pages/producer/Producerdashboard.jsx";
+
+import SubmitFilmPublic from "./pages/producer/SubmitFilmPublic.jsx";
 
 /**
  * Configuration de TanStack Query
@@ -61,11 +62,8 @@ const queryClient = new QueryClient({
  * 3. Routes: Définit toutes les routes de l'application
  */
 createRoot(document.getElementById("root")).render(
-  
-    
-  <StrictMode>  
+  <StrictMode>
     <BrowserRouter>
-    
       <QueryClientProvider client={queryClient}>
         <Routes>
           {/* ========================================
@@ -78,6 +76,9 @@ createRoot(document.getElementById("root")).render(
             <Route path="/auth/login" element={<Login />} />
             {/* Page d'inscription */}
             <Route path="/auth/register" element={<Register />} />
+
+            {/* Nouvelle route publique pour soumettre un film */}
+  <Route path="/submit" element={<SubmitFilmPublic />} />
           </Route>
 
           {/* ========================================
@@ -105,20 +106,20 @@ createRoot(document.getElementById("root")).render(
           {/* ========================================
               ROUTES PRODUCTEUR (Rôle PRODUCER)
               ======================================== */}
-         <Route
-  path="producer"
-  element={
-    <RoleGuard allowedRoles={["PRODUCER"]}>
-      <ProducerLayout />
-    </RoleGuard>
-  }
->
-  {/* Menu principal du producteur */}
-  <Route index element={<ProducerDashboard />} />
+          <Route
+            path="producer"
+            element={
+              <RoleGuard allowedRoles={["PRODUCER"]}>
+                <ProducerLayout />
+              </RoleGuard>
+            }
+          >
+            {/* Menu principal du producteur */}
+            <Route index element={<ProducerDashboard />} />
 
-  {/* Page complète avec profil, formulaire et films */}
-  <Route path="home" element={<ProducerHome />} />
-</Route>
+            {/* Page complète avec profil, formulaire et films */}
+            <Route path="home" element={<ProducerHome />} />
+          </Route>
 
           {/* ========================================
               ROUTES JURY (Rôle JURY)
@@ -139,6 +140,3 @@ createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </StrictMode>,
 );
-
-
-
