@@ -6,7 +6,6 @@ export default function PartenaireGrid({ items }) {
       {items.map((p, index) => (
         <PartenaireCard
           key={index}
-          name={p.name}
           logo={p.logo}
           color={p.color}
           url={p.url}

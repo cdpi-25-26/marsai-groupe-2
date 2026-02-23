@@ -1,7 +1,9 @@
 {
   "officiels": [
-    { "name": "Partenaire A", "logo": "/logos/a.png", "color": "#F6339A", "url": "https://siteA.com" },
-    { "name": "Partenaire B", "logo": "/logos/b.png", "color": "#4ECDC4", "url": "https://siteB.com" }
+    { "name": "UNDP", "logo": "../src/assets/images/sponsors/undp.png", "color": "#F6339A", "url": "https://www.undp.org/" },
+    { "name": "GYBN", "logo": "../src/assets/images/sponsors/logo_gybn.png", "color": "#4ECDC4", "url": "https://www.gybn.org/" },
+    { "name": "UNICEF", "logo": "../src/assets/images/sponsors/unicef.png", "color": "#00A8E1", "url": "https://www.unicef.org/" },
+    { "name": "UNESCO", "logo": "../src/assets/images/sponsors/unesco.png", "color": "#005C9E", "url": "https://www.unesco.org/" }
   ],
   "medias": [
     { "name": "Media 1", "logo": "/logos/m1.png", "color": "#1A73E8", "url": "https://media1.com" }

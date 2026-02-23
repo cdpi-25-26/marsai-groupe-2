@@ -4,7 +4,7 @@ export default function PartenaireCard({ name, logo, color, url }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-gray-100 p-4 rounded-lg transition-shadow"
+      className="block bg-gray-100 p-4 rounded-[40px] transition-shadow"
       style={{ border: `2px solid ${color}` }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = `0 0 15px ${color}`;
