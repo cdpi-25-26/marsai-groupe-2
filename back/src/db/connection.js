@@ -13,12 +13,6 @@ dotenv.config();
 /**
  * Instance Sequelize pour la connexion à la base de données
  * Paramètres de connexion:
- * - Nom de la base: marsai_db
- * - Utilisateur: marsai
- * - Mot de passe: Mars2026!
- * - Host: localhost (serveur local)
- * - Port: 3306 (port par défaut MySQL)
- * - Dialect: mysql (type de base de données)
  */
 const sequelize = new Sequelize(
   process.env.DB_NAME,

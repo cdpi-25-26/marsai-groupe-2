@@ -1,4 +1,3 @@
-
 'use strict';
 
 export default (sequelize, DataTypes) => {
@@ -17,7 +16,7 @@ export default (sequelize, DataTypes) => {
       allowNull: false
     },
     note: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.ENUM('YES', 'NO', 'TO DISCUSS'),
       allowNull: false
     },
     comments: {

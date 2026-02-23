@@ -102,12 +102,14 @@ export default function JuryEvaluation() {
   );
 }
 // /front/src/pages/jury/JuryEvaluation.jsx
+import { useTranslation } from "react-i18next";
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getMovies } from '../../api/movies';
 import { submitVote } from '../../api/votes';
 
 export default function JuryEvaluation() {
+  
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -120,7 +122,8 @@ export default function JuryEvaluation() {
   const voteMutation = useMutation({
     mutationFn: submitVote,
     onSuccess: () => {
-      alert('Vote submitted successfully!');
+      alert(t("jury.evaluation.success"));
+
       setSelectedMovie(null);
       setRating(5);
       setComment('');
@@ -138,7 +141,7 @@ export default function JuryEvaluation() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Film Evaluation</h1>
+      <h1 className="text-2xl font-bold">{t("jury.evaluation.title")}</h1>
 
       {/* Movie Selection */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -169,7 +172,8 @@ export default function JuryEvaluation() {
 
           {/* Rating */}
           <div className="mb-4">
-            <label className="block mb-2">Rating (1-10)</label>
+            <label className="block mb-2">{t("jury.evaluation.rating")}</label>
+
             <input
               type="range"
               min="1"
@@ -183,13 +187,14 @@ export default function JuryEvaluation() {
 
           {/* Comment */}
           <div className="mb-4">
-            <label className="block mb-2">Comment</label>
+            <label className="block mb-2">{t("jury.evaluation.comment")}</label>
+
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows="4"
               className="w-full p-2 bg-gray-800 rounded"
-              placeholder="Your feedback..."
+              placeholder={t("jury.evaluation.placeholder")}
             />
           </div>
 
@@ -198,7 +203,10 @@ export default function JuryEvaluation() {
             className="bg-blue-600 px-6 py-2 rounded hover:bg-blue-700"
             disabled={voteMutation.isLoading}
           >
-            {voteMutation.isLoading ? 'Submitting...' : 'Submit Vote'}
+            {voteMutation.isLoading
+  ? t("jury.evaluation.submitting")
+  : t("jury.evaluation.submit")}
+
           </button>
         </form>
       )}

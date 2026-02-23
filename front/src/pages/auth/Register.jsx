@@ -131,7 +131,6 @@ export function Register() {
   function onSubmit(data) {
     return registerMutation.mutate(data);
   }
-
   return (
     <>
       <Navbar />

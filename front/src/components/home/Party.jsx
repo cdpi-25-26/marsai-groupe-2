@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import TitleInBox from "../TitleInBox.jsx";
 import OneCard from "./cards/OneCard.jsx";
 import Button from "../Button.jsx";
 
 export default function Program() {
+  const { t } = useTranslation();
   return (
     <div className="w-full">
 
@@ -18,26 +20,19 @@ export default function Program() {
             </svg>
           }
           iconcolor="#AD46FF"
-          title="Soirée de cloture"
+          title={t("pages.home.party.closingNight")}
         />
       </div>
 
       {/* GRID RESPONSIVE */}
-      <div className="pt-12 pb-12 w-full grid grid-cols-1 md:grid-cols-2 max-w-350 mx-auto justify-center place-items-center gap-10 px-6">
-
-        {/* TEXTE GAUCHE */}
-        <div className="max-w-200 mx-auto text-left">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white uppercase leading-none">
-            MARS.A.I
-          </h2>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#F6339A] uppercase leading-none mb-6">
-            night
-          </h2>
-          <p className="text-lg sm:text-xl md:text-2xl text-white leading-relaxed max-w-xl">
-            Fête Électro mêlant IA et futurs souhaitables.<br />
-            Une expérience immersive sonore et visuelle.
-          </p>
-        </div>
+      <div className="pt-12 pb-12 w-full grid grid-cols-1 md:grid-cols-2 max-w-350 mx-auto justify-center place-items-center">
+        {/* TEXTE GAUCHE */} 
+        <div className="max-w-200 mx-auto text-left"> 
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white uppercase leading-none"> {t("pages.home.party.title")} </h2> 
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#F6339A] uppercase leading-none mb-6"> {t("pages.home.party.titleAccent")} </h2> 
+          <p className="text-lg sm:text-xl md:text-2xl text-white leading-relaxed max-w-xl"> 
+            {t("pages.home.party.description")} </p> 
+            </div>
 
         {/* CARD DROITE */}
         <div className="flex justify-center w-full max-w-300 mx-auto">
@@ -50,9 +45,9 @@ export default function Program() {
                 />
               </svg>
             }
-            title="13 JUIN 2026"
+            title={t("pages.home.party.date")}
             width="w-120"
-            description="DÈS 19H00 • MARSEILLE"
+            description={t("pages.home.party.timeLocation")}
             accentColor="#FB64B6"
             borderColor="border-[rgba(251,100,182,0.40)]"
             hoverShadow="hover:shadow-[0_0_40px_rgba(251,100,182,0.7)]"
@@ -64,7 +59,7 @@ export default function Program() {
       {/* BOUTON */}
       <div className="w-full flex items-center justify-center px-6 sm:px-10 md:px-20 pt-12 pb-10">
         <Button
-          title="réserver ➝"
+          title={t("pages.home.party.bookButton")}
           href="/auth/register"
           border="border-white"
           backgroundColor="bg-gradient-to-r from-[#9810FA] to-[#E60076]"

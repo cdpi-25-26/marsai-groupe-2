@@ -31,6 +31,7 @@ function createVote(req, res) {
             if (existingVote) {
                 return res.status(409).json({ message: "Vote déjà existant", existingVote });
             }
+            // return Vote.create({ note, comments, id_movie, id_user });
             const noteFloat = parseFloat(note);
             if (Number.isNaN(noteFloat)) {
                 return res.status(400).json({ error: "Note invalide" });
@@ -186,6 +187,8 @@ function updateVote(req, res) {
         .then(vote => {
             if (!vote) return res.status(404).json({ error: "Vote non trouvé" });
 
+            // if (note) vote.note = note;
+            // if (comments) vote.comments = comments;
             if (note !== undefined) {
                 const noteFloat = parseFloat(note);
                 if (!Number.isNaN(noteFloat)) vote.note = noteFloat;

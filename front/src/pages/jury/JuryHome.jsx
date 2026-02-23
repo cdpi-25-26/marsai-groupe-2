@@ -4,6 +4,7 @@
  * Permet de consulter et modifier le profil
  * @returns {JSX.Element} La page d'accueil du jury
  */
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "../../api/users";
 import { getAssignedMovies, updateMovieStatus } from "../../api/videos";
@@ -11,6 +12,8 @@ import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 
 export default function JuryHome() {
+  const { t } = useTranslation();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -99,7 +102,8 @@ export default function JuryHome() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("Non authentifié");
+      setError(t("jury.home.errors.notAuthenticated"));
+
       setLoading(false);
       return;
     }
@@ -109,7 +113,8 @@ export default function JuryHome() {
         setLoading(false);
       })
       .catch(() => {
-        setError("Erreur lors de la récupération des données utilisateur");
+        setError(t("jury.home.errors.userLoad"));
+
         setLoading(false);
       });
 
@@ -118,7 +123,8 @@ export default function JuryHome() {
         setAssignedMovies(res.data || []);
       })
       .catch(() => {
-        setMoviesError("Erreur lors du chargement des films assignés.");
+        setMoviesError(t("jury.home.errors.moviesLoad"));
+
       });
 
     getMyVotes()
@@ -130,13 +136,15 @@ export default function JuryHome() {
         setVotesByMovie(mapped);
       })
       .catch(() => {
-        setVoteFeedback("Erreur lors du chargement des votes.");
+        setVoteFeedback(t("jury.home.errors.votesLoad"));
+
       });
   }, []);
 
-  if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Chargement...</div>;
+  if (loading) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{t("jury.home.loading")}</div>;
   if (error) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{error}</div>;
-  if (!user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Utilisateur introuvable</div>;
+  if (!user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">{t("jury.home.errors.userNotFound")}</div>
+
 
   function handleVoteChange(e) {
     const { name, value } = e.target;

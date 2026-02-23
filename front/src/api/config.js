@@ -6,6 +6,8 @@ import axios from "axios";
  * Timeout: 5000ms (increased for DB operations)
  */
 const instance = axios.create({
+  // baseURL: "http://localhost:3000/",
+  // timeout: 5000,
   baseURL: "http://127.0.0.1:3000/",
   timeout: 10000,
 });

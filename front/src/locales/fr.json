@@ -136,50 +136,6 @@
     },
 
 
-
-    
-  "pages": {
-    "home": {
-      "hero": {
-        "subtitle": "LE PROTOCOLE TEMPOREL",
-        "year": "2026",
-        "title1": "IMAGINEZ DES",
-        "title2": "FUTURS",
-        "title3": "SOUHAITABLES",
-        "description1": "Le festival de courts-métrages de 60 secondes réalisés par IA.",
-        "description2": "Deux jours d'immersion au cœur de Marseille.",
-        "button": "inscrivez votre film ➝"
-      },
-      "reassure": {
-        "card1": { "title": "1 MINUTE", "description": "Format ultra-court pour un impact maximum" },
-        "card2": { "title": "GRATUITÉ", "description": "Conférences et workshops accessibles." },
-        "card3": { "title": "POUR TOUS", "description": "Professionnels, étudiants et curieux." },
-        "card4": { "title": "EXPERTISE", "description": "Leaders mondiaux de l'IA générative." }
-      },
-      "goals": {
-        "title": "Objectifs du",
-        "titleAccent": "festival",
-        "card1": { "title": "L'HUMAIN AU CENTRE", "description": "Mettre l'humain au cœur de la création pour ne pas perdre l'émotion." },
-        "card2": { "title": "CHALLENGE CRÉATIF", "description": "Challenger la créativité grâce à un format ultra-court de 60s." },
-        "card3": { "title": "FUTURS SOUHAITABLES", "description": "Explorer les futurs désirables via les technologies émergentes." }
-      },
-      "protocole": {
-        "immersion": "Immersion Totale",
-        "title": "LE",
-        "titleAccent": "PROTOCOLE",
-        "titleEnd": "TEMPOREL",
-        "card1": { "title": "2 MOIS", "description": "DE PRÉPARATION" },
-        "card2": { "title": "50 FILMS", "description": "EN SÉLECTION" },
-        "card3": { "title": "WEB 3.0", "description": "EXPÉRIENCE" },
-        "card4": { "title": "J4", "description": "MARSEILLE" },
-        "button": "Rejoindre l'aventure ➝"
-      }
-    }
-  },
-
-
-
-
 "producer": {
   "profile": {
     "title": "Mon Profil",
@@ -189,7 +145,18 @@
     "errorUpdate": "Erreur lors de la mise à jour du profil"
   },
   "filmSubmission": {
+    "placeholders": {
+      "filmTitleOriginal": "Titre original",
+      "durationSeconds": "Durée en secondes",
+      "filmLanguage": "Langue",
+      "releaseYear": "Année",
+      "synopsisOriginal": "Résumé du film...",
+      "success": "Film soumis avec succès",
+      "error": "Erreur lors de la soumission",
+      "collaboratorUpdateError": "Erreur lors de la mise à jour des collaborateurs"
+    },
     "title": "Déposer un film",
+    "myFilms": "Mes films",
     "sections": {
       "filmIdentity": "Identité du film",
       "aiUsage": "Déclaration IA",
@@ -222,7 +189,8 @@
       "edit": "Modifier",
       "cancel": "Annuler",
       "addCollaborator": "Ajouter un collaborateur",
-      "remove": "Supprimer"
+      "remove": "Supprimer",
+      "chooseFile": "Choisir un fichier"
     }
   }
 }
@@ -322,9 +290,169 @@
         "awardsTitle": "AWARDS",
         "awardsDescription": "Cérémonie de remise des prix avec un jury d'experts et une audience passionnée.",
         "fullAgendaButton": "agenda complet ➝"
+      },
+      "party": {
+        "closingNight": "Soirée de cloture",
+        "title": "MARS.A.I",
+        "titleAccent": "night",
+        "description": "Fête Électro mêlant IA et futurs souhaitables. Une expérience immersive sonore et visuelle.",
+        "date": "13 JUIN 2026",
+        "timeLocation": "DÈS 19H00 • MARSEILLE",
+        "bookButton": "réserver ➝"
+      },
+      "promoters": {
+        "partnersTitle": "organisé en partenariat"
+      },
+      "localisation": {
+        "howToGetThere": "comment s'y rendre ?",
+        "city": "Marseille, Hub Créatif",
+        "address": "12 Rue d'Uzes, 13002 Marseille",
+        "transport": "Accès Tram T2/T3 Arrêt Arenc Le Silo",
+        "room1Title": "Salle des Sucres",
+        "room1Description": "Futur sanctuaire des conférences et de la remise des prix de Mars.A.I. Un espace majestueux alliant patrimoine et technologie.",
+        "room2Title": "Salle PLAZA",
+        "room2Description": "L'épicentre du festival : accueil, animations, workshops et restauration. Le point de rencontre de tous les participants."
+      },
+      "statistics": {
+        "title": "CHIFFRES",
+        "titleAccent": "PROJETÉS",
+        "description": "Échelle mondiale, impact local.",
+        "card1Title": "+120",
+        "card1Description": "Pays représentés",
+        "card2Title": "+600",
+        "card2Description": "Films soumis"
+      },
+      "sponsors": {
+        "ourSupport": "Nos Soutiens",
+        "theySupportFuture": "ILS SOUTIENNENT",
+        "theySupportFutureAccent": "le futur"
       }
     }
   },
+
+
+
+"footer": {
+  "description": "La plateforme mondiale de la narration générative, ancrée dans la lumière de Marseille.",
+  "navigation": {
+    "title": "NAVIGATION",
+    "jury": "Jury",
+    "program": "Programme",
+    "ticketing": "Billetterie"
+  },
+  "legal": {
+    "title": "LÉGAL",
+    "partners": "Partenaires",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "bottom": {
+    "copyright": "© 2026 MARS.A.I PROTOCOL • MARSEILLE HUB",
+    "design": "DESIGN SYSTÈME CYBER-PREMIUM",
+    "legal": "LÉGAL"
+  }
+},
+
+
+
+"jury": {
+  "home": {
+    "title": "Espace Jury",
+    "welcome": "Bienvenue {{firstName}} {{lastName}}",
+    "sections": {
+      "awaitingVote": "1. Films assignés en attente de vote",
+      "awaitingApproval": "2. Films déjà votés en attente d'approbation pour la deuxième phase",
+      "approvedSecondVote": "3. Films approuvés en attente de seconde votation et prix"
+    },
+    "noMovies": {
+      "awaitingVote": "Aucun film en attente de vote pour le moment.",
+      "awaitingApproval": "Aucun film en attente d'approbation pour le moment.",
+      "approved": "Aucun film approuvé pour le moment."
+    },
+    "movie": {
+      "duration": "Durée",
+      "language": "Langue",
+      "nationality": "Nationalité",
+      "status": "Statut",
+      "noThumbnail": "Aucune vignette",
+      "alreadyVoted": "Déjà voté",
+      "modified": "Modifié {{count}}×",
+      "approved": "Approuvé"
+    },
+
+    "errors": {
+  "notAuthenticated": "Non authentifié",
+  "userLoad": "Erreur lors de la récupération des données utilisateur",
+  "moviesLoad": "Erreur lors du chargement des films assignés",
+  "votesLoad": "Erreur lors du chargement des votes",
+  "userNotFound": "Utilisateur introuvable"
+},
+"loading": "Chargement...",
+"noPoster": "Aucune vignette",
+
+"details": {
+  "duration": "Durée :",
+  "language": "Langue :",
+  "nationality": "Nationalité :",
+  "status": "Statut :"
+},
+
+"links": {
+  "openVideo": "Ouvrir la vidéo",
+  "downloadSubtitles": "Télécharger les sous-titres",
+  "youtube": "Voir sur YouTube"
+},
+
+"previousVote": {
+  "title": "Vote précédent :",
+  "note": "Note : {{note}}",
+  "comment": "Commentaire : {{comment}}"
+},
+
+"badges": {
+  "alreadyVoted": "Déjà voté",
+  "modified": "Modifié {{count}}×",
+  "approved": "Approuvé"
+},
+    "vote": {
+      "title": "Votre vote",
+  "infoTitle": "Informations de vote",
+  "mustWatch": "Vous devez visionner le film en entier avant de voter.",
+  "confirmWatch": "Je confirme avoir visionné le film en entier.",
+  "decision": "Décision",
+  "comment": "Commentaire",
+  "submit": "Enregistrer le vote",
+  "sending": "Envoi...",
+  "saved": "Vote enregistré.",
+  "error": "Erreur lors de l'enregistrement du vote.",
+  "rules": {
+    "watch": "Regardez le film en entier avant de voter.",
+    "comment": "Le commentaire est obligatoire.",
+    "modify": "Vous pouvez modifier votre vote.",
+    "influence": "Votre vote influence la moyenne du film.",
+    "archive": "Vous pouvez archiver le film après vote."
+  },
+  "options": {
+    "approved": "Validé / J'aime / Bon 👍",
+    "discuss": "À discuter avec l'admin",
+    "rejected": "Refusé / Je n'aime pas 👎"
+  }
+    }
+  },
+  "evaluation": {
+    "title": "Évaluation des films",
+    "rate": "Noter",
+    "rating": "Note (1-10)",
+    "comment": "Commentaire",
+    "submit": "Envoyer le vote",
+    "submitting": "Envoi...",
+    "success": "Vote envoyé avec succès !",
+    "feedbackPlaceholder": "Votre avis..."
+  }
+},
+
+
+
   "common": {
     "required": "Ce champ est requis",
     "optional": "Optionnel",
