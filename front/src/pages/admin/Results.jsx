@@ -4,8 +4,23 @@ import { getVideos } from "../../api/videos.js";
 import { getVotes } from "../../api/votes.js";
 import { getAwards } from "../../api/awards.js";
 import TutorialBox from "../../components/TutorialBox.jsx";
+import { useEffect, useState } from "react";
+import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 
 export default function Results() {
+    const [tutorial, setTutorial] = useState({ title: "Tutoriel", steps: [] });
+
+    useEffect(() => {
+      async function fetchTutorial() {
+        try {
+          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialVoting.fr.md");
+          setTutorial(tutorialData);
+        } catch (err) {
+          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
+        }
+      }
+      fetchTutorial();
+    }, []);
   const { data: moviesData, isPending: moviesLoading } = useQuery({
     queryKey: ["listVideos"],
     queryFn: getVideos,
