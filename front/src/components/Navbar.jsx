@@ -297,103 +297,37 @@ export default function Navbar() {
 
 
 
-          {/* User */}
-          {userName ? (
-            <div className="flex items-center gap-2 text-sm">
-              <span className="whitespace-nowrap text-white/80">
-                Hello, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#AD46FF] to-[#F6339A] font-medium">{userName}</span>
+        <div className=" mr-3">
+          {firstName ? (
+            <>
+              <span className="mr-4">
+                Hello, {firstName}
+                {lastName && ` ${lastName}`}
               </span>
-
-              <button
-                onClick={handleLogout}
-                className="group/btn relative overflow-hidden px-3 py-1 text-xs rounded-md
-                bg-gradient-to-r from-blue-600/40 via-purple-600/40 to-pink-600/40
-                backdrop-blur-xl border border-white/30 hover:border-white/60
-                transition-all hover:scale-[1.02] active:scale-[0.98]">
-                <span className="relative z-10">Logout</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
-              </button>
-            </div>
+              <button onClick={handleLogout}>Logout</button>
+            </>
           ) : (
-            <div className="relative group/user">
-              <Link
-                to="/auth/login"
-                className="block p-1.5 rounded-full
-                bg-white/5 hover:bg-white/20
-                border border-white/20 hover:border-white/40
-                transition">
-                <User className="w-5 h-5 group-hover/user:scale-105 transition-transform" />
-              </Link>
-              {/* Tooltip pour login avec effet liquid glass */}
-              <Tooltip label="Login" />
-            </div>
+            <Link to="/auth/login">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-8 h-8 hover:opacity-80 transition-opacity"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                />
+              </svg>
+            </Link>
           )}
         </div>
       </div>
     </div>
     
   
-  );
-}
-
-/* Nav Icon with Tooltip - Version avec tooltip liquid glass */
-function NavIcon({ to, children, label }) {
-  return (
-    <div className="relative group/icon">
-      <Link
-        to={to}
-        className="relative block p-1.5 rounded-full overflow-hidden
-        bg-white/5 hover:bg-white/20
-        border border-white/20 hover:border-white/40
-        transition-all hover:scale-110 active:scale-95">
-        
-        {/* Effet de brillance sur l'icône au survol */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/icon:translate-x-full transition-transform duration-700" />
-        
-        {/* Contenu */}
-        <span className="relative z-10 block group-hover/icon:text-[#F6339A] transition-colors">
-          {children}
-        </span>
-      </Link>
-
-      {/* Tooltip avec effet liquid glass */}
-      <Tooltip label={label} />
-    </div>
-  );
-}
-
-/* Composant Tooltip réutilisable avec effet liquid glass */
-function Tooltip({ label }) {
-  return (
-    <div className="absolute -bottom-12 left-1/2 -translate-x-1/2
-      opacity-0 group-hover/icon:opacity-100 group-hover/lang:opacity-100 group-hover/user:opacity-100
-      transition-all duration-300 pointer-events-none z-[100]"
-      style={{ 
-        filter: 'drop-shadow(0 8px 12px rgba(0, 0, 0, 0.3))'
-      }}>
-      
-      {/* Tooltip avec effet liquid glass */}
-      <div className="relative backdrop-blur-xl bg-black/50 
-        px-4 py-1.5 rounded-lg
-        border border-white/30
-        text-xs font-medium text-white/90 whitespace-nowrap
-        shadow-xl
-        before:absolute before:-top-1 before:left-1/2 before:-translate-x-1/2 
-        before:w-2 before:h-2 before:bg-white/10 before:backdrop-blur-xl
-        before:border-t before:border-l before:border-white/30
-        before:rotate-45 before:rounded-tl">
-        
-        {/* Effet de brillance sur le tooltip */}
-        <div className="absolute inset-0 rounded-lg overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-        </div>
-        
-        {/* Effets de reflets */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-        
-        {/* Contenu */}
-        <span className="relative z-10">{label}</span>
-      </div>
-    </div>
   );
 }

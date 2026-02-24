@@ -2063,7 +2063,7 @@ function Users() {
 
 return (
     <section className="bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60 backdrop-blur-xl border border-white/10 rounded-xl p-3 sm:p-4 shadow-xl shadow-black/30 transition-all duration-300">
-    <section className="bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-xl shadow-black/30 transition-all duration-300">
+    {/* <section className="bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-xl shadow-black/30 transition-all duration-300"> */}
       <div className="mb-4">
         <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
       </div>
