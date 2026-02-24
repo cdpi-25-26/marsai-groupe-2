@@ -4,7 +4,7 @@ export default function PartenaireCard({ name, logo, color, url }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-gray-100 p-4 rounded-[40px] transition-shadow"
+      className="block bg-gray-200 w-80 p-4 rounded-[40px] transition-shadow"
       style={{ border: `2px solid ${color}` }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = `0 0 15px ${color}`;
@@ -13,7 +13,7 @@ export default function PartenaireCard({ name, logo, color, url }) {
         e.currentTarget.style.boxShadow = `0 0 0 transparent`;
       }}
     >
-      <div className="w-full h-32 flex items-center justify-center mb-3">
+      <div className="w-full h-40 flex items-center justify-center mb-3">
         <img src={logo} alt={name} className="max-h-full object-contain" />
       </div>
 

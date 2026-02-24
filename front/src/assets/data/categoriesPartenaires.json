@@ -2,16 +2,42 @@
   "officiels": [
     { "name": "UNDP", "logo": "../src/assets/images/sponsors/undp.png", "color": "#F6339A", "url": "https://www.undp.org/" },
     { "name": "GYBN", "logo": "../src/assets/images/sponsors/logo_gybn.png", "color": "#4ECDC4", "url": "https://www.gybn.org/" },
-    { "name": "UNICEF", "logo": "../src/assets/images/sponsors/unicef.png", "color": "#00A8E1", "url": "https://www.unicef.org/" },
-    { "name": "UNESCO", "logo": "../src/assets/images/sponsors/unesco.png", "color": "#005C9E", "url": "https://www.unesco.org/" }
+    { "name": "psl", "logo": "../src/assets/images/sponsors/psl.png", "color": "#00A8E1", "url": "https://psl.eu/" },
+    { "name": "cnc", "logo": "../src/assets/images/sponsors/matrice-logo.png", "color": "#9B5DE5", "url": "https://www.cnc.fr/professionnels/aides-et-financements/creation-numerique/fonds-daide-aux-createurs-video-sur-internet-cnc-talent_190814" },
+    { "name": "action campaign", "logo": "../src/assets/images/sponsors/action_campaign.png", "color": "#F7B801", "url": "https://sdgactioncampaign.org/" },
+    { "name": "UNRIC", "logo": "../src/assets/images/sponsors/unric.png", "color": "#F6339A", "url": "https://unric.org/fr/" },
+    { "name": "SACD", "logo": "../src/assets/images/sponsors/logo_sacd.png", "color": "#4ECDC4", "url": "https://www.sacd.fr/fr" },
+    { "name": "agence du court metrage", "logo": "../src/assets/images/sponsors/acm_logo.png", "color": "#00A8E1", "url": "https://www.agencecm.com/" },
+    { "name": "extra court", "logo": "../src/assets/images/sponsors/extracourt_logo.png", "color": "#9B5DE5", "url": "https://www.lextracourt.com/" },
+    { "name": "UNESCO", "logo": "../src/assets/images/sponsors/unesco.jpg", "color": "#F7B801", "url": "https://www.unesco.org/" }
   ],
   "medias": [
-    { "name": "Media 1", "logo": "/logos/m1.png", "color": "#1A73E8", "url": "https://media1.com" }
+   { "name": "bio-addict", "logo": "../src/assets/images/sponsors/logo_boaddict.png", "color": "#F6339A", "url": "https://www.bioaddict.fr/" },
+    { "name": "topito", "logo": "../src/assets/images/sponsors/topito.png", "color": "#4ECDC4", "url": "https://www.topito.com/" },
+    { "name": "bioguia", "logo": "../src/assets/images/sponsors/logos_biogua.png", "color": "#00A8E1", "url": "https://www.bioguia.com/" },
+    { "name": "sens critique", "logo": "../src/assets/images/sponsors/sens_critique.png", "color": "#9B5DE5", "url": "https://www.senscritique.com/" },
+    { "name": "action socialter", "logo": "../src/assets/images/sponsors/logo-socialter.png", "color": "#F7B801", "url": "https://www.socialter.fr/" },
+    { "name": "Universo média", "logo": "../src/assets/images/sponsors/universo_media.png", "color": "#F6339A", "url": "https://www.ehuniverso.media/" },
+    { "name": "Alors", "logo": "../src/assets/images/sponsors/alors.png", "color": "#4ECDC4", "url": "https://linktr.ee/AlorsMedia?fbclid=IwAR1HLGXMiqbsbQp8k6XPFw14HyelcJw9X0sYXUCtAjxGmonY6xhLgNRRXGU" }
   ],
   "techniques": [
-    { "name": "Tech 1", "logo": "/logos/t1.png", "color": "#F7B801", "url": "https://tech1.com" }
+    { "name": "dotsub", "logo": "../src/assets/images/sponsors/dotsub.png", "color": "#F7B801", "url": "https://dotsub.com/" },
+    { "name": "brooklyn", "logo": "../src/assets/images/sponsors/brooklyn.jpg", "color": "#F6339A", "url": "https://www.brooklynstorylab.net/" }
   ],
   "divers": [
-    { "name": "Divers 1", "logo": "/logos/x1.png", "color": "#9B5DE5", "url": "https://divers1.com" }
+     { "name": "1% planet", "logo": "../src/assets/images/sponsors/1_planet.png", "color": "#F6339A", "url": "https://www.onepercentfortheplanet.fr/" },
+    { "name": "Akatu", "logo": "../src/assets/images/sponsors/akatu.png", "color": "#4ECDC4", "url": "https://akatu.org.br/" },
+    { "name": "Aworld", "logo": "../src/assets/images/sponsors/logo_aworld.png", "color": "#00A8E1", "url": "https://site.aworld.org/" },
+    { "name": "Mc Auley", "logo": "../src/assets/images/sponsors/macaulay.png", "color": "#9B5DE5", "url": "https://macaulay.cuny.edu/" },
+    { "name": "maison du film", "logo": "../src/assets/images/sponsors/maisondufilm.png", "color": "#F7B801", "url": "https://maisondufilm.com/" },
+    { "name": "ligue les droits de l'homme", "logo": "../src/assets/images/sponsors/logo-ldh-2.png", "color": "#F6339A", "url": "https://www.ldh-france.org/" },
+    { "name": "Ecoprod", "logo": "../src/assets/images/sponsors/logo-ecoprod.png", "color": "#4ECDC4", "url": "https://ecoprod.com/adherents/frame-the-witch/" },
+    { "name": "humeco", "logo": "../src/assets/images/sponsors/logo-humeco.png", "color": "#00A8E1", "url": "https://humeco.fr/" },
+    { "name": "casa encendida", "logo": "../src/assets/images/sponsors/lce_2_lineas_verde.png", "color": "#9B5DE5", "url": "https://www.lacasaencendida.es/" },
+    { "name": "peace one day", "logo": "../src/assets/images/sponsors/peace_oneday.png", "color": "#F7B801", "url": "https://www.peaceoneday.org/Main/" },
+    { "name": "secoya", "logo": "../src/assets/images/sponsors/secoya.png", "color": "#F6339A", "url": "https://secoya-ecotournage.com/" },
+    { "name": "Despierta", "logo": "../src/assets/images/sponsors/nuevologodespierta.png", "color": "#4ECDC4", "url": "https://asociaciondespierta.org/" },
+    { "name": "iucn", "logo": "../src/assets/images/sponsors/iucn.jpg", "color": "#00A8E1", "url": "https://natureforall.global/home/" },
+    { "name": "le projet imagine", "logo": "../src/assets/images/sponsors/logo-lpi-2.png", "color": "#9B5DE5", "url": "https://www.leprojetimagine.com/" }
   ]
 }
