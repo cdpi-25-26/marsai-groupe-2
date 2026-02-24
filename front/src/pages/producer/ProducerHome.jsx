@@ -1,3 +1,6 @@
+  // Stato per mostrare la modale di upload/update
+  const [showEditMovieModal, setShowEditMovieModal] = useState(false);
+  const [editMovieFiles, setEditMovieFiles] = useState({ filmFile: null, thumbnails: [] });
 /**
  * Composant ProducerHome (Accueil Producteur)
  * Page permettant aux producteurs de voir et modifier leur profil complet
@@ -408,10 +411,6 @@ export default function ProducerHome() {
 
         {submittedSuccess ? (
           <section className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-[#AD46FF] mb-2">Succès ! 🎬</h2>
-              <p className="text-gray-300">{movieSuccess || "Votre film a été soumis avec succès au festival."}</p>
-            </div>
 
             {movies.length > 0 && (
               <div className="mb-8">
@@ -1207,6 +1206,93 @@ export default function ProducerHome() {
                 </button>
               </div>
 
+              <div className="flex justify-end mt-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 bg-[#AD46FF] text-white rounded-lg text-xs hover:bg-[#F6339A]"
+                  onClick={() => setShowEditMovieModal(true)}
+                >
+                  Modifier le film / vignettes
+                </button>
+              </div>
+                      {/* Modale upload/update film/vignettes */}
+                      {showEditMovieModal && (
+                        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+                          <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+                            <div className="flex items-center justify-between mb-4">
+                              <h3 className="text-lg font-bold text-white">Mettre à jour le film ou les vignettes</h3>
+                              <button
+                                type="button"
+                                onClick={() => setShowEditMovieModal(false)}
+                                className="text-gray-400 hover:text-white text-2xl"
+                              >✕</button>
+                            </div>
+                            <form
+                              onSubmit={async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData();
+                                if (editMovieFiles.filmFile) formData.append("filmFile", editMovieFiles.filmFile);
+                                editMovieFiles.thumbnails.forEach((file) => {
+                                  if (file) formData.append("thumbnails", file);
+                                });
+                                try {
+                                  await fetch(`/api/movies/${selectedMovie.id_movie}`, {
+                                    method: "PUT",
+                                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                                    body: formData,
+                                  });
+                                  setShowEditMovieModal(false);
+                                  setSelectedMovie(null);
+                                  const moviesRes = await getMyMovies();
+                                  setMovies(moviesRes.data || []);
+                                } catch {
+                                  alert("Erreur lors de la mise à jour du film.");
+                                }
+                              }}
+                            >
+                              <div className="mb-4">
+                                <label className="text-white font-semibold mb-1 text-xs uppercase">Nouveau fichier du film</label>
+                                <input
+                                  type="file"
+                                  accept="video/*"
+                                  onChange={e => setEditMovieFiles(f => ({ ...f, filmFile: e.target.files?.[0] }))}
+                                  className="block w-full text-sm text-gray-300 bg-gray-800 border border-gray-700 rounded-lg p-2 mt-1"
+                                />
+                              </div>
+                              <div className="mb-4">
+                                <label className="text-white font-semibold mb-1 text-xs uppercase">Nouvelles vignettes (max 3)</label>
+                                {[0,1,2].map(idx => (
+                                  <input
+                                    key={idx}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => {
+                                      const file = e.target.files?.[0];
+                                      setEditMovieFiles(f => {
+                                        const thumbs = [...f.thumbnails];
+                                        thumbs[idx] = file;
+                                        return { ...f, thumbnails: thumbs };
+                                      });
+                                    }}
+                                    className="block w-full text-sm text-gray-300 bg-gray-800 border border-gray-700 rounded-lg p-2 mt-1 mb-2"
+                                  />
+                                ))}
+                              </div>
+                              <div className="flex justify-end gap-2 mt-4">
+                                <button
+                                  type="button"
+                                  onClick={() => setShowEditMovieModal(false)}
+                                  className="px-4 py-2 border border-gray-700 rounded-lg text-white"
+                                >Annuler</button>
+                                <button
+                                  type="submit"
+                                  className="px-4 py-2 bg-[#AD46FF] text-white rounded-lg hover:bg-[#F6339A]"
+                                >Enregistrer</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      )}
               <p className="text-gray-400 mt-1 text-sm line-clamp-2">{selectedMovie.synopsis || selectedMovie.description || "-"}</p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-3">
