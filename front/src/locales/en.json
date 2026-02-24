@@ -11,7 +11,8 @@
       },
       "buttons": {
         "submit": "Sign in",
-        "submitting": "Signing in..."
+        "submitting": "Signing in...",
+        "submitFilm": "Submit the movie"
       },
       "links": {
         "noAccount": "Don't have an account?",
@@ -132,55 +133,10 @@
         "remove": "Remove",
         "chooseFile": "Choose file"
       }
-    },
-
-
-
-
-  "pages": {
-    "home": {
-      "hero": {
-        "subtitle": "THE TEMPORAL PROTOCOL",
-        "year": "2026",
-        "title1": "IMAGINE",
-        "title2": "FUTURES",
-        "title3": "DESIRABLE",
-        "description1": "The festival of 60-second short films created by AI.",
-        "description2": "Two days of immersion in the heart of Marseille.",
-        "button": "submit your film ➝"
-      },
-      "reassure": {
-        "card1": { "title": "1 MINUTE", "description": "Ultra-short format for maximum impact" },
-        "card2": { "title": "FREE", "description": "Accessible conferences and workshops." },
-        "card3": { "title": "FOR EVERYONE", "description": "Professionals, students and curious minds." },
-        "card4": { "title": "EXPERTISE", "description": "World leaders in generative AI." }
-      },
-      "goals": {
-        "title": "Festival",
-        "titleAccent": "Objectives",
-        "card1": { "title": "HUMAN-CENTERED", "description": "Put humans at the heart of creation to preserve emotion." },
-        "card2": { "title": "CREATIVE CHALLENGE", "description": "Challenge creativity with an ultra-short 60s format." },
-        "card3": { "title": "DESIRABLE FUTURES", "description": "Explore desirable futures through emerging technologies." }
-      },
-      "protocole": {
-        "immersion": "Total Immersion",
-        "title": "THE TEMPORAL",
-        "titleAccent": "PROTOCOL",
-        "titleEnd": "",
-        "card1": { "title": "2 MONTHS", "description": "OF PREPARATION" },
-        "card2": { "title": "50 FILMS", "description": "IN SELECTION" },
-        "card3": { "title": "WEB 3.0", "description": "EXPERIENCE" },
-        "card4": { "title": "DAY 4", "description": "MARSEILLE" },
-        "button": "Join the adventure ➝"
-      }
-    }
   },
 
 
-
-
-
-"producer": {
+  "producer": {
   "profile": {
     "title": "My Profile",
     "editMode": "Edit Mode",
@@ -189,7 +145,20 @@
     "errorUpdate": "Error updating profile"
   },
   "filmSubmission": {
+    "placeholders": {
+  "filmTitleOriginal": "Original title",
+  "durationSeconds": "Duration in seconds",
+  "filmLanguage": "Language",
+  "releaseYear": "Year",
+  "synopsisOriginal": "Film summary...",
+  "success": "Film submitted successfully",
+  "error": "Error submitting film",
+  "collaboratorUpdateError": "Error updating collaborators"
+
+},
+
     "title": "Submit a Film",
+    "myFilms": "My Films",
     "sections": {
       "filmIdentity": "Film Identity",
       "aiUsage": "AI Usage",
@@ -222,14 +191,14 @@
       "edit": "Edit",
       "cancel": "Cancel",
       "addCollaborator": "Add Collaborator",
-      "remove": "Remove"
+      "remove": "Remove",
+      "chooseFile": "Choose file"
     }
   }
 }
 
 
-    
-  },
+}, 
   "validation": {
     "firstName": {
       "required": "First name is required"
@@ -279,8 +248,8 @@
         "subtitle": "THE TEMPORAL PROTOCOL",
         "year": "2026",
         "title1": "IMAGINE",
-        "title2": "DESIRABLE",
-        "title3": "FUTURES",
+        "title2": "FUTURES",
+        "title3": "DESIRABLE",
         "description1": "The festival of 60-second short films created by AI.",
         "description2": "Two days of immersion in the heart of Marseille.",
         "button": "submit your film ➝"
@@ -316,16 +285,128 @@
         "debateItem": "Engaged debates on ethics and the future",
         "confrontationItem": "Confrontations of ideas between artists and tech",
         "interrogationItem": "Stimulating questions about creation",
-        "projectionsTitle": "screenings",
-        "projectionsDescription": "Screening on a giant screen in the presence of the filmmakers and the festival team.",
+        "projectionsTitle": "projections",
+        "projectionsDescription": "Screening on a large screen with the filmmakers and festival team.",
         "workshopsTitle": "workshops",
         "workshopsDescription": "Practical sessions to discover AI creation tools and experiment live with artists and technicians.",
         "awardsTitle": "AWARDS",
-        "awardsDescription": "Prize ceremony with an expert jury and a passionate audience.",
+        "awardsDescription": "Award ceremony with an expert jury and passionate audience.",
         "fullAgendaButton": "full agenda ➝"
+      },
+      "party": {
+        "closingNight": "Closing Night",
+        "title": "MARS.A.I",
+        "titleAccent": "night",
+        "description": "Electronic party blending AI and desirable futures. An immersive sound and visual experience.",
+        "date": "JUNE 13, 2026",
+        "timeLocation": "FROM 7:00 PM • MARSEILLE",
+        "bookButton": "book now ➝"
+      },
+      "promoters": {
+        "partnersTitle": "organized in partnership"
+      },
+      "localisation": {
+        "howToGetThere": "how to get there?",
+        "city": "Marseille, Creative Hub",
+        "address": "12 Rue d'Uzes, 13002 Marseille",
+        "transport": "Access by Tram T2/T3 Arenc Le Silo Stop",
+        "room1Title": "Salle des Sucres",
+        "room1Description": "Future sanctuary for conferences and Mars.A.I awards ceremony. A majestic space combining heritage and technology.",
+        "room2Title": "Salle PLAZA",
+        "room2Description": "The epicenter of the festival: welcome, activities, workshops and catering. The meeting point for all participants."
+      },
+      "statistics": {
+        "title": "PROJECTED",
+        "titleAccent": "FIGURES",
+        "description": "Global scale, local impact.",
+        "card1Title": "+120",
+        "card1Description": "Countries represented",
+        "card2Title": "+600",
+        "card2Description": "Films submitted"
+      },
+      "sponsors": {
+        "ourSupport": "Our Support",
+        "theySupportFuture": "THEY SUPPORT",
+        "theySupportFutureAccent": "the future"
       }
     }
   },
+
+
+
+"footer": {
+  "description": "The global platform for generative storytelling, rooted in the light of Marseille.",
+  "navigation": {
+    "title": "NAVIGATION",
+    "jury": "Jury",
+    "program": "Program",
+    "ticketing": "Ticketing"
+  },
+  "legal": {
+    "title": "LEGAL",
+    "partners": "Partners",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "bottom": {
+    "copyright": "© 2026 MARS.A.I PROTOCOL • MARSEILLE HUB",
+    "design": "CYBER-PREMIUM DESIGN SYSTEM",
+    "legal": "LEGAL"
+  }
+},
+
+
+
+"jury": {
+  "home": {
+    "title": "Jury Space",
+    "welcome": "Welcome {{firstName}} {{lastName}}",
+    "sections": {
+      "awaitingVote": "1. Assigned films awaiting vote",
+      "awaitingApproval": "2. Already voted films awaiting approval for second phase",
+      "approvedSecondVote": "3. Approved films awaiting second vote and awards"
+    },
+    "noMovies": {
+      "awaitingVote": "No films awaiting vote at the moment.",
+      "awaitingApproval": "No films awaiting approval at the moment.",
+      "approved": "No approved films at the moment."
+    },
+    "movie": {
+      "duration": "Duration",
+      "language": "Language",
+      "nationality": "Nationality",
+      "status": "Status",
+      "noThumbnail": "No thumbnail",
+      "alreadyVoted": "Already voted",
+      "modified": "Modified {{count}}×",
+      "approved": "Approved"
+    },
+    "vote": {
+      "title": "Your Vote",
+      "watchRequired": "You must watch the entire film before voting.",
+      "confirmWatched": "I confirm I have watched the entire film.",
+      "decision": "Decision",
+      "comment": "Comment",
+      "submit": "Save vote",
+      "submitting": "Submitting...",
+      "saved": "Vote saved.",
+      "error": "Error saving vote."
+    }
+  },
+  "evaluation": {
+    "title": "Film Evaluation",
+    "rate": "Rate",
+    "rating": "Rating (1-10)",
+    "comment": "Comment",
+    "submit": "Submit vote",
+    "submitting": "Submitting...",
+    "success": "Vote submitted successfully!",
+    "feedbackPlaceholder": "Your feedback..."
+  }
+},
+
+
+
   "common": {
     "required": "This field is required",
     "optional": "Optional",
@@ -333,11 +414,15 @@
     "alreadyLoggedIn": "You are already logged in as {{email}}",
     "goHome": "Go home",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "loading": "Loading...",
+    "userNotFound": "User not found",
+    "next": "Next",
+    "back": "Back"
   },
   "messages": {
     "registrationSuccess": "Registration successful! Automatic login in progress...",
-    "registrationError": "Registration successful, but automatic login failed. Please log in manually.",
+    "registrationSuccessButLoginFailed": "Registration successful, but automatic login failed. Please log in manually.",
     "loginError": "Login error. Please try again.",
     "submissionError": "Submission error. Please try again."
   }

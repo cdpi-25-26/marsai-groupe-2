@@ -107,7 +107,7 @@ export function Login() {
     return loginMutation.mutate(data);
   }
   return (
-    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
+    <div className="min-h-screen bg-black text-white font-light pt-40 pb-20 px-4 md:pt-48">
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold mb-2">{t('forms.login.title')}</h1>
