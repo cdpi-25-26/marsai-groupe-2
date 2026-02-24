@@ -263,7 +263,7 @@ function Pagination({
               onClick={() => onPageChange(page)}
               className={`min-w-[28px] sm:min-w-[32px] h-7 sm:h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${
                 currentPage === page
-                  ? 'border-blue-500 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md'
+                  ? 'border-blue-500 bg-linear-to-r from-blue-600 to-blue-700 text-white shadow-md'
                   : 'border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white'
               }`}
             >

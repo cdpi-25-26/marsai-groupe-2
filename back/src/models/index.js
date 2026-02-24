@@ -33,17 +33,24 @@ const basename = path.basename(__filename);
  */
 const env = process.env.NODE_ENV || 'development';
 
+/**
+ * Charge la configuration depuis le fichier config.json
+ */
+const configFile = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../config/config.json'), 'utf8')
+);
+const config = configFile[env];
 dotenv.config();
 
-const config = {
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_NAME || 'marsai',
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: Number(process.env.DB_PORT) || 3306,
-  dialect: 'mysql',
-  logging: false,
-};
+// const config = {
+//   username: process.env.DB_USER || 'root',
+//   password: process.env.DB_PASSWORD || 'root',
+//   database: process.env.DB_NAME || 'marsai',
+//   host: process.env.DB_HOST || '127.0.0.1',
+//   port: Number(process.env.DB_PORT) || 3306,
+//   dialect: 'mysql',
+//   logging: false,
+// };
 
 const db = {};
 
@@ -52,12 +59,23 @@ const db = {};
  * Crée la connexion à la base de données MySQL
  * Utilise soit une variable d'environnement, soit les paramètres directs
  */
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  config
-);
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config
+  );
+}
+// const sequelize = new Sequelize(
+//   config.database,
+//   config.username,
+//   config.password,
+//   config
+// );
 
 /**
  * Fonction asynchrone pour charger tous les modèles

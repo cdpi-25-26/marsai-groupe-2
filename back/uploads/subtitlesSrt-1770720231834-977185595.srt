@@ -1,4 +1,0 @@
-1
-00:00:00,000 --> 00:00:04,520
-A Marseille, l'IA et l'Humain collaborent
-pour sublimer le court-métrage Kinaficion.

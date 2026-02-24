@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import TitleInBox from "../TitleInBox.jsx";
 import Button from "../Button.jsx";
 
 export default function Hero() {
+  const { t } = useTranslation();
+
   return (
     <div className="relative w-full h-screen overflow-hidden">
 
@@ -27,7 +30,11 @@ export default function Hero() {
         <div className="text-center w-full">
 
           {/* Sur‑titre */}
-          <TitleInBox title="LE PROTOCOLE TEMPOREL" spancolor="#AD46FF" title2="2026"/>
+          <TitleInBox 
+            title={t("pages.home.hero.subtitle")} 
+            spancolor="#AD46FF" 
+            title2={t("pages.home.hero.year")}
+          />
         
 
           {/* Titre principal */}
@@ -51,32 +58,32 @@ export default function Hero() {
               text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
             "
           >
-            IMAGINEZ DES{" "}
+            {t("pages.home.hero.title1")}{" "}
             <span className="bg-linear-to-r from-[#AD46FF] via-[#F6339A] to-[#FF6900] bg-clip-text text-transparent">
-              FUTURS
+              {t("pages.home.hero.title2")}
             </span>{" "}
-            SOUHAITABLES
+            {t("pages.home.hero.title3")}
           </h2>
 
           {/* Description */}
-<div className="text-white pt-3.5">
-<TitleInBox
-  title={
-    <>
-      Le festival de courts-métrages de 60 secondes réalisés par IA.
-      <br />
-      <div className="text-[#fd6cba] pt-2.5">
-        Deux jours d’immersion au cœur de Marseille.
-      </div>
-    </>
-  }
-/>
-</div>
+          <div className="text-white pt-3.5">
+            <TitleInBox
+              title={
+                <>
+                  {t("pages.home.hero.description1")}
+                  <br />
+                  <div className="text-[#fd6cba] pt-2.5">
+                    {t("pages.home.hero.description2")}
+                  </div>
+                </>
+              }
+            />
+          </div>
 
           {/* Bouton */}
- <div className="flex justify-center pt-6 mt-6">
+          <div className="flex justify-center pt-6 mt-6">
             <Button
-              title="inscrivez votre film ➝"
+              title={t("pages.home.hero.button")}
               href="/auth/register"
               backgroundColor="bg-white"
               textColor="text-black"

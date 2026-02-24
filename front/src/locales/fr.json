@@ -1,1 +1,475 @@
-{}
+{
+  "forms": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace MarsAI",
+      "email": "Email",
+      "password": "Mot de passe",
+      "placeholders": {
+        "email": "Votre email",
+        "password": "Votre mot de passe"
+      },
+      "buttons": {
+        "submit": "Se connecter",
+        "submitting": "Connexion...",
+        "submitFilm": "Soumettre le film"
+      },
+      "links": {
+        "noAccount": "Pas encore de compte ?",
+        "register": "S'inscrire"
+      }
+    },
+    "register": {
+      "pageTitle": "Déposer un film",
+      "subtitle": "Transmettez les éléments techniques, l'usage de l'IA et la composition de votre équipe. Tous les champs marqués d'une étoile (*) sont obligatoires.",
+      "sections": {
+        "filmIdentity": "Identité du film",
+        "aiUsage": "Déclaration usage de l'IA",
+        "profile": "Mon profil",
+        "collaborators": "Collaborateurs",
+        "certificate": "Certificat de propriété"
+      },
+      "labels": {
+        "filmTitleOriginal": "Titre original",
+        "durationSeconds": "Durée exacte (en secondes)",
+        "filmLanguage": "Langue parlée / principale du film",
+        "releaseYear": "Année de sortie",
+        "nationality": "Nationalité",
+        "translation": "Traduction du titre",
+        "youtubeLink": "Lien YouTube (public / non-répertorié)",
+        "synopsisOriginal": "Synopsis langue originale (max. 300 caractères)",
+        "synopsisEnglish": "Synopsis anglais (max. 300 caractères)",
+        "filmFile": "Fichier du film",
+        "thumbnail1": "Vignette 1 (16:9)",
+        "thumbnail2": "Vignette 2 (16:9)",
+        "thumbnail3": "Vignette 3 (16:9)",
+        "subtitlesSrt": "Fichier de sous-titres (.srt)",
+        "aiClassification": "Classification de l'œuvre",
+        "aiStack": "Stack technologique",
+        "aiMethodology": "Méthodologie créative",
+        "lastName": "Nom",
+        "firstName": "Prénom",
+        "email": "Adresse e-mail",
+        "phone": "Téléphone",
+        "mobile": "Téléphone mobile",
+        "birthDate": "Date de naissance",
+        "street": "Rue",
+        "postalCode": "Code postal",
+        "city": "Ville",
+        "country": "Pays",
+        "biography": "Ma biographie",
+        "job": "Métier",
+        "portfolio": "Mes liens",
+        "youtube": "YouTube",
+        "instagram": "Instagram",
+        "linkedin": "LinkedIn",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "knownByMarsAi": "Connu par MarsAI",
+        "password": "Mot de passe",
+        "collaborators": {
+          "firstName": "Prénom",
+          "lastName": "Nom",
+          "email": "Email",
+          "job": "Rôle"
+        },
+        "termsAccepted": "Je certifie être le propriétaire légitime de ce film et disposer de tous les droits nécessaires pour le soumettre à ce festival, conformément aux conditions d'utilisation et au règlement intérieur."
+      },
+      "placeholders": {
+        "filmTitleOriginal": "TITRE ORIGINAL",
+        "durationSeconds": "EX: 60",
+        "filmLanguage": "LANGUE",
+        "releaseYear": "2026",
+        "nationality": "NATIONALITÉ",
+        "translation": "TRADUCTION",
+        "youtubeLink": "HTTPS://WWW.YOUTUBE.COM/WATCH?V=...",
+        "synopsisOriginal": "RÉSUMEZ L'INTENTION DE VOTRE FILM ET L'HISTOIRE QU'IL RACONTE EN QUELQUES LIGNES...",
+        "synopsisEnglish": "RÉSUMEZ L'INTENTION DE VOTRE FILM ET L'HISTOIRE QU'IL RACONTE EN QUELQUES LIGNES...",
+        "lastName": "NOM",
+        "firstName": "PRÉNOM",
+        "email": "EMAIL@EXEMPLE.COM",
+        "phone": "+33 6 12 34 56 78",
+        "birthDate": "",
+        "street": "RUE",
+        "postalCode": "CODE POSTAL",
+        "city": "VILLE",
+        "country": "PAYS",
+        "biography": "ARTISTE CANADIEN BASÉ À MARSEILLE - J'EXPLORE LES FRONTIÈRES ENTRE L'ART CINÉMATOGRAPHIQUE TRADITIONNEL ET LES ALGORITHMES GÉNÉRATIFS...",
+        "portfolio": "HTTPS://SITEWEB.COM",
+        "youtube": "@USERNAME_YT",
+        "instagram": "@USERNAME_IG",
+        "linkedin": "@USERNAME_LINKEDIN",
+        "facebook": "@USERNAME_FB",
+        "tiktok": "@USERNAME_TK",
+        "aiStack": "LISTEZ LES OUTILS UTILISÉS (EX: MIDJOURNEY POUR LES VISUELS, ELEVENLABS POUR LES VOIX, RUNWAY POUR L'ANIMATION...)",
+        "aiMethodology": "DÉCRIVEZ L'INTERACTION ENTRE L'HUMAIN ET LA MACHINE DANS CE PROCESSUS..."
+      },
+      "hints": {
+        "durationMax": "Durée maximale : 2 minutes (120 secondes).",
+        "charCount": "{{count}}/300",
+        "dropFile": "Déposez votre fichier ici ou cliquez pour sélectionner",
+        "dropImage": "Déposez l'image ou cliquez pour sélectionner",
+        "dropSrt": "Déposez le fichier .srt ou cliquez pour sélectionner"
+      },
+      "aiClassificationOptions": {
+        "integrale": "Génération intégrale (100% IA)",
+        "hybride": "Production hybride (Prises de vues réelles + apports IA)"
+      },
+      "jobOptions": {
+        "ACTOR": "Acteur",
+        "DIRECTOR": "Réalisateur",
+        "PRODUCER": "Producteur",
+        "WRITER": "Scénariste",
+        "OTHER": "Autre"
+      },
+      "knownByOptions": {
+        "YES": "Oui",
+        "NO": "Non"
+      },
+      "buttons": {
+        "submit": "Soumettre ma candidature",
+        "submitting": "Soumission en cours...",
+        "addCollaborator": "Ajouter un collaborateur",
+        "remove": "Supprimer",
+        "chooseFile": "Choisir un fichier"
+      }
+    },
+
+
+"producer": {
+  "profile": {
+    "title": "Mon Profil",
+    "editMode": "Mode Édition",
+    "viewMode": "Mode Lecture",
+    "successUpdate": "Profil mis à jour avec succès",
+    "errorUpdate": "Erreur lors de la mise à jour du profil"
+  },
+  "filmSubmission": {
+    "placeholders": {
+      "filmTitleOriginal": "Titre original",
+      "durationSeconds": "Durée en secondes",
+      "filmLanguage": "Langue",
+      "releaseYear": "Année",
+      "synopsisOriginal": "Résumé du film...",
+      "success": "Film soumis avec succès",
+      "error": "Erreur lors de la soumission",
+      "collaboratorUpdateError": "Erreur lors de la mise à jour des collaborateurs"
+    },
+    "title": "Déposer un film",
+    "myFilms": "Mes films",
+    "sections": {
+      "filmIdentity": "Identité du film",
+      "aiUsage": "Déclaration IA",
+      "collaborators": "Collaborateurs"
+    },
+    "labels": {
+      "filmTitleOriginal": "Titre original",
+      "durationSeconds": "Durée (secondes)",
+      "filmLanguage": "Langue du film",
+      "releaseYear": "Année de sortie",
+      "nationality": "Nationalité",
+      "translation": "Traduction du titre",
+      "youtubeLink": "Lien YouTube",
+      "synopsisOriginal": "Synopsis (langue originale)",
+      "synopsisEnglish": "Synopsis (anglais)",
+      "aiClassification": "Classification de l'œuvre",
+      "aiStack": "Stack technologique",
+      "aiMethodology": "Méthodologie créative",
+      "knownByMarsAi": "Connu par MarsAI",
+      "filmFile": "Fichier du film",
+      "thumbnail1": "Vignette 1",
+      "thumbnail2": "Vignette 2",
+      "thumbnail3": "Vignette 3",
+      "subtitlesSrt": "Sous-titres",
+      "category": "Catégorie"
+    },
+    "buttons": {
+      "submit": "Soumettre le film",
+      "save": "Enregistrer",
+      "edit": "Modifier",
+      "cancel": "Annuler",
+      "addCollaborator": "Ajouter un collaborateur",
+      "remove": "Supprimer",
+      "chooseFile": "Choisir un fichier"
+    }
+  }
+}
+
+
+  },
+  "validation": {
+    "firstName": {
+      "required": "Le prénom est requis"
+    },
+    "lastName": {
+      "required": "Le nom est requis"
+    },
+    "email": {
+      "required": "L'email est requis",
+      "invalid": "Format d'email invalide"
+    },
+    "password": {
+      "required": "Le mot de passe est requis",
+      "minLength": "Au moins 6 caractères"
+    },
+    "filmTitleOriginal": {
+      "required": "Le titre du film est requis"
+    },
+    "durationSeconds": {
+      "required": "La durée est obligatoire",
+      "integer": "La durée doit être un nombre entier",
+      "min": "La durée doit être au moins 1",
+      "max": "La durée maximale est de 120 secondes"
+    },
+    "synopsisOriginal": {
+      "required": "Le synopsis en langue originale est requis"
+    },
+    "synopsisEnglish": {
+      "required": "Le synopsis en anglais est requis"
+    },
+    "aiClassification": {
+      "required": "La classification de l'œuvre est requise"
+    },
+    "aiStack": {
+      "required": "La stack technologique est requise"
+    },
+    "aiMethodology": {
+      "required": "La méthodologie créative est requise"
+    },
+    "termsAccepted": {
+      "required": "Vous devez accepter les conditions"
+    }
+  },
+  "pages": {
+    "home": {
+      "hero": {
+        "subtitle": "LE PROTOCOLE TEMPOREL",
+        "year": "2026",
+        "title1": "IMAGINEZ DES",
+        "title2": "FUTURS",
+        "title3": "SOUHAITABLES",
+        "description1": "Le festival de courts-métrages de 60 secondes réalisés par IA.",
+        "description2": "Deux jours d'immersion au cœur de Marseille.",
+        "button": "inscrivez votre film ➝"
+      },
+      "reassure": {
+        "card1": { "title": "1 MINUTE", "description": "Format ultra-court pour un impact maximum" },
+        "card2": { "title": "GRATUITÉ", "description": "Conférences et workshops accessibles." },
+        "card3": { "title": "POUR TOUS", "description": "Professionnels, étudiants et curieux." },
+        "card4": { "title": "EXPERTISE", "description": "Leaders mondiaux de l'IA générative." }
+      },
+      "goals": {
+        "title": "Objectifs du",
+        "titleAccent": "festival",
+        "card1": { "title": "L'HUMAIN AU CENTRE", "description": "Mettre l'humain au cœur de la création pour ne pas perdre l'émotion." },
+        "card2": { "title": "CHALLENGE CRÉATIF", "description": "Challenger la créativité grâce à un format ultra-court de 60s." },
+        "card3": { "title": "FUTURS SOUHAITABLES", "description": "Explorer les futurs désirables via les technologies émergentes." }
+      },
+      "protocole": {
+        "immersion": "Immersion Totale",
+        "title": "LE",
+        "titleAccent": "PROTOCOLE",
+        "titleEnd": "TEMPOREL",
+        "card1": { "title": "2 MOIS", "description": "DE PRÉPARATION" },
+        "card2": { "title": "50 FILMS", "description": "EN SÉLECTION" },
+        "card3": { "title": "WEB 3.0", "description": "EXPÉRIENCE" },
+        "card4": { "title": "J4", "description": "MARSEILLE" },
+        "button": "Rejoindre l'aventure ➝"
+      },
+      "program": {
+        "title": "DEUX JOURNÉES DE",
+        "titleAccent": "CONFÉRENCES gratuites",
+        "agendaLabel": "agenda",
+        "debateItem": "Débats engagés sur l'éthique et le future",
+        "confrontationItem": "Confrontations d'idées entre artistes et tech",
+        "interrogationItem": "Interrogations stimulantes sur la création",
+        "projectionsTitle": "projections",
+        "projectionsDescription": "Diffusion sur écran géant en présence des réalisateurs et de l'équipe du festival.",
+        "workshopsTitle": "workshops",
+        "workshopsDescription": "Sessions pratiques pour découvrir les outils de création IA et expérimenter en direct avec des artistes et techniciens.",
+        "awardsTitle": "AWARDS",
+        "awardsDescription": "Cérémonie de remise des prix avec un jury d'experts et une audience passionnée.",
+        "fullAgendaButton": "agenda complet ➝"
+      },
+      "party": {
+        "closingNight": "Soirée de cloture",
+        "title": "MARS.A.I",
+        "titleAccent": "night",
+        "description": "Fête Électro mêlant IA et futurs souhaitables. Une expérience immersive sonore et visuelle.",
+        "date": "13 JUIN 2026",
+        "timeLocation": "DÈS 19H00 • MARSEILLE",
+        "bookButton": "réserver ➝"
+      },
+      "promoters": {
+        "partnersTitle": "organisé en partenariat"
+      },
+      "localisation": {
+        "howToGetThere": "comment s'y rendre ?",
+        "city": "Marseille, Hub Créatif",
+        "address": "12 Rue d'Uzes, 13002 Marseille",
+        "transport": "Accès Tram T2/T3 Arrêt Arenc Le Silo",
+        "room1Title": "Salle des Sucres",
+        "room1Description": "Futur sanctuaire des conférences et de la remise des prix de Mars.A.I. Un espace majestueux alliant patrimoine et technologie.",
+        "room2Title": "Salle PLAZA",
+        "room2Description": "L'épicentre du festival : accueil, animations, workshops et restauration. Le point de rencontre de tous les participants."
+      },
+      "statistics": {
+        "title": "CHIFFRES",
+        "titleAccent": "PROJETÉS",
+        "description": "Échelle mondiale, impact local.",
+        "card1Title": "+120",
+        "card1Description": "Pays représentés",
+        "card2Title": "+600",
+        "card2Description": "Films soumis"
+      },
+      "sponsors": {
+        "ourSupport": "Nos Soutiens",
+        "theySupportFuture": "ILS SOUTIENNENT",
+        "theySupportFutureAccent": "le futur"
+      }
+    }
+  },
+
+
+
+"footer": {
+  "description": "La plateforme mondiale de la narration générative, ancrée dans la lumière de Marseille.",
+  "navigation": {
+    "title": "NAVIGATION",
+    "jury": "Jury",
+    "program": "Programme",
+    "ticketing": "Billetterie"
+  },
+  "legal": {
+    "title": "LÉGAL",
+    "partners": "Partenaires",
+    "faq": "FAQ",
+    "contact": "Contact"
+  },
+  "bottom": {
+    "copyright": "© 2026 MARS.A.I PROTOCOL • MARSEILLE HUB",
+    "design": "DESIGN SYSTÈME CYBER-PREMIUM",
+    "legal": "LÉGAL"
+  }
+},
+
+
+
+"jury": {
+  "home": {
+    "title": "Espace Jury",
+    "welcome": "Bienvenue {{firstName}} {{lastName}}",
+    "sections": {
+      "awaitingVote": "1. Films assignés en attente de vote",
+      "awaitingApproval": "2. Films déjà votés en attente d'approbation pour la deuxième phase",
+      "approvedSecondVote": "3. Films approuvés en attente de seconde votation et prix"
+    },
+    "noMovies": {
+      "awaitingVote": "Aucun film en attente de vote pour le moment.",
+      "awaitingApproval": "Aucun film en attente d'approbation pour le moment.",
+      "approved": "Aucun film approuvé pour le moment."
+    },
+    "movie": {
+      "duration": "Durée",
+      "language": "Langue",
+      "nationality": "Nationalité",
+      "status": "Statut",
+      "noThumbnail": "Aucune vignette",
+      "alreadyVoted": "Déjà voté",
+      "modified": "Modifié {{count}}×",
+      "approved": "Approuvé"
+    },
+
+    "errors": {
+  "notAuthenticated": "Non authentifié",
+  "userLoad": "Erreur lors de la récupération des données utilisateur",
+  "moviesLoad": "Erreur lors du chargement des films assignés",
+  "votesLoad": "Erreur lors du chargement des votes",
+  "userNotFound": "Utilisateur introuvable"
+},
+"loading": "Chargement...",
+"noPoster": "Aucune vignette",
+
+"details": {
+  "duration": "Durée :",
+  "language": "Langue :",
+  "nationality": "Nationalité :",
+  "status": "Statut :"
+},
+
+"links": {
+  "openVideo": "Ouvrir la vidéo",
+  "downloadSubtitles": "Télécharger les sous-titres",
+  "youtube": "Voir sur YouTube"
+},
+
+"previousVote": {
+  "title": "Vote précédent :",
+  "note": "Note : {{note}}",
+  "comment": "Commentaire : {{comment}}"
+},
+
+"badges": {
+  "alreadyVoted": "Déjà voté",
+  "modified": "Modifié {{count}}×",
+  "approved": "Approuvé"
+},
+    "vote": {
+      "title": "Votre vote",
+  "infoTitle": "Informations de vote",
+  "mustWatch": "Vous devez visionner le film en entier avant de voter.",
+  "confirmWatch": "Je confirme avoir visionné le film en entier.",
+  "decision": "Décision",
+  "comment": "Commentaire",
+  "submit": "Enregistrer le vote",
+  "sending": "Envoi...",
+  "saved": "Vote enregistré.",
+  "error": "Erreur lors de l'enregistrement du vote.",
+  "rules": {
+    "watch": "Regardez le film en entier avant de voter.",
+    "comment": "Le commentaire est obligatoire.",
+    "modify": "Vous pouvez modifier votre vote.",
+    "influence": "Votre vote influence la moyenne du film.",
+    "archive": "Vous pouvez archiver le film après vote."
+  },
+  "options": {
+    "approved": "Validé / J'aime / Bon 👍",
+    "discuss": "À discuter avec l'admin",
+    "rejected": "Refusé / Je n'aime pas 👎"
+  }
+    }
+  },
+  "evaluation": {
+    "title": "Évaluation des films",
+    "rate": "Noter",
+    "rating": "Note (1-10)",
+    "comment": "Commentaire",
+    "submit": "Envoyer le vote",
+    "submitting": "Envoi...",
+    "success": "Vote envoyé avec succès !",
+    "feedbackPlaceholder": "Votre avis..."
+  }
+},
+
+
+
+  "common": {
+    "required": "Ce champ est requis",
+    "optional": "Optionnel",
+    "noFileSelected": "Aucun fichier sélectionné",
+    "alreadyLoggedIn": "Vous êtes déjà connecté en tant que {{email}}",
+    "goHome": "Aller à l'accueil",
+    "error": "Erreur",
+    "success": "Succès",
+    "loading": "Chargement...",
+    "userNotFound": "Utilisateur introuvable",
+    "next": "Suivant",
+    "back": "Retour"
+  },
+  "messages": {
+    "registrationSuccess": "Enregistrement réussi ! Connexion automatique en cours...",
+    "registrationSuccessButLoginFailed": "Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.",
+    "loginError": "Erreur de connexion. Veuillez réessayer.",
+    "submissionError": "Erreur lors de la soumission. Veuillez réessayer."
+  }
+}

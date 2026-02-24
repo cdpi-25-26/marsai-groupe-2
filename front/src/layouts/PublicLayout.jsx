@@ -11,6 +11,7 @@ export default function PublicLayout() {
     localStorage.removeItem("role");
     localStorage.removeItem("token");
     navigate("/auth/login");
+
   };
   
   const isLogged = !!localStorage.getItem("email");

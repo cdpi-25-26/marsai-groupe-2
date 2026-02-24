@@ -1722,6 +1722,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Pagination from "../../components/admin/Pagination.jsx";
+import TutorialBox from "../../components/TutorialBox.jsx";
+import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 import SearchBar from "../../components/admin/Searchbar.jsx";
 
 
@@ -1759,6 +1761,19 @@ const updateUserSchema = z.object({
  * @returns {JSX.Element} La page de gestion des utilisateurs
  */
 function Users() {
+    const [tutorial, setTutorial] = useState({ title: "Tutoriel", steps: [] });
+
+    useEffect(() => {
+      async function fetchTutorial() {
+        try {
+          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialUsers.fr.md");
+          setTutorial(tutorialData);
+        } catch (err) {
+          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
+        }
+      }
+      fetchTutorial();
+    }, []);
   // État pour stocker la liste des utilisateurs
   const [users, setUsers] = useState([]);
   // État pour afficher/masquer la modale de création
@@ -2011,7 +2026,15 @@ function Users() {
    * @param {Object} data - Les données du formulaire validées
    */
   function onCreateSubmit(data) {
-    createMutation.mutate(data);
+    // Converti i dati in snake_case per il backend
+    const snakeData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      password: data.password,
+      role: data.role
+    };
+    createMutation.mutate(snakeData);
   }
 
   /**
@@ -2021,20 +2044,29 @@ function Users() {
    * @param {Object} data - Les données du formulaire validées
    */
   function onUpdateSubmit(data) {
-    const userData = { ...data };
-    // Supprime le mot de passe si vide pour éviter de changer le mot de passe
-    if (!userData.password) {
-      delete userData.password;
+    // Converti i dati in snake_case per il backend
+    const userData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      role: data.role
+    };
+    if (data.password) {
+      userData.password = data.password;
     }
-    updateMutation.mutate({ 
-      id: editingUser.id_user, 
-      userData 
+    updateMutation.mutate({
+      id: editingUser.id_user,
+      userData
     });
   }
 
 
 return (
     <section className="bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60 backdrop-blur-xl border border-white/10 rounded-xl p-3 sm:p-4 shadow-xl shadow-black/30 transition-all duration-300">
+    <section className="bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-xl shadow-black/30 transition-all duration-300">
+      <div className="mb-4">
+        <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
+      </div>
 
       {message && (
         <div className={`mb-3 p-2 sm:p-3 rounded-lg ${

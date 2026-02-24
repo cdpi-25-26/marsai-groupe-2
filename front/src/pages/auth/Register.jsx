@@ -3,17 +3,19 @@ import { signIn, login } from "../../api/auth.js";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as z from "zod";
+import Navbar from "../../components/Navbar.jsx";
 
 /**
  * Schéma de validation pour le formulaire d'enregistrement
  * Valide tous les champs du profil utilisateur
  */
 const registerSchema = z.object({
-  firstName: z.string().min(1, "Le prénom est requis"),
-  lastName: z.string().min(1, "Le nom est requis"),
-  email: z.string().email("Format d'email invalide"),
-  password: z.string().min(6, "Au moins 6 caractères"),
+  firstName: z.string().min(1, "validation.firstName.required"),
+  lastName: z.string().min(1, "validation.lastName.required"),
+  email: z.string().email("validation.email.invalid"),
+  password: z.string().min(6, "validation.password.minLength"),
   phone: z.string().optional(),
   mobile: z.string().optional(),
   birthDate: z.string().optional(),
@@ -40,14 +42,16 @@ const registerSchema = z.object({
  * @returns {JSX.Element} La page d'enregistrement
  */
 export function Register() {
+  const { t } = useTranslation();
+
   // Si déjà connecté, afficher un message
   if (localStorage.getItem("email")) {
     return (
       <>
         <h1 className="text-2xl">
-          Vous êtes déjà connecté en tant que {localStorage.getItem("email")}
+          {t('common.alreadyLoggedIn', { email: localStorage.getItem("email") })}
         </h1>
-        <Link to="/">Aller à l'accueil</Link>
+        <Link to="/">{t('common.goHome')}</Link>
       </>
     );
   }
@@ -104,7 +108,7 @@ export function Register() {
           localStorage.removeItem("lastName");
           localStorage.removeItem("role");
           localStorage.removeItem("token");
-          alert("Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.");
+          alert(t('messages.registrationSuccessButLoginFailed'));
           navigate("/auth/login");
           return;
         }
@@ -118,7 +122,7 @@ export function Register() {
         // Redirection vers le tableau de bord du producteur
         navigate("/producer");
       } catch (err) {
-        alert("Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.");
+        alert(t('messages.registrationError'));
         navigate("/auth/login");
       }
     },
@@ -128,234 +132,228 @@ export function Register() {
     return registerMutation.mutate(data);
   }
   return (
-    <div className="min-h-screen bg-black text-white font-light pt-28 pb-20 px-4 md:pt-32">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-10">
-          <p className="text-sm uppercase tracking-widest text-gray-400">Producer</p>
-          <h1 className="text-5xl font-bold mt-2">Créer mon profil</h1>
-          <p className="text-gray-400 text-base mt-4">
-            Complétez votre profil producteur. Vous pourrez ensuite déposer votre film dans votre espace producteur.
-          </p>
-        </div>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-black text-white font-light pt-32 pb-6 px-3 md:pt-36">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-4">
+            <h1 className="text-3xl font-bold mt-1">Créer mon profil Producteur</h1>
+            <p className="text-gray-400 text-xs mt-1">
+              Complétez votre profil producteur. Vous pourrez ensuite déposer votre film dans votre espace producteur.
+            </p>
+          </div>
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-            {/* Mon Profil */}
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="text-[#F6339A]">●</span> Mon Profil
-              </h2>
-              <p className="text-sm uppercase tracking-widest text-gray-400 mb-4">Réalisateur</p>
+          <div className="bg-gray-900 rounded-2xl p-4 border border-gray-800 shadow-2xl">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Mon Profil */}
+              <section>
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                  <span className="text-[#F6339A]">●</span> {t('forms.register.sections.profile')}
+                </h2>
+                <p className="text-sm uppercase tracking-widest text-gray-400 mb-4">Director</p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col">
-                  <label htmlFor="lastName" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Nom *
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    placeholder="NOM"
-                    {...register("lastName")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                  {errors.lastName && <p className="text-red-400 text-sm mt-1">{errors.lastName.message}</p>}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className="flex flex-col">
+                    <label htmlFor="lastName" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.lastName')} *
+                    </label>
+                    <input
+                      id="lastName"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.lastName')}
+                      {...register("lastName")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                    {errors.lastName && <p className="text-red-400 text-sm mt-1">{t(errors.lastName.message)}</p>}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="firstName" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.firstName')} *
+                    </label>
+                    <input
+                      id="firstName"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.firstName')}
+                      {...register("firstName")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                    {errors.firstName && <p className="text-red-400 text-sm mt-1">{t(errors.firstName.message)}</p>}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.email')} *
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      placeholder={t('forms.register.placeholders.email')}
+                      {...register("email")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                    {errors.email && <p className="text-red-400 text-sm mt-1">{t(errors.email.message)}</p>}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="phone" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.phone')} *
+                    </label>
+                    <input
+                      id="phone"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.phone')}
+                      {...register("phone")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="birthDate" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.birthDate')} *
+                    </label>
+                    <input
+                      id="birthDate"
+                      type="date"
+                      {...register("birthDate")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="street" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.street')}
+                    </label>
+                    <input
+                      id="street"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.street')}
+                      {...register("street")}
+                      className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="city" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.city')} *
+                    </label>
+                    <input
+                      id="city"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.city')}
+                      {...register("city")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="postalCode" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.postalCode')} *
+                    </label>
+                    <input
+                      id="postalCode"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.postalCode')}
+                      {...register("postalCode")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="country" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.country')} *
+                    </label>
+                    <input
+                      id="country"
+                      type="text"
+                      placeholder={t('forms.register.placeholders.country')}
+                      {...register("country")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col md:col-span-2">
+                    <label htmlFor="biography" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.biography')}
+                    </label>
+                    <textarea
+                      id="biography"
+                      rows="4"
+                      placeholder={t('forms.register.placeholders.biography')}
+                      {...register("biography")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="job" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.job')}
+                    </label>
+                    <select
+                      id="job"
+                      {...register("job")}
+                      className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    >
+                      <option value="ACTOR">{t('forms.register.jobOptions.ACTOR')}</option>
+                      <option value="DIRECTOR">{t('forms.register.jobOptions.DIRECTOR')}</option>
+                      <option value="PRODUCER">{t('forms.register.jobOptions.PRODUCER')}</option>
+                      <option value="WRITER">{t('forms.register.jobOptions.WRITER')}</option>
+                      <option value="OTHER">{t('forms.register.jobOptions.OTHER')}</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col md:col-span-2">
+                    <label htmlFor="portfolio" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.socialLink', 'Lien réseau social ou site web')}
+                    </label>
+                    <input
+                      id="portfolio"
+                      type="text"
+                      placeholder="https://siteweb.com ou lien social"
+                      {...register("portfolio")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
+                      {t('forms.register.labels.password')} *
+                    </label>
+                    <input
+                      id="password"
+                      type="password"
+                      placeholder={t('forms.register.placeholders.password')}
+                      {...register("password")}
+                      className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
+                    />
+                    {errors.password && <p className="text-red-400 text-sm mt-1">{t(errors.password.message)}</p>}
+                  </div>
                 </div>
+              </section>
 
-                <div className="flex flex-col">
-                  <label htmlFor="firstName" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Prénom *
-                  </label>
-                  <input
-                    id="firstName"
-                    type="text"
-                    placeholder="PRÉNOM"
-                    {...register("firstName")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                  {errors.firstName && <p className="text-red-400 text-sm mt-1">{errors.firstName.message}</p>}
-                </div>
+              <input type="hidden" {...register("role")} defaultValue="PRODUCER" />
 
-                <div className="flex flex-col">
-                  <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Adresse e-mail *
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="EMAIL@EXEMPLE.COM"
-                    {...register("email")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                  {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="phone" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Téléphone *
-                  </label>
-                  <input
-                    id="phone"
-                    type="text"
-                    placeholder="+33 6 12 34 56 78"
-                    {...register("phone")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="birthDate" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Date de naissance *
-                  </label>
-                  <input
-                    id="birthDate"
-                    type="date"
-                    {...register("birthDate")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-
-                <div className="flex flex-col">
-                  <label htmlFor="city" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Ville *
-                  </label>
-                  <input
-                    id="city"
-                    type="text"
-                    placeholder="VILLE"
-                    {...register("city")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="postalCode" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Code Postal *
-                  </label>
-                  <input
-                    id="postalCode"
-                    type="text"
-                    placeholder="CODE POSTAL"
-                    {...register("postalCode")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="country" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Pays *
-                  </label>
-                  <input
-                    id="country"
-                    type="text"
-                    placeholder="PAYS"
-                    {...register("country")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="biography" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Ma Biographie
-                  </label>
-                  <textarea
-                    id="biography"
-                    rows="4"
-                    placeholder="ARTISTE CANADIEN BASÉ À MARSEILLE - J'EXPLORE LES FRONTIÈRES ENTRE L'ART CINÉMATOGRAPHIQUE TRADITIONNEL ET LES ALGORITHMES GÉNÉRATIFS..."
-                    {...register("biography")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition resize-none"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="portfolio" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Mes Liens
-                  </label>
-                  <input
-                    id="portfolio"
-                    type="text"
-                    placeholder="HTTPS://SITEWEB.COM"
-                    {...register("portfolio")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="instagram" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Instagram
-                  </label>
-                  <input
-                    id="instagram"
-                    type="text"
-                    placeholder="@USERNAME_IG"
-                    {...register("instagram")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label htmlFor="linkedin" className="text-white font-semibold mb-2 text-sm uppercase">
-                    LinkedIn
-                  </label>
-                  <input
-                    id="linkedin"
-                    type="text"
-                    placeholder="@USERNAME_LINKEDIN"
-                    {...register("linkedin")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                </div>
-
-                <div className="flex flex-col md:col-span-2">
-                  <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
-                    Mot de passe *
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    placeholder="Minimum 6 caractères"
-                    {...register("password")}
-                    className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                  />
-                  {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>}
-                </div>
-              </div>
-            </section>
-
-            {/* Hidden role field */}
-            <input type="hidden" {...register("role")} defaultValue="PRODUCER" />
-
-            <div className="flex flex-col gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={registerMutation.isPending}
-                className="w-full bg-linear-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
-              >
-                {registerMutation.isPending ? "Création en cours..." : "Créer mon profil"}
-              </button>
-              <div className="text-center text-sm text-gray-400">
-                Déjà inscrit ?
-                <Link
-                  to="/auth/login"
-                  className="ml-2 inline-flex items-center justify-center border border-gray-700 text-white px-4 py-2 rounded-lg hover:border-[#AD46FF] transition"
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  type="submit"
+                  disabled={registerMutation.isPending}
+                  className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
                 >
-                  Se connecter
-                </Link>
+                  {registerMutation.isPending ? `${t('forms.register.buttons.submit')}...` : t('forms.register.buttons.submit')}
+                </button>
               </div>
 
-            </div>
-
-            {registerMutation.isError && (
-              <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg">
-                {registerMutation.error?.response?.data?.error
-                  || registerMutation.error?.message
-                  || "Erreur lors de la soumission. Veuillez réessayer."}
-              </div>
-            )}
-          </form>
+              {registerMutation.isError && (
+                <div className="bg-red-900/30 border border-red-600 text-red-300 px-4 py-3 rounded-lg">
+                  {registerMutation.error?.response?.data?.error
+                    || registerMutation.error?.message
+                    || t('validation.submissionError')}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

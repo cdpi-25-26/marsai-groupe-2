@@ -1,0 +1,274 @@
+[
+  {
+    "image": "topito",
+    "title": "Topito",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "1_planet",
+    "title": "1 Planète",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "acm_logo",
+    "title": "ACM",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "action_campaign",
+    "title": "action-campaign",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+    {
+    "image": "akatu",
+    "title": "Akatu",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "alors",
+    "title": "Alors",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "brooklyn",
+    "title": "Brooklyn",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "dotsub",
+    "title": "Dotsub",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "extracourt_logo",
+    "title": "Extracourt",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "iucn",
+    "title": "IUCN",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "lce_2_lineas_verde",
+    "title": "Lineas Verdes",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "logo_aworld",
+    "title": "A World",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "logo_boaddict",
+    "title": "Bio addict",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "logo-ecoprod",
+    "title": "Ecoprod",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "logo_gybn",
+    "title": "GYBN",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "logo-humeco",
+    "title": "Humeco",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "logo-ldh-2",
+    "title": "Les Droits Humains",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "logo-lpi-2",
+    "title": "lpi",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "logo_sacd",
+    "title": "SACD",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "logos_biogua",
+    "title": "Biogua",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "logo-socialter",
+    "title": "Socialter",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "macaulay",
+    "title": "macaulay",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "maisondufilm",
+    "title": "Maison du Film",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "matrice-logo",
+    "title": "Matrice",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "nuevologodespierta",
+    "title": "Despierta",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "peace_oneday",
+    "title": "Peace One Day",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "psl",
+    "title": "PSL",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "secoya",
+    "title": "Secoya",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "sens_critique",
+    "title": "Sens Critique",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  },
+  {
+    "image": "undp",
+    "title": "UNDP",
+    "accentColor": "#00D492",
+    "borderColor": "border-[rgba(0,212,146,0.90)]",
+    "hoverborderColor": "hover:border-[#00D492]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(0,212,146,0.9)]"
+  },
+
+   {
+    "image": "unesco",
+    "title": "UNESCO",
+    "accentColor": "#FB64B6",
+    "borderColor": "border-[rgba(251,100,182,0.90)]",
+    "hoverborderColor": "hover:border-[#FB64B6]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(251,100,182,0.9)]"
+  },
+  {
+    "image": "auniverso_media",
+    "title": "Auniverso Media",
+    "accentColor": "#2B7FFF",
+    "borderColor": "border-[rgba(43,127,255,0.90)]",
+    "hoverborderColor": "hover:border-[#2B7FFF]",
+    "hoverShadow": "hover:shadow-[0_0_40px_rgba(43,127,255,0.9)]"
+  },
+  {
+    "image": "unric",
+    "title": "UNRIC",
+    "accentColor": "#C27AF",
+    "borderColor": "border-[rgba(194,122,255,0.90)]",
+    "hoverborderColor": "hover:border-[#C27AFF]",
+    "hoverShadow": "hover:shadow-[0_0_20px_rgba(77,166,255,0.9)]"
+  }
+]
