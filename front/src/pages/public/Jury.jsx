@@ -20,7 +20,7 @@ export default function JuryPublic() {
         <div>
           <img
             className="h-72 md:h-85 rounded-xl grayscale-30"
-            src="..\src\assets\images\jury\photo-pierre-schoeller.jpg"
+            src="../src/assets/images/jury/photo-pierre-schoeller.jpg"
           />
         </div>
 
@@ -58,12 +58,12 @@ export default function JuryPublic() {
     <section className="text-[#2B7FFF] px-70">
 
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
-    <div className="bg-[url(..\src\assets\images\jury\tina-baz-le-gal_monteuse.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
+    <div className="bg-[url(../src/assets/images/jury/tina-baz-le-gal_monteuse.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
 
     <h2 className="mt-65  font-bold text-xl text-center">TINA BAZ LE GAL</h2>
     <p className="text-white text-center">Monteuse</p>
   </div>
-     <div className="bg-[url(..\src\assets\images\jury\jerome-genevray-réalisateur_et_scenariste.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
+     <div className="bg-[url(../src/assets/images/jury/jerome-genevray-réalisateur_et_scenariste.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
 
     <h2 className="mt-65 font-bold text-xl text-center">JEROME GENEVRAY</h2>
     <p className="text-white text-center">Réalisateur et scénariste</p>
@@ -71,7 +71,7 @@ export default function JuryPublic() {
   </div>
 
 
-<div className="bg-[url(..\src\assets\images\jury\eve-machuel_productrice.jpeg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
+<div className="bg-[url(../src/assets/images/jury/eve-machuel_productrice.jpeg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
 
     <h2 className="mt-65 font-bold text-xl text-center">EVE MACHUEL</h2>
     <p className="text-white text-center">Productrice</p>
@@ -88,20 +88,20 @@ export default function JuryPublic() {
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
 
 
-<div className="bg-[url(..\src\assets\images\jury\anne-sophie-novel_journaliste_auteure_réalisatrice.jpeg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
+<div className="bg-[url(../src/assets/images/jury/anne-sophie-novel_journaliste_auteure_réalisatrice.jpeg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
 
     <h2 className="mt-65 font-bold text-xl text-center">ANNE SOPHIE NOVEL</h2>
     <p className="text-white text-center">Journaliste, auteure et réalisatrice</p>
 </div>
 
 
-<div className="bg-[url(..\src\assets\images\jury\vipulan-puvaneswaran_militant_écologiste.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
+<div className="bg-[url(../src/assets/images/jury/vipulan-puvaneswaran_militant_écologiste.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
 
     <h2 className="mt-65 font-bold text-xl text-center">VIPULAN PUVANESSWARAN</h2>
     <p className="text-white text-center">Militant écologiste</p>
 </div>
 
-<div className="bg-[url(..\src\assets\images\jury\Barbara-schulz_comédienne.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
+<div className="bg-[url(../src/assets/images/jury/Barbara-schulz_comédienne.jpg)] h-80 w-80 bg-cover justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
 
     <h2 className="mt-65 font-bold text-xl text-center">BARBARA SCHULZ</h2>
     <p className="text-white text-center">Comédienne</p>
