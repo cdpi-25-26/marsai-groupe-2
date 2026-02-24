@@ -11,7 +11,8 @@
       },
       "buttons": {
         "submit": "Sign in",
-        "submitting": "Signing in..."
+        "submitting": "Signing in...",
+        "submitFilm": "Submit the movie"
       },
       "links": {
         "noAccount": "Don't have an account?",
@@ -414,11 +415,14 @@
     "goHome": "Go home",
     "error": "Error",
     "success": "Success",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "userNotFound": "User not found",
+    "next": "Next",
+    "back": "Back"
   },
   "messages": {
     "registrationSuccess": "Registration successful! Automatic login in progress...",
-    "registrationError": "Registration successful, but automatic login failed. Please log in manually.",
+    "registrationSuccessButLoginFailed": "Registration successful, but automatic login failed. Please log in manually.",
     "loginError": "Login error. Please try again.",
     "submissionError": "Submission error. Please try again."
   }

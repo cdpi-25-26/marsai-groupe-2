@@ -1,4 +1,3 @@
-
 'use strict';
 
 export default (sequelize, DataTypes) => {
@@ -43,6 +42,11 @@ export default (sequelize, DataTypes) => {
     Vote.belongsTo(models.Movie, {
       foreignKey: 'id_movie',
       targetKey: 'id_movie'
+    });
+
+    Vote.hasMany(models.VoteHistory, {
+      foreignKey: 'id_vote',
+      as: 'history'
     });
   };
 

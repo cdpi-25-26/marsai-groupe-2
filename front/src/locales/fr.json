@@ -11,7 +11,8 @@
       },
       "buttons": {
         "submit": "Se connecter",
-        "submitting": "Connexion..."
+        "submitting": "Connexion...",
+        "submitFilm": "Soumettre le film"
       },
       "links": {
         "noAccount": "Pas encore de compte ?",
@@ -460,11 +461,14 @@
     "goHome": "Aller à l'accueil",
     "error": "Erreur",
     "success": "Succès",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "userNotFound": "Utilisateur introuvable",
+    "next": "Suivant",
+    "back": "Retour"
   },
   "messages": {
     "registrationSuccess": "Enregistrement réussi ! Connexion automatique en cours...",
-    "registrationError": "Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.",
+    "registrationSuccessButLoginFailed": "Enregistrement réussi, mais la connexion automatique a échoué. Veuillez vous connecter manuellement.",
     "loginError": "Erreur de connexion. Veuillez réessayer.",
     "submissionError": "Erreur lors de la soumission. Veuillez réessayer."
   }

@@ -6,26 +6,32 @@ export default function Localisation() {
     const { t } = useTranslation();
     return (
     <div>
-<div className="px-10 sm:px-10 md:px-20  pb-4">
+
+      {/* TITRE */}
+      <div className="px-6 sm:px-10 md:px-20 pb-4">
         <TitleInBox
           icon={
-           <svg height="30" width="30" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-	<g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="4">
-		<path d="M9.858 32.757C6.238 33.843 4 35.343 4 37c0 3.314 8.954 6 20 6s20-2.686 20-6c0-1.657-2.239-3.157-5.858-4.243" strokeLinecap="round"/>
-		<path d="M24 35s13-8.496 13-18.318C37 9.678 31.18 4 24 4S11 9.678 11 16.682C11 26.504 24 35 24 35Z"/>
-		<path d="M24 22a5 5 0 1 0 0-10a5 5 0 0 0 0 10Z"/>
-	</g>
-</svg>
+            <svg height="30" width="30" viewBox="0 0 48 48">
+              <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="4">
+                <path
+                  d="M9.858 32.757C6.238 33.843 4 35.343 4 37c0 3.314 8.954 6 20 6s20-2.686 20-6c0-1.657-2.239-3.157-5.858-4.243"
+                  strokeLinecap="round"
+                />
+                <path d="M24 35s13-8.496 13-18.318C37 9.678 31.18 4 24 4S11 9.678 11 16.682C11 26.504 24 35 24 35Z" />
+                <path d="M24 22a5 5 0 1 0 0-10a5 5 0 0 0 0 10Z" />
+              </g>
+            </svg>
           }
           iconcolor="#AD46FF"
           title={t("pages.home.localisation.howToGetThere")}
         />
       </div>
-<div className="pt-6 pb-12 w-full grid grid-cols-1 md:grid-cols-3 place-items-center gap-10">
 
-    <p className="text-[#FB64B6] text-center text-base uppercase pt-6 px-6">
-        {t("pages.home.localisation.city")}
-    </p>
+      {/* 3 INFOS */}
+      <div className="pt-6 pb-12 w-full grid grid-cols-1 md:grid-cols-3 place-items-center gap-10 px-6">
+        <p className="text-[#FB64B6] text-center text-base uppercase pt-6">
+          {t("pages.home.localisation.city")}
+        </p>
 
      <p className="text-white text-center text-base uppercase pt-6 px-6">
         {t("pages.home.localisation.address")}
@@ -57,19 +63,19 @@ export default function Localisation() {
   </div>
 </div>
 
-<div className="w-full flex justify-center pt-10 pb-16">
-  <div className="w-full max-w-250 border-2 border-[rgba(255,255,255,0.82)] rounded-4xl overflow-hidden shadow-[0_0_25px_rgba(173,70,255,0.3)]">
-    <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5806.007572123465!2d5.366207076720204!3d43.31418017429094!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c9c0f3f2295ed9%3A0xe8332bddf8f8ffdb!2s155%20Rue%20Peyssonnel%2C%2013002%20Marseille!5e0!3m2!1sfr!2sfr!4v1770892741990!5m2!1sfr!2sfr"
-      className="w-full h-112.5"
-      allowFullScreen=""
-      loading="lazy"
-      referrerPolicy="no-referrer-when-downgrade"
-    ></iframe>
-  </div>
-</div>
-
+      {/* MAP */}
+      <div className="w-full flex justify-center pt-10 pb-16 px-6">
+        <div className="w-full max-w-250 border-2 border-[rgba(255,255,255,0.82)] rounded-4xl overflow-hidden shadow-[0_0_25px_rgba(173,70,255,0.3)]">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5806.007572123465!2d5.366207076720204!3d43.31418017429094!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c9c0f3f2295ed9%3A0xe8332bddf8f8ffdb!2s155%20Rue%20Peyssonnel%2C%2013002%20Marseille!5e0!3m2!1sfr!2sfr!4v1770892741990!5m2!1sfr!2sfr"
+            className="w-full h-112.5"
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
 
     </div>
-    );
+  );
 }

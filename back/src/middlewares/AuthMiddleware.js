@@ -38,6 +38,10 @@ export default function AuthMiddleware(roles = []) {
         });
       }
 
+      req.user = {
+      id: user.id_user,
+      role: user.role
+}
       req.user = user;
       return next();
     } catch (error) {
