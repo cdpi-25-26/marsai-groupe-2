@@ -456,6 +456,47 @@ export default function ProducerHome() {
                             </span>
                           </div>
                         </div>
+                        {/* Bottone promozione candidatura */}
+                        {movie.selection_status === "selected" && (user?.role === "admin" || user?.role === "producer") && (
+                          <button
+                            type="button"
+                            className="px-3 py-1.5 bg-[#5EEAD4]/80 text-white rounded-lg text-xs hover:bg-[#5EEAD4] mt-2"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const res = await fetch(`/api/movies/${movie.id_movie}/jury-candidate`, {
+                                  method: "PUT",
+                                  headers: { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` },
+                                });
+                                if (res.ok) {
+                                  setMovieSuccess("Film promu à la candidature !");
+                                  // Aggiorna la lista
+                                  const moviesRes = await getMyMovies();
+                                  setMovies(moviesRes.data || []);
+                                } else {
+                                  setMovieError("Erreur lors de la promotion.");
+                                }
+                              } catch {
+                                setMovieError("Erreur lors de la promotion.");
+                              }
+                            }}
+                          >
+                            Promouvoir les candidats primés
+                          </button>
+                        )}
+                        {/* Bouton Modifier le film (admin ou producteur) */}
+                        {(user?.role === "admin" || user?.role === "producer") && (
+                          <button
+                            type="button"
+                            className="mt-4 w-full bg-[#AD46FF] text-white font-bold py-2 rounded-lg hover:bg-[#F6339A] transition"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSelectedMovie(movie);
+                            }}
+                          >
+                            Modifier le film
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
