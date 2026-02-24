@@ -677,18 +677,16 @@ async function updateMovieCollaborators(req, res) {
           const [record] = await Collaborator.findOrCreate({
             where: { email: collab.email },
             defaults: {
-              first_name: collab.first_name || "",
-              last_name: collab.last_name || "",
+              first_name: collab.first_name || collab.firstname || "",
+              last_name: collab.last_name || collab.lastname || "",
               email: collab.email,
               job: collab.job || null
             }
           });
-
           const needsUpdate =
             (collab.first_name && collab.first_name !== record.first_name)
             || (collab.last_name && collab.last_name !== record.last_name)
             || (collab.job && collab.job !== record.job);
-
           if (needsUpdate) {
             await record.update({
               first_name: collab.first_name || record.first_name,
@@ -696,12 +694,31 @@ async function updateMovieCollaborators(req, res) {
               job: collab.job || record.job
             });
           }
-
           return record;
         })
     );
 
     await movie.setCollaborators(collaboratorRecords);
+
+    // Gestione file upload (ADMIN o owner)
+    if (req.user.role === "ADMIN" || movie.id_user === req.user.id_user) {
+      const files = req.files || {};
+      const filmFile = files.filmFile?.[0]?.filename || null;
+      const thumb1 = files.thumbnail1?.[0]?.filename || null;
+      const thumb2 = files.thumbnail2?.[0]?.filename || null;
+      const thumb3 = files.thumbnail3?.[0]?.filename || null;
+      const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
+
+      const updateData = { ...req.body };
+      if (filmFile) updateData.trailer = filmFile;
+      if (thumb1) updateData.picture1 = thumb1;
+      if (thumb2) updateData.picture2 = thumb2;
+      if (thumb3) updateData.picture3 = thumb3;
+      if (thumb1) updateData.thumbnail = thumb1;
+      if (subtitleFile) updateData.subtitle = subtitleFile;
+
+      await movie.update(updateData);
+    }
 
     const updatedMovie = await Movie.findByPk(id, {
       include: [
