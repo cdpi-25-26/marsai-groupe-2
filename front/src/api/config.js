@@ -6,6 +6,8 @@ import axios from "axios";
  * Timeout: 5000ms (increased for DB operations)
  */
 const instance = axios.create({
+  // baseURL: "http://localhost:3000/",
+  // timeout: 5000,
   baseURL: "http://127.0.0.1:3000/",
   timeout: 10000,
 });
@@ -30,7 +32,22 @@ instance.interceptors.request.use(
   (error) => {
     console.log("Une erreur est survenue lors de la requête:", error);
     return Promise.reject(new Error(error));
-  },
+  }
+);
+
+// Interceptor globale per gestire 401 Unauthorized
+instance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      alert("Sessione scaduta o non autorizzato. Effettua di nuovo il login.");
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 export default instance;

@@ -13,6 +13,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Pagination from "../../components/admin/Pagination.jsx"; 
+import TutorialBox from "../../components/TutorialBox.jsx";
+import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 
 
 /**
@@ -49,6 +51,19 @@ const updateUserSchema = z.object({
  * @returns {JSX.Element} La page de gestion des utilisateurs
  */
 function Users() {
+    const [tutorial, setTutorial] = useState({ title: "Tutoriel", steps: [] });
+
+    useEffect(() => {
+      async function fetchTutorial() {
+        try {
+          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialUsers.fr.md");
+          setTutorial(tutorialData);
+        } catch (err) {
+          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
+        }
+      }
+      fetchTutorial();
+    }, []);
   // État pour stocker la liste des utilisateurs
   const [users, setUsers] = useState([]);
   // État pour afficher/masquer la modale de création
@@ -275,7 +290,15 @@ function Users() {
    * @param {Object} data - Les données du formulaire validées
    */
   function onCreateSubmit(data) {
-    createMutation.mutate(data);
+    // Converti i dati in snake_case per il backend
+    const snakeData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      password: data.password,
+      role: data.role
+    };
+    createMutation.mutate(snakeData);
   }
 
   /**
@@ -285,20 +308,28 @@ function Users() {
    * @param {Object} data - Les données du formulaire validées
    */
   function onUpdateSubmit(data) {
-    const userData = { ...data };
-    // Supprime le mot de passe si vide pour éviter de changer le mot de passe
-    if (!userData.password) {
-      delete userData.password;
+    // Converti i dati in snake_case per il backend
+    const userData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      role: data.role
+    };
+    if (data.password) {
+      userData.password = data.password;
     }
-    updateMutation.mutate({ 
-      id: editingUser.id_user, 
-      userData 
+    updateMutation.mutate({
+      id: editingUser.id_user,
+      userData
     });
   }
 
 
 return (
     <section className="bg-gradient-to-br from-[#1a1c20]/60 to-[#0f1114]/60 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-xl shadow-black/30 transition-all duration-300">
+      <div className="mb-4">
+        <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={true} />
+      </div>
 
       {message && (
         <div className={`mb-3 p-3 rounded-lg ${
@@ -416,10 +447,10 @@ return (
 
       {/* Modal de création d'utilisateur */}
 {showCreateModal && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-50 animate-fadeIn">
-    <div className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-black/40">
+  <div className="fixed inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-50 animate-fadeIn mobile-modal-overlay">
+    <div className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-black/40 mobile-modal-panel">
       {/* En-tête minimaliste */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 mobile-modal-header">
         <h3 className="text-lg font-semibold text-white">Nouvel utilisateur</h3>
         <button
           onClick={() => {
@@ -435,7 +466,7 @@ return (
         </button>
       </div>
 
-      <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
+      <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4 pb-20 sm:pb-0">
         {/* Grille compacte Prénom/Nom */}
         <div className="grid grid-cols-2 gap-3">
           {/* Champ: Prénom */}
@@ -577,7 +608,7 @@ return (
         </div>
 
         {/* Boutons - style élégant et fin */}
-        <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+        <div className="flex justify-end gap-2 pt-4 border-t border-white/5 mobile-modal-footer">
           <button 
             type="button"
             onClick={() => {
@@ -604,10 +635,10 @@ return (
 
       {/* Modal de modification d'utilisateur */}
 {showEditModal && editingUser && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-50 animate-fadeIn">
-    <div className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-black/40">
+  <div className="fixed inset-0 bg-black/60 backdrop-blur flex items-center justify-center z-50 animate-fadeIn mobile-modal-overlay">
+    <div className="bg-gradient-to-br from-gray-900/90 to-gray-950/90 border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-black/40 mobile-modal-panel">
       {/* En-tête avec info utilisateur */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 mobile-modal-header">
         <div>
           <h3 className="text-lg font-semibold text-white">Modifier l'utilisateur</h3>
           <p className="text-xs text-gray-400 mt-0.5">
@@ -629,7 +660,7 @@ return (
         </button>
       </div>
 
-      <form onSubmit={editForm.handleSubmit(onUpdateSubmit)} className="space-y-4">
+      <form onSubmit={editForm.handleSubmit(onUpdateSubmit)} className="space-y-4 pb-20 sm:pb-0">
         {/* Grille compacte Prénom/Nom */}
         <div className="grid grid-cols-2 gap-3">
           {/* Champ: Prénom */}
@@ -768,7 +799,7 @@ return (
         </div>
 
         {/* Boutons */}
-        <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+        <div className="flex justify-end gap-2 pt-4 border-t border-white/5 mobile-modal-footer">
           <button 
             type="button"
             onClick={() => {
@@ -795,8 +826,8 @@ return (
 )}
       {/* Modal de confirmation de suppression */}
       {showDeleteConfirm && userToDelete && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-black/50">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 mobile-modal-overlay">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-xl p-6 w-full max-w-md shadow-2xl shadow-black/50 mobile-modal-panel">
             <div className="text-center">
               {/* Icône d'avertissement */}
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-500/20 mb-4">

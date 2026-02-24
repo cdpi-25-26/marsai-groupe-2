@@ -8,28 +8,28 @@ import UserController from "./UserController.js";
 import jwt from "jsonwebtoken";
 
 /**
- * Funzione di connessione (Login)
- * Valida gli identifiant dell'utente e crea un JWT
- * @param {Object} req - La richiesta HTTP contenente { email, password }
- * @param {Object} res - La risposta HTTP
- * @returns {Object} Un token JWT e le info utente se successo, altrimenti errore 401
+ * Fonction de connexion (Login)
+ * Valide les identifiants de l'utilisateur et crée un JWT
+ * @param {Object} req - La requête HTTP contenant { email, password }
+ * @param {Object} res - La réponse HTTP
+ * @returns {Object} Un token JWT et les infos utilisateur si succès, sinon erreur 401
  */
 function login(req, res) {
   const { email, password } = req.body;
 
-  // Cercare l'utente per il suo email
+  // Chercher l'utilisateur par son email
   User.findOne({ where: { email } }).then((user) => {
     if (!user) {
       return res.status(401).json({ error: "Identifiants invalides" });
     }
 
-    // Comparare la password fornita con il hash nel database
+    // Comparer le mot de passe fourni avec le hash en base de données
     comparePassword(password, user.password).then((isMatch) => {
       if (!isMatch) {
         return res.status(401).json({ error: "Identifiants invalides" });
       }
 
-      // Creare un JWT valido con id_user al posto di id 1 ora di default
+      // Créer un JWT valide avec id_user au lieu de id 1 heure par défaut
       const token = jwt.sign(
       { id: user.id_user, role: user.role },
       process.env.JWT_SECRET,

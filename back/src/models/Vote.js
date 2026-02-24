@@ -1,4 +1,3 @@
-
 'use strict';
 
 export default (sequelize, DataTypes) => {
@@ -17,10 +16,10 @@ export default (sequelize, DataTypes) => {
       allowNull: false
     },
     note: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.ENUM('YES', 'NO', 'TO DISCUSS'),
       allowNull: false
     },
-    commentaire: {
+    comments: {
       type: DataTypes.TEXT,
       allowNull: true
     },
@@ -43,6 +42,11 @@ export default (sequelize, DataTypes) => {
     Vote.belongsTo(models.Movie, {
       foreignKey: 'id_movie',
       targetKey: 'id_movie'
+    });
+
+    Vote.hasMany(models.VoteHistory, {
+      foreignKey: 'id_vote',
+      as: 'history'
     });
   };
 

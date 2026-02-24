@@ -12,6 +12,7 @@ voteRouter.post("/mine/:id_movie", AuthMiddleware(["JURY", "ADMIN"]), VoteContro
 // ADMIN: gestion globale des votes
 voteRouter.get("/", AuthMiddleware(["ADMIN"]), VoteController.getVote);
 voteRouter.post("/:id_movie/:id_user", AuthMiddleware(["ADMIN"]), VoteController.createVote);
+voteRouter.delete("/movie/:id_movie", AuthMiddleware(["ADMIN"]), VoteController.deleteVotesByMovie);
 voteRouter.get("/:id", AuthMiddleware(["ADMIN"]), VoteController.getVoteById);
 voteRouter.delete("/:id", AuthMiddleware(["ADMIN"]), VoteController.deleteVote);
 voteRouter.put("/:id_vote", AuthMiddleware(["ADMIN"]), VoteController.updateVote);

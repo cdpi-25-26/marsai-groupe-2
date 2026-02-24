@@ -41,7 +41,10 @@ import SponsorsPublic from "./pages/public/Sponsors.jsx";
 import JuryPublic from "./pages/public/Jury.jsx";
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
-
+import Categories from "./pages/admin/Categories.jsx";
+import Awards from "./pages/admin/Awards.jsx";
+import JuryManagement from "./pages/admin/JuryManagement.jsx";
+import Results from "./pages/admin/Results.jsx";
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
@@ -106,6 +109,18 @@ createRoot(document.getElementById("root")).render(
             {/* Gestion des vidéos sera ajoutée ici */}
 
             <Route path="movies" element={<Videos />} />
+            
+            {/* Gestion des catégories */}
+            <Route path="categories" element={<Categories />} />
+            
+            {/* Gestion des prix */}
+            <Route path="awards" element={<Awards />} />
+            
+            {/* Distribution & Gestion des jurys */}
+            <Route path="jury" element={<JuryManagement />} />
+
+            {/* Résultats */}
+            <Route path="results" element={<Results />} />
           </Route>
 
           {/* ========================================
