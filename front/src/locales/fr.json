@@ -20,6 +20,8 @@
       }
     },
     "register": {
+      "title": "Créer mon profil Producteur",
+      "subtitle1": "Complétez votre profil producteur. Vous pourrez ensuite déposer votre film dans votre espace producteur.",
       "pageTitle": "Déposer un film",
       "subtitle": "Transmettez les éléments techniques, l'usage de l'IA et la composition de votre équipe. Tous les champs marqués d'une étoile (*) sont obligatoires.",
       "sections": {

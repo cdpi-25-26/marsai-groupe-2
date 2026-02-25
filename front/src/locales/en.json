@@ -20,6 +20,8 @@
       }
     },
     "register": {
+      "title": "Create my Producer profile",
+      "subtitle1": "Complete your producer profile. You will then be able to submit your film from your producer dashboard.",
       "pageTitle": "Submit a film",
       "subtitle": "Submit the technical elements, AI usage and your team composition. All fields marked with an asterisk (*) are required.",
       "sections": {
