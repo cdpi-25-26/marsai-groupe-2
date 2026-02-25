@@ -372,7 +372,7 @@ export default function Movies() {
       setModalNotice(successMessage);
       // Aggiorna la vista candidati se promozione
       if (successMessage && successMessage.toLowerCase().includes("candidature")) {
-        setActiveTab && setActiveTab("candidates");
+        // setActiveTab is not defined in this scope, remove this line to fix the error
       }
     } catch (error) {
       const message = error?.response?.data?.error || error?.message || "Erreur inconnue";
@@ -641,21 +641,21 @@ export default function Movies() {
                                             <button
                                               type="button"
                                               onClick={() => {
-                                                // Trova tutti i film candidati con almeno un premio
-                                                const toAwarded = filteredCandidateMovies.filter((movie) => (movie.Awards || []).length > 0);
-                                                if (toAwarded.length === 0) {
-                                                  alert("Aucun film candidat n'a reçu de prix.");
+                                                const toPromote = displayedFirstVoteMovies.filter((movie) => selectedFirstVoteIds.includes(movie.id_movie));
+                                                if (toPromote.length === 0) {
+                                                  alert("Aucun film sélectionné.");
                                                   return;
                                                 }
                                                 runBatch(
-                                                  toAwarded.map((movie) => movie.id_movie),
-                                                  (id) => updateMovieStatus(id, "awarded"),
-                                                  "Films candidats promus dans 'Films premiés'."
+                                                  toPromote.map((movie) => movie.id_movie),
+                                                  (id) => updateMovieStatus(id, "candidate"),
+                                                  "Films promus à la candidature."
                                                 );
+                                                clearSelection(setSelectedFirstVoteIds);
                                               }}
-                                              className="px-3 py-1.5 bg-[#5EEAD4]/80 text-white rounded-lg text-xs hover:bg-[#5EEAD4]"
+                                              className="px-3 py-1.5 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg text-xs font-semibold shadow hover:opacity-90 transition"
                                             >
-                                              Promouvoir les candidats primés
+                                              Passer directement en candidats
                                             </button>
                       <select
                         value={firstVoteFilter}
