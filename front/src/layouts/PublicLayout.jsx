@@ -2,8 +2,11 @@ import { Outlet, useNavigate } from "react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+import { useFestivalConfig } from "../hooks/useFestivalConfig";
+
 export default function PublicLayout() {
   const navigate = useNavigate();
+  const { config } = useFestivalConfig();
   
   const handleLogout = () => {
     localStorage.removeItem("email");
@@ -15,6 +18,7 @@ export default function PublicLayout() {
   };
   
   const isLogged = !!localStorage.getItem("email");
+  const showFooter = !config || config.footer?.visible !== false;
   
   return (
     <div className="relative m-0 p-0 w-full min-h-screen overflow-hidden bg-black">
@@ -54,7 +58,8 @@ export default function PublicLayout() {
         <main className="flex-grow">
           <Outlet />
         </main>
-        <Footer />
+        {/* <Footer /> */}
+         {showFooter && <Footer />}
       </div>
     </div>
   );

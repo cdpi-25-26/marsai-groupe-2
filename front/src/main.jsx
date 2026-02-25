@@ -11,14 +11,13 @@
  * - /jury (JURY uniquement): Page d'accueil jury
  */
 
-import './i18n';
+import "./i18n";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { BrowserRouter, Route, Routes } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
 
 // import "./i18n"; // Désactivé tant que i18next n'est pas installé correctement
 import "./index.css";
@@ -45,6 +44,9 @@ import Categories from "./pages/admin/Categories.jsx";
 import Awards from "./pages/admin/Awards.jsx";
 import JuryManagement from "./pages/admin/JuryManagement.jsx";
 import Results from "./pages/admin/Results.jsx";
+
+import FestivalConfig from "./pages/admin/FestivalConfig.jsx";
+import { FestivalConfigProvider } from "./hooks/useFestivalConfig.jsx";
 /**
  * Configuration de TanStack Query
  * staleTime: Infinity signifie que les données en cache ne deviennent jamais obsolètes automatiquement
@@ -67,28 +69,25 @@ const queryClient = new QueryClient({
  * 3. Routes: Définit toutes les routes de l'application
  */
 createRoot(document.getElementById("root")).render(
-  
-    
-  <StrictMode>  
+  <StrictMode>
     <BrowserRouter>
-    
       <QueryClientProvider client={queryClient}>
+         <FestivalConfigProvider>
         <Routes>
           {/* ========================================
               ROUTES PUBLIQUES (Accessible à tous)
               ======================================== */}
-   <Route path="/" element={<PublicLayout />}>
-  <Route index element={<Home />} />
-  <Route path="infos" element={<InfosPublic />} />
-  <Route path="program" element={<ProgramPublic />} />
-  <Route path="sponsors" element={<SponsorsPublic />} />
-  <Route path="juryPublic" element={<JuryPublic />} />
-</Route>
+          <Route path="/" element={<PublicLayout />}>
+            <Route index element={<Home />} />
+            <Route path="infos" element={<InfosPublic />} />
+            <Route path="program" element={<ProgramPublic />} />
+            <Route path="sponsors" element={<SponsorsPublic />} />
+            <Route path="juryPublic" element={<JuryPublic />} />
+          </Route>
 
-  {/* authentification*/}
-  <Route path="auth/login" element={<Login />} />
-  <Route path="auth/register" element={<Register />} />
-
+          {/* authentification*/}
+          <Route path="auth/login" element={<Login />} />
+          <Route path="auth/register" element={<Register />} />
 
           {/* ========================================
               ROUTES ADMIN (Rôle ADMIN uniquement)
@@ -110,18 +109,21 @@ createRoot(document.getElementById("root")).render(
             {/* Gestion des vidéos sera ajoutée ici */}
 
             <Route path="movies" element={<Videos />} />
-            
+
             {/* Gestion des catégories */}
             <Route path="categories" element={<Categories />} />
-            
+
             {/* Gestion des prix */}
             <Route path="awards" element={<Awards />} />
-            
+
             {/* Distribution & Gestion des jurys */}
             <Route path="jury" element={<JuryManagement />} />
 
             {/* Résultats */}
             <Route path="results" element={<Results />} />
+
+            {/* Configuration du festival */}
+            <Route path="settings" element={<FestivalConfig />} />
           </Route>
 
           {/* ========================================
@@ -154,10 +156,8 @@ createRoot(document.getElementById("root")).render(
             <Route index element={<JuryHome />} />
           </Route>
         </Routes>
+        </FestivalConfigProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,
 );
-
-
-
