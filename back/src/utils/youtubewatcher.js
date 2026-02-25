@@ -61,7 +61,7 @@ async function processQueue() {
 
     const data = await uploadWithRetry(filePath, filename);
 
-    console.log(`Upload terminé : ${data.id}`);
+    console.log(`✓ Upload terminé : ${data.id}`);
     console.log(`Content licensed : ${data.licensedContent}`);
     console.log(`URL YouTube : https://www.youtube.com/watch?v=${data.id}`);
 
