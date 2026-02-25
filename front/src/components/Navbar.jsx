@@ -200,7 +200,11 @@ export default function Navbar() {
 
 <div className="flex items-center gap-2">
   <button 
-    onClick={() => i18n.changeLanguage('fr')}
+    onClick={() => {
+      i18n.changeLanguage('fr');
+      localStorage.setItem('lang', 'fr');
+    }}
+
     title="Français"
     style={{
       opacity: i18n.language === 'fr' ? 1 : 0.5,
@@ -224,7 +228,12 @@ export default function Navbar() {
   </button>
 
   <button 
-    onClick={() => i18n.changeLanguage('en')}
+    //onClick={() => i18n.changeLanguage('en')}
+    onClick={() => {
+    i18n.changeLanguage('en');
+    localStorage.setItem('lang', 'en');
+  }}
+  
     title="English"
     style={{
       opacity: i18n.language === 'en' ? 1 : 0.5,
