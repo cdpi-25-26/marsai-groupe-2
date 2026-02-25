@@ -322,7 +322,7 @@ export function Register() {
                     <input
                       id="password"
                       type="password"
-                      placeholder={t('forms.register.placeholders.password')}
+                      placeholder={t('forms.register.labels.password')}
                       {...register("password")}
                       className="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
                     />
