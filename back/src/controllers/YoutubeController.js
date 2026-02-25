@@ -40,7 +40,6 @@ function getOAuth2Client() {
   return oauth2Client;
 }
 
-
 //Upload vidéo
 async function uploadVideo(filePath, title, description, privacyStatus = "unlisted") {
   if (!fs.existsSync(filePath)) throw new Error("Fichier introuvable");
