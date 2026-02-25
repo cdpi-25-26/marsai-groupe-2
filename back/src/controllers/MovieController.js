@@ -732,8 +732,14 @@ async function updateMovieCollaborators(req, res) {
       if (thumb2) updateData.picture2 = thumb2;
       if (thumb3) updateData.picture3 = thumb3;
       if (thumb1) updateData.thumbnail = thumb1;
-      if (subtitleFile) updateData.subtitle = subtitleFile;
+              await movie.setJuries(juries);
 
+              // Se almeno un jury è assegnato e lo status non è già avanzato, aggiorna lo status a 'assigned'
+              const advancedStatuses = ["to_discuss", "candidate", "selected", "finalist", "awarded", "refused"];
+              if (juries.length > 0 && !advancedStatuses.includes(movie.selection_status)) {
+                movie.selection_status = "assigned";
+                await movie.save();
+              }
       await movie.update(updateData);
     }
 
