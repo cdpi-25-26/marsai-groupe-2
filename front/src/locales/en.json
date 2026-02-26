@@ -441,6 +441,38 @@
       "description": "The film’s ability to emotionally engage the audience."
     }
   }
+},
+
+"sponsors": {
+  "title": "SPONSORS",
+  "categories": {
+    "officiels": "OFFICIAL",
+    "medias": "Media",
+    "techniques": "Technical",
+    "divers": "Other"
+  }
+},
+
+"infos": {
+  "title": "PRACTICAL",
+  "subtitle": "INFORMATION",
+  "access": "Access",
+  "publicTransport": {
+    "title": "Public Transport",
+    "line1": "Tram T2/T3 – Arenc Le Silo stop",
+    "line2": "Metro M2 – René Cassin Sud stop",
+    "line3": "Bus 29 – Lycée Le Chatelier stop"
+  },
+  "car": {
+    "title": "By Car",
+    "line1": "A55 Highway – Exit 2.",
+    "line2": "Indigo Quai du Lazaret parking 200m away."
+  },
+  "address": {
+    "title": "Address",
+    "line1": "155 rue Peyssonnel, 13002 Marseille",
+    "line2": "Formerly Docks des Suds"
+  }
 }
   },
 

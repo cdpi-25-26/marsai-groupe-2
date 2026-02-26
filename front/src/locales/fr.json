@@ -400,9 +400,41 @@
       "description": "La capacité du film à toucher le spectateur."
     }
   }
+},
+
+"sponsors": {
+  "title": "PARTENAIRES",
+  "categories": {
+    "officiels": "OFFICIELS",
+    "medias": "Médias",
+    "techniques": "Techniques",
+    "divers": "Divers"
+  }
+},
+
+"infos": {
+  "title": "INFOS",
+  "subtitle": "PRATIQUES",
+  "access": "Accès",
+  "publicTransport": {
+    "title": "Transports en commun",
+    "line1": "Accès Tram T2/T3 Arrêt Arenc Le Silo",
+    "line2": "Métro M2 arrêt René Cassin Sud",
+    "line3": "Bus 29 Arrêt Lycée Le Chatelier"
+  },
+  "car": {
+    "title": "Voiture",
+    "line1": "Autoroute A55 - Sortie 2.",
+    "line2": "Parking Indigo Quai du Lazaret à 200m."
+  },
+  "address": {
+    "title": "Adresse",
+    "line1": "155 rue Peyssonnel, 13002 Marseille",
+    "line2": "Anciennement Docks des Suds"
+  }
 }
 
-  },
+},
 
 
 
