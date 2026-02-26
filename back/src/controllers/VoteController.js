@@ -2,6 +2,10 @@ import db from "../models/index.js";
 
 const { Vote, VoteHistory, MovieJury, User, Movie } = db;
 
+/**
+ * GET /votes — Récupère tous les votes (ADMIN)
+ * Inclut les infos utilisateur, film et l'historique de modifications.
+ */
 async function getVote(req, res) {
     try {
         const votes = await Vote.findAll({
@@ -18,12 +22,18 @@ async function getVote(req, res) {
     }
 }
 
+
+/**
+ * POST /:id_movie/:id_user — Crée un vote (ADMIN uniquement)
+ * Vérifie l'absence de doublon avant la création.
+ */
+
 function createVote(req, res) {
     if (!req.body) {
         return res.status(400).json({ error: "Données manquantes" });
     }
 
-    let { note, comments } = req.body;
+    const { note, comments } = req.body;
     const { id_movie, id_user } = req.params;
 
     Vote.findOne({ where: { id_movie, id_user } })
@@ -31,18 +41,18 @@ function createVote(req, res) {
             if (existingVote) {
                 return res.status(409).json({ message: "Vote déjà existant", existingVote });
             }
-            // return Vote.create({ note, comments, id_movie, id_user });
-            const noteFloat = parseFloat(note);
-            if (Number.isNaN(noteFloat)) {
-                return res.status(400).json({ error: "Note invalide" });
-            }
-            return Vote.create({ note: noteFloat, comments, id_movie, id_user });
+           return Vote.create({ note, comments, id_movie, id_user });
         })
         .then(newVote => {
             if (newVote) res.status(201).json({ message: "Vote créé", newVote });
         })
         .catch(err => res.status(500).json({ error: err.message }));
 }
+
+/**
+ * GET /votes/mine — Récupère les votes du jury connecté
+ * Inclut le film associé et l'historique de chaque vote.
+ */
 
 async function getMyVotes(req, res) {
     try {
@@ -87,16 +97,15 @@ async function createOrUpdateMyVote(req, res) {
     try {
         const id_user = req.user.id_user;
         const { id_movie } = req.params;
-        let { note, comments } = req.body || {};
+        const { note, comments } = req.body || {};
 
-        // Convertisci note in float
-        const noteFloat = parseFloat(note);
-        if (isNaN(noteFloat)) {
-            return res.status(400).json({ error: "Note invalide" });
-        }
+        // Validate note is a valid ENUM value
+if (!['YES', 'NO', 'TO DISCUSS'].includes(note)) {
+  return res.status(400).json({ error: "Note invalide (YES, NO ou TO DISCUSS attendu)" });
+}
 
         if (!comments || !String(comments).trim()) {
-            return res.status(400).json({ error: "Commento richiesto" });
+            return res.status(400).json({ error: "Commentaire requis" });
         }
 
         const assigned = await MovieJury.findOne({ where: { id_movie, id_user } });
@@ -109,7 +118,7 @@ async function createOrUpdateMyVote(req, res) {
         if (existingVote) {
             // Verifica se il film è stato approvato dall'admin
             const movie = await Movie.findByPk(id_movie);
-            const isApproved = movie?.selection_status === 'to_discuss';
+            const isApproved = movie?.selection_status === 'selected';
             
             // Incrementa il counter solo se il film è già approvato
             if (isApproved) {
@@ -118,7 +127,7 @@ async function createOrUpdateMyVote(req, res) {
             
             const normalizedComment = String(comments || "");
             const existingComment = String(existingVote.comments || "");
-            const hasChanges = Number(existingVote.note) !== noteFloat || existingComment !== normalizedComment;
+            const hasChanges = existingVote.note !== note || existingComment !== normalizedComment;
 
             if (hasChanges) {
                 await VoteHistory.create({
@@ -130,7 +139,7 @@ async function createOrUpdateMyVote(req, res) {
                 });
             }
 
-            existingVote.note = noteFloat;
+            existingVote.note = note;
             existingVote.comments = normalizedComment;
             await existingVote.save();
             return res.json({ 
@@ -142,7 +151,7 @@ async function createOrUpdateMyVote(req, res) {
         }
 
         const newVote = await Vote.create({ 
-            note: noteFloat, 
+            note, 
             comments, 
             id_movie, 
             id_user,
@@ -190,9 +199,8 @@ function updateVote(req, res) {
             // if (note) vote.note = note;
             // if (comments) vote.comments = comments;
             if (note !== undefined) {
-                const noteFloat = parseFloat(note);
-                if (!Number.isNaN(noteFloat)) vote.note = noteFloat;
-            }
+    if (['YES', 'NO', 'TO DISCUSS'].includes(note)) vote.note = note;
+}
             if (comments) vote.comments = comments;
 
             return vote.save();

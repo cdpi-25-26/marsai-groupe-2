@@ -1,20 +1,18 @@
-// import instance from "./config.js";
-
-// /**
-//  * Get admin dashboard statistics
-//  * Endpoint: GET /dashboard
-//  */
-// async function getAdminStats() {
-//   return await instance.get("admin/dashboard");
-// }
-
-// export { getAdminStats };
-
-
 import instance from "./config.js";
 
+/**
+ * Récupère les statistiques globales du tableau de bord admin.
+ * Endpoint: GET /admin/dashboard
+ *
+ * Retourne:
+ *  - users   : { total, newToday, jury }
+ *  - movies  : { total, evaluated }
+ *  - votes   : { total, trend[] }
+ *  - awards  : { total, assigned }
+ *  - categories: { total }
+ */
 async function getAdminStats() {
-  const res = await instance.get("/");
+  const res = await instance.get("admin/dashboard");
   return res.data;
 }
 
