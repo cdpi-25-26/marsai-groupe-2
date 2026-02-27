@@ -31,12 +31,13 @@ export default function StatsGrid({ stats }) {
   =============================== */
   return (
     <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+
       {/* Utilisateurs */}
       <StatCard
         icon="👥"
         label="Utilisateurs totaux"
         value={stats.users?.total || 0}
-        subtitle={`${stats.users?.newToday || 0} nouveaux`}
+        subtitle={`${stats.users?.newToday || 0} nouveaux aujourd'hui`}
         details={`${stats.users?.jury || 0} membres du jury`}
       />
 
@@ -64,18 +65,22 @@ export default function StatsGrid({ stats }) {
         }
       />
 
-      {/* Récompenses */}
+      {/* Participation jury — replaces the broken awards stat */}
       <StatCard
-        icon="🏆"
-        label="Récompenses"
-        value={stats.awards?.assigned || 0}
-        subtitle={`sur ${stats.awards?.total || 0}`}
+        icon="🎯"
+        label="Participation jury"
+        value={`${stats.users?.juryParticipationRate || 0}%`}
+        subtitle={`${stats.users?.juryWhoVoted || 0} / ${stats.users?.jury || 0} jurés`}
         details={
-          stats.awards?.pending > 0
-            ? `${stats.awards.pending} en attente`
-            : "Toutes attribuées"
+          stats.users?.juryParticipationRate >= 100
+            ? "Tous les jurés ont voté"
+            : stats.users?.juryParticipationRate > 0
+            ? "Votes en cours"
+            : "Aucun juré n'a encore voté"
         }
+        progress={stats.users?.juryParticipationRate || 0}
       />
+
     </div>
   );
 }

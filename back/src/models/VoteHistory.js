@@ -19,8 +19,9 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    // Fixed: was DataTypes.FLOAT — caused silent coercion of "YES"/"NO"/"TO DISCUSS" to 0
     note: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.ENUM('YES', 'NO', 'TO DISCUSS'),
       allowNull: false
     },
     comments: {

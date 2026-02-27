@@ -34,7 +34,7 @@ export default function DashboardHero() {
             Overview
           </h1>
           <p className="text-[10px] text-white/40 uppercase tracking-wider">
-            Festival MArsAI
+            Festival MarsAI
           </p>
         </div>
       </div>

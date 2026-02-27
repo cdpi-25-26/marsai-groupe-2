@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminStats } from "../../api/dashboard";
-import { getUsers } from "../../api/users";
 import { useVideosData } from "../../hooks/useVideosData";
 
 import DashboardHero from "../../components/admin/DashboardHero.jsx";
 import StatsGrid from "../../components/admin/StatsGrid.jsx";
 import VotesChart from "../../components/admin/VotesChart.jsx";
-import Users from "./Users.jsx";
+import VoteDistribution from "../../components/admin/VoteDistribution.jsx";
 import VideosList from "../../components/admin/VideosList.jsx";
 
 export default function Dashboard() {
@@ -15,15 +14,12 @@ export default function Dashboard() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Stats globales depuis le endpoint dédié /admin/dashboard
+  // Refresh automatique toutes les 30 secondes
   const { data: stats, isLoading, error } = useQuery({
     queryKey: ["adminStats"],
     queryFn: getAdminStats,
-  });
-
-  // Liste des utilisateurs pour le tableau Users
-  const { data: users } = useQuery({
-    queryKey: ["users"],
-    queryFn: getUsers,
+    refetchInterval: 30_000,
+    staleTime: 20_000,
   });
 
   // Hook centralisé pour films, catégories, jurys et leurs mutations
@@ -109,15 +105,24 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <DashboardHero />
+
       <StatsGrid stats={stats} />
-      <VotesChart votesData={stats?.votes} />
+
+      {/* Graphiques côte à côte */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="xl:col-span-2">
+          <VotesChart votesData={stats?.votes} />
+        </div>
+        <div>
+          <VoteDistribution distribution={stats?.votes?.distribution} total={stats?.votes?.total} />
+        </div>
+      </div>
 
       <section className="space-y-3 sm:space-y-4">
-        <Users users={users} />
-      </section>
-
-      <section className="space-y-3 sm:space-y-4">
-        <h2 className="text-base sm:text-lg md:text-xl font-bold">Gestion des vidéos</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-base sm:text-lg md:text-xl font-bold">Gestion des vidéos</h2>
+          <span className="text-xs text-white/40">{videos?.length || 0} films</span>
+        </div>
         <VideosList
           videos={videos}
           categories={categories}

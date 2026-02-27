@@ -7,7 +7,6 @@ export default function AuthMiddleware(roles = []) {
   return async function(req, res, next) {
 
     const authHeader = req.header("Authorization");
-
     const [prefix, token] = authHeader?.split(" ") || [null, undefined];
 
     if (prefix !== "Bearer") {
@@ -15,9 +14,7 @@ export default function AuthMiddleware(roles = []) {
     }
 
     if (!token) {
-      return res
-        .status(401)
-        .json({ error: "You must be authenticated to access this resource" });
+      return res.status(401).json({ error: "You must be authenticated to access this resource" });
     }
 
     try {
@@ -33,19 +30,16 @@ export default function AuthMiddleware(roles = []) {
 
       if (!user || (roles.length && !roles.includes(user.role))) {
         return res.status(401).json({
-          error:
-            "Permission denied, you are not authorized to access this resource",
+          error: "Permission denied, you are not authorized to access this resource",
         });
       }
 
-      req.user = {
-      id: user.id_user,
-      role: user.role
-}
+      // Fixed: was assigned twice (dead object literal then overwritten)
       req.user = user;
       return next();
+
     } catch (error) {
       return res.status(401).json({ error: error.message });
     }
-  }
+  };
 }

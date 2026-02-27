@@ -357,100 +357,123 @@ export default function Movies() {
     return candidates.filter((movie) => getCandidateSource(movie) === candidateSourceFilter);
   }, [groupedMovies, candidateSourceFilter]);
 
-  const renderMovieCard = (movie, showActions = true, rank = null) => {
+  // Fonction renderMovieCard transformée en renderMovieRow pour l'affichage en liste
+  const renderMovieRow = (movie, showActions = true, rank = null) => {
     const poster = getPoster(movie);
     const summary = voteSummaryByMovie[movie.id_movie];
     const avgScore = summary ? summary.average.toFixed(1) : "-";
     const awardCount = (movie.Awards || []).length;
     
     return (
-      <div key={movie.id_movie} className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl hover:border-purple-500/30 transition-all duration-500 overflow-hidden">
+      <div key={movie.id_movie} className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-lg hover:border-purple-500/30 transition-all duration-500 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
         
-        <div className="relative p-2">
-          <div className="flex items-center gap-2">
-            {/* Thumbnail */}
-            <button
-              type="button"
-              onClick={() => setSelectedMovie(movie)}
-              className="relative flex-shrink-0"
-            >
-              <div className="w-8 h-8 rounded-md bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 overflow-hidden">
-                {poster ? (
-                  <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              {rank !== null && (
-                <div className="absolute -top-1 -right-1">
-                  <span className="flex items-center justify-center w-4 h-4 bg-gradient-to-br from-purple-600 to-pink-600 text-white text-[7px] font-bold rounded-full shadow-lg">
-                    {rank}
-                  </span>
+        <div className="relative flex items-center p-2">
+          {/* Rank badge */}
+          {rank !== null && (
+            <div className="mr-1">
+              <span className="flex items-center justify-center w-4 h-4 bg-gradient-to-br from-purple-600 to-pink-600 text-white text-[7px] font-bold rounded-full shadow-lg">
+                {rank}
+              </span>
+            </div>
+          )}
+          
+          {/* Thumbnail */}
+          <button
+            type="button"
+            onClick={() => setSelectedMovie(movie)}
+            className="relative flex-shrink-0 mr-2"
+          >
+            <div className="w-6 h-6 rounded bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 overflow-hidden">
+              {poster ? (
+                <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg className="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
                 </div>
               )}
-            </button>
-            
-            {/* Info */}
-            <button
-              type="button"
-              onClick={() => setSelectedMovie(movie)}
-              className="flex-1 min-w-0 text-left"
-            >
-              <h3 className="text-[11px] font-medium text-white group-hover:text-purple-300 transition-colors truncate">{movie.title}</h3>
-              <div className="flex items-center gap-1 text-[8px] text-white/40 mt-0.5">
-                <span className="text-white/60">{avgScore}</span>
-                <span className="text-green-400">👍 {summary?.YES || 0}</span>
-                <span className="text-yellow-400">🗣️ {summary?.["TO DISCUSS"] || 0}</span>
-                <span className="text-red-400">👎 {summary?.NO || 0}</span>
-              </div>
-            </button>
-            
-            {/* Awards badge */}
-            {awardCount > 0 && (
-              <span className="px-1.5 py-0.5 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 text-[8px]">
-                🏆 {awardCount}
+            </div>
+          </button>
+          
+          {/* Title */}
+          <button
+            type="button"
+            onClick={() => setSelectedMovie(movie)}
+            className="flex-1 text-left min-w-0 mr-2"
+          >
+            <h3 className="text-[11px] font-medium text-white group-hover:text-purple-300 transition-colors truncate">{movie.title}</h3>
+          </button>
+          
+          {/* Categories */}
+          <div className="flex items-center gap-1 mr-2 flex-wrap max-w-[120px]">
+            {(movie.Categories || []).slice(0, 2).map((cat) => (
+              <span
+                key={cat.id_categorie}
+                className="px-1 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded-full text-[7px] text-purple-300 whitespace-nowrap"
+              >
+                {cat.name}
               </span>
-            )}
-            
-            {/* Actions */}
-            {showActions && (
-              <div className="flex gap-1">
-                {movie.selection_status === "assigned" ? (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (window.confirm("Ouvrir le second vote pour ce film ?")) {
-                        secondVoteMutation.mutate(movie.id_movie);
-                      }
-                    }}
-                    className="px-1.5 py-0.5 bg-yellow-600/20 border border-yellow-500/30 text-yellow-300 text-[8px] rounded hover:bg-yellow-600/30 transition-colors"
-                  >
-                    2e vote
-                  </button>
-                ) : movie.selection_status === "to_discuss" ? (
-                  <span className="px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[8px] rounded">
-                    2e ouvert
-                  </span>
-                ) : null}
+            ))}
+          </div>
+          
+          {/* Score and votes */}
+          <div className="flex items-center gap-1.5 mr-2 text-[8px] text-white/40 min-w-[80px]">
+            <span className="text-white/60 font-medium">{avgScore}</span>
+            <span className="flex items-center gap-0.5 text-green-400">
+              <span>👍</span> {summary?.YES || 0}
+            </span>
+            <span className="flex items-center gap-0.5 text-yellow-400">
+              <span>🗣️</span> {summary?.["TO DISCUSS"] || 0}
+            </span>
+            <span className="flex items-center gap-0.5 text-red-400">
+              <span>👎</span> {summary?.NO || 0}
+            </span>
+          </div>
+          
+          {/* Awards badge */}
+          {awardCount > 0 && (
+            <span className="px-1 py-0.5 bg-yellow-500/20 border border-yellow-500/30 rounded-full text-yellow-300 text-[7px] mr-2">
+              🏆 {awardCount}
+            </span>
+          )}
+          
+          {/* Actions */}
+          {showActions && (
+            <div className="flex items-center gap-1 ml-auto">
+              {movie.selection_status === "assigned" ? (
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    statusMutation.mutate({ id: movie.id_movie, status: "refused" });
+                    if (window.confirm("Ouvrir le second vote pour ce film ?")) {
+                      secondVoteMutation.mutate(movie.id_movie);
+                    }
                   }}
-                  className="px-1.5 py-0.5 bg-red-600/20 border border-red-500/30 text-red-300 text-[8px] rounded hover:bg-red-600/30 transition-colors"
+                  className="px-1.5 py-0.5 bg-yellow-600/20 border border-yellow-500/30 text-yellow-300 text-[7px] rounded hover:bg-yellow-600/30 transition-colors"
+                  title="Ouvrir le second vote"
                 >
-                  Refuser
+                  2e vote
                 </button>
-              </div>
-            )}
-          </div>
+              ) : movie.selection_status === "to_discuss" ? (
+                <span className="px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[7px] rounded">
+                  2e ouvert
+                </span>
+              ) : null}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  statusMutation.mutate({ id: movie.id_movie, status: "refused" });
+                }}
+                className="px-1.5 py-0.5 bg-red-600/20 border border-red-500/30 text-red-300 text-[7px] rounded hover:bg-red-600/30 transition-colors"
+                title="Refuser"
+              >
+                Refuser
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -746,17 +769,18 @@ export default function Movies() {
                         </button>
                       </div>
 
-                      <div className="space-y-2">
+                      {/* Liste des films - Affichage en lignes */}
+                      <div className="space-y-1.5">
                         {displayedFirstVoteMovies.map((movie) => (
-                          <div key={`first-${movie.id_movie}`} className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-lg p-2 hover:bg-white/5 transition-colors">
+                          <div key={`first-${movie.id_movie}`} className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg p-1.5 hover:bg-white/5 transition-colors">
                             <input
                               type="checkbox"
                               checked={selectedFirstVoteIds.includes(movie.id_movie)}
                               onChange={() => toggleSelection(setSelectedFirstVoteIds, selectedFirstVoteIds, movie.id_movie)}
-                              className="w-4 h-4 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
+                              className="w-3.5 h-3.5 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
                             />
                             <div className="flex-1">
-                              {renderMovieCard(movie, false)}
+                              {renderMovieRow(movie, false)}
                             </div>
                           </div>
                         ))}
@@ -843,17 +867,18 @@ export default function Movies() {
                         </button>
                       </div>
 
-                      <div className="space-y-2">
+                      {/* Liste des films - Affichage en lignes */}
+                      <div className="space-y-1.5">
                         {decisionMovies.map(({ movie }, index) => (
-                          <div key={`review-${movie.id_movie}`} className="flex items-center gap-3 bg-black/40 border border-white/10 rounded-lg p-2 hover:bg-white/5 transition-colors">
+                          <div key={`review-${movie.id_movie}`} className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-lg p-1.5 hover:bg-white/5 transition-colors">
                             <input
                               type="checkbox"
                               checked={selectedReviewIds.includes(movie.id_movie)}
                               onChange={() => toggleSelection(setSelectedReviewIds, selectedReviewIds, movie.id_movie)}
-                              className="w-4 h-4 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
+                              className="w-3.5 h-3.5 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
                             />
                             <div className="flex-1">
-                              {renderMovieCard(movie, true, index + 1)}
+                              {renderMovieRow(movie, true, index + 1)}
                             </div>
                           </div>
                         ))}
@@ -924,88 +949,83 @@ export default function Movies() {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                        {filteredCandidateMovies.map((movie, index) => {
-                          const poster = getPoster(movie);
-                          const summary = voteSummaryByMovie[movie.id_movie];
-                          const avgScore = summary ? summary.average.toFixed(1) : "-";
-                          const source = getCandidateSource(movie);
-                          
-                          return (
-                            <div key={`candidate-${movie.id_movie}`} className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl overflow-hidden hover:border-pink-500/30 transition-all duration-500">
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
-                              
-                              <div className="absolute top-2 left-2 z-10">
+                      {/* Liste des films candidats */}
+                      <div className="space-y-1.5">
+                        {filteredCandidateMovies.map((movie, index) => (
+                          <div key={`candidate-${movie.id_movie}`} className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-lg hover:border-pink-500/30 transition-all duration-500 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+                            
+                            <div className="relative flex items-center p-2">
+                              <div className="flex items-center gap-2 flex-1">
                                 <input
                                   type="checkbox"
                                   checked={selectedCandidateIds.includes(movie.id_movie)}
                                   onChange={() => toggleSelection(setSelectedCandidateIds, selectedCandidateIds, movie.id_movie)}
-                                  className="w-4 h-4 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
+                                  className="w-3.5 h-3.5 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
                                 />
-                              </div>
-                              
-                              <button
-                                type="button"
-                                onClick={() => setSelectedMovie(movie)}
-                                className="w-full text-left"
-                              >
-                                <div className="aspect-[4/3] bg-gradient-to-br from-gray-800 to-gray-900">
-                                  {poster ? (
-                                    <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                      </svg>
-                                    </div>
-                                  )}
-                                </div>
                                 
-                                <div className="p-2">
-                                  <div className="flex items-center gap-1 mb-1">
-                                    <span className="px-1 py-0.5 bg-gradient-to-br from-pink-600 to-pink-500 text-white text-[8px] font-bold rounded-full">
-                                      #{index + 1}
-                                    </span>
-                                    <h3 className="text-xs font-medium text-white truncate flex-1">{movie.title}</h3>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-2 text-[8px] text-white/40">
-                                    <span className="text-white/60">{avgScore}</span>
-                                    <span className="text-green-400">👍 {summary?.YES || 0}</span>
-                                    <span className="text-yellow-400">🗣️ {summary?.["TO DISCUSS"] || 0}</span>
-                                    <span className="text-red-400">👎 {summary?.NO || 0}</span>
-                                  </div>
-                                </div>
-                              </button>
-                              
-                              <div className="p-2 pt-0">
+                                <span className="px-1.5 py-0.5 bg-gradient-to-br from-pink-600 to-pink-500 text-white text-[8px] font-bold rounded-full">
+                                  #{index + 1}
+                                </span>
+                                
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    statusMutation.mutate({ id: movie.id_movie, status: "refused" });
-                                  }}
-                                  className="w-full px-2 py-1 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[9px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                                  onClick={() => setSelectedMovie(movie)}
+                                  className="relative flex-shrink-0"
                                 >
-                                  Refuser
+                                  <div className="w-6 h-6 rounded bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 overflow-hidden">
+                                    {getPoster(movie) ? (
+                                      <img src={getPoster(movie)} alt={movie.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                      </div>
+                                    )}
+                                  </div>
                                 </button>
-                              </div>
-                              
-                              <div className="absolute top-2 right-2 z-10">
-                                <span className="px-1.5 py-0.5 bg-gradient-to-br from-green-600/80 to-green-700/80 text-white text-[7px] rounded-full font-bold">
-                                  {source === "both" ? "J+A" : source === "jury" ? "Jury" : "Admin"}
-                                </span>
-                              </div>
-                              
-                              {(movie.Awards || []).length > 0 && (
-                                <div className="absolute top-2 right-2 z-10 mt-6">
-                                  <span className="px-1.5 py-0.5 bg-gradient-to-br from-yellow-500/80 to-amber-500/80 text-black text-[7px] rounded-full font-bold">
-                                    🏆 {(movie.Awards || []).length}
-                                  </span>
+                                
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedMovie(movie)}
+                                  className="text-left min-w-0 flex-1"
+                                >
+                                  <h3 className="text-[11px] font-medium text-white truncate">{movie.title}</h3>
+                                </button>
+                                
+                                <div className="flex items-center gap-2 text-[8px] text-white/40">
+                                  <span className="text-white/60">{voteSummaryByMovie[movie.id_movie]?.average.toFixed(1) || "-"}</span>
+                                  <span className="text-green-400">👍 {voteSummaryByMovie[movie.id_movie]?.YES || 0}</span>
+                                  <span className="text-yellow-400">🗣️ {voteSummaryByMovie[movie.id_movie]?.["TO DISCUSS"] || 0}</span>
+                                  <span className="text-red-400">👎 {voteSummaryByMovie[movie.id_movie]?.NO || 0}</span>
                                 </div>
-                              )}
+                                
+                                <div className="flex items-center gap-1 ml-auto">
+                                  <span className="px-1.5 py-0.5 bg-gradient-to-br from-green-600/80 to-green-700/80 text-white text-[7px] rounded-full font-bold">
+                                    {getCandidateSource(movie) === "both" ? "J+A" : getCandidateSource(movie) === "jury" ? "Jury" : "Admin"}
+                                  </span>
+                                  
+                                  {(movie.Awards || []).length > 0 && (
+                                    <span className="px-1.5 py-0.5 bg-gradient-to-br from-yellow-500/80 to-amber-500/80 text-black text-[7px] rounded-full font-bold">
+                                      🏆 {(movie.Awards || []).length}
+                                    </span>
+                                  )}
+                                  
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      statusMutation.mutate({ id: movie.id_movie, status: "refused" });
+                                    }}
+                                    className="px-1.5 py-0.5 bg-red-600/20 border border-red-500/30 text-red-300 text-[7px] rounded hover:bg-red-600/30 transition-colors"
+                                  >
+                                    Refuser
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                          );
-                        })}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )
@@ -1084,80 +1104,82 @@ export default function Movies() {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                        {groupedMovies.refused.map(({ movie }) => {
-                          const poster = getPoster(movie);
-                          const summary = voteSummaryByMovie[movie.id_movie];
-                          const avgScore = summary ? summary.average.toFixed(1) : "-";
-                          
-                          return (
-                            <div key={`refused-${movie.id_movie}`} className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl overflow-hidden hover:border-red-500/30 transition-all duration-500">
-                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
-                              
-                              <div className="absolute top-2 left-2 z-10">
+                      {/* Liste des films refusés */}
+                      <div className="space-y-1.5">
+                        {groupedMovies.refused.map(({ movie }) => (
+                          <div key={`refused-${movie.id_movie}`} className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-lg hover:border-red-500/30 transition-all duration-500 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+                            
+                            <div className="relative flex items-center p-2">
+                              <div className="flex items-center gap-2 flex-1">
                                 <input
                                   type="checkbox"
                                   checked={selectedRefusedIds.includes(movie.id_movie)}
                                   onChange={() => toggleSelection(setSelectedRefusedIds, selectedRefusedIds, movie.id_movie)}
-                                  className="w-4 h-4 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
+                                  className="w-3.5 h-3.5 rounded border-white/30 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
                                 />
-                              </div>
-                              
-                              <button
-                                type="button"
-                                onClick={() => setSelectedMovie(movie)}
-                                className="w-full text-left"
-                              >
-                                <div className="aspect-[4/3] bg-gradient-to-br from-gray-800 to-gray-900">
-                                  {poster ? (
-                                    <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                      </svg>
-                                    </div>
-                                  )}
+                                
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedMovie(movie)}
+                                  className="relative flex-shrink-0"
+                                >
+                                  <div className="w-6 h-6 rounded bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 overflow-hidden">
+                                    {getPoster(movie) ? (
+                                      <img src={getPoster(movie)} alt={movie.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                      </div>
+                                    )}
+                                  </div>
+                                </button>
+                                
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedMovie(movie)}
+                                  className="text-left min-w-0 flex-1"
+                                >
+                                  <h3 className="text-[11px] font-medium text-white truncate">{movie.title}</h3>
+                                </button>
+                                
+                                <div className="flex items-center gap-2 text-[8px] text-white/40">
+                                  <span className="text-white/60">{voteSummaryByMovie[movie.id_movie]?.average.toFixed(1) || "-"}</span>
+                                  <span className="text-green-400">👍 {voteSummaryByMovie[movie.id_movie]?.YES || 0}</span>
+                                  <span className="text-yellow-400">🗣️ {voteSummaryByMovie[movie.id_movie]?.["TO DISCUSS"] || 0}</span>
+                                  <span className="text-red-400">👎 {voteSummaryByMovie[movie.id_movie]?.NO || 0}</span>
                                 </div>
                                 
-                                <div className="p-2">
-                                  <h3 className="text-xs font-medium text-white truncate mb-1">{movie.title}</h3>
-                                  <div className="flex items-center gap-2 text-[8px] text-white/40">
-                                    <span className="text-white/60">{avgScore}</span>
-                                    <span className="text-green-400">👍 {summary?.YES || 0}</span>
-                                    <span className="text-yellow-400">🗣️ {summary?.["TO DISCUSS"] || 0}</span>
-                                    <span className="text-red-400">👎 {summary?.NO || 0}</span>
-                                  </div>
+                                <div className="flex items-center gap-1 ml-auto">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (window.confirm("Supprimer ce film définitivement ?")) {
+                                        deleteMovieMutation.mutate(movie.id_movie);
+                                      }
+                                    }}
+                                    className="px-1.5 py-0.5 bg-red-600/20 border border-red-500/30 text-red-300 text-[7px] rounded hover:bg-red-600/30 transition-colors"
+                                  >
+                                    Supprimer
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (window.confirm("Réémettre ce film au jury ?")) {
+                                        resetEvaluationMutation.mutate(movie.id_movie);
+                                      }
+                                    }}
+                                    className="px-1.5 py-0.5 bg-yellow-600/20 border border-yellow-500/30 text-yellow-300 text-[7px] rounded hover:bg-yellow-600/30 transition-colors"
+                                  >
+                                    Réémettre
+                                  </button>
                                 </div>
-                              </button>
-                              
-                              <div className="p-2 pt-0 flex gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (window.confirm("Supprimer ce film définitivement ?")) {
-                                      deleteMovieMutation.mutate(movie.id_movie);
-                                    }
-                                  }}
-                                  className="flex-1 px-2 py-1 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[9px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
-                                >
-                                  Supprimer
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (window.confirm("Réémettre ce film au jury ?")) {
-                                      resetEvaluationMutation.mutate(movie.id_movie);
-                                    }
-                                  }}
-                                  className="flex-1 px-2 py-1 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white text-[9px] rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-colors"
-                                >
-                                  Réémettre
-                                </button>
                               </div>
                             </div>
-                          );
-                        })}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )
@@ -1168,53 +1190,54 @@ export default function Movies() {
                   groupedMovies.awarded.length === 0 ? (
                     <p className="text-center text-white/40 text-sm py-12">Aucun film primé.</p>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                      {groupedMovies.awarded.map(({ movie }) => {
-                        const poster = getPoster(movie);
-                        
-                        return (
-                          <div key={`awarded-${movie.id_movie}`} className="group relative bg-gradient-to-br from-yellow-500/5 to-amber-500/5 backdrop-blur-2xl border border-yellow-500/20 rounded-xl overflow-hidden hover:border-yellow-500/40 transition-all duration-500">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
-                            
-                            <button
-                              type="button"
-                              onClick={() => setSelectedMovie(movie)}
-                              className="w-full text-left"
-                            >
-                              <div className="aspect-[4/3] bg-gradient-to-br from-gray-800 to-gray-900">
-                                {poster ? (
-                                  <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="p-2">
-                                <h3 className="text-xs font-medium text-white truncate mb-1">{movie.title}</h3>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] text-yellow-400">🏆 {(movie.Awards || []).length} prix</span>
+                    <div className="space-y-1.5">
+                      {groupedMovies.awarded.map(({ movie }) => (
+                        <div key={`awarded-${movie.id_movie}`} className="group relative bg-gradient-to-br from-yellow-500/5 to-amber-500/5 backdrop-blur-2xl border border-yellow-500/20 rounded-lg hover:border-yellow-500/40 transition-all duration-500 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+                          
+                          <div className="relative flex items-center p-2">
+                            <div className="flex items-center gap-2 flex-1">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedMovie(movie)}
+                                className="relative flex-shrink-0"
+                              >
+                                <div className="w-6 h-6 rounded bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 overflow-hidden">
+                                  {getPoster(movie) ? (
+                                    <img src={getPoster(movie)} alt={movie.title} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                    </div>
+                                  )}
                                 </div>
-                              </div>
-                            </button>
-                            
-                            <div className="p-2 pt-0">
+                              </button>
+                              
+                              <button
+                                type="button"
+                                onClick={() => setSelectedMovie(movie)}
+                                className="text-left min-w-0 flex-1"
+                              >
+                                <h3 className="text-[11px] font-medium text-white truncate">{movie.title}</h3>
+                              </button>
+                              
+                              <div className="text-[9px] text-yellow-400">🏆 {(movie.Awards || []).length} prix</div>
+                              
                               <button
                                 type="button"
                                 onClick={() => {
                                   statusMutation.mutate({ id: movie.id_movie, status: "refused" });
                                 }}
-                                className="w-full px-2 py-1 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[9px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                                className="px-1.5 py-0.5 bg-red-600/20 border border-red-500/30 text-red-300 text-[7px] rounded hover:bg-red-600/30 transition-colors ml-auto"
                               >
                                 Refuser
                               </button>
                             </div>
                           </div>
-                        );
-                      })}
+                        </div>
+                      ))}
                     </div>
                   )
                 )}
@@ -1233,24 +1256,24 @@ export default function Movies() {
         {/* MODAL - Détail du film */}
         {selectedMovie && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-[#1a1c20] to-[#0f1114] border border-white/10 rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto scrollbar-thin-dark shadow-2xl shadow-black/50">
-              <div className="p-6">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-6">
+            <div className="bg-gradient-to-br from-[#1a1c20] to-[#0f1114] border border-white/10 rounded-xl w-full max-w-5xl max-h-[85vh] overflow-y-auto scrollbar-thin-dark shadow-2xl shadow-black/50">
+              <div className="p-5">
+                {/* Header compact */}
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center">
-                      <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-2xl font-light bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                      <h2 className="text-xl font-light bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
                         {selectedMovie.title}
                       </h2>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-white/40">ID: {selectedMovie.id_movie}</span>
+                        <span className="text-[10px] text-white/40">ID: {selectedMovie.id_movie}</span>
                         <span className="w-1 h-1 bg-white/20 rounded-full" />
-                        <span className={`text-xs px-2 py-0.5 rounded-full border ${
+                        <span className={`text-[9px] px-2 py-0.5 rounded-full border ${
                           selectedMovie.selection_status === 'selected' 
                             ? 'bg-green-500/20 text-green-300 border-green-500/30' 
                             : selectedMovie.selection_status === 'refused'
@@ -1266,22 +1289,22 @@ export default function Movies() {
                   <button
                     type="button"
                     onClick={() => setSelectedMovie(null)}
-                    className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                    className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
                 {modalNotice && (
-                  <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-300 text-sm">
+                  <div className="mb-3 p-2 bg-green-500/10 border border-green-500/30 rounded-lg text-green-300 text-xs">
                     {modalNotice}
                   </div>
                 )}
 
-                {/* Actions rapides */}
-                <div className="flex flex-wrap gap-2 mb-6">
+                {/* Actions rapides compactes */}
+                <div className="flex flex-wrap gap-2 mb-4">
                   {(() => {
                     const status = selectedMovie.selection_status || "submitted";
                     const summary = voteSummaryByMovie[selectedMovie.id_movie];
@@ -1290,7 +1313,7 @@ export default function Movies() {
                     const isCandidate = status === "candidate" || status === "selected" || status === "finalist";
 
                     return (
-                      <>
+                      <div className="flex flex-wrap gap-1.5">
                         {status === "submitted" && (
                           <>
                             <button
@@ -1299,7 +1322,7 @@ export default function Movies() {
                                 statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
                                 setSelectedMovie(null);
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[10px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
                             >
                               Refuser
                             </button>
@@ -1311,9 +1334,9 @@ export default function Movies() {
                                   setSelectedMovie(null);
                                 }
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-[#5EEAD4]/80 to-[#14B8A6]/80 text-white text-xs rounded-lg hover:from-[#5EEAD4] hover:to-[#14B8A6] transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-[#5EEAD4]/80 to-[#14B8A6]/80 text-white text-[10px] rounded-lg hover:from-[#5EEAD4] hover:to-[#14B8A6] transition-colors"
                             >
-                              Lancer la première votation
+                              Lancer 1ère votation
                             </button>
                           </>
                         )}
@@ -1326,7 +1349,7 @@ export default function Movies() {
                                 statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
                                 setSelectedMovie(null);
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[10px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
                             >
                               Refuser
                             </button>
@@ -1338,9 +1361,9 @@ export default function Movies() {
                                   setSelectedMovie(null);
                                 }
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white text-xs rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white text-[10px] rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-colors"
                             >
-                              Ouvrir le second vote
+                              Ouvrir 2e vote
                             </button>
                           </>
                         )}
@@ -1353,7 +1376,7 @@ export default function Movies() {
                                 statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
                                 setSelectedMovie(null);
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[10px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
                             >
                               Refuser
                             </button>
@@ -1365,7 +1388,7 @@ export default function Movies() {
                                   setModalNotice("Film proposé à la candidature.");
                                   setSelectedMovie(null);
                                 }}
-                                className="px-4 py-2 bg-gradient-to-r from-green-600/80 to-green-700/80 text-white text-xs rounded-lg hover:from-green-600 hover:to-green-700 transition-colors"
+                                className="px-3 py-1.5 bg-gradient-to-r from-green-600/80 to-green-700/80 text-white text-[10px] rounded-lg hover:from-green-600 hover:to-green-700 transition-colors"
                               >
                                 Proposer à la candidature
                               </button>
@@ -1380,7 +1403,7 @@ export default function Movies() {
                               statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
                               setSelectedMovie(null);
                             }}
-                            className="px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                            className="px-3 py-1.5 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[10px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
                           >
                             Refuser
                           </button>
@@ -1393,7 +1416,7 @@ export default function Movies() {
                               statusMutation.mutate({ id: selectedMovie.id_movie, status: "refused" });
                               setSelectedMovie(null);
                             }}
-                            className="px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                            className="px-3 py-1.5 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[10px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
                           >
                             Refuser
                           </button>
@@ -1409,7 +1432,7 @@ export default function Movies() {
                                   setSelectedMovie(null);
                                 }
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white text-xs rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-yellow-600/80 to-yellow-700/80 text-white text-[10px] rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-colors"
                             >
                               Réémettre au jury
                             </button>
@@ -1421,96 +1444,96 @@ export default function Movies() {
                                   setSelectedMovie(null);
                                 }
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
+                              className="px-3 py-1.5 bg-gradient-to-r from-red-600/80 to-red-700/80 text-white text-[10px] rounded-lg hover:from-red-600 hover:to-red-700 transition-colors"
                             >
-                              Supprimer définitivement
+                              Supprimer
                             </button>
                           </>
                         )}
-                      </>
+                      </div>
                     );
                   })()}
                 </div>
 
-                {/* Grille d'informations */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Colonne 1 - Producteur */}
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Producteur</h3>
-                    <div className="space-y-2">
+                {/* Grille d'informations compacte - 4 colonnes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                  {/* Producteur */}
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Producteur</h3>
+                    <div className="space-y-1.5 text-xs">
                       <div>
-                        <p className="text-xs text-white/40">Nom</p>
-                        <p className="text-sm text-white">
+                        <span className="text-white/40 text-[9px] block">Nom</span>
+                        <span className="text-white text-[11px]">
                           {(selectedMovie.User || selectedMovie.Producer) ? 
                             `${(selectedMovie.User || selectedMovie.Producer).first_name} ${(selectedMovie.User || selectedMovie.Producer).last_name}` 
                             : "-"}
-                        </p>
+                        </span>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40">Email</p>
-                        <p className="text-sm text-white break-all">
+                        <span className="text-white/40 text-[9px] block">Email</span>
+                        <span className="text-white text-[11px] break-all">
                           {(selectedMovie.User || selectedMovie.Producer)?.email || "-"}
-                        </p>
+                        </span>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40">Connu via</p>
-                        <p className="text-sm text-white">
+                        <span className="text-white/40 text-[9px] block">Connu via</span>
+                        <span className="text-white text-[11px]">
                           {(selectedMovie.User || selectedMovie.Producer)?.known_by_mars_ai || "-"}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Colonne 2 - IA & Méthodologie */}
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">IA & Méthodologie</h3>
-                    <div className="space-y-2">
+                  {/* IA & Méthodologie */}
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">IA & Méthodologie</h3>
+                    <div className="space-y-1.5 text-xs">
                       <div>
-                        <p className="text-xs text-white/40">Classification</p>
-                        <p className="text-sm text-white">{selectedMovie.production || "-"}</p>
+                        <span className="text-white/40 text-[9px] block">Classification</span>
+                        <span className="text-white text-[11px]">{selectedMovie.production || "-"}</span>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40">Méthodologie</p>
-                        <p className="text-sm text-white">{selectedMovie.workshop || "-"}</p>
+                        <span className="text-white/40 text-[9px] block">Méthodologie</span>
+                        <span className="text-white text-[11px]">{selectedMovie.workshop || "-"}</span>
                       </div>
                       <div>
-                        <p className="text-xs text-white/40">Outils IA</p>
-                        <p className="text-sm text-white">{selectedMovie.ai_tool || "-"}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Colonne 3 - Informations film */}
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Informations</h3>
-                    <div className="space-y-2">
-                      <div>
-                        <p className="text-xs text-white/40">Durée</p>
-                        <p className="text-sm text-white">{selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-white/40">Langue</p>
-                        <p className="text-sm text-white">{selectedMovie.main_language || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-white/40">Nationalité</p>
-                        <p className="text-sm text-white">{selectedMovie.nationality || "-"}</p>
+                        <span className="text-white/40 text-[9px] block">Outils IA</span>
+                        <span className="text-white text-[11px]">{selectedMovie.ai_tool || "-"}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Colonne 4 - Liens */}
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Liens</h3>
-                    <div className="space-y-2">
+                  {/* Informations film */}
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Informations</h3>
+                    <div className="space-y-1.5 text-xs">
+                      <div>
+                        <span className="text-white/40 text-[9px] block">Durée</span>
+                        <span className="text-white text-[11px]">{selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-white/40 text-[9px] block">Langue</span>
+                        <span className="text-white text-[11px]">{selectedMovie.main_language || "-"}</span>
+                      </div>
+                      <div>
+                        <span className="text-white/40 text-[9px] block">Nationalité</span>
+                        <span className="text-white text-[11px]">{selectedMovie.nationality || "-"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Liens */}
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Liens</h3>
+                    <div className="space-y-1.5">
                       {getTrailer(selectedMovie) && (
                         <a
                           href={`${uploadBase}/${getTrailer(selectedMovie)}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                          className="flex items-center gap-1.5 text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                           </svg>
                           Bande-annonce
@@ -1521,51 +1544,39 @@ export default function Movies() {
                           href={selectedMovie.youtube_link}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors"
+                          className="flex items-center gap-1.5 text-[11px] text-red-400 hover:text-red-300 transition-colors"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
                           YouTube
-                        </a>
-                      )}
-                      {typeof selectedMovie.subtitle === "string" && selectedMovie.subtitle.toLowerCase().endsWith(".srt") && (
-                        <a
-                          href={`${uploadBase}/${selectedMovie.subtitle}`}
-                          download
-                          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Sous-titres
                         </a>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Synopsis */}
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-2">Synopsis (FR)</h3>
-                    <p className="text-sm text-white/80 leading-relaxed">
+                {/* Synopsis - 2 colonnes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Synopsis (FR)</h3>
+                    <p className="text-xs text-white/70 leading-relaxed line-clamp-3">
                       {selectedMovie.synopsis || selectedMovie.description || "Aucune description disponible."}
                     </p>
                   </div>
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-2">Synopsis (EN)</h3>
-                    <p className="text-sm text-white/80 leading-relaxed">
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Synopsis (EN)</h3>
+                    <p className="text-xs text-white/70 leading-relaxed line-clamp-3">
                       {selectedMovie.synopsis_anglais || "Aucune description disponible."}
                     </p>
                   </div>
                 </div>
 
-                {/* Vidéo et images */}
+                {/* Vidéo compacte */}
                 {(getTrailer(selectedMovie) || selectedMovie.youtube_link) && (
-                  <div className="mt-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Aperçu</h3>
-                    <div className="aspect-video bg-black/60 border border-white/10 rounded-lg overflow-hidden">
+                  <div className="mb-4">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Aperçu</h3>
+                    <div className="aspect-video max-h-40 bg-black/60 border border-white/10 rounded-lg overflow-hidden">
                       {getTrailer(selectedMovie) ? (
                         <VideoPreview
                           title={selectedMovie.title}
@@ -1578,7 +1589,7 @@ export default function Movies() {
                             href={selectedMovie.youtube_link} 
                             target="_blank" 
                             rel="noreferrer"
-                            className="text-purple-400 hover:text-purple-300"
+                            className="text-xs text-purple-400 hover:text-purple-300"
                           >
                             Ouvrir sur YouTube
                           </a>
@@ -1588,17 +1599,17 @@ export default function Movies() {
                   </div>
                 )}
 
-                {/* Images supplémentaires */}
+                {/* Images */}
                 {[selectedMovie.picture1, selectedMovie.picture2, selectedMovie.picture3].filter(Boolean).length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Images</h3>
-                    <div className="grid grid-cols-3 gap-3">
+                  <div className="mb-4">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Images</h3>
+                    <div className="grid grid-cols-3 gap-2">
                       {[selectedMovie.picture1, selectedMovie.picture2, selectedMovie.picture3].filter(Boolean).map((pic, idx) => (
-                        <div key={`${selectedMovie.id_movie}-pic-${idx}`} className="aspect-video bg-black/60 border border-white/10 rounded-lg overflow-hidden">
+                        <div key={`${selectedMovie.id_movie}-pic-${idx}`} className="aspect-video bg-black/60 border border-white/10 rounded-lg overflow-hidden h-16">
                           <img 
                             src={`${uploadBase}/${pic}`} 
                             alt={`Vignette ${idx + 1}`} 
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" 
+                            className="w-full h-full object-cover" 
                           />
                         </div>
                       ))}
@@ -1607,14 +1618,14 @@ export default function Movies() {
                 )}
 
                 {/* Catégories et commentaire admin */}
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                   {/* Catégories */}
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Catégories</h3>
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Catégories</h3>
                     {categories.length === 0 ? (
-                      <p className="text-sm text-white/40">Aucune catégorie disponible.</p>
+                      <p className="text-xs text-white/40">Aucune catégorie.</p>
                     ) : (
-                      <>
+                      <div className="flex gap-2">
                         <select
                           value={(categorySelection[selectedMovie.id_movie] || [""])[0] || ""}
                           onChange={(event) => {
@@ -1624,9 +1635,9 @@ export default function Movies() {
                               [selectedMovie.id_movie]: value ? [Number(value)] : []
                             }));
                           }}
-                          className="w-full bg-black/60 border border-white/10 text-white px-3 py-2 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                          className="flex-1 bg-black/60 border border-white/10 text-white px-2 py-1 text-xs rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/30"
                         >
-                          <option value="" className="bg-[#1a1c20]">Sélectionner une catégorie</option>
+                          <option value="" className="bg-[#1a1c20]">Sélectionner</option>
                           {categories.map((category) => (
                             <option key={`${selectedMovie.id_movie}-cat-${category.id_categorie}`} value={category.id_categorie} className="bg-[#1a1c20]">
                               {category.name}
@@ -1639,97 +1650,95 @@ export default function Movies() {
                             id: selectedMovie.id_movie,
                             categories: categorySelection[selectedMovie.id_movie] || []
                           })}
-                          className="mt-2 w-full px-3 py-2 bg-white/5 border border-white/10 text-white/80 text-sm rounded-lg hover:bg-white/10 transition-colors"
+                          className="px-3 py-1 bg-white/5 border border-white/10 text-white/80 text-xs rounded-lg hover:bg-white/10"
                         >
-                          Enregistrer la catégorie
+                          OK
                         </button>
-                      </>
+                      </div>
                     )}
                   </div>
 
                   {/* Commentaire admin */}
-                  <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Commentaire admin</h3>
-                    <textarea
-                      value={adminComment}
-                      onChange={(event) => setAdminComment(event.target.value)}
-                      rows={4}
-                      placeholder="Ajouter un commentaire interne..."
-                      className="w-full bg-black/60 border border-white/10 text-white px-3 py-2 text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/30 placeholder:text-white/30 resize-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => updateMovieMutation.mutate({
-                        id: selectedMovie.id_movie,
-                        payload: { admin_comment: adminComment }
-                      })}
-                      className="mt-2 w-full px-3 py-2 bg-white/5 border border-white/10 text-white/80 text-sm rounded-lg hover:bg-white/10 transition-colors"
-                    >
-                      Enregistrer le commentaire
-                    </button>
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Commentaire</h3>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={adminComment}
+                        onChange={(event) => setAdminComment(event.target.value)}
+                        placeholder="Ajouter un commentaire..."
+                        className="flex-1 bg-black/60 border border-white/10 text-white px-2 py-1 text-xs rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/30 placeholder:text-white/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateMovieMutation.mutate({
+                          id: selectedMovie.id_movie,
+                          payload: { admin_comment: adminComment }
+                        })}
+                        className="px-3 py-1 bg-white/5 border border-white/10 text-white/80 text-xs rounded-lg hover:bg-white/10"
+                      >
+                        OK
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 {/* Votes */}
                 {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="text-sm font-medium text-white/60 uppercase tracking-wider mb-3">Votes des jurys</h3>
-                    <div className="bg-black/40 border border-white/10 rounded-lg p-4">
-                      {/* Résumé des votes */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <p className="text-xs text-white/40">Moyenne</p>
-                          <p className="text-2xl font-bold text-white">
-                            {voteSummaryByMovie[selectedMovie.id_movie].average.toFixed(2)}
-                          </p>
-                          <p className="text-xs text-white/40">
-                            {voteSummaryByMovie[selectedMovie.id_movie].count} vote(s)
-                          </p>
+                  <div className="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <h3 className="text-[10px] font-medium text-white/40 uppercase tracking-wider mb-2">Votes des jurys</h3>
+                    
+                    {/* Résumé compact */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="text-[9px] text-white/40">Moyenne</span>
+                        <p className="text-lg font-bold text-white">
+                          {voteSummaryByMovie[selectedMovie.id_movie].average.toFixed(2)}
+                        </p>
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-green-400">{voteSummaryByMovie[selectedMovie.id_movie].YES}</p>
+                          <p className="text-[9px] text-white/40">👍</p>
                         </div>
-                        <div className="flex gap-4">
-                          <div className="text-center">
-                            <p className="text-lg font-bold text-green-400">{voteSummaryByMovie[selectedMovie.id_movie].YES}</p>
-                            <p className="text-xs text-white/40">👍</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-lg font-bold text-yellow-400">{voteSummaryByMovie[selectedMovie.id_movie]["TO DISCUSS"]}</p>
-                            <p className="text-xs text-white/40">🗣️</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-lg font-bold text-red-400">{voteSummaryByMovie[selectedMovie.id_movie].NO}</p>
-                            <p className="text-xs text-white/40">👎</p>
-                          </div>
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-yellow-400">{voteSummaryByMovie[selectedMovie.id_movie]["TO DISCUSS"]}</p>
+                          <p className="text-[9px] text-white/40">🗣️</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-bold text-red-400">{voteSummaryByMovie[selectedMovie.id_movie].NO}</p>
+                          <p className="text-[9px] text-white/40">👎</p>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Détail des votes */}
-                      <div className="space-y-2 max-h-60 overflow-y-auto scrollbar-thin-dark">
-                        {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => {
-                          const isModified = vote.modification_count > 0;
-                          return (
-                            <div key={`vote-${vote.id_vote}`} className="bg-black/60 border border-white/10 rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-white">
-                                    {vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}
-                                  </span>
-                                  {isModified && (
-                                    <span className="px-2 py-0.5 bg-orange-500/20 text-orange-300 text-[10px] rounded-full border border-orange-500/30">
-                                      Vote modifié
-                                    </span>
-                                  )}
-                                </div>
-                                <span className="text-sm font-medium text-white">
-                                  {voteLabels[getVoteCategory(vote.note)] || vote.note}
+                    {/* Détail compact */}
+                    <div className="space-y-1 max-h-32 overflow-y-auto scrollbar-thin-dark text-xs">
+                      {(voteSummaryByMovie[selectedMovie.id_movie]?.votes || []).map((vote) => {
+                        const isModified = vote.modification_count > 0;
+                        return (
+                          <div key={`vote-${vote.id_vote}`} className="bg-black/60 border border-white/10 rounded p-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-medium text-white">
+                                  {vote.User ? `${vote.User.first_name} ${vote.User.last_name}` : `Jury #${vote.id_user}`}
                                 </span>
+                                {isModified && (
+                                  <span className="px-1 py-0.5 bg-orange-500/20 text-orange-300 text-[8px] rounded-full border border-orange-500/30">
+                                    2e vote
+                                  </span>
+                                )}
                               </div>
-                              {vote.commentaire && (
-                                <p className="text-xs text-white/40">{vote.commentaire}</p>
-                              )}
+                              <span className="text-[10px] font-medium text-white">
+                                {voteLabels[getVoteCategory(vote.note)] || vote.note}
+                              </span>
                             </div>
-                          );
-                        })}
-                      </div>
+                            {vote.commentaire && (
+                              <p className="text-[9px] text-white/40 mt-1 line-clamp-1">{vote.commentaire}</p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
