@@ -17,13 +17,13 @@ import {
 import { getVotes, deleteVotesByMovie } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import TutorialBox from "../../components/TutorialBox.jsx";
-import { useEffect as useEffectReact, useState as useStateReact } from "react";
 import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
+import { UPLOAD_BASE } from "../../utils/constants.js";
 
 export default function Movies() {
-    const [tutorial, setTutorial] = useStateReact({ title: "Tutoriel", steps: [] });
+    const [tutorial, setTutorial] = useState({ title: "Tutoriel", steps: [] });
 
-    useEffectReact(() => {
+    useEffect(() => {
       async function fetchTutorial() {
         try {
           const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialFilms.fr.md");
@@ -162,7 +162,7 @@ export default function Movies() {
     }
   });
 
-  const uploadBase = "http://localhost:3000/uploads";
+  const uploadBase = UPLOAD_BASE;
   const getPoster = (movie) => (
     movie.thumbnail
       ? `${uploadBase}/${movie.thumbnail}`

@@ -416,7 +416,7 @@ export default function AdminLayout() {
           />
         </svg>
       ),
-      label: "Overview",
+      label: "Vue d'ensemble",
       exact: true,
     },
     {
@@ -431,7 +431,7 @@ export default function AdminLayout() {
           />
         </svg>
       ),
-      label: "Gestion films",
+      label: "Gestion des films",
     },
     {
       path: "/admin/categories",
@@ -459,7 +459,7 @@ export default function AdminLayout() {
           />
         </svg>
       ),
-      label: "Films premiés",
+      label: "Prix & récompenses",
     },
     {
       path: "/admin/users",
@@ -473,7 +473,7 @@ export default function AdminLayout() {
           />
         </svg>
       ),
-      label: "Gestion utilisateurs",
+      label: "Utilisateurs",
     },
     {
       path: "/admin/jury",
@@ -600,25 +600,58 @@ export default function AdminLayout() {
           {renderNavLinks(undefined)}
         </nav>
 
-        {/* logout */}
-        <div className="p-4 border-t border-white/10">
-          {isSidebarOpen ? (
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 text-gray-300 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30 transition-all duration-200"
-            >
-              <span>Se déconnecter</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center p-3 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 text-gray-400 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all duration-200"
-              title="Se déconnecter"
-            >
-              ⏻
-            </button>
-          )}
+       {/* logout - FANCY VERSION */}
+<div className="p-4 border-t border-white/10">
+  {isSidebarOpen ? (
+    <div className="group relative bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-xl p-4 shadow-xl shadow-black/30 hover:border-blue-500/30 transition-all duration-300 overflow-hidden">
+      {/* Mars AI info */}
+      <div className="relative flex items-center gap-3 mb-3 pb-3 border-b border-white/10">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+          <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
         </div>
+        <div>
+          <h3 className="text-sm font-semibold text-white">Mars AI</h3>
+          <p className="text-[10px] text-white/40 flex items-center gap-1">
+            <span className="w-1 h-1 bg-green-400 rounded-full animate-pulse" />
+            Dashboard Admin
+          </p>
+        </div>
+      </div>
+      
+      {/* FANCY LOGOUT BUTTON */}
+      <button
+        onClick={handleLogout}
+        className="group/btn relative w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg 
+                   bg-white/5 backdrop-blur-sm border border-white/10 text-gray-300 
+                   hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30
+                   transition-all duration-200 overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
+        <svg className="w-4 h-4 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span className="relative text-sm">Se déconnecter</span>
+      </button>
+    </div>
+  ) : (
+    <button
+      onClick={handleLogout}
+      className="group relative w-full flex items-center justify-center p-3 rounded-lg 
+                 bg-white/5 backdrop-blur-sm border border-white/10 text-gray-400 
+                 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30
+                 transition-all duration-200 overflow-hidden"
+      title="Se déconnecter"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+      <svg className="w-5 h-5 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+    </button>
+  )}
+</div>
+
       </aside>
 
       {/* ========== MOBILE OVERLAY + SIDEBAR (below lg) ========== */}
@@ -687,14 +720,27 @@ export default function AdminLayout() {
         {/* Desktop header */}
         <header className="hidden lg:flex bg-gradient-to-r from-[#111318]/80 to-[#0f1116]/80 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 py-3 items-center justify-between shadow-xl shadow-black/20">
           <div className="flex items-center space-x-4">
-            <button
+            {/* <button
               onClick={() => setIsSidebarOpen((prev) => !prev)}
               className="p-2 rounded-lg transition-all duration-500"
             >
               <span className="inline-block text-2xl">
                 {isSidebarOpen ? "☰" : "✕"}
               </span>
-            </button>
+            </button> */}
+
+              <button
+  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+  className="p-2 rounded-lg transition-all duration-500"
+>
+  <span
+    className={`inline-block transition-all duration-500 ${
+      isSidebarOpen ? "rotate-0" : "rotate-180"
+    } text-2xl hover:scale-120`}
+  >
+    {isSidebarOpen ? "✕" : "☰"}
+  </span>
+</button>
             <div className="flex items-center">
               <span className="text-2xl font-light bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">
                 MARS
