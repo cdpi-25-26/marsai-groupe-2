@@ -185,44 +185,45 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Films récents */}
+      {/* Liste simple des films (Gestion des films) */}
       {videos.length > 0 && (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Films récents</h2>
-          <div className="space-y-3">
-            {videos.slice(0, 5).map((video) => (
-              <div
-                key={video.id_movie}
-                className="flex items-center justify-between p-3 bg-gray-950 border border-gray-800 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-800 rounded flex items-center justify-center text-xs text-gray-500">
-                    🎬
-                  </div>
-                  <div>
-                    <h4 className="text-white font-medium">{video.title}</h4>
-                    <p className="text-xs text-gray-400">
-                      {video.duration}s • {video.main_language || "-"}
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className={`text-xs px-3 py-1 rounded-full ${
-                    video.selection_status === "selected"
-                      ? "bg-green-900/40 text-green-300"
-                      : video.selection_status === "refused"
-                      ? "bg-red-900/40 text-red-300"
-                      : "bg-yellow-900/40 text-yellow-300"
-                  }`}
-                >
-                  {video.selection_status === "selected"
-                    ? "Approuvé"
-                    : video.selection_status === "refused"
-                    ? "Refusé"
-                    : "En attente"}
-                </span>
-              </div>
-            ))}
+          <h2 className="text-xl font-semibold text-white mb-4">Gestion des films</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-800">
+              <thead>
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Titre</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Statut</th>
+                  <th className="px-3 py-2"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800">
+                {videos.map((video) => (
+                  <tr key={video.id_movie} className="hover:bg-gray-800/60">
+                    <td className="px-3 py-2 text-white text-sm">{video.title}</td>
+                    <td className="px-3 py-2">
+                      <span className={`text-xs px-3 py-1 rounded-full ${
+                        video.selection_status === "selected"
+                          ? "bg-green-900/40 text-green-300"
+                          : video.selection_status === "refused"
+                          ? "bg-red-900/40 text-red-300"
+                          : "bg-yellow-900/40 text-yellow-300"
+                      }`}>
+                        {video.selection_status === "selected"
+                          ? "Approuvé"
+                          : video.selection_status === "refused"
+                          ? "Refusé"
+                          : "En attente"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <a href="/admin/videos" className="text-xs text-[#AD46FF] hover:underline">Gérer</a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
