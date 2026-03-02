@@ -891,7 +891,7 @@ export default function ProducerHome() {
                     disabled={createMovieMutation.isPending || !acceptTerms}
                     className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
                   >
-                    {createMovieMutation.isPending ? t('producerHome.submitting') : t('producerHome.submit')}
+                    {createMovieMutation.isPending ? t('producer.filmSubmission.buttons.submitting') : t('producer.filmSubmission.buttons.submit')}
                   </button>
                 </>
               )}
