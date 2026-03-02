@@ -43,6 +43,10 @@ function Leaderboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, filter]);
+
   // Group movies by status
   const grouped = useMemo(() => ({
     to_vote: movies.filter(m => m.selection_status === "assigned"),
@@ -134,6 +138,12 @@ function Leaderboard() {
     return Math.max(1, Math.ceil(filteredMovies.length / itemsPerPage));
   }, [filteredMovies.length, itemsPerPage]);
 
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   const selectedMovieVotes = useMemo(() => {
     if (!movieToView) return [];
     return votesByMovie[movieToView.id_movie] || [];
@@ -158,14 +168,65 @@ function Leaderboard() {
   }, [movies]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Système de Votation & Classement</h1>
-      <div className="flex gap-2 mb-4">
-        <button onClick={() => setActiveTab("to_vote")} className={activeTab === "to_vote" ? "font-bold" : ""}>À Voter</button>
-        <button onClick={() => setActiveTab("voted")} className={activeTab === "voted" ? "font-bold" : ""}>Votés</button>
-        <button onClick={() => setActiveTab("refused")} className={activeTab === "refused" ? "font-bold" : ""}>Refusés</button>
-        <button onClick={() => setActiveTab("candidate")} className={activeTab === "candidate" ? "font-bold" : ""}>Candidats</button>
-        <button onClick={() => setActiveTab("awarded")} className={activeTab === "awarded" ? "font-bold" : ""}>Primés</button>
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
+          Système de Votation & Classement
+        </h1>
+        <p className="text-gray-400 mt-2">Suivi des films à voter, votés, refusés, candidats et primés.</p>
+      </div>
+
+      <div className="flex gap-2 border-b border-gray-800">
+        <button
+          onClick={() => setActiveTab("to_vote")}
+          className={`px-4 py-2 font-semibold transition-colors ${
+            activeTab === "to_vote"
+              ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          À Voter
+        </button>
+        <button
+          onClick={() => setActiveTab("voted")}
+          className={`px-4 py-2 font-semibold transition-colors ${
+            activeTab === "voted"
+              ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Votés
+        </button>
+        <button
+          onClick={() => setActiveTab("refused")}
+          className={`px-4 py-2 font-semibold transition-colors ${
+            activeTab === "refused"
+              ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Refusés
+        </button>
+        <button
+          onClick={() => setActiveTab("candidate")}
+          className={`px-4 py-2 font-semibold transition-colors ${
+            activeTab === "candidate"
+              ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Candidats
+        </button>
+        <button
+          onClick={() => setActiveTab("awarded")}
+          className={`px-4 py-2 font-semibold transition-colors ${
+            activeTab === "awarded"
+              ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Primés
+        </button>
       </div>
       <div className="mb-4 flex gap-2 items-center">
         <input type="text" placeholder="Filtrer par titre..." value={filter} onChange={e => setFilter(e.target.value)} className="border px-2 py-1 rounded bg-gray-900 border-gray-700 text-white" />
@@ -178,8 +239,13 @@ function Leaderboard() {
         )}
       </div>
       {message && <div className="mb-2 text-green-600">{message}</div>}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {paginatedMovies.map(movie => (
+      {filteredMovies.length === 0 ? (
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center text-gray-400">
+          Aucun film dans cet onglet.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {paginatedMovies.map(movie => (
           <div key={movie.id_movie} className={`border border-gray-800 bg-gray-900/50 rounded p-3 relative ${selectedMovies.includes(movie.id_movie) ? 'ring-2 ring-blue-500' : ''}`}>
             <input type="checkbox" checked={selectedMovies.includes(movie.id_movie)} onChange={() => handleSelect(movie)} className="absolute top-2 left-2" />
             <div className="flex gap-3">
@@ -207,8 +273,9 @@ function Leaderboard() {
               </div>
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <div className="mt-4 flex items-center justify-end gap-2">
         <button
           type="button"
