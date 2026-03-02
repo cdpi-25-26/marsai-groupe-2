@@ -11,8 +11,8 @@ import {
   updateMovie,
   deleteMovie
 } from "../../api/videos";
-    import GlassTableBody from "../../components/admin/GlassTableBody.jsx";
-    import Pagination from "../../components/admin/Pagination.jsx";
+import { getVotes } from "../../api/votes";
+import { VideoPreview } from "../../components/VideoPreview";
 
 function Leaderboard() {
   const queryClient = useQueryClient();
@@ -23,13 +23,21 @@ function Leaderboard() {
   const [message, setMessage] = useState("");
   const [showVotesModal, setShowVotesModal] = useState(false);
   const [movieToView, setMovieToView] = useState(null);
+  const [commentByMovie, setCommentByMovie] = useState({});
+  const uploadBase = "http://localhost:3000/uploads";
 
   // Fetch all movies
-  const { data, refetch } = useQuery({
+  const { data } = useQuery({
     queryKey: ["movies"],
     queryFn: getVideos,
   });
+  const { data: votesData } = useQuery({
+    queryKey: ["votes"],
+    queryFn: getVotes,
+  });
+
   const movies = data?.data || [];
+  const votes = votesData?.data || [];
 
   // Pagination state (moved outside mutation)
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,10 +46,19 @@ function Leaderboard() {
   // Group movies by status
   const grouped = useMemo(() => ({
     to_vote: movies.filter(m => m.selection_status === "assigned"),
-    voted: movies.filter(m => m.selection_status === "voted"),
+    voted: movies.filter(m => ["to_discuss", "selected", "finalist"].includes(m.selection_status)),
     refused: movies.filter(m => m.selection_status === "refused"),
+    candidate: movies.filter(m => m.selection_status === "candidate"),
     awarded: movies.filter(m => m.selection_status === "awarded"),
   }), [movies]);
+
+  const votesByMovie = useMemo(() => {
+    return votes.reduce((acc, vote) => {
+      if (!acc[vote.id_movie]) acc[vote.id_movie] = [];
+      acc[vote.id_movie].push(vote);
+      return acc;
+    }, {});
+  }, [votes]);
 
   // Filtraggio
   const filteredMovies = useMemo(() => {
@@ -53,17 +70,30 @@ function Leaderboard() {
   // Mutations
   const statusMutation = useMutation({
     mutationFn: async ({ id, status }) => updateMovieStatus(id, status),
-    onSuccess: () => { setMessage("Statut mis à jour"); refetch(); setSelectedMovies([]); },
+    onSuccess: () => {
+      setMessage("Statut mis à jour");
+      queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+      setSelectedMovies([]);
+    },
     onError: () => setMessage("Erreur lors du changement de statut"),
   });
   const commentMutation = useMutation({
     mutationFn: async ({ id, comment }) => updateMovie(id, { admin_comment: comment }),
-    onSuccess: () => { setMessage("Commentaire enregistré"); refetch(); },
+    onSuccess: () => {
+      setMessage("Commentaire enregistré");
+      queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+    },
     onError: () => setMessage("Erreur lors de l'enregistrement du commentaire"),
   });
   const deleteMutation = useMutation({
     mutationFn: async (id) => deleteMovie(id),
-    onSuccess: () => { setMessage("Film supprimé"); refetch(); },
+    onSuccess: () => {
+      setMessage("Film supprimé");
+      queryClient.invalidateQueries({ queryKey: ["movies"] });
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+    },
     onError: () => setMessage("Erreur lors de la suppression"),
   });
 
@@ -76,18 +106,16 @@ function Leaderboard() {
   function handleBulkStatus(status) {
     selectedMovies.forEach(id => statusMutation.mutate({ id, status }));
   }
-  function handleComment(movie) {
-      // Pagination
-      const paginatedMovies = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage;
-        return filteredMovies.slice(start, start + itemsPerPage);
-      }, [filteredMovies, currentPage, itemsPerPage]);
 
-      const totalPages = useMemo(() => {
-        return Math.max(1, Math.ceil(filteredMovies.length / itemsPerPage));
-      }, [filteredMovies.length, itemsPerPage]);
-    commentMutation.mutate({ id: movie.id_movie, comment });
-    setComment("");
+  function handleSetStatus(movie, status) {
+    statusMutation.mutate({ id: movie.id_movie, status });
+  }
+
+  function handleComment(movie) {
+    const value = (commentByMovie[movie.id_movie] || "").trim();
+    if (!value) return;
+    commentMutation.mutate({ id: movie.id_movie, comment: value });
+    setCommentByMovie((prev) => ({ ...prev, [movie.id_movie]: "" }));
   }
   function handleDelete(movie) {
     if (window.confirm("Supprimer ce film ?")) deleteMutation.mutate(movie.id_movie);
@@ -95,6 +123,30 @@ function Leaderboard() {
   function handleViewVotes(movie) {
     setMovieToView(movie);
     setShowVotesModal(true);
+  }
+
+  const paginatedMovies = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredMovies.slice(start, start + itemsPerPage);
+  }, [filteredMovies, currentPage, itemsPerPage]);
+
+  const totalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(filteredMovies.length / itemsPerPage));
+  }, [filteredMovies.length, itemsPerPage]);
+
+  const selectedMovieVotes = useMemo(() => {
+    if (!movieToView) return [];
+    return votesByMovie[movieToView.id_movie] || [];
+  }, [movieToView, votesByMovie]);
+
+  function getPoster(movie) {
+    if (!movie) return null;
+    return movie.thumbnail || movie.display_picture || movie.picture1 || movie.picture2 || movie.picture3 || null;
+  }
+
+  function getTrailer(movie) {
+    if (!movie) return null;
+    return movie.trailer || movie.trailer_video || movie.trailerVideo || movie.filmFile || movie.video || null;
   }
 
   // Classement (top 10 par score moyen)
@@ -116,7 +168,7 @@ function Leaderboard() {
         <button onClick={() => setActiveTab("awarded")} className={activeTab === "awarded" ? "font-bold" : ""}>Primés</button>
       </div>
       <div className="mb-4 flex gap-2 items-center">
-        <input type="text" placeholder="Filtrer par titre..." value={filter} onChange={e => setFilter(e.target.value)} className="border px-2 py-1 rounded" />
+        <input type="text" placeholder="Filtrer par titre..." value={filter} onChange={e => setFilter(e.target.value)} className="border px-2 py-1 rounded bg-gray-900 border-gray-700 text-white" />
         {selectedMovies.length > 0 && (
           <>
             <button onClick={() => handleBulkStatus("refused")} className="bg-red-500 text-white px-2 py-1 rounded">Refuser</button>
@@ -127,29 +179,54 @@ function Leaderboard() {
       </div>
       {message && <div className="mb-2 text-green-600">{message}</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredMovies.map(movie => (
-          <div key={movie.id_movie} className={`border rounded p-3 relative ${selectedMovies.includes(movie.id_movie) ? 'ring-2 ring-blue-500' : ''}`}>
+        {paginatedMovies.map(movie => (
+          <div key={movie.id_movie} className={`border border-gray-800 bg-gray-900/50 rounded p-3 relative ${selectedMovies.includes(movie.id_movie) ? 'ring-2 ring-blue-500' : ''}`}>
             <input type="checkbox" checked={selectedMovies.includes(movie.id_movie)} onChange={() => handleSelect(movie)} className="absolute top-2 left-2" />
             <div className="flex gap-3">
-              <img src={movie.picture1 ? `/uploads/${movie.picture1}` : undefined} alt="Vignette" className="w-24 h-16 object-cover rounded bg-gray-200" />
+              <img src={getPoster(movie) ? `${uploadBase}/${getPoster(movie)}` : undefined} alt="Vignette" className="w-24 h-16 object-cover rounded bg-gray-800" />
               <div className="flex-1">
                 <h2 className="font-bold text-lg">{movie.title}</h2>
-                <p className="text-sm text-gray-600 line-clamp-2">{movie.synopsis}</p>
+                <p className="text-sm text-gray-400 line-clamp-2">{movie.synopsis}</p>
                 <div className="flex gap-2 mt-2">
                   <button className="text-blue-600 underline text-xs" onClick={() => handleViewVotes(movie)}>Voir votes</button>
-                  <button className="text-yellow-600 underline text-xs" onClick={() => handleBulkStatus("candidate")}>Candidater</button>
-                  <button className="text-green-600 underline text-xs" onClick={() => handleBulkStatus("awarded")}>Primer</button>
-                  <button className="text-red-600 underline text-xs" onClick={() => handleBulkStatus("refused")}>Refuser</button>
+                  <button className="text-yellow-600 underline text-xs" onClick={() => handleSetStatus(movie, "candidate")}>Candidater</button>
+                  <button className="text-green-600 underline text-xs" onClick={() => handleSetStatus(movie, "awarded")}>Primer</button>
+                  <button className="text-purple-400 underline text-xs" onClick={() => handleSetStatus(movie, "to_discuss")}>Relancer vote</button>
+                  <button className="text-red-600 underline text-xs" onClick={() => handleSetStatus(movie, "refused")}>Refuser</button>
                   <button className="text-gray-600 underline text-xs" onClick={() => handleDelete(movie)}>Supprimer</button>
                 </div>
                 <div className="mt-2">
-                  <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Commentaire admin..." className="border px-2 py-1 rounded w-full text-xs" />
+                  <textarea
+                    value={commentByMovie[movie.id_movie] || ""}
+                    onChange={e => setCommentByMovie((prev) => ({ ...prev, [movie.id_movie]: e.target.value }))}
+                    placeholder="Commentaire admin..."
+                    className="border border-gray-700 bg-gray-950 text-gray-200 px-2 py-1 rounded w-full text-xs"
+                  />
                   <button className="bg-blue-600 text-white px-2 py-1 rounded mt-1 text-xs" onClick={() => handleComment(movie)}>Enregistrer commentaire</button>
                 </div>
               </div>
             </div>
           </div>
         ))}
+      </div>
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          disabled={currentPage <= 1}
+          className="px-3 py-1 rounded bg-gray-800 text-white disabled:opacity-40"
+        >
+          Prev
+        </button>
+        <span className="text-sm text-gray-400">{currentPage} / {totalPages}</span>
+        <button
+          type="button"
+          onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+          disabled={currentPage >= totalPages}
+          className="px-3 py-1 rounded bg-gray-800 text-white disabled:opacity-40"
+        >
+          Next
+        </button>
       </div>
       {/* Classement Top 10 */}
       <div className="mt-8">
@@ -164,11 +241,67 @@ function Leaderboard() {
       </div>
       {/* Modal votes */}
       {showVotesModal && movieToView && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-            <h2 className="text-xl font-bold mb-4">Votes pour {movieToView.title}</h2>
-            {/* TODO: Afficher les détails des votes ici */}
-            <button className="mt-4 px-4 py-2 bg-gray-300 rounded" onClick={() => setShowVotesModal(false)}>Fermer</button>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-950 border border-gray-800 rounded-2xl p-6 w-full max-w-5xl max-h-[92vh] overflow-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">Votes pour {movieToView.title}</h2>
+              <button className="px-3 py-1 bg-gray-800 text-gray-200 rounded hover:bg-gray-700" onClick={() => setShowVotesModal(false)}>Fermer</button>
+            </div>
+
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-12 xl:col-span-7 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
+                <h4 className="text-xs uppercase text-gray-400 mb-2">Prévisualisation</h4>
+                {(getTrailer(movieToView) || movieToView.youtube_link) ? (
+                  <div className="aspect-video h-[230px]">
+                    {getTrailer(movieToView) ? (
+                      <VideoPreview
+                        title={movieToView.title}
+                        src={`${uploadBase}/${getTrailer(movieToView)}`}
+                        poster={getPoster(movieToView) ? `${uploadBase}/${getPoster(movieToView)}` : undefined}
+                        openMode="fullscreen"
+                      />
+                    ) : (
+                      <a href={movieToView.youtube_link} target="_blank" rel="noreferrer" className="text-[#AD46FF] hover:text-[#F6339A]">
+                        Ouvrir la vidéo YouTube
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">Aucune vidéo disponible.</p>
+                )}
+              </div>
+
+              <div className="col-span-12 xl:col-span-5 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
+                <h4 className="text-xs uppercase text-gray-400 mb-2">Actions admin</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <button className="px-3 py-2 bg-yellow-600/80 text-white rounded hover:bg-yellow-600" onClick={() => handleSetStatus(movieToView, "candidate")}>Candidater</button>
+                  <button className="px-3 py-2 bg-green-600/80 text-white rounded hover:bg-green-600" onClick={() => handleSetStatus(movieToView, "awarded")}>Primer</button>
+                  <button className="px-3 py-2 bg-purple-700/80 text-white rounded hover:bg-purple-700" onClick={() => handleSetStatus(movieToView, "to_discuss")}>Relancer vote</button>
+                  <button className="px-3 py-2 bg-red-600/80 text-white rounded hover:bg-red-600" onClick={() => handleSetStatus(movieToView, "refused")}>Refuser</button>
+                </div>
+              </div>
+
+              <div className="col-span-12 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
+                <h4 className="text-xs uppercase text-gray-400 mb-2">Votations effectuées</h4>
+                {selectedMovieVotes.length === 0 ? (
+                  <p className="text-gray-500">Aucun vote pour ce film.</p>
+                ) : (
+                  <div className="space-y-2 max-h-64 overflow-auto pr-1">
+                    {selectedMovieVotes.map((vote) => (
+                      <div key={vote.id_vote} className="bg-gray-950 border border-gray-800 rounded-lg p-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-300">
+                            {vote.User ? `${vote.User.first_name || ""} ${vote.User.last_name || ""}`.trim() : `Jury #${vote.id_user}`}
+                          </span>
+                          <span className="text-white font-semibold">Note: {vote.note}</span>
+                        </div>
+                        {vote.comments && <p className="text-[11px] text-gray-400 mt-1">{vote.comments}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

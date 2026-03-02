@@ -8,25 +8,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
 import { getVotes } from "../../api/votes.js";
-import TutorialBox from "../../components/TutorialBox.jsx";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
-import { useEffect as useEffectReact, useState as useStateReact } from "react";
-import { loadTutorialSteps } from "../../utils/tutorialLoader.js";
 
 function Awards() {
-    const [tutorial, setTutorial] = useStateReact({ title: "Tutoriel", steps: [] });
-
-    useEffectReact(() => {
-      async function fetchTutorial() {
-        try {
-          const tutorialData = await loadTutorialSteps("/src/pages/admin/TutorialAwards.fr.md");
-          setTutorial(tutorialData);
-        } catch (err) {
-          setTutorial({ title: "Tutoriel", steps: ["Impossible de charger le tutoriel."] });
-        }
-      }
-      fetchTutorial();
-    }, []);
   const queryClient = useQueryClient();
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -302,8 +286,6 @@ function Awards() {
           )}
         </div>
       </div>
-
-      <TutorialBox title={tutorial.title} steps={tutorial.steps} defaultOpen={false} />
 
       {/* Feedback */}
       {feedback && (
