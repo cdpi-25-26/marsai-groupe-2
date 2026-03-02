@@ -9,6 +9,14 @@ export default function Navbar() {
   const { i18n } = useTranslation();
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
+  const role = localStorage.getItem("role");
+
+  const roleHomePath = {
+    ADMIN: "/admin",
+    PRODUCER: "/producer",
+    JURY: "/jury",
+  };
+  const userHomePath = role ? roleHomePath[role] : null;
 
   /*rend la navbar invisible pendant le scroll et la fait réapparaître après 300ms d'inactivité de scroll*/
 
@@ -211,7 +219,21 @@ useEffect(() => {
                 Hello, {firstName}
                 {lastName && ` ${lastName}`}
               </span>
-              <button onClick={handleLogout}>Logout</button>
+              <div className="inline-flex items-center gap-2">
+                {userHomePath && (
+                  <Link to={userHomePath}>
+                    <button className="px-3 py-1 text-sm font-semibold border border-white/40 rounded-full hover:text-[#F6339A] hover:border-[#F6339A] transition-colors">
+                      Retour
+                    </button>
+                  </Link>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1 text-sm font-semibold border border-white/40 rounded-full hover:text-[#F6339A] hover:border-[#F6339A] transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </>
           ) : (
             <Link to="/auth/login">
