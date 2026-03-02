@@ -11,7 +11,7 @@ import eventRouter from "./Event.route.js";
 import dashboardRouter from "./Dashboard.route.js";
 import googleRouter from "./googleAuth.route.js";
 import youtubeRouter from "./Youtube.route.js";
-import sponsorRouter from "./Sponsors.route.js";
+import sponsorRouter from "./Sponsor.route.js";
 
 
 const router = express.Router();
