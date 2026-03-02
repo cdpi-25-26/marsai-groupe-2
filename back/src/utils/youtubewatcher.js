@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import youtubeController from "../controllers/YoutubeController.js";
 import { uploadFile } from "./s3.js";
+import db from "../models/index.js";
 
 // défini le chemin absolu du dossier ou les fichiers vidéo sont placés avant d'être traités
 const uploadFolder = path.join(process.cwd(), "uploads");
@@ -10,9 +11,10 @@ const uploadedFolder = path.join(uploadFolder, "uploaded");
 const allowedExtensions = [".mp4", ".avi", ".m4v", ".mov", ".mpg", ".mpeg", ".wmv"];
 const queue = [];
 let isUploading = false;
+const Movie = db.Movie;
 
 // Tentative de upload (si erreur reseau ou server -> retries n fois)
-async function uploadWithRetry(filePath, filename, retries = 3) {
+async function uploadWithRetry(filePath, filename, id_user, retries = 3) {
   // filePath: chemin vers le fichier à upload
   // filename: nom du fichier 
   // retries: nombre max de tentatives
@@ -26,7 +28,8 @@ async function uploadWithRetry(filePath, filename, retries = 3) {
       return await youtubeController.uploadVideo(
         filePath,
         titleWithoutExt,
-        "marsai",
+        id_user,
+        "unlisted",
         "unlisted"
       );
     } catch (err) {
@@ -53,17 +56,18 @@ async function processQueue() {
   // booléen qui indique si un uload est en cours
   if (isUploading || queue.length === 0) return;
   // extraction du premier fichier, retire le premier élément de la queue et le retourne
-  const { filePath, filename } = queue.shift();
+  const { filePath, filename, id_user } = queue.shift();
   isUploading = true;
 
   try {
     console.log(`Upload en cours : ${filename}`);
 
-    const data = await uploadWithRetry(filePath, filename);
+    const data = await uploadWithRetry(filePath, filename, id_user);
 
     console.log(`✓ Upload terminé : ${data.id}`);
     console.log(`Content licensed : ${data.licensedContent}`);
     console.log(`URL YouTube : https://www.youtube.com/watch?v=${data.id}`);
+    console.log(`ID USER ${id_user}`);
 
     // Appelle de la fonction de s3.js pour upload dans Scaleway
     await uploadFile(filePath);
@@ -99,7 +103,7 @@ function startYoutubeWatcher() {
     awaitWriteFinish: { stabilityThreshold: 3000, pollInterval: 100 },
   });
 
-  watcher.on("add", (filePath) => {
+  watcher.on("add", async (filePath) => {
     const filename = path.basename(filePath);
     const ext = path.extname(filename).toLowerCase();
 
@@ -109,8 +113,23 @@ function startYoutubeWatcher() {
     }
 
     console.log(`Nouvelle vidéo détectée : ${filename}`);
-    queue.push({ filePath, filename });
-    processQueue();
+
+    try {
+      const movie = await Movie.findOne({
+        where: { trailer: filename }
+      });
+
+      if (!movie) {
+        console.warn(`Aucun film trouvé pour ${filename}`);
+        return;
+      }
+
+      const id_user = movie.id_user;
+      queue.push({ filePath, filename, id_user });
+      processQueue();
+    } catch (err) {
+      console.error("Erreur récupération film :", err.message);
+    }
   });
 
   console.log("✓ youtubewatcher on back/uploads :", uploadFolder);
