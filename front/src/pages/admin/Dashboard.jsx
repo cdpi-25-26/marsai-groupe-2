@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { getAdminStats } from "../../api/dashboard";
+import instance from "../../api/config";
 
 import DashboardHero from "../../components/admin/DashboardHero.jsx";
 import StatsGrid from "../../components/admin/StatsGrid.jsx";
@@ -167,42 +168,28 @@ export default function Dashboard() {
                 cursor-pointer
               `}
             >
-              {/* Brillance au survol */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-
-              {/* Icône */}
               <span className="text-2xl sm:text-3xl mb-3 block group-hover:scale-110 transition-transform duration-300">
                 {action.icon}
               </span>
-
-              {/* Texte */}
               <p className="text-sm sm:text-base font-semibold text-white mb-1">
                 {action.label}
               </p>
               <p className="text-[10px] sm:text-xs text-white/50 leading-relaxed">
                 {action.description}
               </p>
-
-              {/* Flèche */}
               <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <svg
-                  className="w-4 h-4 text-white/60"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
+                <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </div>
             </button>
           ))}
         </div>
       </section>
+
+      {/* Intégration YouTube */}
+      <GoogleAuthWidget />
 
       {/* Pipeline des films */}
       {stats?.movies?.pipeline && (
@@ -217,15 +204,104 @@ export default function Dashboard() {
   );
 }
 
+/* ─── Google / YouTube Auth Widget ───────────────────── */
+function GoogleAuthWidget() {
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["googleAuthStatus"],
+    queryFn: () => instance.get("google/status").then((r) => r.data),
+    refetchInterval: 15_000,
+    retry: false,
+    // Don't crash the whole dashboard if this endpoint is unreachable
+    throwOnError: false,
+  });
+
+  const active = data?.active === true;
+
+  function handleConnect() {
+    window.open("http://127.0.0.1:3000/google/auth", "_blank");
+    // Re-check status after the user completes the OAuth flow
+    setTimeout(() => refetch(), 5000);
+    setTimeout(() => refetch(), 12000);
+  }
+
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="text-base sm:text-lg font-semibold text-white">
+          Intégrations
+        </h2>
+        <p className="text-xs text-white/40 mt-0.5">
+          Connexions aux services externes
+        </p>
+      </div>
+
+      <div className="bg-white/[0.04] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-5 flex items-center gap-4 max-w-sm">
+        {/* YouTube icon */}
+        <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white/[0.06] rounded-xl">
+          <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              className={active ? "text-red-500" : "text-white/25"}
+              style={{ color: active ? "#ef4444" : "rgba(255,255,255,0.25)" }}
+              d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"
+            />
+          </svg>
+        </div>
+
+        {/* Status text */}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-white"> Auth YouTube</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            {isLoading ? (
+              <span className="text-xs text-white/30">Vérification…</span>
+            ) : active ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0 animate-pulse" />
+                <span className="text-xs text-green-400 font-medium">Connecté</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-red-500/60 flex-shrink-0" />
+                <span className="text-xs text-white/40">Non connecté</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Action button */}
+        {!isLoading && (
+          active ? (
+            <button
+              onClick={() => refetch()}
+              title="Actualiser le statut"
+              className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              onClick={handleConnect}
+              className="flex-shrink-0 px-3 py-1.5 text-xs font-semibold bg-red-600 hover:bg-red-500 text-white rounded-lg transition"
+            >
+              Connecter
+            </button>
+          )
+        )}
+      </div>
+    </section>
+  );
+}
+
 /* ─── Pipeline de sélection ───────────────────────────── */
 const PIPELINE_STAGES = [
-  { key: "submitted",  label: "Soumis",           color: "bg-gray-500",   icon: "📥" },
-  { key: "assigned",   label: "En évaluation",    color: "bg-blue-500",   icon: "🔍" },
-  { key: "to_discuss", label: "À discuter",        color: "bg-yellow-500", icon: "💬" },
-  { key: "candidate",  label: "Candidat",          color: "bg-purple-500", icon: "⭐" },
-  { key: "selected",   label: "Sélectionné",       color: "bg-green-500",  icon: "✅" },
-  { key: "finalist",   label: "Finaliste",         color: "bg-orange-500", icon: "🎖️" },
-  { key: "awarded",    label: "Primé",             color: "bg-yellow-400", icon: "🏆" },
+  { key: "submitted",  label: "Soumis",        color: "bg-gray-500",   icon: "📥" },
+  { key: "assigned",   label: "En évaluation", color: "bg-blue-500",   icon: "🔍" },
+  { key: "to_discuss", label: "À discuter",     color: "bg-yellow-500", icon: "💬" },
+  { key: "candidate",  label: "Candidat",       color: "bg-purple-500", icon: "⭐" },
+  { key: "selected",   label: "Sélectionné",    color: "bg-green-500",  icon: "✅" },
+  { key: "finalist",   label: "Finaliste",      color: "bg-orange-500", icon: "🎖️" },
+  { key: "awarded",    label: "Primé",          color: "bg-yellow-400", icon: "🏆" },
 ];
 
 function FilmPipeline({ pipeline, total }) {
