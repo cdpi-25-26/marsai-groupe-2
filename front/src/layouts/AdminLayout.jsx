@@ -392,36 +392,15 @@ export default function AdminLayout() {
 
           {/* Right header */}
           <div className="flex items-center space-x-3">
-            {/* Search */}
-            <div className="relative group/search hidden md:block">
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="
-                  w-72 bg-white/5 backdrop-blur-sm 
-                  border border-white/10 
-                  text-sm text-white
-                  placeholder-white/30
-                  rounded-lg
-                  px-4 py-2
-                  pl-10
-                  shadow-md shadow-black/20
-                  focus:outline-none 
-                  focus:ring-2 
-                  focus:ring-blue-500/30
-                  focus:border-transparent
-                  transition-all duration-200
-                "
-              />
-              <svg className="absolute left-3 top-2.5 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-
             {/* Icons */}
-            <button className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center overflow-hidden">
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              title="Retour à l'accueil"
+              className="group relative w-11 h-11 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition-all duration-200 flex items-center justify-center overflow-hidden shadow-lg shadow-black/20"
+            >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
             </button>
@@ -429,11 +408,11 @@ export default function AdminLayout() {
             <button
               type="button"
               onClick={() => setShowTutorialModal(true)}
-              className="group relative w-9 h-9 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200 flex items-center justify-center overflow-hidden"
+              className="group relative w-11 h-11 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition-all duration-200 flex items-center justify-center overflow-hidden shadow-lg shadow-black/20"
               title="Ouvrir le tutoriel"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.31 1.84-2.25 3.273-2.25 1.917 0 3.5 1.47 3.5 3.281 0 1.332-.798 2.48-1.945 2.98-.746.326-1.305.933-1.305 1.739V15" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

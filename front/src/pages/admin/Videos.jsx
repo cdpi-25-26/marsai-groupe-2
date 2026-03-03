@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -337,9 +338,9 @@ function Videos() {
           onItemsPerPageChange={setItemsPerPage}
         />
         {/* Edit Modal */}
-        {showEditModal && (
-          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-            <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden p-5">
+        {showEditModal && createPortal(
+          <div className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center p-4">
+            <div className="relative z-[10000] bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden p-5">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white">Modifier le film</h2>
                 <button
@@ -363,6 +364,8 @@ function Videos() {
                             src={`${uploadBase}/${getTrailer(editingMovie)}`}
                             poster={getPoster(editingMovie) ? `${uploadBase}/${getPoster(editingMovie)}` : undefined}
                             openMode="fullscreen"
+                            modalPlacement="bottom"
+                            modalTopOffsetClass="top-20 left-0 right-0 bottom-0"
                           />
                         ) : (
                           <a
@@ -540,12 +543,13 @@ function Videos() {
                 </div>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
         {/* Delete Confirm Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-950 border border-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-sm">
+        {showDeleteConfirm && createPortal(
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] p-4">
+            <div className="relative z-[10000] bg-gray-950 border border-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-sm">
               <h2 className="text-xl font-bold mb-3 text-white">Confirmer la suppression</h2>
               <p className="text-gray-300 text-sm">Voulez-vous vraiment supprimer le film "{movieToDelete?.title}" ?</p>
               <div className="flex justify-end gap-2 mt-4">
@@ -553,7 +557,8 @@ function Videos() {
                 <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500" onClick={confirmDelete}>Supprimer</button>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </section>
     );

@@ -326,6 +326,8 @@ function Leaderboard() {
                         src={`${uploadBase}/${getTrailer(movieToView)}`}
                         poster={getPoster(movieToView) ? `${uploadBase}/${getPoster(movieToView)}` : undefined}
                         openMode="fullscreen"
+                        modalPlacement="bottom"
+                        modalTopOffsetClass="top-20 left-0 right-0 bottom-0"
                       />
                     ) : (
                       <a href={movieToView.youtube_link} target="_blank" rel="noreferrer" className="text-[#AD46FF] hover:text-[#F6339A]">

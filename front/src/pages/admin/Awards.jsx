@@ -555,6 +555,8 @@ function Awards() {
                           src={`http://localhost:3000/uploads/${getTrailer(selectedMovie)}`}
                           poster={getPoster(selectedMovie) || undefined}
                           openMode="fullscreen"
+                          modalPlacement="bottom"
+                          modalTopOffsetClass="top-20 left-0 right-0 bottom-0"
                         />
                       ) : (
                         <a
@@ -640,7 +642,7 @@ function Awards() {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                     <button
                       type="button"
                       onClick={() => updateStatusMutation.mutate({ id_movie: selectedMovie.id_movie, selection_status: "candidate" })}
@@ -656,40 +658,40 @@ function Awards() {
                       Marquer primé
                     </button>
                   </div>
+
+                  <form onSubmit={handleSubmit} className="bg-gray-900/60 border border-gray-800 rounded-lg p-3 space-y-3 mt-3">
+                    <label className="block text-sm text-gray-400">Nom du prix *</label>
+
+                    <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+                      <input
+                        type="text"
+                        value={awardName}
+                        onChange={(e) => setAwardName(e.target.value)}
+                        placeholder="Ex: Meilleur Film, Grand Prix, Mention Spéciale..."
+                        className="flex-1 bg-gray-950 border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AD46FF]"
+                        autoFocus
+                      />
+                      <button
+                        type="submit"
+                        disabled={!awardName.trim()}
+                        className="px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      >
+                        Créer le prix
+                      </button>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setShowModal(false)}
+                        className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-semibold"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="bg-gray-900/60 border border-gray-800 rounded-lg p-3 space-y-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Nom du prix *</label>
-                  <input
-                    type="text"
-                    value={awardName}
-                    onChange={(e) => setAwardName(e.target.value)}
-                    placeholder="Ex: Meilleur Film, Grand Prix, Mention Spéciale..."
-                    className="w-full bg-gray-950 border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AD46FF]"
-                    autoFocus
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-semibold"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={!awardName.trim()}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Créer le prix
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
         </div>
