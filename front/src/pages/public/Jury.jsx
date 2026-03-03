@@ -57,7 +57,7 @@ export default function JuryPublic() {
         <p className="text-lg text-center pb-10">{t("pages.juryPublic.membersSubtitle")}</p>
       </div>
 
-      <section className="text-[#2B7FFF] w-full flex justify-center items-center pt-10 pb-20 px-4 md:px-8">
+      <section className="text-[#355670cc] w-full flex justify-center items-center pt-10 pb-20 px-4 md:px-8">
         <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           
 <JuryCard 

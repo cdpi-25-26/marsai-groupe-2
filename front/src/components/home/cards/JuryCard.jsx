@@ -1,7 +1,7 @@
 export default function JuryCard({ image, membertitle, membersstitle }) {
   return (
     <div
-      className="relative rounded-xl w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-80 lg:h-80 overflow-hidden border-2 shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer"
+      className="relative rounded-xl w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-80 lg:h-80 overflow-hidden border-2 border-[rgba(60, 158, 250, 0.2)] shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer"
       style={{
         backgroundImage: `url(${image})`,
         backgroundSize: 'cover',
