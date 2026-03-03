@@ -4,6 +4,9 @@ import path from "path";
 import youtubeController from "../controllers/YoutubeController.js";
 import { uploadFile } from "./s3.js";
 import db from "../models/index.js";
+import { VIDEO_REJECT_TEMPLATE } from "../constants/VideoRejectTemplate.js";
+import { VIDEO_ACCEPT_TEMPLATE } from "../constants/VideoAcceptTemplate.js";
+import EmailController from "../controllers/EmailController.js";
 
 // défini le chemin absolu du dossier ou les fichiers vidéo sont placés avant d'être traités
 const uploadFolder = path.join(process.cwd(), "uploads");
@@ -56,7 +59,7 @@ async function processQueue() {
   // booléen qui indique si un uload est en cours
   if (isUploading || queue.length === 0) return;
   // extraction du premier fichier, retire le premier élément de la queue et le retourne
-  const { filePath, filename, id_user } = queue.shift();
+  const { filePath, filename, id_user, userEmail } = queue.shift();
   isUploading = true;
 
   try {
@@ -71,6 +74,22 @@ async function processQueue() {
 
     // Appelle de la fonction de s3.js pour upload dans Scaleway
     await uploadFile(filePath);
+
+    if (data.licensedContent === true) {
+      EmailController.sendMail(
+        userEmail,
+        "Vidéo refusée, contenu sous licence",
+        VIDEO_REJECT_TEMPLATE,
+      );
+    } else {
+      EmailController.sendMail(
+        userEmail,
+        "Votre vidéo acceptée",
+        VIDEO_ACCEPT_TEMPLATE,
+      );
+    }
+
+    console.log(`Envoyé à ${userEmail}`);
 
     // déplace le fichier uploader vers back/uploads/uploaded
     if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
@@ -116,16 +135,23 @@ function startYoutubeWatcher() {
 
     try {
       const movie = await Movie.findOne({
-        where: { trailer: filename }
+        where: { trailer: filename },
+        include: [{ 
+          model: db.User,
+          as: 'Producer',
+          attributes: ['email', 'first_name']
+         }]
       });
 
-      if (!movie) {
-        console.warn(`Aucun film trouvé pour ${filename}`);
+      if (!movie || !movie.Producer) {
+        console.warn(`Aucun film ou producteur trouvé pour ${filename}`);
         return;
       }
 
       const id_user = movie.id_user;
-      queue.push({ filePath, filename, id_user });
+      const userEmail = movie.Producer.email;
+
+      queue.push({ filePath, filename, id_user, userEmail });
       processQueue();
     } catch (err) {
       console.error("Erreur récupération film :", err.message);
