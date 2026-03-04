@@ -7,9 +7,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getVideos,
-  updateMovieStatus,
-  updateMovie,
-  deleteMovie
+  updateMovieStatus
 } from "../../api/videos";
 import { getVotes } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview";
@@ -19,12 +17,9 @@ function Leaderboard() {
   const [filter, setFilter] = useState("");
   const [activeTab, setActiveTab] = useState("to_vote");
   const [selectedMovies, setSelectedMovies] = useState([]);
-  const [comment, setComment] = useState("");
   const [message, setMessage] = useState("");
   const [showVotesModal, setShowVotesModal] = useState(false);
   const [movieToView, setMovieToView] = useState(null);
-  const [commentByMovie, setCommentByMovie] = useState({});
-  const [forceTransition, setForceTransition] = useState(false);
   const uploadBase = "http://localhost:3000/uploads";
 
   // Fetch all movies
@@ -51,10 +46,9 @@ function Leaderboard() {
   // Group movies by status
   const grouped = useMemo(() => ({
     to_vote: movies.filter(m => m.selection_status === "assigned"),
-    voted: movies.filter(m => ["to_discuss", "selected", "finalist"].includes(m.selection_status)),
+    second_vote: movies.filter(m => m.selection_status === "to_discuss"),
     refused: movies.filter(m => m.selection_status === "refused"),
-    candidate: movies.filter(m => m.selection_status === "candidate"),
-    awarded: movies.filter(m => m.selection_status === "awarded"),
+    candidate: movies.filter(m => ["candidate", "selected", "finalist"].includes(m.selection_status)),
   }), [movies]);
 
   const votesByMovie = useMemo(() => {
@@ -86,25 +80,6 @@ function Leaderboard() {
       setMessage(backendMessage || "Erreur lors du changement de statut");
     },
   });
-  const commentMutation = useMutation({
-    mutationFn: async ({ id, comment }) => updateMovie(id, { admin_comment: comment }),
-    onSuccess: () => {
-      setMessage("Commentaire enregistré");
-      queryClient.invalidateQueries({ queryKey: ["movies"] });
-      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-    },
-    onError: () => setMessage("Erreur lors de l'enregistrement du commentaire"),
-  });
-  const deleteMutation = useMutation({
-    mutationFn: async (id) => deleteMovie(id),
-    onSuccess: () => {
-      setMessage("Film supprimé");
-      queryClient.invalidateQueries({ queryKey: ["movies"] });
-      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-    },
-    onError: () => setMessage("Erreur lors de la suppression"),
-  });
-
   // Actions
   function handleSelect(movie) {
     setSelectedMovies((prev) => prev.includes(movie.id_movie)
@@ -116,7 +91,7 @@ function Leaderboard() {
       statusMutation.mutate({
         id,
         status,
-        payload: forceTransition ? { force_transition: true } : {},
+        payload: {},
       })
     );
   }
@@ -125,19 +100,10 @@ function Leaderboard() {
     statusMutation.mutate({
       id: movie.id_movie,
       status,
-      payload: forceTransition ? { force_transition: true } : {},
+      payload: {},
     });
   }
 
-  function handleComment(movie) {
-    const value = (commentByMovie[movie.id_movie] || "").trim();
-    if (!value) return;
-    commentMutation.mutate({ id: movie.id_movie, comment: value });
-    setCommentByMovie((prev) => ({ ...prev, [movie.id_movie]: "" }));
-  }
-  function handleDelete(movie) {
-    if (window.confirm("Supprimer ce film ?")) deleteMutation.mutate(movie.id_movie);
-  }
   function handleViewVotes(movie) {
     setMovieToView(movie);
     setShowVotesModal(true);
@@ -237,14 +203,14 @@ function Leaderboard() {
           À Voter
         </button>
         <button
-          onClick={() => setActiveTab("voted")}
+          onClick={() => setActiveTab("second_vote")}
           className={`px-4 py-2 font-semibold transition-colors ${
-            activeTab === "voted"
+            activeTab === "second_vote"
               ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
               : "text-gray-400 hover:text-white"
           }`}
         >
-          Votés
+          2e vote
         </button>
         <button
           onClick={() => setActiveTab("refused")}
@@ -266,35 +232,13 @@ function Leaderboard() {
         >
           Candidats
         </button>
-        <button
-          onClick={() => setActiveTab("awarded")}
-          className={`px-4 py-2 font-semibold transition-colors ${
-            activeTab === "awarded"
-              ? "text-[#AD46FF] border-b-2 border-[#AD46FF]"
-              : "text-gray-400 hover:text-white"
-          }`}
-        >
-          Primés
-        </button>
       </div>
       <div className="mb-4 flex gap-2 items-center">
         <input type="text" placeholder="Filtrer par titre..." value={filter} onChange={e => setFilter(e.target.value)} className="border px-2 py-1 rounded bg-gray-900 border-gray-700 text-white" />
-        <label className="flex items-center gap-2 text-xs text-gray-300 px-2 py-1 border border-gray-700 rounded bg-gray-900/70">
-          <input
-            type="checkbox"
-            checked={forceTransition}
-            onChange={(event) => setForceTransition(event.target.checked)}
-          />
-          Forcer la transition (sauter/revenir)
-        </label>
         {selectedMovies.length > 0 && (
           <>
-            <button onClick={() => handleBulkStatus("assigned")} className="bg-indigo-600 text-white px-2 py-1 rounded">1er vote</button>
-            <button onClick={() => handleBulkStatus("to_discuss")} className="bg-purple-700 text-white px-2 py-1 rounded">2e vote</button>
-            <button onClick={() => handleBulkStatus("refused")} className="bg-red-500 text-white px-2 py-1 rounded">Refuser</button>
-            <button onClick={() => handleBulkStatus("candidate")} className="bg-yellow-400 px-2 py-1 rounded">Candidater</button>
-            <button onClick={() => handleBulkStatus("submitted")} className="bg-gray-700 text-white px-2 py-1 rounded">Retour soumis</button>
-            <button onClick={() => handleBulkStatus("awarded")} className="bg-green-600 text-white px-2 py-1 rounded">Primer</button>
+            <button onClick={() => handleBulkStatus("to_discuss")} className="bg-purple-700 text-white px-2 py-1 rounded">Passer au 2e vote</button>
+            <button onClick={() => handleBulkStatus("candidate")} className="bg-yellow-500 text-black px-2 py-1 rounded">Nominer candidat</button>
           </>
         )}
       </div>
@@ -323,22 +267,8 @@ function Leaderboard() {
                 <p className="text-sm text-gray-400 line-clamp-2">{movie.synopsis}</p>
                 <div className="flex gap-2 mt-2">
                   <button className="text-blue-600 underline text-xs" onClick={() => handleViewVotes(movie)}>Voir votes</button>
-                  <button className="text-indigo-400 underline text-xs" onClick={() => handleSetStatus(movie, "assigned")}>1er vote</button>
-                  <button className="text-purple-400 underline text-xs" onClick={() => handleSetStatus(movie, "to_discuss")}>2e vote</button>
-                  <button className="text-yellow-600 underline text-xs" onClick={() => handleSetStatus(movie, "candidate")}>Candidater</button>
-                  <button className="text-green-600 underline text-xs" onClick={() => handleSetStatus(movie, "awarded")}>Primer</button>
-                  <button className="text-gray-300 underline text-xs" onClick={() => handleSetStatus(movie, "submitted")}>Retour soumis</button>
-                  <button className="text-red-600 underline text-xs" onClick={() => handleSetStatus(movie, "refused")}>Refuser</button>
-                  <button className="text-gray-600 underline text-xs" onClick={() => handleDelete(movie)}>Supprimer</button>
-                </div>
-                <div className="mt-2">
-                  <textarea
-                    value={commentByMovie[movie.id_movie] || ""}
-                    onChange={e => setCommentByMovie((prev) => ({ ...prev, [movie.id_movie]: e.target.value }))}
-                    placeholder="Commentaire admin..."
-                    className="border border-gray-700 bg-gray-950 text-gray-200 px-2 py-1 rounded w-full text-xs"
-                  />
-                  <button className="bg-blue-600 text-white px-2 py-1 rounded mt-1 text-xs" onClick={() => handleComment(movie)}>Enregistrer commentaire</button>
+                  <button className="text-purple-400 underline text-xs" onClick={() => handleSetStatus(movie, "to_discuss")}>Passer au 2e vote</button>
+                  <button className="text-yellow-500 underline text-xs" onClick={() => handleSetStatus(movie, "candidate")}>Nominer candidat</button>
                 </div>
               </div>
             </div>
@@ -436,20 +366,12 @@ function Leaderboard() {
               </div>
 
               <div className="col-span-12 xl:col-span-5 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
-                <h4 className="text-xs uppercase text-gray-400 mb-2">Actions admin</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <button className="px-3 py-2 bg-indigo-600/80 text-white rounded hover:bg-indigo-600" onClick={() => handleSetStatus(movieToView, "assigned")}>1er vote</button>
-                  <button className="px-3 py-2 bg-purple-700/80 text-white rounded hover:bg-purple-700" onClick={() => handleSetStatus(movieToView, "to_discuss")}>2e vote</button>
-                  <button className="px-3 py-2 bg-yellow-600/80 text-white rounded hover:bg-yellow-600" onClick={() => handleSetStatus(movieToView, "candidate")}>Candidater</button>
-                  <button className="px-3 py-2 bg-green-600/80 text-white rounded hover:bg-green-600" onClick={() => handleSetStatus(movieToView, "awarded")}>Primer</button>
-                  <button className="px-3 py-2 bg-gray-700/80 text-white rounded hover:bg-gray-700" onClick={() => handleSetStatus(movieToView, "submitted")}>Retour soumis</button>
-                  <button className="px-3 py-2 bg-red-600/80 text-white rounded hover:bg-red-600" onClick={() => handleSetStatus(movieToView, "refused")}>Refuser</button>
+                <h4 className="text-xs uppercase text-gray-400 mb-2">Workflow votation</h4>
+                <div className="grid grid-cols-1 gap-2">
+                  <button className="px-3 py-2 bg-purple-700/80 text-white rounded hover:bg-purple-700" onClick={() => handleSetStatus(movieToView, "to_discuss")}>Effectuer un 2e vote</button>
+                  <button className="px-3 py-2 bg-yellow-600/80 text-white rounded hover:bg-yellow-600" onClick={() => handleSetStatus(movieToView, "candidate")}>Sauter à la nomination candidature</button>
                 </div>
-                {forceTransition && (
-                  <p className="mt-2 text-[11px] text-orange-300">
-                    Mode forcé actif: les transitions peuvent sauter des étapes.
-                  </p>
-                )}
+                <p className="mt-2 text-[11px] text-gray-400">L'admin peut toujours consulter les votes avant la décision.</p>
               </div>
 
               <div className="col-span-12 bg-gray-900/60 border border-gray-800 rounded-lg p-3">
