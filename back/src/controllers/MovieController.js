@@ -440,7 +440,7 @@ async function deleteMovie(req, res) {
 async function updateMovieStatus(req, res) {
   try {
     const { id } = req.params;
-    const { selection_status, jury_comment } = req.body;
+    const { selection_status, jury_comment, force_transition } = req.body;
 
     const allowed = [
       "submitted",
@@ -471,6 +471,29 @@ async function updateMovieStatus(req, res) {
 
     const previousStatus = movie.selection_status;
 
+    const transitionMap = {
+      submitted: ["assigned", "candidate", "refused"],
+      assigned: ["to_discuss", "candidate", "refused"],
+      to_discuss: ["candidate", "refused"],
+      candidate: ["awarded", "refused"],
+      selected: ["candidate", "awarded", "refused"],
+      finalist: ["candidate", "awarded", "refused"],
+      awarded: [],
+      refused: []
+    };
+
+    const allowedTargets = transitionMap[previousStatus] || [];
+    const forceTransition = Boolean(force_transition);
+    if (
+      !forceTransition
+      && previousStatus !== selection_status
+      && !allowedTargets.includes(selection_status)
+    ) {
+      return res.status(400).json({
+        error: `Transition invalide: ${previousStatus} -> ${selection_status}`,
+      });
+    }
+
     movie.selection_status = selection_status;
     if (typeof jury_comment === "string" && jury_comment.trim()) {
       movie.jury_comment = jury_comment.trim();
@@ -497,7 +520,7 @@ async function updateMovieStatus(req, res) {
       }
     }
 
-    res.json({ message: "Statut mis à jour", movie, rejectEmail });
+    res.json({ message: "Statut mis à jour", movie, rejectEmail, forceTransition });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

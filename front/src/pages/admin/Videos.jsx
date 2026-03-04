@@ -254,6 +254,24 @@ function Videos() {
       createAwardMutation.mutate({ id_movie: editingMovie.id_movie, name: awardName.trim() });
     }
 
+    const adminTransitionMap = {
+      submitted: ["assigned", "candidate", "refused"],
+      assigned: ["to_discuss", "candidate", "refused"],
+      to_discuss: ["candidate", "refused"],
+      candidate: ["awarded", "refused"],
+      selected: ["candidate", "awarded", "refused"],
+      finalist: ["candidate", "awarded", "refused"],
+      awarded: [],
+      refused: []
+    };
+
+    function isStatusActionAllowed(nextStatus) {
+      const currentStatus = editingMovie?.selection_status;
+      if (!currentStatus) return true;
+      if (currentStatus === nextStatus) return false;
+      return (adminTransitionMap[currentStatus] || []).includes(nextStatus);
+    }
+
     const movieVotes = useMemo(() => {
       if (!editingMovie) return [];
       const votes = votesData?.data || [];
@@ -394,6 +412,11 @@ function Videos() {
 
                   <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3">
                     <h4 className="text-xs uppercase text-gray-400 mb-2">Statut de votation</h4>
+                    <div className="mb-2 text-[11px] text-gray-300 bg-gray-950 border border-gray-800 rounded-lg px-3 py-2">
+                      <span className="text-gray-400">Workflow:</span>{" "}
+                      Soumis → 1ère votation (assigned) → 2e votation (to_discuss) → Candidature (candidate) → Primé (awarded)
+                      <span className="text-gray-500"> | Refus possible à chaque étape</span>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <div className="bg-gray-950 border border-gray-800 rounded-lg p-2">
                         <p className="text-[11px] text-gray-400">Votes</p>
@@ -419,19 +442,19 @@ function Videos() {
                         onChange={(e) => setStatusTarget(e.target.value)}
                         className="bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded w-full"
                       >
-                        <option value="submitted">submitted</option>
-                        <option value="assigned">assigned</option>
-                        <option value="to_discuss">to_discuss</option>
-                        <option value="candidate">candidate</option>
-                        <option value="selected">selected</option>
-                        <option value="finalist">finalist</option>
-                        <option value="awarded">awarded</option>
-                        <option value="refused">refused</option>
+                        <option value="submitted" disabled={!isStatusActionAllowed("submitted")}>Soumis</option>
+                        <option value="assigned" disabled={!isStatusActionAllowed("assigned")}>Approuvé (votation jury)</option>
+                        <option value="to_discuss" disabled={!isStatusActionAllowed("to_discuss")}>Seconde votation</option>
+                        <option value="candidate" disabled={!isStatusActionAllowed("candidate")}>Candidature prémiation</option>
+                        <option value="awarded" disabled={!isStatusActionAllowed("awarded")}>Film primé</option>
+                        <option value="refused" disabled={!isStatusActionAllowed("refused")}>Refusé</option>
+                        <option value="selected" disabled={!isStatusActionAllowed("selected")}>selected (legacy)</option>
+                        <option value="finalist" disabled={!isStatusActionAllowed("finalist")}>finalist (legacy)</option>
                       </select>
                       <button
                         type="button"
                         onClick={handleChangeStatus}
-                        disabled={updateStatusMutation.isPending}
+                        disabled={updateStatusMutation.isPending || !isStatusActionAllowed(statusTarget)}
                         className="px-4 py-2 bg-[#AD46FF] text-white rounded hover:bg-[#9536e6] disabled:opacity-50"
                       >
                         Mettre à jour
@@ -441,21 +464,47 @@ function Videos() {
                     <div className="mt-2 grid grid-cols-2 gap-2">
                       <button
                         type="button"
+                        onClick={() => setStatusTarget("assigned")}
+                        disabled={!isStatusActionAllowed("assigned")}
+                        className="px-3 py-2 bg-indigo-600/80 text-white rounded hover:bg-indigo-600 disabled:opacity-50"
+                      >
+                        Ouvrir 1ère votation
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setStatusTarget("to_discuss")}
+                        disabled={!isStatusActionAllowed("to_discuss")}
+                        className="px-3 py-2 bg-teal-600/80 text-white rounded hover:bg-teal-600 disabled:opacity-50"
+                      >
+                        Ouvrir 2e votation
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setStatusTarget("candidate")}
-                        className="px-3 py-2 bg-blue-600/80 text-white rounded hover:bg-blue-600"
+                        disabled={!isStatusActionAllowed("candidate")}
+                        className="px-3 py-2 bg-blue-600/80 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                       >
                         Candidater
                       </button>
                       <button
                         type="button"
                         onClick={() => setStatusTarget("awarded")}
-                        className="px-3 py-2 bg-green-600/80 text-white rounded hover:bg-green-600"
+                        disabled={!isStatusActionAllowed("awarded")}
+                        className="px-3 py-2 bg-green-600/80 text-white rounded hover:bg-green-600 disabled:opacity-50"
                       >
                         Marquer primé
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setStatusTarget("refused")}
+                        disabled={!isStatusActionAllowed("refused")}
+                        className="col-span-2 px-3 py-2 bg-red-600/80 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                      >
+                        Refuser le film
+                      </button>
                     </div>
 
-                    {editingMovie?.selection_status === "refused" && (
+                    {(editingMovie?.selection_status === "refused" || statusTarget === "refused") && (
                       <div className="mt-2">
                         <button
                           type="button"
@@ -465,8 +514,11 @@ function Videos() {
                         >
                           {sendRejectEmailMutation.isPending
                             ? "Envoi en cours..."
-                            : "Envoyer email de refus"}
+                            : "Envoyer email film refusé"}
                         </button>
+                        <p className="text-[11px] text-gray-400 mt-1">
+                          Utiliser ce bouton pour tester l’email de refus au producteur du film.
+                        </p>
                       </div>
                     )}
                   </div>
