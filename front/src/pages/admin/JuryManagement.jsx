@@ -61,8 +61,11 @@ export default function JuryManagement() {
   });
 
   const filteredMovies = useMemo(() => {
-    if (selectedCategory === "all") return videos;
-    return videos.filter((movie) =>
+    const votingStatuses = ["assigned", "to_discuss", "candidate", "selected", "finalist"];
+    const eligibleMovies = videos.filter((movie) => votingStatuses.includes(movie.selection_status));
+
+    if (selectedCategory === "all") return eligibleMovies;
+    return eligibleMovies.filter((movie) =>
       (movie.Categories || []).some((cat) => cat.id_categorie === parseInt(selectedCategory))
     );
   }, [videos, selectedCategory]);
