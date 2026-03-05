@@ -9,6 +9,7 @@ import {
   updateMovieStatus
 } from "../api/videos.js";
 import { getUsers } from "../api/users.js";
+import { UPLOAD_BASE } from "../utils/constants.js";
 
 export function useVideosData() {
   const queryClient = useQueryClient();
@@ -88,15 +89,13 @@ export function useVideosData() {
     }
   });
 
-  const uploadBase = "http://localhost:3000/uploads";
-
   const getPoster = (movie) => (
     movie.thumbnail
-      ? `${uploadBase}/${movie.thumbnail}`
+      ? `${UPLOAD_BASE}/${movie.thumbnail}`
       : movie.display_picture
-        ? `${uploadBase}/${movie.display_picture}`
+        ? `${UPLOAD_BASE}/${movie.display_picture}`
         : movie.picture1
-          ? `${uploadBase}/${movie.picture1}`
+          ? `${UPLOAD_BASE}/${movie.picture1}`
           : null
   );
 
@@ -125,7 +124,7 @@ export function useVideosData() {
     
     // Utilities
     getPoster,
-    uploadBase,
+    uploadBase: UPLOAD_BASE,
     
     // Mutation states (for loading indicators)
     isUpdatingStatus: statusMutation.isPending,

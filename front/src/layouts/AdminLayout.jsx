@@ -1,4 +1,3 @@
-
 import { Outlet, NavLink, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 
@@ -350,27 +349,17 @@ export default function AdminLayout() {
         {/* Desktop header */}
         <header className="hidden lg:flex bg-gradient-to-r from-[#111318]/80 to-[#0f1116]/80 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 py-2 items-center justify-between shadow-xl shadow-black/20">
           <div className="flex items-center space-x-4">
-            {/* <button
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 rounded-lg transition-all duration-500"
+              title={isSidebarOpen ? "Réduire le menu" : "Afficher le menu"}
             >
-              <span className="inline-block text-2xl">
-                {isSidebarOpen ? "☰" : "✕"}
+              <span
+                className={`inline-block transition-all duration-500 text-2xl hover:scale-110`}
+              >
+                {isSidebarOpen ? "☰" : "☰"}
               </span>
-            </button> */}
-
-              <button
-  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-  className="p-2 rounded-lg transition-all duration-500"
->
-  <span
-    className={`inline-block transition-all duration-500 ${
-      isSidebarOpen ? "rotate-0" : "rotate-180"
-    } text-2xl hover:scale-120`}
-  >
-    {isSidebarOpen ? "✕" : "☰"}
-  </span>
-</button>
+            </button>
             <div className="flex items-center">
               <span className="text-2xl font-light bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">
                 MARS

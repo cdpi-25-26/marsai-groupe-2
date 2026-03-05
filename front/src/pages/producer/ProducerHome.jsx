@@ -28,6 +28,7 @@ import {
 } from "../../api/movies";
 import { getCategories } from "../../api/videos.js";
 import { UPLOAD_BASE } from "../../utils/constants.js";
+import { getPoster, getTrailer } from "../../utils/movieUtils.js";
 
 /* ─── Schéma Zod ──────────────────────────────────────── */
 const movieSchema = z.object({
@@ -68,6 +69,16 @@ const movieSchema = z.object({
     message: "Vous devez accepter les conditions de participation",
   }),
 });
+
+/* ─── Tailwind class constants (replaces inline <style> CSS) ───────── */
+const tw = {
+  fieldInput:
+    "w-full bg-white/[0.04] border border-white/[0.08] text-white px-3.5 py-2.5 rounded-xl text-sm transition-colors outline-none focus:border-[#AD46FF]/40",
+  fieldInputErr: "border-red-500/50 bg-red-500/[0.04]",
+  fileBtn:
+    "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#AD46FF]/10 border border-[#AD46FF]/25 text-purple-400 text-[13px] cursor-pointer whitespace-nowrap transition-all hover:bg-[#AD46FF]/20 hover:border-[#AD46FF]/45",
+  card: "bg-white/[0.03] border border-white/[0.07] rounded-[18px]",
+};
 
 /* ─── Statuts pipeline ─────────────────────────────────── */
 const STATUS_MAP = {
@@ -348,27 +359,6 @@ export default function ProducerHome() {
     });
   }
 
-  const getPoster = (movie) =>
-    movie.thumbnail
-      ? `${UPLOAD_BASE}/${movie.thumbnail}`
-      : movie.display_picture
-        ? `${UPLOAD_BASE}/${movie.display_picture}`
-        : movie.picture1
-          ? `${UPLOAD_BASE}/${movie.picture1}`
-          : movie.picture2
-            ? `${UPLOAD_BASE}/${movie.picture2}`
-            : movie.picture3
-              ? `${UPLOAD_BASE}/${movie.picture3}`
-              : null;
-
-  const getTrailer = (m) =>
-    m.trailer ||
-    m.trailer_video ||
-    m.trailerVideo ||
-    m.filmFile ||
-    m.video ||
-    null;
-
   /* ── États de chargement ── */
   if (loading)
     return (
@@ -398,32 +388,6 @@ export default function ProducerHome() {
   return (
     <>
       <div className="min-h-screen bg-[#070709] text-white pt-28 pb-20 px-4 md:pt-32">
-        <style>{`
-          .field-input {
-            width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: white;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color .2s;
-            outline: none;
-          }
-          .field-input:focus { border-color: rgba(173,70,255,.4); }
-          .field-input.err   { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.04); }
-          .field-input option { background: #0f1014; }
-          .file-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 9px 16px; border-radius: 10px;
-            background: rgba(173,70,255,.1); border: 1px solid rgba(173,70,255,.25);
-            color: #c084fc; font-size: 13px; cursor: pointer; white-space: nowrap;
-            transition: all .2s;
-          }
-          .file-btn:hover { background: rgba(173,70,255,.2); border-color: rgba(173,70,255,.45); }
-          .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; }
-        `}</style>
-
         <div className="max-w-6xl mx-auto space-y-6">
           {/* ── En-tête ── */}
           <div className="flex items-center gap-4">
@@ -443,7 +407,7 @@ export default function ProducerHome() {
           </div>
 
           {/* ── Section profil ── */}
-          <div className="card p-6">
+          <div className={`${tw.card} p-6`}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">
                 Profil
@@ -492,7 +456,7 @@ export default function ProducerHome() {
                         value={profileForm[name] || ""}
                         onChange={handleProfileChange}
                         rows={3}
-                        className="field-input resize-none"
+                        className={`${tw.fieldInput} resize-none`}
                       />
                     ) : (
                       <input
@@ -500,7 +464,7 @@ export default function ProducerHome() {
                         name={name}
                         value={profileForm[name] || ""}
                         onChange={handleProfileChange}
-                        className="field-input"
+                        className={tw.fieldInput}
                       />
                     )}
                   </div>
@@ -550,7 +514,7 @@ export default function ProducerHome() {
           </div>
 
           {/* ── Mes films ── */}
-          <div className="card p-6">
+          <div className={`${tw.card} p-6`}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">
                 Mes films
@@ -643,7 +607,7 @@ export default function ProducerHome() {
 
           {/* ── Formulaire de soumission ── */}
           {showForm && (
-            <div className="card p-6">
+            <div className={`${tw.card} p-6`}>
               {/* Progression des étapes */}
               <div className="mb-8">
                 <div className="flex items-center justify-center gap-6">
@@ -701,7 +665,7 @@ export default function ProducerHome() {
                         type="text"
                         placeholder="TITRE ORIGINAL"
                         {...reg("filmTitleOriginal")}
-                        className={`field-input ${errors.filmTitleOriginal ? "err" : ""}`}
+                        className={`${tw.fieldInput} ${errors.filmTitleOriginal ? tw.fieldInputErr : ""}`}
                       />
                     </Fld>
 
@@ -715,7 +679,7 @@ export default function ProducerHome() {
                         placeholder="60"
                         max={120}
                         {...reg("durationSeconds")}
-                        className={`field-input ${errors.durationSeconds ? "err" : ""}`}
+                        className={`${tw.fieldInput} ${errors.durationSeconds ? tw.fieldInputErr : ""}`}
                       />
                     </Fld>
 
@@ -724,7 +688,7 @@ export default function ProducerHome() {
                         type="text"
                         placeholder="Français"
                         {...reg("filmLanguage")}
-                        className="field-input"
+                        className={tw.fieldInput}
                       />
                     </Fld>
 
@@ -733,7 +697,7 @@ export default function ProducerHome() {
                         type="number"
                         placeholder="2026"
                         {...reg("releaseYear")}
-                        className="field-input"
+                        className={tw.fieldInput}
                       />
                     </Fld>
 
@@ -742,12 +706,12 @@ export default function ProducerHome() {
                         type="text"
                         placeholder="France"
                         {...reg("nationality")}
-                        className="field-input"
+                        className={tw.fieldInput}
                       />
                     </Fld>
 
                     <Fld label="Comment nous avez-vous connu ?">
-                      <select {...reg("knownByMarsAi")} className="field-input">
+                      <select {...reg("knownByMarsAi")} className={tw.fieldInput}>
                         <option value="">Sélectionner</option>
                         <option value="Par un ami">Par un ami</option>
                         <option value="Vu une publicité du festival">
@@ -762,7 +726,7 @@ export default function ProducerHome() {
                     <Fld label="Catégorie *" error={errors.categoryId}>
                       <select
                         {...reg("categoryId")}
-                        className={`field-input ${errors.categoryId ? "err" : ""}`}
+                        className={`${tw.fieldInput} ${errors.categoryId ? tw.fieldInputErr : ""}`}
                       >
                         <option value="">Sélectionner une catégorie</option>
                         {categories.map((c) => (
@@ -778,7 +742,7 @@ export default function ProducerHome() {
                         type="text"
                         placeholder="English title"
                         {...reg("translation")}
-                        className="field-input"
+                        className={tw.fieldInput}
                       />
                     </Fld>
 
@@ -787,7 +751,7 @@ export default function ProducerHome() {
                         type="text"
                         placeholder="https://youtube.com/…"
                         {...reg("youtubeLink")}
-                        className="field-input"
+                        className={tw.fieldInput}
                       />
                     </Fld>
 
@@ -801,7 +765,7 @@ export default function ProducerHome() {
                         maxLength={300}
                         placeholder="Résumez votre film en quelques lignes…"
                         {...reg("synopsisOriginal")}
-                        className={`field-input resize-none ${errors.synopsisOriginal ? "err" : ""}`}
+                        className={`${tw.fieldInput} resize-none ${errors.synopsisOriginal ? tw.fieldInputErr : ""}`}
                       />
                     </Fld>
 
@@ -814,7 +778,7 @@ export default function ProducerHome() {
                         maxLength={300}
                         placeholder="Summary in English…"
                         {...reg("synopsisEnglish")}
-                        className="field-input resize-none"
+                        className={`${tw.fieldInput} resize-none`}
                       />
                     </Fld>
 
@@ -872,7 +836,7 @@ export default function ProducerHome() {
                           maxLength={500}
                           placeholder="ex. : Midjourney, Runway, ElevenLabs, Sora…"
                           {...reg("aiStack")}
-                          className="field-input resize-none"
+                          className={`${tw.fieldInput} resize-none`}
                         />
                       </Fld>
 
@@ -885,7 +849,7 @@ export default function ProducerHome() {
                           maxLength={500}
                           placeholder="Décrivez l'interaction humain-machine dans votre processus…"
                           {...reg("aiMethodology")}
-                          className="field-input resize-none"
+                          className={`${tw.fieldInput} resize-none`}
                         />
                       </Fld>
 
@@ -897,7 +861,7 @@ export default function ProducerHome() {
                         <button
                           type="button"
                           onClick={() => setShowCollaboratorsModal(true)}
-                          className="field-input text-left text-white/50"
+                          className={`${tw.fieldInput} text-left text-white/50`}
                         >
                           {collabFields.length === 0
                             ? "Gérer les collaborateurs (facultatif)"
@@ -918,7 +882,7 @@ export default function ProducerHome() {
                           Fichier vidéo
                         </label>
                         <div className="flex items-center gap-3">
-                          <label className="file-btn">
+                          <label className={tw.fileBtn}>
                             <span>📁</span> Choisir
                             <input
                               ref={filmFileRef}
@@ -944,7 +908,7 @@ export default function ProducerHome() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           {[0, 1, 2].map((i) => (
                             <div key={i} className="flex flex-col gap-1">
-                              <label className="file-btn justify-center">
+                              <label className={`${tw.fileBtn} justify-center`}>
                                 {thumbFiles[i] ? (
                                   <span className="text-emerald-400">
                                     ✓ Image {i + 1}
@@ -988,7 +952,7 @@ export default function ProducerHome() {
                           Sous-titres (.srt) — optionnel
                         </label>
                         <div className="flex items-center gap-3">
-                          <label className="file-btn">
+                          <label className={tw.fileBtn}>
                             <span>📄</span> Choisir
                             <input
                               ref={subtitleRef}
@@ -1128,7 +1092,7 @@ export default function ProducerHome() {
                     type="text"
                     {...reg(name)}
                     placeholder={placeholder}
-                    className="field-input"
+                    className={tw.fieldInput}
                   />
                 ))}
                 <div className="md:col-span-4 flex justify-end">
@@ -1355,7 +1319,7 @@ export default function ProducerHome() {
                                     e.target.value,
                                   )
                                 }
-                                className="field-input text-xs"
+                                className={`${tw.fieldInput} text-xs`}
                               />
                             ),
                           )}
@@ -1481,7 +1445,6 @@ function Modal({ title, onClose, maxW = "max-w-4xl", children }) {
   );
 }
 
-// inputCls removed — was never called; form uses inline .field-input CSS class.
 
 function Fld({ label, hint, error, children, className = "" }) {
   return (

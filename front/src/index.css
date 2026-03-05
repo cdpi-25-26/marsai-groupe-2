@@ -14,7 +14,7 @@ body {
 
 @layer utilities {
   .scrollbar-thin-dark::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   .scrollbar-thin-dark::-webkit-scrollbar-track {
@@ -89,4 +89,13 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: white;
   transition: background-color 5000s ease-in-out 0s;
   background-color: transparent !important;
+}
+
+
+
+/* Select option background — cannot be done with Tailwind utilities.
+   Required for dark-theme selects in ProducerHome form. */
+select option {
+  background-color: #0f1014;
+  color: white;
 }

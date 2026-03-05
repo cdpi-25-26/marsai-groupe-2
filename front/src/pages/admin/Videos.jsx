@@ -61,23 +61,25 @@ function contextualActions(status, hasVotes, juriesCount) {
     case "submitted":
       return {
         primary: [{
-          to: "assigned", cls: "act-green",
+          to: "assigned", cls: "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/20",
           label: "✓ Accepter — lancer la Phase 1",
           tip: juriesCount === 0
             ? "⚠ Aucun jury assigné. Après acceptation, allez dans Distribution & Jury."
             : null,
         }],
-        danger: [{ to: "refused", cls: "act-red", label: "✗ Refuser le film" }],
+        danger: [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20", label: "✗ Refuser le film" }],
         info: "Vérifiez le film avant d'accepter. Toutes les vérifications doivent être au vert.",
       };
     case "assigned":
       return {
         primary: [{
-          to: "to_discuss", cls: hasVotes ? "act-amber" : "act-amber act-disabled",
+          to: "to_discuss", cls: hasVotes 
+            ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20" 
+            : "bg-amber-500/10 text-amber-400/40 border border-amber-500/10 cursor-not-allowed",
           label: "💬 Ouvrir la Phase 2 (délibération)",
           tip: !hasVotes ? "En attente des votes Phase 1. Au moins un jury doit avoir voté." : null,
         }],
-        danger: [{ to: "refused", cls: "act-red", label: "✗ Refuser" }],
+        danger: [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20", label: "✗ Refuser" }],
         info: hasVotes
           ? `${juriesCount} jury(s) assigné(s) — votes reçus. Vous pouvez ouvrir la Phase 2.`
           : `Phase 1 en cours — ${juriesCount} jury(s) assigné(s). En attente de votes.`,
@@ -85,37 +87,37 @@ function contextualActions(status, hasVotes, juriesCount) {
     case "to_discuss":
       return {
         primary: [
-          { to: "selected", cls: "act-violet", label: "★ Promouvoir — Sélection officielle" },
-          { to: "finalist",  cls: "act-orange", label: "⭐ Passer directement en Finaliste" },
+          { to: "selected", cls: "bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 border border-violet-500/20", label: "★ Promouvoir — Sélection officielle" },
+          { to: "finalist",  cls: "bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/20", label: "⭐ Passer directement en Finaliste" },
         ],
-        danger: [{ to: "refused", cls: "act-red", label: "✗ Refuser" }],
+        danger: [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20", label: "✗ Refuser" }],
         info: "Phase 2 ouverte. Attendez les votes de délibération du jury.",
       };
     case "selected":
     case "candidate":
       return {
         primary: [
-          { to: "finalist", cls: "act-orange", label: "⭐ Passer en Finaliste" },
-          { to: "awarded",  cls: "act-gold",   label: "🏆 Primer ce film" },
+          { to: "finalist", cls: "bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/20", label: "⭐ Passer en Finaliste" },
+          { to: "awarded",  cls: "bg-yellow-500/30 hover:bg-yellow-500/40 text-yellow-300 border border-yellow-500/30", label: "🏆 Primer ce film" },
         ],
-        danger: [{ to: "refused", cls: "act-red", label: "✗ Retirer de la sélection" }],
+        danger: [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20", label: "✗ Retirer de la sélection" }],
         info: null,
       };
     case "finalist":
       return {
-        primary: [{ to: "awarded", cls: "act-gold", label: "🏆 Ajouter au palmarès" }],
-        danger:  [{ to: "refused", cls: "act-red",  label: "✗ Retirer" }],
+        primary: [{ to: "awarded", cls: "bg-yellow-500/30 hover:bg-yellow-500/40 text-yellow-300 border border-yellow-500/30", label: "🏆 Ajouter au palmarès" }],
+        danger:  [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20",  label: "✗ Retirer" }],
         info: null,
       };
     case "awarded":
       return {
         primary: [],
-        danger:  [{ to: "finalist", cls: "act-orange", label: "↩ Retirer du palmarès" }],
+        danger:  [{ to: "finalist", cls: "bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/20", label: "↩ Retirer du palmarès" }],
         info: "🏆 Ce film fait partie du palmarès.",
       };
     case "refused":
       return {
-        primary: [{ to: "submitted", cls: "act-slate", label: "↺ Remettre en attente" }],
+        primary: [{ to: "submitted", cls: "bg-white/10 hover:bg-white/20 text-white/60 border border-white/10", label: "↺ Remettre en attente" }],
         danger:  [],
         info: null,
       };
@@ -229,47 +231,33 @@ export default function Videos() {
     inv(); setSelectedIds([]);
   }
 
-  if (isPending) return <div className="flex flex-col items-center justify-center h-64 gap-3"><div className="w-7 h-7 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" /><p className="vid-label">Chargement</p></div>;
-  if (isError) return <div className="m-6 px-5 py-4 bg-red-950/30 border border-red-900/40 rounded-2xl text-red-400 text-sm flex items-center gap-3"><span>!</span><span>Erreur : {error?.message}</span></div>;
+  if (isPending) return (
+    <div className="flex flex-col items-center justify-center h-64 gap-3">
+      <div className="w-7 h-7 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+      <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Chargement</p>
+    </div>
+  );
+  
+  if (isError) return (
+    <div className="m-6 px-5 py-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm flex items-center gap-3 backdrop-blur-sm">
+      <span>!</span>
+      <span>Erreur : {error?.message}</span>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#06080d] text-white pb-20 vid-root">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-        .vid-root { font-family:'Inter',system-ui,sans-serif; }
-        .vid-label { font-size:9px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,.25); font-weight:500; }
-        .vid-section-label { font-size:8px; letter-spacing:0.25em; text-transform:uppercase; color:rgba(255,255,255,.2); font-weight:600; }
-        .vid-num { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:600; line-height:1; }
-        .vid-pill { font-size:9px; padding:2px 7px; border-radius:10px; font-weight:500; }
-        .film-row { transition:background .12s,border-color .12s; }
-        .row-thumb { transition:transform .3s; } .film-row:hover .row-thumb { transform:scale(1.08); }
-        .t-scroll::-webkit-scrollbar{width:3px;} .t-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
-        .act-green  { background:rgba(5,150,105,.12); color:#6ee7b7; border:1px solid rgba(5,150,105,.2); }
-        .act-green:hover:not(:disabled)  { background:rgba(5,150,105,.22); border-color:rgba(5,150,105,.38); }
-        .act-red    { background:rgba(185,28,28,.12);  color:#fca5a5; border:1px solid rgba(185,28,28,.2); }
-        .act-red:hover:not(:disabled)    { background:rgba(185,28,28,.22); border-color:rgba(185,28,28,.38); }
-        .act-amber  { background:rgba(180,83,9,.12);   color:#fcd34d; border:1px solid rgba(180,83,9,.2); }
-        .act-amber:hover:not(:disabled)  { background:rgba(180,83,9,.22); border-color:rgba(180,83,9,.38); }
-        .act-disabled    { opacity:.3 !important; cursor:not-allowed !important; }
-        .act-violet { background:rgba(109,40,217,.12); color:#c4b5fd; border:1px solid rgba(109,40,217,.2); }
-        .act-violet:hover:not(:disabled) { background:rgba(109,40,217,.22); border-color:rgba(109,40,217,.38); }
-        .act-orange { background:rgba(194,65,12,.12);  color:#fdba74; border:1px solid rgba(194,65,12,.2); }
-        .act-orange:hover:not(:disabled) { background:rgba(194,65,12,.22); border-color:rgba(194,65,12,.38); }
-        .act-gold   { background:rgba(161,98,7,.2);    color:#fde68a; border:1px solid rgba(161,98,7,.32); font-weight:600; }
-        .act-gold:hover:not(:disabled)   { background:rgba(161,98,7,.34); border-color:rgba(161,98,7,.52); }
-        .act-slate  { background:rgba(71,85,105,.15);  color:#94a3b8; border:1px solid rgba(71,85,105,.25); }
-        .act-slate:hover:not(:disabled)  { background:rgba(71,85,105,.28); }
-        .qbtn { padding:4px 9px; border-radius:7px; font-size:10px; font-weight:500; transition:all .15s; white-space:nowrap; font-family:'Inter',sans-serif; }
-      `}</style>
+    <div className="min-h-screen bg-[#06080d] text-white pb-20">
 
       {/* ── Header sticky ── */}
-      <div className="sticky top-0 z-20 bg-[#06080d]/97 backdrop-blur-xl border-b border-white/[0.04] px-6 py-0">
+      <div className="sticky top-0 z-20 bg-[#06080d]/97 backdrop-blur-xl border-b border-white/5 px-6 py-0">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
             <div>
-              <p className="vid-label text-amber-500/50 mb-1">Administration</p>
+              <p className="text-[9px] tracking-[0.18em] uppercase text-blue-400/50 mb-1 font-medium">Administration</p>
               <h1 className="text-[22px] font-semibold tracking-tight text-white">Gestion des films</h1>
-              <p className="vid-label mt-1">{allMovies.length} film{allMovies.length !== 1 ? "s" : ""} enregistres</p>
+              <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium mt-1">
+                {allMovies.length} film{allMovies.length !== 1 ? "s" : ""} enregistres
+              </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {[
@@ -280,26 +268,28 @@ export default function Videos() {
                 { key:"finalist",   col:"text-orange-300", bg:"bg-orange-500/10" },
                 { key:"awarded",    col:"text-yellow-300", bg:"bg-yellow-500/10" },
               ].map((s) => (
-                <div key={s.key} className={`flex flex-col items-center min-w-[52px] px-3 py-2 rounded-xl ${s.bg} border border-white/[0.06]`}>
-                  <span className={`vid-num ${s.col}`}>{tabCounts[s.key] || 0}</span>
-                  <span className="vid-label mt-1">{scfg(s.key).label}</span>
+                <div key={s.key} className={`flex flex-col items-center min-w-[52px] px-3 py-2 rounded-xl ${s.bg} border border-white/10`}>
+                  <span className={`font-['JetBrains_Mono'] text-lg font-semibold leading-none ${s.col}`}>{tabCounts[s.key] || 0}</span>
+                  <span className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium mt-1">{scfg(s.key).label}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex flex-wrap border-t border-white/[0.04]">
+          <div className="flex flex-wrap border-t border-white/5">
             {TABS.map((tab) => (
               <button key={tab.key} onClick={() => { setActiveTab(tab.key); setSelectedIds([]); }}
-                className={`relative flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all ${  
+                className={`relative flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all duration-300 ${  
                   activeTab === tab.key
                     ? "text-amber-400 after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-amber-400 after:rounded-t"
                     : "text-white/35 hover:text-white/60"
                 }`}>
                 {tab.label}
                 {(tabCounts[tab.key] || 0) > 0 && (
-                  <span className={`vid-pill ${activeTab === tab.key ? "bg-amber-500/20 text-amber-400" : "bg-white/[0.06] text-white/25"}`}>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                    activeTab === tab.key ? "bg-amber-500/20 text-amber-400" : "bg-white/5 text-white/25"
+                  }`}>
                     {tabCounts[tab.key]}
                   </span>
                 )}
@@ -319,17 +309,17 @@ export default function Videos() {
             </svg>
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Titre ou producteur…"
-              className="w-full bg-white/[0.04] border border-white/[0.07] text-white text-sm pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-amber-500/30 focus:bg-white/[0.05] placeholder:text-white/15 transition" />
+              className="w-full bg-white/5 border border-white/10 text-white text-sm pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-amber-500/30 focus:bg-white/10 placeholder:text-white/15 transition-all duration-300" />
           </div>
           {selectedIds.length > 0 && (
-            <div className="flex items-center gap-2 bg-amber-500/[0.07] border border-amber-500/20 rounded-xl px-3.5 py-2 text-[10px]">
+            <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3.5 py-2 text-[10px] backdrop-blur-sm">
               <span className="text-white/35">{selectedIds.length} film(s)</span>
               <span className="h-3 w-px bg-white/10" />
-              <button onClick={() => batchStatus("assigned")} className="text-emerald-400 hover:text-emerald-300 transition font-medium">✓ Accepter</button>
+              <button onClick={() => batchStatus("assigned")} className="text-emerald-400 hover:text-emerald-300 transition-all duration-300 font-medium">✓ Accepter</button>
               <span className="h-3 w-px bg-white/10" />
-              <button onClick={() => batchStatus("refused")} className="text-red-400 hover:text-red-300 transition">✗ Refuser</button>
+              <button onClick={() => batchStatus("refused")} className="text-red-400 hover:text-red-300 transition-all duration-300">✗ Refuser</button>
               <span className="h-3 w-px bg-white/10" />
-              <button onClick={() => setSelectedIds([])} className="text-white/25 hover:text-white/50 transition">✕</button>
+              <button onClick={() => setSelectedIds([])} className="text-white/25 hover:text-white/50 transition-all duration-300">✕</button>
             </div>
           )}
         </div>
@@ -341,20 +331,20 @@ export default function Videos() {
             <p className="text-sm">{allMovies.length === 0 ? "Aucun film soumis." : "Aucun film pour ce filtre."}</p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
-            <div className="grid grid-cols-[20px_56px_1fr_110px_90px_105px_auto] gap-4 px-5 py-3 border-b border-white/[0.05] bg-white/[0.02]">
+          <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden backdrop-blur-sm">
+            <div className="grid grid-cols-[40px_70px_minmax(200px,1fr)_130px_100px_120px_1fr] gap-2 px-4 py-3 border-b border-white/10 bg-white/5">
               <input type="checkbox" checked={selectedIds.length === filteredMovies.length && filteredMovies.length > 0}
                 onChange={() => setSelectedIds(selectedIds.length === filteredMovies.length ? [] : filteredMovies.map((m) => m.id_movie))}
                 className="accent-amber-500" />
               <span />
-              <span>Film</span>
-              <span className="vid-label">Producteur</span>
-              <span className="vid-label">Votes</span>
-              <span className="vid-label">Statut</span>
-              <span className="vid-label">Actions</span>
+              <span className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Film</span>
+              <span className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Producteur</span>
+              <span className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Votes</span>
+              <span className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Statut</span>
+              <span className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Actions</span>
             </div>
 
-            <div className="divide-y divide-white/[0.035]">
+            <div className="divide-y divide-white/5">
               {filteredMovies.map((movie) => {
                 const status  = movie.selection_status || "submitted";
                 const meta    = scfg(status);
@@ -364,28 +354,30 @@ export default function Videos() {
 
                 return (
                   <div key={movie.id_movie}
-                    className={`grid grid-cols-[20px_56px_1fr_110px_90px_105px_auto] gap-4 px-5 py-0 items-stretch transition film-row border-l-2 ${
-                      isSel ? "bg-amber-500/[0.04] !border-l-amber-500/50" : "!border-l-transparent"
+                    className={`grid grid-cols-[40px_70px_minmax(200px,1fr)_130px_100px_120px_1fr] gap-2 px-4 py-1 items-center transition-all duration-300 border-l-2 ${
+                      isSel ? "bg-amber-500/10 border-l-amber-500/50" : "border-l-transparent hover:bg-white/5"
                     }`}>
 
-                    <input type="checkbox" checked={isSel}
-                      onChange={() => setSelectedIds((p) => p.includes(movie.id_movie) ? p.filter((x) => x !== movie.id_movie) : [...p, movie.id_movie])}
-                      className="accent-amber-500" />
+                    <div className="flex items-center">
+                      <input type="checkbox" checked={isSel}
+                        onChange={() => setSelectedIds((p) => p.includes(movie.id_movie) ? p.filter((x) => x !== movie.id_movie) : [...p, movie.id_movie])}
+                        className="accent-amber-500" />
+                    </div>
 
                     <button type="button" onClick={() => setSelectedMovie(movie)}
-                      className="w-14 h-14 my-2.5 rounded-xl overflow-hidden bg-white/5 border border-white/[0.07] flex-shrink-0">
+                      className="w-16 h-12 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 group cursor-pointer">
                       {poster
-                        ? <img src={poster} alt={movie.title} className="row-thumb w-full h-full object-cover" />
+                        ? <img src={poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                         : <div className="w-full h-full flex items-center justify-center text-white/10 text-xl">🎬</div>}
                     </button>
 
-                    <button type="button" onClick={() => setSelectedMovie(movie)} className="text-left min-w-0 py-3 flex flex-col justify-center">
-                      <p className="text-sm font-medium text-white/80 truncate hover:text-amber-300 transition leading-snug">{movie.title}</p>
-                      <div className="flex flex-wrap gap-1 mt-0.5">
+                    <button type="button" onClick={() => setSelectedMovie(movie)} className="text-left min-w-0 py-2 flex flex-col justify-center">
+                      <p className="text-sm font-medium text-white/80 truncate hover:text-amber-300 transition-all duration-300 leading-snug">{movie.title}</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
                         {(movie.Categories || []).slice(0, 2).map((c) => (
-                          <span key={c.id_categorie} className="text-[8px] text-white/25 bg-white/[0.03] px-2 py-0.5 rounded-full border border-white/[0.05]">{c.name}</span>
+                          <span key={c.id_categorie} className="text-[8px] text-white/25 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">{c.name}</span>
                         ))}
-                        {movie.duration && <span className="text-[8px] text-white/20 font-mono">{movie.duration}s</span>}
+                        {movie.duration && <span className="text-[8px] text-white/20 font-['JetBrains_Mono']">{movie.duration}s</span>}
                       </div>
                     </button>
 
@@ -396,20 +388,20 @@ export default function Videos() {
                     <div className="self-center">
                       {summary ? (
                         <div className="space-y-1.5">
-                          <div className="flex gap-2 text-[10px] font-mono">
-                            <span className="text-emerald-400">{summary.YES}✓</span>
-                            <span className="text-amber-400">{summary["TO DISCUSS"]}◇</span>
-                            <span className="text-red-400">{summary.NO}✗</span>
+                          <div className="flex gap-2 text-[10px] font-['JetBrains_Mono']">
+                            <span className="text-emerald-400">{summary.YES}👍</span>
+                            <span className="text-amber-400">{summary["TO DISCUSS"]}💬</span>
+                            <span className="text-red-400">{summary.NO}👎</span>
                           </div>
                           {summary.total > 0 && (
-                            <div className="h-1 rounded-full flex overflow-hidden bg-white/[0.06] w-20">
-                              <div className="bg-emerald-500 h-full" style={{width:`${(summary.YES/summary.total)*100}%`}} />
-                              <div className="bg-amber-500 h-full"  style={{width:`${(summary["TO DISCUSS"]/summary.total)*100}%`}} />
-                              <div className="bg-red-500 h-full"    style={{width:`${(summary.NO/summary.total)*100}%`}} />
+                            <div className="h-1 rounded-full flex overflow-hidden bg-white/10 w-20">
+                              <div className="bg-emerald-500 h-full transition-all duration-300" style={{width:`${(summary.YES/summary.total)*100}%`}} />
+                              <div className="bg-amber-500 h-full transition-all duration-300"  style={{width:`${(summary["TO DISCUSS"]/summary.total)*100}%`}} />
+                              <div className="bg-red-500 h-full transition-all duration-300"    style={{width:`${(summary.NO/summary.total)*100}%`}} />
                             </div>
                           )}
                         </div>
-                      ) : <span className="text-white/15 font-mono text-[10px]">—</span>}
+                      ) : <span className="text-white/15 font-['JetBrains_Mono'] text-[10px]">—</span>}
                     </div>
 
                     <div>
@@ -422,35 +414,35 @@ export default function Videos() {
                     <div className="flex items-center gap-1 flex-wrap self-center py-2">
                       {status === "submitted" && (
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "assigned" })}
-                          className="qbtn act-green">✓ Accepter</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/20">✓ Accepter</button>
                       )}
                       {status === "assigned" && summary?.total > 0 && (
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "to_discuss" })}
-                          className="qbtn act-amber">Phase 2 →</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20">Phase 2 →</button>
                       )}
                       {status === "to_discuss" && (
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "selected" })}
-                          className="qbtn act-violet">★ Sélect.</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 border border-violet-500/20">★ Sélect.</button>
                       )}
                       {(status === "selected" || status === "candidate") && (
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "finalist" })}
-                          className="qbtn act-orange">⭐ Final.</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/20">⭐ Final.</button>
                       )}
                       {status === "finalist" && (
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "awarded" })}
-                          className="qbtn act-gold">🏆</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-yellow-500/30 hover:bg-yellow-500/40 text-yellow-300 border border-yellow-500/30">🏆</button>
                       )}
                       {status === "refused" && (
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "submitted" })}
-                          className="qbtn act-slate">↺</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-white/10 hover:bg-white/20 text-white/60 border border-white/10">↺</button>
                       )}
                       {status !== "refused" && status !== "awarded" && (
                         <button type="button"
                           onClick={() => window.confirm(`Refuser "${movie.title}" ?`) && statusM.mutate({ id: movie.id_movie, status: "refused" })}
-                          className="qbtn act-red">✗</button>
+                          className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20">✕</button>
                       )}
                       <button type="button" onClick={() => setSelectedMovie(movie)}
-                        className="qbtn" style={{ background: "rgba(255,255,255,.04)", color: "rgba(255,255,255,.3)", border: "1px solid rgba(255,255,255,.06)" }}>
+                        className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-white/5 hover:bg-white/10 text-white/40 border border-white/10">
                         ···
                       </button>
                     </div>
@@ -504,47 +496,47 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
     <>
     {/* Fullscreen video overlay */}
     {fsVideo && (
-      <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center"
+      <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-xl flex items-center justify-center"
            onClick={() => setFsVideo(false)}>
-        <button className="absolute top-4 right-4 text-white/50 hover:text-white text-2xl z-10" onClick={() => setFsVideo(false)}>✕</button>
+        <button className="absolute top-4 right-4 text-white/50 hover:text-white text-2xl z-10 transition-all duration-300" onClick={() => setFsVideo(false)}>✕</button>
         {trailer
-          ? <div className="w-full max-w-5xl px-4" onClick={(e) => e.stopPropagation()}>
+          ? <div className="w-full max-w-5xl px-2" onClick={(e) => e.stopPropagation()}>
               <VideoPreview title={movie.title} src={`${UPLOAD_BASE}/${trailer}`} poster={poster || undefined} />
             </div>
-          : <a href={movie.youtube_link} target="_blank" rel="noreferrer" className="text-amber-400 text-lg underline">
+          : <a href={movie.youtube_link} target="_blank" rel="noreferrer" className="text-amber-400 text-lg underline hover:text-amber-300 transition-all duration-300">
               Ouvrir sur YouTube ↗
             </a>
         }
       </div>
     )}
 
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm overflow-y-auto">
       <div className="min-h-full flex items-start justify-center p-4 py-6">
-        <div className="bg-[#0b0d11] border border-white/[0.07] rounded-2xl w-full max-w-6xl shadow-2xl shadow-black/60 overflow-hidden">
+        <div className="bg-gradient-to-b from-[#1a1c20]/60 to-[#0f1114]/60 border border-white/10 rounded-2xl w-full max-w-6xl shadow-2xl shadow-black/70 overflow-hidden backdrop-blur-sm">
 
           {/* ── Header bar ── */}
-          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.01]">
+          <div className="flex items-center gap-3 px-5 py-2.5 border-b border-white/10 bg-white/5">
             <span className={`inline-flex items-center gap-1.5 text-[9px] px-2.5 py-1 rounded-lg font-medium flex-shrink-0 ${meta.badge}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />{meta.label}
             </span>
             <h2 className="text-sm font-semibold text-white flex-1 truncate">{movie.title}</h2>
             {(movie.Awards || []).length > 0 && (
-              <span className="text-[9px] bg-yellow-800/30 text-yellow-300 px-2 py-1 rounded-lg border border-yellow-700/25 font-medium flex-shrink-0">
+              <span className="text-[9px] bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-lg border border-yellow-500/30 font-medium flex-shrink-0">
                 🏆 {movie.Awards.length} prix
               </span>
             )}
             {/* Pipeline — inline in header */}
             {status !== "refused" && (
-              <div className="hidden lg:flex items-center gap-0.5 overflow-x-auto flex-shrink-0">
+              <div className="hidden lg:flex items-center gap-0.5 overflow-x-auto flex-shrink-0 scrollbar-thin-dark">
                 {PIPELINE.map((step, i) => {
                   const cur  = step.key === status || (step.key === "selected" && status === "candidate");
                   const past = !cur && pIdx > i;
                   return (
                     <div key={step.key} className="flex items-center gap-0.5 flex-shrink-0">
-                      {i > 0 && <div className={`w-3 h-px ${past || cur ? "bg-amber-500/40" : "bg-white/[0.06]"}`} />}
-                      <span className={`px-2 py-0.5 rounded text-[8px] font-medium ${
-                        cur  ? "bg-amber-500/15 text-amber-300" :
-                        past ? "text-white/25" : "text-white/10"
+                      {i > 0 && <div className={`w-3 h-px ${past || cur ? "bg-amber-500/40" : "bg-white/10"}`} />}
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-medium ${
+                        cur  ? "bg-amber-500/15 text-amber-300 border border-amber-500/20" :
+                        past ? "text-white/35" : "text-white/15"
                       }`}>{step.short}</span>
                     </div>
                   );
@@ -552,22 +544,22 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
               </div>
             )}
             <button onClick={onClose}
-              className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-white/[0.05] border border-white/[0.07] text-white/40 hover:bg-white/[0.1] hover:text-white transition text-xs">
+              className="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-white/10 border border-white/10 text-white/40 hover:bg-red-500/20 hover:text-white transition-all duration-300 text-xs">
               ✕
             </button>
           </div>
 
           {/* ── Notice ── */}
           {notice && (
-            <div className={`mx-5 mt-3 px-4 py-2 rounded-xl text-xs border flex items-center gap-2 ${
+            <div className={`mx-5 mt-3 px-4 py-2 rounded-xl text-xs border flex items-center gap-2 backdrop-blur-sm ${
               notice.startsWith("❌")
-                ? "bg-red-900/15 border-red-800/25 text-red-300"
-                : "bg-emerald-900/15 border-emerald-800/25 text-emerald-300"
+                ? "bg-red-500/20 border-red-500/30 text-red-300"
+                : "bg-emerald-500/20 border-emerald-500/30 text-emerald-300"
             }`}>{notice}</div>
           )}
 
           {/* ── Body: 3 columns ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr_240px] divide-y lg:divide-y-0 lg:divide-x divide-white/[0.05] min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr_240px] divide-y lg:divide-y-0 lg:divide-x divide-white/10 min-h-0">
 
             {/* ── COL 1: Visual + checks ── */}
             <div className="p-4 flex flex-col gap-4">
@@ -575,18 +567,18 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
               {/* Poster thumbnail — click = fullscreen */}
               <div>
                 <div
-                  className="relative group w-full aspect-video rounded-xl overflow-hidden bg-white/[0.04] border border-white/[0.07] cursor-pointer"
+                  className="relative group w-full aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer"
                   onClick={() => (trailer || movie.youtube_link) && setFsVideo(true)}
                 >
                   {poster
-                    ? <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+                    ? <img src={poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     : <div className="w-full h-full flex items-center justify-center text-white/10 text-3xl">🎬</div>}
                   {(trailer || movie.youtube_link) && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
                         <span className="text-black text-sm ml-0.5">▶</span>
                       </div>
-                      <span className="absolute bottom-2 right-2 text-[9px] text-white/60 bg-black/50 px-1.5 py-0.5 rounded">
+                      <span className="absolute bottom-2 right-2 text-[9px] text-white/60 bg-black/50 px-1.5 py-0.5 rounded backdrop-blur-sm">
                         Plein écran
                       </span>
                     </div>
@@ -602,15 +594,15 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
                   {trailer && (
                     <a href={`${UPLOAD_BASE}/${trailer}`} target="_blank" rel="noreferrer"
-                      className="text-[10px] text-amber-400/50 hover:text-amber-300 transition">↓ Film</a>
+                      className="text-[10px] text-amber-400/50 hover:text-amber-300 transition-all duration-300">↓ Film</a>
                   )}
                   {movie.subtitle && (
                     <a href={`${UPLOAD_BASE}/${movie.subtitle}`} target="_blank" rel="noreferrer" download
-                      className="text-[10px] text-amber-400/50 hover:text-amber-300 transition">📄 Sous-titres</a>
+                      className="text-[10px] text-amber-400/50 hover:text-amber-300 transition-all duration-300">📄 Sous-titres</a>
                   )}
                   {movie.youtube_link && (
                     <a href={movie.youtube_link} target="_blank" rel="noreferrer"
-                      className="text-[10px] text-red-400/50 hover:text-red-300 transition">▶ YouTube</a>
+                      className="text-[10px] text-red-400/50 hover:text-red-300 transition-all duration-300">▶ YouTube</a>
                   )}
                 </div>
               </div>
@@ -624,7 +616,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                   ["Outil IA", movie.ai_tool || "—"],
                 ].map(([lbl, val]) => (
                   <div key={lbl}>
-                    <p className="vid-label mb-0.5">{lbl}</p>
+                    <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium mb-0.5">{lbl}</p>
                     <p className="text-white/55 text-[11px] truncate">{val}</p>
                   </div>
                 ))}
@@ -636,11 +628,11 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
             </div>
 
             {/* ── COL 2: Info + synopsis + votes ── */}
-            <div className="p-4 overflow-y-auto max-h-[75vh] t-scroll space-y-5">
+            <div className="p-4 overflow-y-auto max-h-[75vh] space-y-5 scrollbar-thin-dark">
 
               {/* Producer info */}
               <div>
-                <p className="vid-section-label mb-3">Informations</p>
+                <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-3">Informations</p>
                 <div className="grid grid-cols-2 gap-x-5 gap-y-3">
                   {[
                     ["Producteur",    movie.Producer ? `${movie.Producer.first_name} ${movie.Producer.last_name}` : "—"],
@@ -650,7 +642,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                     ["Connu via",     movie.Producer?.known_by_mars_ai || "—"],
                   ].map(([lbl, val]) => (
                     <div key={lbl} className="min-w-0">
-                      <p className="vid-label mb-0.5">{lbl}</p>
+                      <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium mb-0.5">{lbl}</p>
                       <p className="text-white/60 text-xs truncate">{val}</p>
                     </div>
                   ))}
@@ -659,14 +651,14 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
 
               {/* Synopsis */}
               <div>
-                <p className="vid-section-label mb-2.5">Synopsis</p>
+                <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Synopsis</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white/[0.02] rounded-xl p-3 border border-white/[0.05]">
-                    <p className="vid-label mb-1.5">Français</p>
+                  <div className="bg-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                    <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium mb-1.5">Français</p>
                     <p className="text-xs text-white/45 leading-relaxed line-clamp-5">{movie.synopsis || movie.description || "—"}</p>
                   </div>
-                  <div className="bg-white/[0.02] rounded-xl p-3 border border-white/[0.05]">
-                    <p className="vid-label mb-1.5">English</p>
+                  <div className="bg-white/3 rounded-xl p-3 border border-white/10 backdrop-blur-sm">
+                    <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium mb-1.5">English</p>
                     <p className="text-xs text-white/45 leading-relaxed line-clamp-5">{movie.synopsis_anglais || "—"}</p>
                   </div>
                 </div>
@@ -675,41 +667,41 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
               {/* Votes */}
               {(summary?.votes?.length || 0) > 0 && (
                 <div>
-                  <p className="vid-section-label mb-2.5">Votes Phase 1 — {summary.total} réponse{summary.total > 1 ? "s" : ""}</p>
+                  <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Votes Phase 1 — {summary.total} réponse{summary.total > 1 ? "s" : ""}</p>
 
                   {/* Stats + bar */}
                   <div className="flex items-center gap-3 mb-3">
-                    {[["Validé","YES","text-emerald-400","bg-emerald-500/10 border-emerald-800/20"],
-                      ["À discuter","TO DISCUSS","text-amber-400","bg-amber-500/10 border-amber-800/20"],
-                      ["Refusé","NO","text-red-400","bg-red-500/10 border-red-800/20"]].map(([lbl,k,col,bg]) => (
+                    {[["Validé","YES","text-emerald-400","bg-emerald-500/10 border-emerald-500/20"],
+                      ["À discuter","TO DISCUSS","text-amber-400","bg-amber-500/10 border-amber-500/20"],
+                      ["Refusé","NO","text-red-400","bg-red-500/10 border-red-500/20"]].map(([lbl,k,col,bg]) => (
                       <div key={k} className={`${bg} border rounded-xl px-3 py-2 text-center min-w-[58px]`}>
-                        <p className={`text-xl font-bold font-mono leading-none ${col}`}>{summary[k]}</p>
+                        <p className={`text-xl font-bold font-['JetBrains_Mono'] leading-none ${col}`}>{summary[k]}</p>
                         <p className="text-[8px] text-white/25 mt-1">{lbl}</p>
                       </div>
                     ))}
                     {summary.total > 0 && (
-                      <div className="flex-1 h-2 rounded-full flex overflow-hidden bg-white/[0.05]">
-                        <div className="bg-emerald-500 h-full" style={{ width:`${(summary.YES/summary.total)*100}%` }} />
-                        <div className="bg-amber-500 h-full"   style={{ width:`${(summary["TO DISCUSS"]/summary.total)*100}%` }} />
-                        <div className="bg-red-500 h-full"     style={{ width:`${(summary.NO/summary.total)*100}%` }} />
+                      <div className="flex-1 h-2 rounded-full flex overflow-hidden bg-white/10">
+                        <div className="bg-emerald-500 h-full transition-all duration-300" style={{ width:`${(summary.YES/summary.total)*100}%` }} />
+                        <div className="bg-amber-500 h-full transition-all duration-300"   style={{ width:`${(summary["TO DISCUSS"]/summary.total)*100}%` }} />
+                        <div className="bg-red-500 h-full transition-all duration-300"     style={{ width:`${(summary.NO/summary.total)*100}%` }} />
                       </div>
                     )}
                   </div>
 
                   {/* Jury list */}
-                  <div className="space-y-1 max-h-36 overflow-y-auto t-scroll">
+                  <div className="space-y-1 max-h-36 overflow-y-auto scrollbar-thin-dark">
                     {summary.votes.map((v) => (
-                      <div key={v.id_vote} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/[0.02] transition">
-                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-700/50 to-pink-700/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
+                      <div key={v.id_vote} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500/50 to-pink-500/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
                           {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
                         </div>
                         <span className="text-white/40 flex-1 truncate text-[11px]">
                           {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
                         </span>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${
-                          v.note === "YES" ? "bg-emerald-500/12 text-emerald-300" :
-                          v.note === "NO"  ? "bg-red-500/12 text-red-300" :
-                          "bg-amber-500/12 text-amber-300"
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${
+                          v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/20" :
+                          v.note === "NO"  ? "bg-red-500/20 text-red-300 border-red-500/20" :
+                          "bg-amber-500/20 text-amber-300 border-amber-500/20"
                         }`}>{v.note}</span>
                       </div>
                     ))}
@@ -720,13 +712,13 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
             </div>
 
             {/* ── COL 3: Actions sidebar ── */}
-            <div className="flex flex-col divide-y divide-white/[0.05] overflow-y-auto max-h-[75vh] t-scroll">
+            <div className="flex flex-col divide-y divide-white/10 overflow-y-auto max-h-[80vh] scrollbar-thin-dark">
 
               {/* Actions */}
               <div className="p-4">
-                <p className="vid-section-label mb-3">Actions</p>
+                <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-3">Actions</p>
                 {info && (
-                  <div className="mb-3 px-3 py-2 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl text-xs text-amber-200/55 leading-relaxed">
+                  <div className="mb-3 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-200/55 leading-relaxed backdrop-blur-sm">
                     {info}
                   </div>
                 )}
@@ -734,9 +726,9 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                   <div className="space-y-1.5 mb-2">
                     {primary.map((a) => (
                       <button key={a.to} type="button"
-                        disabled={a.cls.includes("disabled")}
-                        onClick={() => !a.cls.includes("disabled") && onStatus(movie.id_movie, a.to)}
-                        className={`w-full px-3 py-2.5 rounded-xl text-xs font-medium text-left transition ${a.cls}`}>
+                        disabled={a.cls.includes("cursor-not-allowed")}
+                        onClick={() => !a.cls.includes("cursor-not-allowed") && onStatus(movie.id_movie, a.to)}
+                        className={`w-full px-3 py-2.5 rounded-xl text-xs font-medium text-left transition-all duration-300 ${a.cls}`}>
                         {a.label}
                         {a.tip && <p className="text-[9px] font-normal opacity-55 mt-0.5">{a.tip}</p>}
                       </button>
@@ -744,29 +736,29 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                   </div>
                 )}
                 {danger.length > 0 && (
-                  <div className={`space-y-1.5 ${primary.length > 0 ? "pt-2 border-t border-white/[0.05]" : ""}`}>
+                  <div className={`space-y-1.5 ${primary.length > 0 ? "pt-2 border-t border-white/10" : ""}`}>
                     {danger.map((a) => (
                       <button key={a.to} type="button" onClick={() => onStatus(movie.id_movie, a.to)}
-                        className={`w-full px-3 py-2.5 rounded-xl text-xs text-left transition ${a.cls}`}>
+                        className={`w-full px-3 py-2.5 rounded-xl text-xs text-left transition-all duration-300 ${a.cls}`}>
                         {a.label}
                       </button>
                     ))}
                   </div>
                 )}
                 {primary.length === 0 && danger.length === 0 && !info && (
-                  <p className="text-xs text-white/18 italic">Aucune action disponible.</p>
+                  <p className="text-xs text-white/20 italic">Aucune action disponible.</p>
                 )}
               </div>
 
               {/* Jurys */}
               <div className="p-4">
-                <p className="vid-section-label mb-2.5">Jurys assignés</p>
+                <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Jurys assignés</p>
                 {juries.length === 0
                   ? <p className="text-xs text-white/25 italic">Aucun jury assigné.</p>
                   : <div className="space-y-2 mb-2">
                       {juries.map((j) => (
                         <div key={j.id_user} className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-700 to-pink-700 flex items-center justify-center text-[8px] font-bold flex-shrink-0 ring-1 ring-white/10">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center text-[8px] font-bold flex-shrink-0 ring-1 ring-white/20">
                             {j.first_name?.[0]}{j.last_name?.[0]}
                           </div>
                           <span className="text-white/50 text-xs">{j.first_name} {j.last_name}</span>
@@ -774,14 +766,14 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                       ))}
                     </div>
                 }
-                <p className="text-[9px] text-white/18 italic font-mono">
+                <p className="text-[9px] text-white/20 italic font-['JetBrains_Mono']">
                   Gérer dans <span className="text-amber-400/45">Distribution &amp; Jury</span>.
                 </p>
               </div>
 
               {/* Catégories */}
               <div className="p-4">
-                <p className="vid-section-label mb-2.5">Catégories</p>
+                <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Catégories</p>
                 <div className="flex flex-wrap gap-1.5 mb-2.5">
                   {categories.map((c) => (
                     <button key={c.id_categorie} type="button"
@@ -790,29 +782,29 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                         const next = curr.includes(c.id_categorie) ? curr.filter((x) => x !== c.id_categorie) : [...curr, c.id_categorie];
                         setCatSel((p) => ({ ...p, [movie.id_movie]: next }));
                       }}
-                      className={`text-[10px] px-2 py-1 rounded-lg border transition ${
+                      className={`text-[10px] px-2 py-1 rounded-lg border transition-all duration-300 ${
                         currentCats.includes(c.id_categorie)
-                          ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
-                          : "bg-white/[0.04] border-white/[0.06] text-white/35 hover:bg-white/[0.07] hover:text-white/65"
+                          ? "bg-amber-500/20 border-amber-500/30 text-amber-300"
+                          : "bg-white/5 border-white/10 text-white/35 hover:bg-white/10 hover:text-white/65"
                       }`}>
                       {c.name}
                     </button>
                   ))}
                 </div>
                 <button type="button" onClick={() => onCategories(movie.id_movie)}
-                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.07] text-white/45 text-xs rounded-xl hover:bg-white/[0.07] hover:text-white/70 transition font-medium">
+                  className="w-full px-3 py-2 bg-blue-500/20 border border-blue-700/20 text-white/45 text-xs rounded-xl hover:bg-blue-700/20 hover:text-white/70 transition-all duration-300 font-medium cursor-pointer">
                   Enregistrer
                 </button>
               </div>
 
               {/* Note interne */}
               <div className="p-4">
-                <p className="vid-section-label mb-2.5">Note interne</p>
+                <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Note interne</p>
                 <textarea value={adminComment} onChange={(e) => setAdminComment(e.target.value)}
                   rows={3} placeholder="Note confidentielle…"
-                  className="w-full bg-white/[0.04] border border-white/[0.07] text-white text-xs px-3 py-2 rounded-xl focus:outline-none focus:border-amber-500/25 focus:bg-white/[0.05] resize-none mb-2 placeholder:text-white/15 transition" />
+                  className="w-full bg-white/5 border border-white/10 text-white text-xs px-3 py-2 rounded-xl focus:outline-none focus:border-amber-500/30 focus:bg-white/10 resize-none mb-2 placeholder:text-white/15 transition-all duration-300" />
                 <button type="button" onClick={() => onComment(movie.id_movie)}
-                  className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.07] text-white/45 text-xs rounded-xl hover:bg-white/[0.07] hover:text-white/70 transition font-medium">
+                  className="w-full px-3 py-2 bg-blue-500/20 border border-blue-700/20 text-white/45 text-xs rounded-xl hover:bg-blue-700/20 hover:text-white/70 transition-all duration-300 font-medium cursor-pointer">
                   Enregistrer
                 </button>
               </div>
@@ -820,15 +812,15 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
               {/* Forcer un statut */}
               <div className="p-4">
                 <button onClick={() => setManual((p) => !p)}
-                  className="w-full flex items-center justify-between text-[11px] text-white/28 hover:text-white/50 transition">
+                  className="w-full flex items-center justify-between text-[11px] text-white/30 hover:text-white/50 transition-all duration-300">
                   <span>Forcer un statut</span>
-                  <span className={`transition-transform duration-200 ${manual ? "rotate-180" : ""}`}>▾</span>
+                  <span className={`transition-transform duration-300 ${manual ? "rotate-180" : ""}`}>▾</span>
                 </button>
                 {manual && (
-                  <div className="mt-3 grid grid-cols-2 gap-1.5 pt-3 border-t border-white/[0.05]">
+                  <div className="mt-3 grid grid-cols-2 gap-1.5 pt-3 border-t border-white/10">
                     {Object.entries(S).filter(([s]) => s !== status).map(([s, m]) => (
                       <button key={s} type="button" onClick={() => onStatus(movie.id_movie, s)}
-                        className="flex items-center gap-1.5 px-2 py-2 bg-white/[0.03] border border-white/[0.05] text-white/40 text-[10px] rounded-xl hover:bg-white/[0.06] hover:text-white/65 hover:border-white/[0.09] transition">
+                        className="flex items-center gap-1.5 px-2 py-2 bg-white/5 border border-white/10 text-white/40 text-[10px] rounded-xl hover:bg-white/10 hover:text-white/65 hover:border-white/20 transition-all duration-300">
                         <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${m.dot}`} />
                         {m.label}
                       </button>
@@ -840,7 +832,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
               {/* Delete */}
               <div className="p-4 mt-auto">
                 <button type="button" onClick={() => onDelete(movie.id_movie)}
-                  className="w-full px-3 py-2 text-[11px] text-red-500/28 border border-red-900/18 rounded-xl hover:bg-red-950/25 hover:text-red-400/80 hover:border-red-800/35 transition">
+                  className="w-full px-3 py-2 text-[11px] text-red-300/90 border bg-red-500/10 border-red-900/20 rounded-xl hover:bg-red-500/20 hover:text-red-400/90 hover:border-red-500/30 transition-all duration-300">
                   🗑 Supprimer définitivement
                 </button>
               </div>
@@ -870,29 +862,20 @@ function CheckStrip({ movie }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <p className="vid-section-label">Vérifications</p>
-        <span className={`text-[9px] font-mono ${allOk ? "text-emerald-400" : "text-amber-400"}`}>{passed}/{checks.length}</span>
+        <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold">Vérifications</p>
+        <span className={`text-[9px] font-['JetBrains_Mono'] ${allOk ? "text-emerald-400" : "text-amber-400"}`}>{passed}/{checks.length}</span>
       </div>
       <div className="flex flex-col gap-1">
         {checks.map((c) => (
           <div key={c.label} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] ${
             c.ok ? "text-emerald-400/80" : "text-red-400/80"
           }`}>
-            <span className="font-mono text-[9px] w-3 flex-shrink-0">{c.ok ? "✓" : "✗"}</span>
+            <span className="font-['JetBrains_Mono'] text-[9px] w-3 flex-shrink-0">{c.ok ? "✓" : "✗"}</span>
             <span className="flex-1">{c.label}</span>
             {!c.ok && c.note && <span className="text-[9px] opacity-40">({c.note})</span>}
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function Blk({ title, children }) {
-  return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5">
-      <h3 className="vid-section-label mb-4">{title}</h3>
-      {children}
     </div>
   );
 }

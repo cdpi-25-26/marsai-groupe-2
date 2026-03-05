@@ -219,10 +219,6 @@ function getVoteById(req, res) {
         .catch(err => res.status(500).json({ error: err.message }));
 }
 
-function findVoteByNote(note) {
-    return Vote.findOne({ where: { note } });
-}
-
 export default {
     getVote,
     createVote,
@@ -232,6 +228,5 @@ export default {
     deleteVote,
     updateVote,
     getVoteById,
-    findVoteByNote,
     deleteVotesByMovie
 };

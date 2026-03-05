@@ -18,6 +18,7 @@ import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/vide
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
+import { getPoster, getTrailer } from "../../utils/movieUtils.js";
 
 /* ─── SVG icons (remplacent les emojis) ───────────────── */
 function IconThumbUp() {
@@ -51,28 +52,6 @@ const VOTE_LABELS = {
   NO: "Rejeté",
 };
 const getVoteLabel = (note) => VOTE_LABELS[note] || note;
-
-/* ─── Utilitaires poster / trailer ───────────────────── */
-const getPoster = (movie) =>
-  movie.thumbnail
-    ? `${UPLOAD_BASE}/${movie.thumbnail}`
-    : movie.display_picture
-      ? `${UPLOAD_BASE}/${movie.display_picture}`
-      : movie.picture1
-        ? `${UPLOAD_BASE}/${movie.picture1}`
-        : movie.picture2
-          ? `${UPLOAD_BASE}/${movie.picture2}`
-          : movie.picture3
-            ? `${UPLOAD_BASE}/${movie.picture3}`
-            : null;
-
-const getTrailer = (movie) =>
-  movie.trailer ||
-  movie.trailer_video ||
-  movie.trailerVideo ||
-  movie.filmFile ||
-  movie.video ||
-  null;
 
 /* ─── Composant principal ─────────────────────────────── */
 export default function JuryHome() {
