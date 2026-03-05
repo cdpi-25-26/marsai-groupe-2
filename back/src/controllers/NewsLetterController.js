@@ -13,7 +13,7 @@ async function main(req, res) {
             4,
         ],
     });
-    res.status(200).json({message : "tout va bien"});
+    res.status(200).json({message : "envoi newsletter réussi"});
 }
 
 export default { main };
