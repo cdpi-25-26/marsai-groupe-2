@@ -1,35 +1,8 @@
 import express from "express";
-import NewsletterController from "../controllers/NewsletterController.js";
-import AuthMiddleware from "../middlewares/AuthMiddleware.js";
-import EmailController from "../controllers/EmailController.js";
+import NewsLetterController from "../controllers/NewsLetterController.js";
 
-const newsletterRouter = express.Router();
+const newsLetterRouter = express.Router();
 
-newsletterRouter.post("/subscribe", NewsletterController.subscribe);
-newsletterRouter.get(
-  "/subscribers",
-  AuthMiddleware(["ADMIN"]),
-  NewsletterController.listSubscribers
-);
-newsletterRouter.post(
-  "/send",
-  AuthMiddleware(["ADMIN"]),
-  NewsletterController.sendNewsletter
-);
-newsletterRouter.post(
-  "/test-email",
-  AuthMiddleware(["ADMIN"]),
-  NewsletterController.sendTestEmail
-);
-newsletterRouter.post(
-  "/test-reject-email",
-  AuthMiddleware(["ADMIN"]),
-  EmailController.sendRejectTest
-);
-newsletterRouter.post(
-  "/movie/:id/send-reject-email",
-  AuthMiddleware(["ADMIN"]),
-  EmailController.sendRejectForMovie
-);
+newsLetterRouter.post("/", NewsLetterController.main);
 
-export default newsletterRouter;
+export default newsLetterRouter;
