@@ -69,6 +69,7 @@
         "tiktok": "TikTok",
         "knownByMarsAi": "Connu par MarsAI",
         "password": "Mot de passe",
+        "socialLink": "Lien réseau social ou site web",
         "collaborators": {
           "firstName": "Prénom",
           "lastName": "Nom",

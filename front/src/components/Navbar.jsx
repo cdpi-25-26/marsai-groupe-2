@@ -53,7 +53,7 @@ useEffect(() => {
       <Link to="/">
         <div className=" ml-3 flex gap-2.5 items-center">
           <div className="text-white text-3xl uppercase font-bold">Mars</div> 
-          <div className="text-3xl font-boldtext-3xl uppercase font-bold bg-linear-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">AI</div>
+          <div className="text-3xl uppercase font-bold bg-gradient-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">AI</div>
         </div>
       </Link>
 
