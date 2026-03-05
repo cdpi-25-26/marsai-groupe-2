@@ -7,7 +7,7 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "../../api/users";
-import { getAssignedMovies, updateMovieStatus } from "../../api/videos";
+import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/videos";
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 
