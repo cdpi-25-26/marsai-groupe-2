@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 let transporter;
 
@@ -50,27 +53,45 @@ function normalizeToRecipients(to) {
   return [];
 }
 
-async function sendEmail({ to, subject, html, text }) {
-  if (!isMailerConfigured()) {
-    throw new Error("Mailer non configuré (SMTP)");
-  }
+// async function sendEmail({ to, subject, html, text }) {
+//   if (!isMailerConfigured()) {
+//     throw new Error("Mailer non configuré (SMTP)");
+//   }
 
-  const senderName = getSenderName();
-  const senderEmail = getSenderEmail();
-  const recipients = normalizeToRecipients(to);
+//   const senderName = getSenderName();
+//   const senderEmail = getSenderEmail();
+//   const recipients = normalizeToRecipients(to);
 
-  if (!recipients.length) {
-    throw new Error("Destinataire email manquant");
-  }
+//   if (!recipients.length) {
+//     throw new Error("Destinataire email manquant");
+//   }
 
-  return await getTransporter().sendMail({
-    from: `${senderName} <${senderEmail}>`,
-    to: recipients.map((recipient) => recipient.email).join(", "),
-    subject,
-    html,
-    text,
-  });
+//   return await getTransporter().sendMail({
+//     from: `${senderName} <${senderEmail}>`,
+//     to: recipients.map((recipient) => recipient.email).join(", "),
+//     subject,
+//     html,
+//     text,
+//   });
+// }
+
+async function sendEmail(userEmail, subject, html) {
+    const transporter = nodemailer.createTransport({
+        host: env.SMTP_HOST,
+        port: env.SMTP_PORT,
+        auth: {
+            user: env.SMTP_USERNAME,
+            pass: env.SMTP_PASSWORD,
+        },
+    })
+    await transporter.sendMail({
+        from: env.FROM_EMAIL,
+        to: userEmail,
+        subject, subject,
+        html: html
+    })
 }
+
 
 async function sendTemplateEmail({ to, templateId, params = {}, subject }) {
   const paramsText = Object.entries(params)
