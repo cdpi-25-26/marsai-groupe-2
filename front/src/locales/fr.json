@@ -17,6 +17,11 @@
       "links": {
         "noAccount": "Pas encore de compte ?",
         "register": "S'inscrire"
+      },
+      "errors": {
+        "invalidCredentials": "Email ou mot de passe invalide.",
+        "missingUserData": "Réponse de connexion invalide : données utilisateur manquantes.",
+        "loginFailed": "Erreur de connexion. Veuillez réessayer."
       }
     },
     "register": {
