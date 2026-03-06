@@ -11,8 +11,8 @@ async function sendValidateEmail(userEmail) {
         env.JWT_SECRET,
     )
     const html = `
-    <h1>Email de Confirmation</h1>
-    <p>Votre film est accepté</p>
+    <h1>Confirmation Email</h1>
+    <p>Your video submission has been accepted.</p>
     `
     try {
         await sendEmail(userEmail,html)

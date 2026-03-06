@@ -78,13 +78,13 @@ async function processQueue() {
     if (data.licensedContent === true) {
       EmailController.sendMail(
         userEmail,
-        "Vidéo refusée, contenu sous licence",
+        "Video rejected, licensed content",
         VIDEO_REJECT_TEMPLATE,
       );
     } else {
       EmailController.sendMail(
         userEmail,
-        "Votre vidéo acceptée",
+        "Your video has been accepted.",
         VIDEO_ACCEPT_TEMPLATE,
       );
     }
