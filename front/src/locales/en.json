@@ -202,11 +202,12 @@
       "remove": "Remove",
       "chooseFile": "Choose file"
     }
-  }
-}
-
-
-}, 
+  },
+  "messages": {
+  },
+  "producerHome": {
+    "alertStep1": "Please complete all required fields in Step 1 before continuing."
+  },
   "validation": {
     "firstName": {
       "required": "First name is required"

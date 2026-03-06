@@ -200,10 +200,11 @@
       "remove": "Supprimer",
       "chooseFile": "Choisir un fichier"
     }
-  }
-}
-
-
+  },
+  "messages": {
+  },
+  "producerHome": {
+    "alertStep1": "Veuillez compléter tous les champs obligatoires de l'Étape 1 avant de continuer."
   },
   "validation": {
     "firstName": {
