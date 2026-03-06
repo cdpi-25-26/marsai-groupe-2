@@ -22,6 +22,7 @@ function Awards() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [awardName, setAwardName] = useState("");
+  const [statusTarget, setStatusTarget] = useState("candidate");
   const [feedback, setFeedback] = useState(null);
   const [activeTab, setActiveTab] = useState("create");
   const [confirmModal, setConfirmModal] = useState(null);
@@ -36,8 +37,14 @@ function Awards() {
     queryFn: getVideos,
   });
 
+  const { data: votesData } = useQuery({
+    queryKey: ["votes"],
+    queryFn: getVotes,
+  });
+
   const awards = awardsData?.data || [];
   const movies = moviesData?.data || [];
+  const votes = votesData?.data || [];
 
   // Films candidats (status: candidate, selected, finalist) qui peuvent recevoir un prix
   const candidateMovies = useMemo(() => {
@@ -111,6 +118,19 @@ function Awards() {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id_movie, selection_status }) => updateMovieStatus(id_movie, selection_status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listVideos"] });
+      setFeedback({ type: "success", message: "Statut du film mis à jour" });
+      setTimeout(() => setFeedback(null), 3000);
+    },
+    onError: () => {
+      setFeedback({ type: "error", message: "Erreur lors du changement de statut" });
+      setTimeout(() => setFeedback(null), 3000);
+    },
+  });
+
   const resetAwardedMoviesMutation = useMutation({
     mutationFn: async () => {
       const promises = awardedMovies.map((movie) =>
@@ -150,6 +170,7 @@ function Awards() {
     setSelectedMovie(movie);
     setShowModal(true);
     setAwardName("");
+    setStatusTarget(movie.selection_status || "candidate");
   };
 
   const handleSubmit = (e) => {
@@ -219,6 +240,32 @@ function Awards() {
           ? `${UPLOAD_BASE}/${movie.picture1}`
           : null;
   };
+
+  const getTrailer = (movie) => (
+    movie?.trailer || movie?.trailer_video || movie?.trailerVideo || movie?.filmFile || movie?.video || null
+  );
+
+  const votesByMovie = useMemo(() => {
+    return votes.reduce((acc, vote) => {
+      if (!acc[vote.id_movie]) acc[vote.id_movie] = [];
+      acc[vote.id_movie].push(vote);
+      return acc;
+    }, {});
+  }, [votes]);
+
+  const voteStatsByMovie = useMemo(() => {
+    const stats = {};
+    votes.forEach((vote) => {
+      if (!stats[vote.id_movie]) stats[vote.id_movie] = { count: 0, sum: 0, average: 0 };
+      const numeric = parseFloat(vote.note);
+      if (!Number.isNaN(numeric)) {
+        stats[vote.id_movie].count += 1;
+        stats[vote.id_movie].sum += numeric;
+        stats[vote.id_movie].average = stats[vote.id_movie].sum / stats[vote.id_movie].count;
+      }
+    });
+    return stats;
+  }, [votes]);
 
   if (awardsLoading) {
     return (

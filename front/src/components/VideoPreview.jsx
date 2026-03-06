@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-export function VideoPreview({ src, poster, title, onEnded, openMode = "overlay" }) {
+export function VideoPreview({
+  src,
+  poster,
+  title,
+  onEnded,
+  openMode = "overlay",
+  modalPlacement = "center",
+  modalTopOffsetClass = "inset-0",
+}) {
   const videoRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -41,6 +50,11 @@ export function VideoPreview({ src, poster, title, onEnded, openMode = "overlay"
       video.webkitRequestFullscreen();
     }
   }
+
+  const placementClasses =
+    modalPlacement === "bottom"
+      ? "items-end pb-4"
+      : "items-center";
 
   return (
     <>

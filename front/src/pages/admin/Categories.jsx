@@ -1,16 +1,31 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 /**
  * Composant Categories (Gestion des Catégories)
- * Page administrateur pour créer, modifier et supprimer les catégories
- * @returns {JSX.Element} La page de gestion des catégories
+ * Page admin pour gérer les catégories de films.
+ * Utilise le style e i colori della dashboard admin, awards.jsx e users.jsx.
+ * Utilise TanStack Query pour CRUD, modale per aggiunta/modifica, layout full-page.
  */
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/videos.js";
-import TutorialBox from "../../components/TutorialBox.jsx";
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from "../../api/videos";
+import GlassTableBody from "../../components/admin/GlassTableBody.jsx";
+import Pagination from "../../components/admin/Pagination.jsx";
+
 
 function Categories() {
+  const categorySchema = z.object({
+    name: z.string().min(1, "Le nom est requis"),
+  });
+
   const queryClient = useQueryClient();
-  const [categoryName, setCategoryName] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [feedback, setFeedback] = useState(null);
   

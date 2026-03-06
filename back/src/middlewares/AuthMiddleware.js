@@ -28,6 +28,12 @@ export default function AuthMiddleware(roles = []) {
         where: { id_user: decoded.id },
       });
 
+
+console.log("ROLE FROM DB:", user?.role);
+console.log("ROLES REQUIRED:", roles);
+
+
+
       if (!user) {
         return res.status(401).json({ error: "User not found" });
       }

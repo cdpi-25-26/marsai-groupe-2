@@ -106,6 +106,18 @@ async function createOrUpdateMyVote(req, res) {
             return res.status(403).json({ error: "Film non assigné à ce jury" });
         }
 
+        const movie = await Movie.findByPk(id_movie);
+        if (!movie) {
+            return res.status(404).json({ error: "Film non trouvé" });
+        }
+
+        const status = movie.selection_status;
+        if (!['assigned', 'to_discuss'].includes(status)) {
+            return res.status(400).json({
+                error: "Vote non autorisé pour ce statut de film"
+            });
+        }
+
         const existingVote = await Vote.findOne({ where: { id_movie, id_user } });
 
         if (existingVote) {

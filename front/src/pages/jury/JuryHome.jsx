@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getCurrentUser } from "../../api/users";
 import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/videos";
+import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/videos";
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
@@ -515,7 +516,7 @@ export default function JuryHome() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-gray-500">Aucune vidéo disponible.</p>
+                      <p className="text-gray-500">{t("jury.home.modal.noVideo")}</p>
                     )}
                   </div>
                 </InfoBlock>
