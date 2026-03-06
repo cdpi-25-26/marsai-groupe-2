@@ -1,16 +1,16 @@
-/**
- * Chargeur automatique de modèles Sequelize
- * Ce fichier charge dynamiquement tous les modèles du répertoire /models
- * Crée les associations entre modèles et initialise Sequelize
- * 
- * Processus:
- * 1. Détermine l'environnement (development/test/production)
- * 2. Charge la configuration depuis config.json
- * 3. Initialise l'instance Sequelize
- * 4. Charge dynamiquement tous les fichiers .js (modèles)
- * 5. Établit les associations entre modèles
- * 6. Exporte l'objet db avec tous les modèles et l'instance Sequelize
- */
+// /**
+//  * Chargeur automatique de modèles Sequelize
+//  * Ce fichier charge dynamiquement tous les modèles du répertoire /models
+//  * Crée les associations entre modèles et initialise Sequelize
+//  * 
+//  * Processus:
+//  * 1. Détermine l'environnement (development/test/production)
+//  * 2. Charge la configuration depuis config.json
+//  * 3. Initialise l'instance Sequelize
+//  * 4. Charge dynamiquement tous les fichiers .js (modèles)
+//  * 5. Établit les associations entre modèles
+//  * 6. Exporte l'objet db avec tous les modèles et l'instance Sequelize
+//  */
 
 import fs from 'fs';
 import path from 'path';
