@@ -32,6 +32,7 @@ import {
 } from "../../api/videos.js";
 import { getCategories } from "../../api/videos.js";
 import { UPLOAD_BASE } from "../../utils/constants.js";
+import { getPoster } from "../../utils/movieUtils.js";
 
 const TUTORIAL_STEPS = [
   "Tous les membres du jury sont affichés à gauche.",
@@ -85,14 +86,6 @@ const STATUS_CONFIG = {
 const statusCfg = (s) => STATUS_CONFIG[s] || STATUS_CONFIG.submitted;
 
 /* ─── Utilitaires ─────────────────────────────────────── */
-const getPoster = (movie) =>
-  movie.thumbnail
-    ? `${UPLOAD_BASE}/${movie.thumbnail}`
-    : movie.display_picture
-      ? `${UPLOAD_BASE}/${movie.display_picture}`
-      : movie.picture1
-        ? `${UPLOAD_BASE}/${movie.picture1}`
-        : null;
 
 /* ════════════════════════════════════════════════════════
    COMPOSANT PRINCIPAL

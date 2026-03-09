@@ -12,7 +12,6 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { getCurrentUser } from "../../api/users";
 import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/videos";
 
@@ -54,9 +53,14 @@ const VOTE_LABELS = {
 };
 const getVoteLabel = (note) => VOTE_LABELS[note] || note;
 
+/* ─── Numéro de votation → libellé ordinal ────────────── */
+function voteOrdinal(n) {
+  if (n === 1) return "1ère votation";
+  return `${n}ème votation`;
+}
+
 /* ─── Composant principal ─────────────────────────────── */
 export default function JuryHome() {
-  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   /* États d'interface */
@@ -199,9 +203,8 @@ export default function JuryHome() {
     selectedMovie
       ? (getTrailer(selectedMovie) ? hasWatched : confirmedWatched) && canEditVote
       : false;
-  // FIX: Previously required modification_count > 0, which was only set
-  // on 'selected' films (not 'to_discuss'), making button permanently invisible.
-  const canPromote = isSecondVoteOpen && selectedVote != null;
+  // FIX #9: Only jury members who voted YES can promote — not NO or TO DISCUSS.
+  const canPromote = isSecondVoteOpen && selectedVote?.note === "YES";
 
   /* ── Statistiques de progression ── */
   const totalAssigned = assignedMovies.length;
@@ -516,7 +519,7 @@ export default function JuryHome() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-gray-500">{t("jury.home.modal.noVideo")}</p>
+                      <p className="text-gray-500">Aucune vidéo disponible pour ce film.</p>
                     )}
                   </div>
                 </InfoBlock>
@@ -551,7 +554,7 @@ export default function JuryHome() {
                         {selectedVote.history.map((entry, idx) => (
                           <div key={entry.id_vote_history || idx} className="bg-gray-900 border border-gray-800 rounded-lg p-2">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-gray-400">{idx === 0 ? "1ère votation" : "2ème votation"}</span>
+                              <span className="text-gray-400">{voteOrdinal(idx + 1)}</span>
                               <span className="font-semibold text-white">{getVoteLabel(entry.note)}</span>
                             </div>
                             {entry.comments && (

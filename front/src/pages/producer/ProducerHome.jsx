@@ -69,35 +69,89 @@ const movieSchema = z.object({
   }),
 });
 
-/* ─── Tailwind class constants (replaces inline <style> CSS) ───────── */
+/* ─── Balanced Tailwind class constants ───────── */
 const tw = {
+  // Field inputs - comfortable but not oversized
   fieldInput:
-    "w-full bg-white/[0.04] border border-white/[0.08] text-white px-3.5 py-2.5 rounded-xl text-sm transition-colors outline-none focus:border-[#AD46FF]/40",
-  fieldInputErr: "border-red-500/50 bg-red-500/[0.04]",
+    "w-full bg-white/[0.02] border border-white/[0.08] text-white px-4 py-2.5 rounded-lg text-sm transition-all duration-200 outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF] focus:ring-1 focus:ring-[#AD46FF]/20 placeholder:text-white/20",
+  fieldInputErr: "border-red-500/50 bg-red-500/[0.02] focus:ring-red-500/20",
+  
+  // File buttons - comfortable
   fileBtn:
-    "inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#AD46FF]/10 border border-[#AD46FF]/25 text-purple-400 text-[13px] cursor-pointer whitespace-nowrap transition-all hover:bg-[#AD46FF]/20 hover:border-[#AD46FF]/45",
-  card: "bg-white/[0.03] border border-white/[0.07] rounded-[18px]",
+    "inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#AD46FF]/10 border border-[#AD46FF]/25 text-[#AD46FF] text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#AD46FF]/15 hover:border-[#AD46FF]/40",
+  
+  // Cards with good padding
+  card: "bg-white/[0.03] border border-white/[0.07] rounded-xl shadow-lg",
+  
+  // Primary button - good size
+  primaryBtn: "px-5 py-2.5 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-lg hover:shadow-[#AD46FF]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
+  
+  // Secondary button - good size
+  secondaryBtn: "px-5 py-2.5 border border-white/[0.08] bg-white/[0.02] text-white/70 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/[0.06] hover:border-white/[0.15] hover:text-white/90",
+  
+  // Cancel button - red
+  cancelBtn: "px-5 py-2.5 border border-red-500/30 bg-red-500/10 text-red-400 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-red-500/20 hover:border-red-500/40",
+  
+  // Status badges - readable
+  statusBadge: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider shadow-lg",
+  
+  // Section titles
+  sectionTitle: "text-xs font-semibold text-white/50 uppercase tracking-wider",
+  
+  // Step indicator - comfortable
+  stepIndicator: "w-9 h-9 rounded-lg flex items-center justify-center font-semibold text-sm transition-all duration-300",
+  
+  // Film card - good proportions
+  filmCard: "bg-white/[0.02] border border-white/[0.06] rounded-lg overflow-hidden hover:border-[#AD46FF]/40 hover:shadow-lg hover:shadow-[#AD46FF]/10 transition-all hover:scale-[1.02] text-left",
 };
 
 /* ─── Statuts pipeline ─────────────────────────────────── */
 const STATUS_MAP = {
-  submitted: { label: "Soumis", color: "bg-zinc-700", dot: "#a1a1aa" },
+  submitted: { 
+    label: "Soumis", 
+    color: "bg-gradient-to-r from-zinc-600 to-zinc-700 text-white",
+    dot: "#a1a1aa" 
+  },
   assigned: {
     label: "En cours d'évaluation",
-    color: "bg-sky-700",
+    color: "bg-gradient-to-r from-sky-500 to-sky-600 text-white",
     dot: "#38bdf8",
   },
-  to_discuss: { label: "En discussion", color: "bg-amber-700", dot: "#fbbf24" },
-  candidate: { label: "Candidat", color: "bg-violet-700", dot: "#a78bfa" },
-  selected: { label: "Sélectionné ✓", color: "bg-emerald-700", dot: "#34d399" },
-  finalist: { label: "Finaliste ⭐", color: "bg-orange-700", dot: "#fb923c" },
-  refused: { label: "Non retenu", color: "bg-red-700", dot: "#f87171" },
-  awarded: { label: "Primé 🏆", color: "bg-yellow-600", dot: "#facc15" },
+  to_discuss: { 
+    label: "En discussion", 
+    color: "bg-gradient-to-r from-amber-500 to-amber-600 text-white",
+    dot: "#fbbf24" 
+  },
+  candidate: { 
+    label: "Candidat", 
+    color: "bg-gradient-to-r from-violet-500 to-violet-600 text-white",
+    dot: "#a78bfa" 
+  },
+  selected: { 
+    label: "Sélectionné ✓", 
+    color: "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white",
+    dot: "#34d399" 
+  },
+  finalist: { 
+    label: "Finaliste ⭐", 
+    color: "bg-gradient-to-r from-orange-500 to-orange-600 text-white",
+    dot: "#fb923c" 
+  },
+  refused: { 
+    label: "Non retenu", 
+    color: "bg-gradient-to-r from-red-500 to-red-600 text-white",
+    dot: "#f87171" 
+  },
+  awarded: { 
+    label: "Primé 🏆", 
+    color: "bg-gradient-to-r from-yellow-400 to-amber-500 text-zinc-900",
+    dot: "#facc15" 
+  },
 };
 const getStatusBadge = (s) =>
   STATUS_MAP[s] || {
     label: "En attente",
-    color: "bg-zinc-700",
+    color: "bg-gradient-to-r from-zinc-600 to-zinc-700 text-white",
     dot: "#a1a1aa",
   };
 
@@ -372,7 +426,7 @@ export default function ProducerHome() {
     return (
       <div className="min-h-screen bg-[#070709] text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#AD46FF] mx-auto mb-3" />
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#AD46FF]/20 border-t-[#AD46FF] mx-auto mb-3" />
           <p className="text-white/40 text-sm">Chargement de votre espace…</p>
         </div>
       </div>
@@ -380,13 +434,16 @@ export default function ProducerHome() {
   if (error)
     return (
       <div className="min-h-screen bg-[#070709] text-white flex items-center justify-center">
-        <p className="text-red-400">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-center max-w-md">
+          <span className="text-3xl mb-3 block">⚠️</span>
+          <p className="text-red-400 text-sm">{error}</p>
+        </div>
       </div>
     );
   if (!user)
     return (
       <div className="min-h-screen bg-[#070709] text-white flex items-center justify-center">
-        <p className="text-white/40">Utilisateur introuvable.</p>
+        <p className="text-white/40 text-sm">Utilisateur introuvable.</p>
       </div>
     );
 
@@ -395,41 +452,41 @@ export default function ProducerHome() {
   ════════════════════════════════════════════════════════ */
   return (
     <>
-      <div className="min-h-screen bg-[#070709] text-white pt-28 pb-20 px-4 md:pt-32">
+      <div className="min-h-screen bg-[#070709] text-white pt-24 pb-16 px-4 md:pt-28">
         <div className="max-w-6xl mx-auto space-y-6">
           {/* ── En-tête ── */}
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#AD46FF] to-[#F6339A] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-              {user.first_name?.[0]}
-              {user.last_name?.[0]}
+          <div className="relative">
+            <div className="relative flex items-center gap-4 bg-white/[0.03] border border-white/[0.07] rounded-xl p-4">
+              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-[#AD46FF] to-[#F6339A] flex items-center justify-center text-white font-bold text-base shadow-lg">
+                {user.first_name?.[0]}
+                {user.last_name?.[0]}
+              </div>
+              <div className="flex-1">
+                <h1 className="text-lg font-semibold text-white">
+                  {user.first_name} {user.last_name}
+                </h1>
+                <p className="text-xs text-white/35">{user.email}</p>
+              </div>
+              <span className="px-3 py-1.5 bg-[#AD46FF]/10 text-[#AD46FF] border border-[#AD46FF]/25 rounded-full text-xs font-semibold">
+                Producteur
+              </span>
             </div>
-            <div>
-              <h1 className="text-xl font-semibold text-white">
-                {user.first_name} {user.last_name}
-              </h1>
-              <p className="text-xs text-white/35">{user.email}</p>
-            </div>
-            <span className="ml-auto text-[10px] font-semibold px-3 py-1 bg-[#AD46FF]/15 text-[#AD46FF] border border-[#AD46FF]/25 rounded-full">
-              Producteur
-            </span>
           </div>
 
           {/* ── Section profil ── */}
-          <div className={`${tw.card} p-6`}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">
-                Profil
-              </h2>
+          <div className={`${tw.card} p-5`}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className={tw.sectionTitle}>Profil</h2>
               <button
                 onClick={() => setEditMode((v) => !v)}
-                className="text-xs text-[#AD46FF] hover:text-[#F6339A] transition"
+                className="text-xs text-[#AD46FF] hover:text-[#F6339A] transition-colors"
               >
                 {editMode ? "Annuler" : "Modifier"}
               </button>
             </div>
 
             {profileSuccess && (
-              <div className="mb-4 bg-emerald-900/20 border border-emerald-700/30 text-emerald-300 px-4 py-2 rounded-lg text-xs">
+              <div className="mb-4 bg-emerald-900/20 border border-emerald-700/30 text-emerald-300 px-4 py-2 rounded-lg text-sm">
                 {profileSuccess}
               </div>
             )}
@@ -455,7 +512,7 @@ export default function ProducerHome() {
                         : "flex flex-col gap-1"
                     }
                   >
-                    <label className="text-[10px] uppercase tracking-widest text-white/30">
+                    <label className="text-[10px] uppercase tracking-wider text-white/30">
                       {label}
                     </label>
                     {type === "textarea" ? (
@@ -477,17 +534,17 @@ export default function ProducerHome() {
                     )}
                   </div>
                 ))}
-                <div className="md:col-span-2 flex justify-end gap-2 pt-2">
+                <div className="md:col-span-2 flex justify-end gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setEditMode(false)}
-                    className="px-5 py-2 border border-white/10 text-white/60 rounded-lg text-sm hover:bg-white/5 transition"
+                    className={tw.secondaryBtn}
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                    className={tw.primaryBtn}
                   >
                     Enregistrer
                   </button>
@@ -501,18 +558,18 @@ export default function ProducerHome() {
                   { label: "Site web", value: user.website },
                 ].map(({ label, value }) => (
                   <div key={label}>
-                    <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1">
+                    <p className="text-[10px] uppercase tracking-wider text-white/25 mb-1">
                       {label}
                     </p>
-                    <p className="text-white/60">{value || "—"}</p>
+                    <p className="text-white/60 text-sm">{value || "—"}</p>
                   </div>
                 ))}
                 {user.biography && (
                   <div className="md:col-span-3">
-                    <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1">
+                    <p className="text-[10px] uppercase tracking-wider text-white/25 mb-1">
                       Biographie
                     </p>
-                    <p className="text-white/55 leading-relaxed">
+                    <p className="text-white/55 text-sm leading-relaxed">
                       {user.biography}
                     </p>
                   </div>
@@ -522,12 +579,12 @@ export default function ProducerHome() {
           </div>
 
           {/* ── Mes films ── */}
-          <div className={`${tw.card} p-6`}>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">
+          <div className={`${tw.card} p-5`}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className={tw.sectionTitle}>
                 Mes films
                 {movies.length > 0 && (
-                  <span className="ml-2 text-[#AD46FF]">({movies.length})</span>
+                  <span className="ml-2 text-[#AD46FF] text-sm">({movies.length})</span>
                 )}
               </h2>
               <button
@@ -538,9 +595,9 @@ export default function ProducerHome() {
                   setMovieSuccess(null);
                   setTimeout(() => formSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg text-sm font-semibold hover:opacity-90 transition"
+                className={tw.primaryBtn}
               >
-                <span className="text-lg leading-none">+</span>
+                <span className="mr-1 text-base">+</span>
                 Soumettre un film
               </button>
             </div>
@@ -552,9 +609,9 @@ export default function ProducerHome() {
             )}
 
             {movies.length === 0 && !showForm ? (
-              <div className="flex flex-col items-center py-16 text-white/20 gap-3">
+              <div className="flex flex-col items-center py-12 text-white/20 gap-3">
                 <span className="text-5xl">🎬</span>
-                <p className="text-sm">
+                <p className="text-sm text-center">
                   Aucun film soumis. Cliquez sur « Soumettre un film » pour
                   commencer.
                 </p>
@@ -568,43 +625,37 @@ export default function ProducerHome() {
                     <button
                       key={movie.id_movie}
                       onClick={() => setSelectedMovie(movie)}
-                      className="bg-white/[0.025] border border-white/[0.06] rounded-xl overflow-hidden hover:border-[#AD46FF]/40 transition group text-left"
+                      className={tw.filmCard}
                     >
                       <div className="h-36 bg-black/40 relative overflow-hidden">
                         {poster ? (
                           <img
                             src={poster}
                             alt={movie.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                            className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white/15 text-4xl">
+                          <div className="w-full h-full flex items-center justify-center text-white/15 text-3xl">
                             🎬
                           </div>
                         )}
-                        {/* Status dot */}
                         <div className="absolute bottom-2 right-2">
-                          <span
-                            className={`text-[9px] font-bold px-2 py-1 rounded-full text-white ${badge.color}`}
-                          >
+                          <span className={`${tw.statusBadge} ${badge.color}`}>
+                            <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
                             {badge.label}
                           </span>
                         </div>
                       </div>
                       <div className="p-3">
-                        <p className="text-sm font-semibold text-white truncate group-hover:text-[#AD46FF] transition">
+                        <p className="text-sm font-medium text-white/90 truncate group-hover:text-[#AD46FF] transition">
                           {movie.title}
                         </p>
                         <p className="text-xs text-white/35 mt-1 line-clamp-2">
-                          {movie.synopsis ||
-                            movie.description ||
-                            "Aucun synopsis"}
+                          {movie.synopsis || movie.description || "Aucun synopsis"}
                         </p>
-                        <div className="flex items-center gap-3 mt-2 text-[10px] text-white/25">
+                        <div className="flex items-center gap-2 mt-1.5 text-[10px] text-white/25">
                           {movie.duration && <span>{movie.duration}s</span>}
-                          {movie.main_language && (
-                            <span>{movie.main_language}</span>
-                          )}
+                          {movie.main_language && <span>{movie.main_language}</span>}
                         </div>
                       </div>
                     </button>
@@ -616,32 +667,36 @@ export default function ProducerHome() {
 
           {/* ── Formulaire de soumission ── */}
           {showForm && (
-            <div ref={formSectionRef} className={`${tw.card} p-6`}>
+            <div ref={formSectionRef} className={`${tw.card} p-5`}>
               {/* Progression des étapes */}
-              <div className="mb-8">
-                <div className="flex items-center justify-center gap-6">
+              <div className="mb-5">
+                <div className="flex items-center gap-4">
                   {[
                     { n: 1, label: "Données du film" },
                     { n: 2, label: "IA & Fichiers" },
                   ].map(({ n, label }, i) => (
-                    <div key={n} className="flex items-center gap-6">
+                    <div key={n} className="flex items-center gap-4">
                       {i > 0 && (
                         <div
-                          className={`w-20 h-px ${formStep >= n ? "bg-gradient-to-r from-[#AD46FF] to-[#F6339A]" : "bg-white/10"}`}
+                          className={`w-12 h-0.5 rounded-full ${
+                            formStep >= n 
+                              ? "bg-gradient-to-r from-[#AD46FF] to-[#F6339A]" 
+                              : "bg-white/10"
+                          }`}
                         />
                       )}
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-2">
                         <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
+                          className={`${tw.stepIndicator} ${
                             formStep >= n
-                              ? "bg-gradient-to-br from-[#AD46FF] to-[#F6339A] text-white shadow-lg shadow-[#AD46FF]/30"
+                              ? "bg-gradient-to-br from-[#AD46FF] to-[#F6339A] text-white shadow-md shadow-[#AD46FF]/30"
                               : "bg-white/[0.06] text-white/25 border border-white/10"
                           }`}
                         >
                           {formStep > n ? "✓" : n}
                         </div>
                         <span
-                          className={`text-[10px] whitespace-nowrap ${formStep >= n ? "text-white/70" : "text-white/20"}`}
+                          className={`text-xs ${formStep >= n ? "text-white/70" : "text-white/20"}`}
                         >
                           {label}
                         </span>
@@ -652,7 +707,7 @@ export default function ProducerHome() {
               </div>
 
               {movieError && (
-                <div className="mb-5 bg-red-900/20 border border-red-700/30 text-red-300 px-4 py-3 rounded-lg text-sm">
+                <div className="mb-4 bg-red-900/20 border border-red-700/30 text-red-300 px-4 py-2.5 rounded-lg text-sm">
                   {movieError}
                 </div>
               )}
@@ -661,99 +716,101 @@ export default function ProducerHome() {
                 onSubmit={handleSubmit((data) =>
                   createMovieMutation.mutate(data),
                 )}
-                className="space-y-6"
+                className="space-y-5"
               >
                 {/* ═══════ ÉTAPE 1 ═══════ */}
                 {formStep === 1 && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Fld
-                      label="Titre original *"
-                      error={errors.filmTitleOriginal}
-                    >
-                      <input
-                        type="text"
-                        placeholder="TITRE ORIGINAL"
-                        {...reg("filmTitleOriginal")}
-                        className={`${tw.fieldInput} ${errors.filmTitleOriginal ? tw.fieldInputErr : ""}`}
-                      />
-                    </Fld>
-
-                    <Fld
-                      label="Durée (secondes) *"
-                      hint="120 s maximum"
-                      error={errors.durationSeconds}
-                    >
-                      <input
-                        type="number"
-                        placeholder="60"
-                        max={120}
-                        {...reg("durationSeconds")}
-                        className={`${tw.fieldInput} ${errors.durationSeconds ? tw.fieldInputErr : ""}`}
-                      />
-                    </Fld>
-
-                    <Fld label="Langue">
-                      <input
-                        type="text"
-                        placeholder="Français"
-                        {...reg("filmLanguage")}
-                        className={tw.fieldInput}
-                      />
-                    </Fld>
-
-                    <Fld label="Année">
-                      <input
-                        type="number"
-                        placeholder="2026"
-                        {...reg("releaseYear")}
-                        className={tw.fieldInput}
-                      />
-                    </Fld>
-
-                    <Fld label="Nationalité">
-                      <input
-                        type="text"
-                        placeholder="France"
-                        {...reg("nationality")}
-                        className={tw.fieldInput}
-                      />
-                    </Fld>
-
-                    <Fld label="Comment nous avez-vous connu ?">
-                      <select {...reg("knownByMarsAi")} className={tw.fieldInput}>
-                        <option value="">Sélectionner</option>
-                        <option value="Par un ami">Par un ami</option>
-                        <option value="Vu une publicité du festival">
-                          Via une publicité
-                        </option>
-                        <option value="Via le site internet ou application de l'IA">
-                          Via le site / appli IA
-                        </option>
-                      </select>
-                    </Fld>
-
-                    <Fld label="Catégorie *" error={errors.categoryId}>
-                      <select
-                        {...reg("categoryId")}
-                        className={`${tw.fieldInput} ${errors.categoryId ? tw.fieldInputErr : ""}`}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Fld
+                        label="Titre original *"
+                        error={errors.filmTitleOriginal}
                       >
-                        <option value="">Sélectionner une catégorie</option>
-                        {categories.map((c) => (
-                          <option key={c.id_categorie} value={c.id_categorie}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </Fld>
+                        <input
+                          type="text"
+                          placeholder="TITRE ORIGINAL"
+                          {...reg("filmTitleOriginal")}
+                          className={`${tw.fieldInput} ${errors.filmTitleOriginal ? tw.fieldInputErr : ""}`}
+                        />
+                      </Fld>
 
-                    <Fld label="Traduction du titre">
-                      <input
-                        type="text"
-                        placeholder="English title"
-                        {...reg("translation")}
-                        className={tw.fieldInput}
-                      />
-                    </Fld>
+                      <Fld
+                        label="Durée (s) *"
+                        hint="max 120s"
+                        error={errors.durationSeconds}
+                      >
+                        <input
+                          type="number"
+                          placeholder="60"
+                          max={120}
+                          {...reg("durationSeconds")}
+                          className={`${tw.fieldInput} ${errors.durationSeconds ? tw.fieldInputErr : ""}`}
+                        />
+                      </Fld>
+
+                      <Fld label="Langue">
+                        <input
+                          type="text"
+                          placeholder="Français"
+                          {...reg("filmLanguage")}
+                          className={tw.fieldInput}
+                        />
+                      </Fld>
+
+                      <Fld label="Année">
+                        <input
+                          type="number"
+                          placeholder="2026"
+                          {...reg("releaseYear")}
+                          className={tw.fieldInput}
+                        />
+                      </Fld>
+
+                      <Fld label="Nationalité">
+                        <input
+                          type="text"
+                          placeholder="France"
+                          {...reg("nationality")}
+                          className={tw.fieldInput}
+                        />
+                      </Fld>
+
+                      <Fld label="Comment nous avez-vous connu ?">
+                        <select {...reg("knownByMarsAi")} className={tw.fieldInput}>
+                          <option value="">Sélectionner</option>
+                          <option value="Par un ami">Par un ami</option>
+                          <option value="Vu une publicité du festival">
+                            Via une publicité
+                          </option>
+                          <option value="Via le site internet ou application de l'IA">
+                            Via le site / appli IA
+                          </option>
+                        </select>
+                      </Fld>
+
+                      <Fld label="Catégorie *" error={errors.categoryId}>
+                        <select
+                          {...reg("categoryId")}
+                          className={`${tw.fieldInput} ${errors.categoryId ? tw.fieldInputErr : ""}`}
+                        >
+                          <option value="">Sélectionner une catégorie</option>
+                          {categories.map((c) => (
+                            <option key={c.id_categorie} value={c.id_categorie}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </Fld>
+
+                      <Fld label="Traduction">
+                        <input
+                          type="text"
+                          placeholder="English title"
+                          {...reg("translation")}
+                          className={tw.fieldInput}
+                        />
+                      </Fld>
+                    </div>
 
                     <Fld
                       label="Synopsis original * (300 car.)"
@@ -770,7 +827,7 @@ export default function ProducerHome() {
                     </Fld>
 
                     <Fld
-                      label="Synopsis en anglais (300 car.)"
+                      label="Synopsis anglais (300 car.)"
                       className="md:col-span-3"
                     >
                       <textarea
@@ -782,11 +839,11 @@ export default function ProducerHome() {
                       />
                     </Fld>
 
-                    <div className="md:col-span-3 flex justify-end">
+                    <div className="flex justify-end pt-2">
                       <button
                         type="button"
                         onClick={handleNextStep}
-                        className="px-8 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-xl font-semibold hover:opacity-90 transition"
+                        className={tw.primaryBtn}
                       >
                         Continuer →
                       </button>
@@ -796,15 +853,14 @@ export default function ProducerHome() {
 
                 {/* ═══════ ÉTAPE 2 ═══════ */}
                 {formStep === 2 && (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-5">
+                    <div className="grid grid-cols-1 gap-4">
                       {/* Classification IA */}
                       <Fld
                         label="Classification IA *"
-                        className="md:col-span-2"
                         error={errors.aiClassification}
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div className="flex gap-3">
                           {[
                             {
                               value: "integrale",
@@ -814,13 +870,13 @@ export default function ProducerHome() {
                           ].map((opt) => (
                             <label
                               key={opt.value}
-                              className="flex items-center gap-3 bg-white/[0.04] border border-white/[0.07] rounded-xl px-4 py-3 cursor-pointer hover:border-[#AD46FF]/40 transition"
+                              className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.07] rounded-lg px-4 py-3 cursor-pointer hover:border-[#AD46FF]/40 transition flex-1"
                             >
                               <input
                                 type="radio"
                                 value={opt.value}
                                 {...reg("aiClassification")}
-                                className="accent-[#AD46FF]"
+                                className="w-4 h-4 accent-[#AD46FF]"
                               />
                               <span className="text-sm text-white/80">
                                 {opt.label}
@@ -830,56 +886,50 @@ export default function ProducerHome() {
                         </div>
                       </Fld>
 
-                      <Fld label="Outils IA utilisés" className="md:col-span-2">
+                      <Fld label="Outils IA utilisés">
                         <textarea
                           rows={2}
                           maxLength={500}
-                          placeholder="ex. : Midjourney, Runway, ElevenLabs, Sora…"
+                          placeholder="Midjourney, Runway, ElevenLabs..."
                           {...reg("aiStack")}
                           className={`${tw.fieldInput} resize-none`}
                         />
                       </Fld>
 
-                      <Fld
-                        label="Méthodologie créative"
-                        className="md:col-span-2"
-                      >
+                      <Fld label="Méthodologie créative">
                         <textarea
                           rows={2}
                           maxLength={500}
-                          placeholder="Décrivez l'interaction humain-machine dans votre processus…"
+                          placeholder="Décrivez votre processus..."
                           {...reg("aiMethodology")}
                           className={`${tw.fieldInput} resize-none`}
                         />
                       </Fld>
 
                       {/* Collaborateurs */}
-                      <Fld
-                        label={`Collaborateurs (${collabFields.length})`}
-                        className="md:col-span-2"
-                      >
+                      <Fld label={`Collaborateurs (${collabFields.length})`}>
                         <button
                           type="button"
                           onClick={() => setShowCollaboratorsModal(true)}
-                          className={`${tw.fieldInput} text-left text-white/50`}
+                          className={`${tw.fieldInput} text-left text-white/50 text-sm`}
                         >
                           {collabFields.length === 0
                             ? "Gérer les collaborateurs (facultatif)"
-                            : `${collabFields.length} collaborateur(s) — cliquer pour modifier`}
+                            : `${collabFields.length} collaborateur(s)`}
                         </button>
                       </Fld>
                     </div>
 
                     {/* ── Fichiers ── */}
                     <div className="space-y-4">
-                      <h3 className="text-[10px] uppercase tracking-widest text-white/30">
+                      <h3 className="text-xs uppercase tracking-wider text-white/30 font-medium">
                         Fichiers
                       </h3>
 
                       {/* Fichier film */}
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs text-white/50">
-                          Fichier vidéo
+                        <label className="text-sm text-white/50">
+                          Fichier vidéo <span className="text-red-400">*</span>
                         </label>
                         <div className="flex items-center gap-3">
                           <label className={tw.fileBtn}>
@@ -894,25 +944,23 @@ export default function ProducerHome() {
                               }
                             />
                           </label>
-                          <span className="text-xs text-white/30 truncate max-w-xs">
-                            {filmFileName || "Aucun fichier sélectionné"}
+                          <span className="text-sm text-white/30 truncate max-w-[200px]">
+                            {filmFileName || "Aucun fichier"}
                           </span>
                         </div>
                       </div>
 
                       {/* FIX: 3 vignettes nommées thumbnail1/2/3 */}
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs text-white/50">
-                          Vignettes (jusqu'à 3 images)
+                        <label className="text-sm text-white/50">
+                          Vignettes (max 3)
                         </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="flex gap-2">
                           {[0, 1, 2].map((i) => (
-                            <div key={i} className="flex flex-col gap-1">
-                              <label className={`${tw.fileBtn} justify-center`}>
+                            <div key={i} className="flex-1">
+                              <label className={`${tw.fileBtn} w-full justify-center`}>
                                 {thumbFiles[i] ? (
-                                  <span className="text-emerald-400">
-                                    ✓ Image {i + 1}
-                                  </span>
+                                  <span className="text-emerald-400">✓ Image {i + 1}</span>
                                 ) : (
                                   <span>📷 Image {i + 1}</span>
                                 )}
@@ -936,11 +984,6 @@ export default function ProducerHome() {
                                   }}
                                 />
                               </label>
-                              {thumbNames[i] && (
-                                <p className="text-[9px] text-white/25 truncate text-center">
-                                  {thumbNames[i]}
-                                </p>
-                              )}
                             </div>
                           ))}
                         </div>
@@ -948,8 +991,8 @@ export default function ProducerHome() {
 
                       {/* Sous-titres */}
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs text-white/50">
-                          Sous-titres (.srt) — optionnel
+                        <label className="text-sm text-white/50">
+                          Sous-titres (.srt)
                         </label>
                         <div className="flex items-center gap-3">
                           <label className={tw.fileBtn}>
@@ -966,24 +1009,24 @@ export default function ProducerHome() {
                               }
                             />
                           </label>
-                          <span className="text-xs text-white/30 truncate max-w-xs">
-                            {subtitlesName || "Aucun fichier sélectionné"}
+                          <span className="text-sm text-white/30 truncate max-w-[200px]">
+                            {subtitlesName || "Aucun fichier"}
                           </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Conditions */}
-                    <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3">
+                    <div className="flex items-start gap-3 bg-white/[0.03] border border-white/[0.07] rounded-lg p-3">
                       <input
                         id="acceptTerms"
                         type="checkbox"
                         {...reg("acceptTerms")}
-                        className="w-4 h-4 cursor-pointer accent-[#AD46FF]"
+                        className="w-4 h-4 mt-0.5 cursor-pointer accent-[#AD46FF]"
                       />
                       <label
                         htmlFor="acceptTerms"
-                        className="text-sm text-white/60 cursor-pointer flex-1"
+                        className="text-sm text-white/60 cursor-pointer leading-relaxed"
                       >
                         J'accepte les{" "}
                         <button
@@ -992,9 +1035,9 @@ export default function ProducerHome() {
                             e.preventDefault();
                             setShowTermsModal(true);
                           }}
-                          className="text-[#AD46FF] hover:text-[#F6339A] underline font-semibold"
+                          className="text-[#AD46FF] hover:text-[#F6339A] underline font-medium"
                         >
-                          conditions de participation
+                          conditions
                         </button>
                       </label>
                     </div>
@@ -1004,35 +1047,43 @@ export default function ProducerHome() {
                       </p>
                     )}
 
-                    <div className="flex gap-3 pt-2">
+                    {/* Button layout - Retour on left, Annuler (red) and Soumettre on right */}
+                    <div className="flex items-center justify-between pt-3">
                       <button
                         type="button"
                         onClick={() => setFormStep(1)}
-                        className="px-6 py-3 border border-white/10 text-white/60 rounded-xl hover:bg-white/[0.04] transition font-semibold"
+                        className={tw.secondaryBtn}
                       >
                         ← Retour
                       </button>
-                      <button
-                        type="submit"
-                        disabled={createMovieMutation.isPending || !acceptTerms || !filmFileName}
-                        className="flex-1 py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-40"
-                      >
-                        {createMovieMutation.isPending
-                          ? "Envoi en cours…"
-                          : !filmFileName
-                          ? "Sélectionnez d'abord un fichier vidéo"
-                          : "Soumettre le film"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowForm(false);
-                          resetForm();
-                        }}
-                        className="px-4 py-3 border border-white/10 text-white/30 rounded-xl hover:bg-white/[0.04] transition text-sm"
-                      >
-                        Annuler
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowForm(false);
+                            resetForm();
+                          }}
+                          className={tw.cancelBtn}
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={createMovieMutation.isPending || !acceptTerms || !filmFileName}
+                          className={tw.primaryBtn}
+                        >
+                          {createMovieMutation.isPending ? (
+                            <span className="flex items-center gap-2">
+                              <span className="animate-spin">🌀</span>
+                              Envoi...
+                            </span>
+                          ) : !filmFileName ? (
+                            "Sélectionnez une vidéo"
+                          ) : (
+                            "Soumettre"
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1059,7 +1110,7 @@ export default function ProducerHome() {
                 job: "",
               })
             }
-            className="mb-4 px-4 py-2 bg-[#AD46FF]/15 text-[#AD46FF] border border-[#AD46FF]/25 rounded-lg text-sm hover:bg-[#AD46FF]/25 transition"
+            className="mb-4 px-4 py-2 bg-[#AD46FF]/10 text-[#AD46FF] border border-[#AD46FF]/25 rounded-lg text-sm font-medium hover:bg-[#AD46FF]/15 transition"
           >
             + Ajouter un collaborateur
           </button>
@@ -1072,7 +1123,7 @@ export default function ProducerHome() {
             {collabFields.map((field, idx) => (
               <div
                 key={field.id}
-                className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white/[0.03] border border-white/[0.06] p-3 rounded-xl"
+                className="grid grid-cols-1 md:grid-cols-4 gap-2 bg-white/[0.03] border border-white/[0.06] p-3 rounded-lg"
               >
                 {[
                   {
@@ -1085,7 +1136,7 @@ export default function ProducerHome() {
                   },
                   {
                     name: `collaborators.${idx}.email`,
-                    placeholder: "email@exemple.com",
+                    placeholder: "Email",
                   },
                   { name: `collaborators.${idx}.job`, placeholder: "Rôle" },
                 ].map(({ name, placeholder }) => (
@@ -1094,7 +1145,7 @@ export default function ProducerHome() {
                     type="text"
                     {...reg(name)}
                     placeholder={placeholder}
-                    className={tw.fieldInput}
+                    className={`${tw.fieldInput} text-sm`}
                   />
                 ))}
                 <div className="md:col-span-4 flex justify-end">
@@ -1109,11 +1160,11 @@ export default function ProducerHome() {
               </div>
             ))}
           </div>
-          <div className="mt-5 flex justify-end">
+          <div className="mt-4 flex justify-end">
             <button
               type="button"
               onClick={() => setShowCollaboratorsModal(false)}
-              className="px-5 py-2 bg-white/[0.05] border border-white/[0.08] text-white/70 rounded-lg hover:bg-white/[0.09] transition text-sm"
+              className={tw.secondaryBtn}
             >
               Fermer
             </button>
@@ -1128,7 +1179,7 @@ export default function ProducerHome() {
           onClose={() => setShowTermsModal(false)}
           maxW="max-w-4xl"
         >
-          <div className="space-y-5 text-white/55 text-sm leading-relaxed">
+          <div className="space-y-4 text-white/60 text-sm leading-relaxed">
             {[
               {
                 title: "1. Conditions de participation",
@@ -1158,8 +1209,8 @@ export default function ProducerHome() {
               },
             ].map(({ title, content }) => (
               <div key={title}>
-                <h4 className="text-white font-semibold mb-2">{title}</h4>
-                <ul className="space-y-1 list-disc list-inside ml-2">
+                <h4 className="text-white font-medium mb-2 text-sm">{title}</h4>
+                <ul className="space-y-1 list-disc list-inside">
                   {content.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
@@ -1167,11 +1218,11 @@ export default function ProducerHome() {
               </div>
             ))}
           </div>
-          <div className="mt-6 flex justify-end">
+          <div className="mt-5 flex justify-end">
             <button
               type="button"
               onClick={() => setShowTermsModal(false)}
-              className="px-6 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg text-sm font-semibold hover:opacity-90 transition"
+              className={tw.primaryBtn}
             >
               J'ai compris
             </button>
@@ -1198,9 +1249,8 @@ export default function ProducerHome() {
                 return (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-white/35">Statut :</span>
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full text-white ${badge.color}`}
-                    >
+                    <span className={`${tw.statusBadge} ${badge.color}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
                       {badge.label}
                     </span>
                   </div>
@@ -1208,21 +1258,16 @@ export default function ProducerHome() {
               })()}
 
               {/* Infos techniques */}
-              <div className="grid grid-cols-2 gap-3 text-xs text-white/55">
+              <div className="grid grid-cols-2 gap-3 text-sm text-white/55">
                 {[
-                  [
-                    "Durée",
-                    selectedMovie.duration ? `${selectedMovie.duration}s` : "—",
-                  ],
+                  ["Durée", selectedMovie.duration ? `${selectedMovie.duration}s` : "—"],
                   ["Langue", selectedMovie.main_language || "—"],
                   ["Nationalité", selectedMovie.nationality || "—"],
                   ["Outil IA", selectedMovie.ai_tool || "—"],
                 ].map(([k, v]) => (
                   <div key={k}>
-                    <p className="text-white/25 text-[9px] uppercase mb-0.5">
-                      {k}
-                    </p>
-                    <p>{v}</p>
+                    <p className="text-white/25 text-[10px] uppercase mb-0.5">{k}</p>
+                    <p className="text-sm">{v}</p>
                   </div>
                 ))}
               </div>
@@ -1230,10 +1275,10 @@ export default function ProducerHome() {
               {/* Synopsis */}
               {(selectedMovie.synopsis || selectedMovie.description) && (
                 <div>
-                  <p className="text-[9px] uppercase tracking-widest text-white/25 mb-1">
+                  <p className="text-[10px] uppercase tracking-wider text-white/25 mb-1">
                     Synopsis
                   </p>
-                  <p className="text-xs text-white/50 leading-relaxed">
+                  <p className="text-sm text-white/50 leading-relaxed">
                     {selectedMovie.synopsis || selectedMovie.description}
                   </p>
                 </div>
@@ -1247,7 +1292,7 @@ export default function ProducerHome() {
                     target="_blank"
                     rel="noreferrer"
                     download
-                    className="text-xs text-[#AD46FF] hover:text-[#F6339A]"
+                    className="text-sm text-[#AD46FF] hover:text-[#F6339A]"
                   >
                     📄 Sous-titres
                   </a>
@@ -1257,7 +1302,7 @@ export default function ProducerHome() {
                     href={selectedMovie.youtube_link}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-[#AD46FF] hover:text-[#F6339A]"
+                    className="text-sm text-[#AD46FF] hover:text-[#F6339A]"
                   >
                     ▶ YouTube
                   </a>
@@ -1267,7 +1312,7 @@ export default function ProducerHome() {
               {/* Collaborateurs */}
               <div className="border-t border-white/[0.06] pt-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[9px] uppercase tracking-widest text-white/25">
+                  <p className="text-[10px] uppercase tracking-wider text-white/25">
                     Collaborateurs
                   </p>
                   <button
@@ -1281,14 +1326,15 @@ export default function ProducerHome() {
                 {selectedMovie.Collaborators?.length ? (
                   <ul className="text-sm text-white/55 space-y-1">
                     {selectedMovie.Collaborators.map((c) => (
-                      <li key={c.id_collaborator}>
+                      <li key={c.id_collaborator} className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/50" />
                         {c.first_name} {c.last_name}
-                        {c.job ? ` — ${c.job}` : ""}
+                        {c.job && <span className="text-white/30 text-xs">— {c.job}</span>}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-white/25">Aucun collaborateur.</p>
+                  <p className="text-sm text-white/25">Aucun collaborateur.</p>
                 )}
 
                 {editingMovieId === selectedMovie.id_movie && (
@@ -1297,7 +1343,7 @@ export default function ProducerHome() {
                       (c, idx) => (
                         <div
                           key={idx}
-                          className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white/[0.03] border border-white/[0.06] p-2 rounded-lg"
+                          className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white/[0.03] border border-white/[0.06] p-2.5 rounded-lg"
                         >
                           {["first_name", "last_name", "email", "job"].map(
                             (field) => (
@@ -1321,7 +1367,7 @@ export default function ProducerHome() {
                                     e.target.value,
                                   )
                                 }
-                                className={`${tw.fieldInput} text-xs`}
+                                className={`${tw.fieldInput} text-sm`}
                               />
                             ),
                           )}
@@ -1348,7 +1394,7 @@ export default function ProducerHome() {
                         </div>
                       ),
                     )}
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-2 mt-3">
                       <button
                         type="button"
                         onClick={() =>
@@ -1365,7 +1411,7 @@ export default function ProducerHome() {
                             ],
                           }))
                         }
-                        className="px-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.07] text-white/60 rounded-lg hover:bg-white/[0.08] transition"
+                        className="px-3 py-1.5 text-xs bg-white/[0.04] border border-white/[0.07] text-white/60 rounded hover:bg-white/[0.08] transition"
                       >
                         + Ajouter
                       </button>
@@ -1378,14 +1424,14 @@ export default function ProducerHome() {
                               collabDrafts[selectedMovie.id_movie] || [],
                           })
                         }
-                        className="px-3 py-1.5 text-xs bg-[#AD46FF]/15 text-[#AD46FF] border border-[#AD46FF]/25 rounded-lg hover:bg-[#AD46FF]/25 transition font-semibold"
+                        className="px-3 py-1.5 text-xs bg-[#AD46FF]/10 text-[#AD46FF] border border-[#AD46FF]/25 rounded hover:bg-[#AD46FF]/15 transition font-medium"
                       >
                         Enregistrer
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingMovieId(null)}
-                        className="px-3 py-1.5 text-xs border border-white/[0.07] text-white/40 rounded-lg hover:bg-white/[0.04] transition"
+                        className="px-3 py-1.5 text-xs border border-white/[0.07] text-white/40 rounded hover:bg-white/[0.04] transition"
                       >
                         Annuler
                       </button>
@@ -1399,18 +1445,20 @@ export default function ProducerHome() {
             {(getTrailer(selectedMovie) || selectedMovie.youtube_link) && (
               <div>
                 {getTrailer(selectedMovie) ? (
-                  <VideoPreview
-                    title={selectedMovie.title}
-                    src={`${UPLOAD_BASE}/${getTrailer(selectedMovie)}`}
-                    poster={getPoster(selectedMovie) || undefined}
-                    openMode="fullscreen"
-                  />
+                  <div className="rounded-lg overflow-hidden border border-white/[0.07]">
+                    <VideoPreview
+                      title={selectedMovie.title}
+                      src={`${UPLOAD_BASE}/${getTrailer(selectedMovie)}`}
+                      poster={getPoster(selectedMovie) || undefined}
+                      openMode="fullscreen"
+                    />
+                  </div>
                 ) : (
                   <a
                     href={selectedMovie.youtube_link}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#AD46FF] hover:text-[#F6339A] text-sm"
+                    className="inline-flex items-center gap-1 text-[#AD46FF] hover:text-[#F6339A] text-base"
                   >
                     ▶ Ouvrir la vidéo ↗
                   </a>
@@ -1429,14 +1477,14 @@ function Modal({ title, onClose, maxW = "max-w-4xl", children }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div
-        className={`bg-[#0d0f12] border border-white/[0.07] rounded-2xl w-full ${maxW} max-h-[88vh] overflow-y-auto p-6 shadow-2xl`}
+        className={`bg-[#0d0f12] border border-white/[0.07] rounded-xl w-full ${maxW} max-h-[85vh] overflow-y-auto p-5 shadow-2xl`}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="sticky top-0 z-10 flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06] bg-[#0d0f12]">
           <h3 className="text-lg font-semibold text-white">{title}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.07] rounded-lg transition text-xl"
+            className="w-7 h-7 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/[0.07] rounded transition text-lg"
           >
             ✕
           </button>
@@ -1451,13 +1499,13 @@ function Modal({ title, onClose, maxW = "max-w-4xl", children }) {
 function Fld({ label, hint, error, children, className = "" }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <label className="text-[10px] uppercase tracking-widest text-white/35 font-medium">
+      <label className="text-[10px] uppercase tracking-wider text-white/35 font-medium">
         {label}
       </label>
       {children}
-      {hint && <p className="text-[9px] text-white/25 mt-0.5">{hint}</p>}
+      {hint && <p className="text-[9px] text-white/25">{hint}</p>}
       {error && (
-        <p className="text-[10px] text-red-400 mt-0.5">{error.message}</p>
+        <p className="text-xs text-red-400">{error.message}</p>
       )}
     </div>
   );

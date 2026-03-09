@@ -101,9 +101,13 @@ export const getAdminStats = async (req, res) => {
       group: ["selection_status"]
     });
 
-    const pipeline = {};
+    const pipeline = {
+      submitted: 0, assigned: 0, to_discuss: 0, candidate: 0,
+      selected: 0, finalist: 0, refused: 0, awarded: 0,
+    };
     pipelineRaw.forEach(row => {
-      pipeline[row.selection_status] = Number(row.get("count"));
+      const key = row.selection_status;
+      if (key in pipeline) pipeline[key] = Number(row.get("count"));
     });
 
     res.json({

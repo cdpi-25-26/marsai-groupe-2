@@ -152,6 +152,20 @@ export default function AdminLayout() {
       ),
       label: "Configuration Festival",
     },
+    {
+      path: "/admin/sponsors",
+      icon: (className) => (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+        </svg>
+      ),
+      label: "Sponsors",
+    },
   ];
 
   const renderNavLinks = (onClickExtra) =>
@@ -175,9 +189,11 @@ export default function AdminLayout() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-xl" />
         <span className="relative flex-shrink-0">{item.icon("w-5 h-5")}</span>
-        <span className="relative text-sm font-medium flex-1 ml-3 truncate">
-          {item.label}
-        </span>
+        {isSidebarOpen && (
+          <span className="relative text-sm font-medium flex-1 ml-3 truncate">
+            {item.label}
+          </span>
+        )}
       </NavLink>
     ));
 

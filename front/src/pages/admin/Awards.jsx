@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
 import { UPLOAD_BASE } from "../../utils/constants.js";
+import { getPoster } from "../../utils/movieUtils.js";
 
 const TUTORIAL_STEPS = [
   "Toutes les récompenses disponibles sont affichées.",
@@ -42,11 +43,11 @@ function Awards() {
   const awards = awardsData?.data || [];
   const movies = moviesData?.data || [];
 
-  // Films candidats (status: candidate, selected, finalist) qui peuvent recevoir un prix
+  // FIX : seuls les films "finalist" sont éligibles aux récompenses finales.
+  // "candidate" et "selected" ont leurs propres transitions dans Videos.jsx —
+  // les inclure ici créait une double responsabilité et un pipeline confus.
   const candidateMovies = useMemo(() => {
-    return movies.filter((movie) => 
-      ["candidate", "selected", "finalist"].includes(movie.selection_status)
-    );
+    return movies.filter((movie) => movie.selection_status === "finalist");
   }, [movies]);
 
   // Films déjà primés (status: awarded)
@@ -116,14 +117,15 @@ function Awards() {
 
   const resetAwardedMoviesMutation = useMutation({
     mutationFn: async () => {
+      // FIX : rollback vers "finalist" (pas "candidate" qui est un statut intermédiaire jury)
       const promises = awardedMovies.map((movie) =>
-        updateMovieStatus(movie.id_movie, "candidate")
+        updateMovieStatus(movie.id_movie, "finalist")
       );
       return Promise.all(promises);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-      setFeedback({ type: "success", message: "Films réinitialisés en candidats" });
+      setFeedback({ type: "success", message: "Films réinitialisés en finalistes" });
       setTimeout(() => setFeedback(null), 3000);
     },
     onError: () => {
@@ -213,15 +215,6 @@ function Awards() {
     });
   };
 
-  const getPoster = (movie) => {
-    return movie.thumbnail
-      ? `${UPLOAD_BASE}/${movie.thumbnail}`
-      : movie.display_picture
-        ? `${UPLOAD_BASE}/${movie.display_picture}`
-        : movie.picture1
-          ? `${UPLOAD_BASE}/${movie.picture1}`
-          : null;
-  };
 
   if (awardsLoading) {
     return (

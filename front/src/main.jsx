@@ -31,7 +31,7 @@ import JuryManagement from "./pages/admin/JuryManagement.jsx";
 import Results from "./pages/admin/Results.jsx";
 import FestivalConfig from "./pages/admin/FestivalConfig.jsx";
 import { FestivalConfigProvider } from "./hooks/useFestivalConfig.jsx";
-
+import AdminSponsors from "./pages/admin/AdminSponsors.jsx";
 /**
  * Fixed: removed staleTime: Infinity which prevented any data from ever refreshing.
  * Each query now controls its own staleTime as needed.
@@ -84,6 +84,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="awards" element={<Awards />} />
               <Route path="jury" element={<JuryManagement />} />
               <Route path="results" element={<Results />} />
+               <Route path="sponsors" element={<AdminSponsors />} />
               <Route path="settings" element={<FestivalConfig />} />
             </Route>
 

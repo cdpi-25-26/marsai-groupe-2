@@ -20,6 +20,7 @@ import {
 import { getVotes } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
+import { getPoster, getTrailer } from "../../utils/movieUtils.js";
 
 /* ─── Statuts ─────────────────────────────────────────── */
 const S = {
@@ -126,16 +127,8 @@ function contextualActions(status, hasVotes, juriesCount) {
   }
 }
 
-/* ─── Utilitaires ─────────────────────────────────────── */
-const getPoster  = (m) =>
-  m.thumbnail       ? `${UPLOAD_BASE}/${m.thumbnail}`       :
-  m.display_picture ? `${UPLOAD_BASE}/${m.display_picture}` :
-  m.picture1        ? `${UPLOAD_BASE}/${m.picture1}`        :
-  m.picture2        ? `${UPLOAD_BASE}/${m.picture2}`        :
-  m.picture3        ? `${UPLOAD_BASE}/${m.picture3}`        : null;
-
-const getTrailer = (m) =>
-  m.trailer || m.trailer_video || m.trailerVideo || m.filmFile || m.video || null;
+/* ─── Utilitaires — importés depuis movieUtils.js ─────── */
+// getPoster et getTrailer sont importés depuis ../../utils/movieUtils.js
 
 /* ════════════════════════════════════════════════════════
    COMPOSANT PRINCIPAL

@@ -72,6 +72,15 @@ const QUICK_ACTIONS = [
     border: "hover:border-slate-500/40",
     glow: "hover:shadow-slate-500/20",
   },
+  {
+    icon: "🤝",
+    label: "Sponsors",
+    description: "Gérer les partenaires et sponsors du festival",
+    path: "/admin/sponsors",
+    color: "from-teal-600/20 to-cyan-600/20",
+    border: "hover:border-teal-500/40",
+    glow: "hover:shadow-teal-500/20",
+  },
 ];
 
 /* ─── Composant ───────────────────────────────────────── */
@@ -203,8 +212,10 @@ export default function Dashboard() {
 /* ─── Pipeline de sélection ───────────────────────────── */
 const PIPELINE_STAGES = [
   { key: "submitted",  label: "Soumis",        color: "bg-gray-500",   icon: "📥" },
-  { key: "assigned",   label: "En évaluation", color: "bg-blue-500",   icon: "🔍" },
-  { key: "to_discuss", label: "À discuter",     color: "bg-yellow-500", icon: "💬" },
+  // { key: "assigned",   label: "En évaluation", color: "bg-blue-500",   icon: "🔍" },
+    { key: "assigned",   label: "Phase 1", color: "bg-blue-500",   icon: "🔍" },
+  // { key: "to_discuss", label: "À discuter",     color: "bg-yellow-500", icon: "💬" },
+  { key: "to_discuss", label: "Phase 2",     color: "bg-yellow-500", icon: "🔍" },
   { key: "candidate",  label: "Candidat",       color: "bg-purple-500", icon: "⭐" },
   { key: "selected",   label: "Sélectionné",    color: "bg-green-500",  icon: "✅" },
   { key: "finalist",   label: "Finaliste",      color: "bg-orange-500", icon: "🎖️" },

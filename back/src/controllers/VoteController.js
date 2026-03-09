@@ -121,8 +121,7 @@ async function createOrUpdateMyVote(req, res) {
         const existingVote = await Vote.findOne({ where: { id_movie, id_user } });
 
         if (existingVote) {
-            const movie = await Movie.findByPk(id_movie);
-            const status = movie?.selection_status;
+            // movie and status already fetched above — no second DB call needed
 
             const normalizedComment = String(comments || "");
             const existingComment = String(existingVote.comments || "");
@@ -156,7 +155,7 @@ async function createOrUpdateMyVote(req, res) {
                 message: "Vote mis à jour",
                 vote: existingVote,
                 isModified: existingVote.modification_count > 0,
-                isApproved: movie?.selection_status === "selected"
+                isApproved: movie.selection_status === "selected"
             });
         }
 
