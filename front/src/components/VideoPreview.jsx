@@ -87,62 +87,58 @@ export function VideoPreview({
         
         {/* Play Button */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-14 h-14 rounded-full bg-blue-600/90 flex items-center justify-center border-2 border-white/30 shadow-xl transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300">
-            <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-blue-600/90 flex items-center justify-center border-2 border-white/30 shadow-xl transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
         </div>
         
         {/* Time Badge */}
-        <div className="absolute bottom-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-white/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-white/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <span className="text-[10px] text-white/90">Cliquer pour agrandir</span>
         </div>
         
         {/* Title Badge */}
-        <div className="absolute top-3 left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-white/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-[10px] text-white/90 font-medium truncate max-w-[200px]">{title}</span>
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 px-2 py-1 bg-black/80 backdrop-blur-sm border border-white/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 max-w-[150px] sm:max-w-[200px]">
+          <span className="text-[10px] text-white/90 font-medium truncate block">{title}</span>
         </div>
       </div>
 
-      {isOpen &&
-        createPortal(
-          <div
-            className={`fixed ${modalTopOffsetClass} z-[9999] bg-black/90 flex justify-center p-4 mobile-modal-overlay ${placementClasses}`}
-          >
-            <div className="relative z-[10000] w-full max-w-6xl mobile-modal-panel">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-white font-semibold text-lg">{title}</h3>
-                <button
-                  onClick={closeFullscreen}
-                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <video
-                className="w-full h-auto max-h-[80vh] bg-black rounded-lg"
-                src={src}
-                poster={poster || undefined}
-                controls
-                autoPlay
-                onEnded={onEnded}
-              />
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  onClick={requestNativeFullscreen}
-                  className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
-                >
-                  Plein écran
-                </button>
-              </div>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 mobile-modal-overlay">
+          <div className="w-full max-w-6xl mobile-modal-panel">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-semibold text-lg">{title}</h3>
+              <button
+                onClick={closeFullscreen}
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors flex-shrink-0"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          </div>,
-          document.body
-        )}
+            <video
+              className="w-full h-auto max-h-[80vh] bg-black rounded-lg"
+              src={src}
+              poster={poster || undefined}
+              controls
+              autoPlay
+              onEnded={onEnded}
+            />
+            <div className="mt-3 flex justify-end">
+              <button
+                type="button"
+                onClick={requestNativeFullscreen}
+                className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              >
+                Plein écran
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

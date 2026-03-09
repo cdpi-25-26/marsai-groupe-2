@@ -3,11 +3,10 @@ import db from "../models/index.js";
 const User = db.User;
 
 export default function AuthMiddleware(roles = []) {
-  
+
   return async function(req, res, next) {
 
     const authHeader = req.header("Authorization");
-
     const [prefix, token] = authHeader?.split(" ") || [null, undefined];
 
     if (prefix !== "Bearer") {
@@ -15,9 +14,7 @@ export default function AuthMiddleware(roles = []) {
     }
 
     if (!token) {
-      return res
-        .status(401)
-        .json({ error: "You must be authenticated to access this resource" });
+      return res.status(401).json({ error: "You must be authenticated to access this resource" });
     }
 
     try {
@@ -32,32 +29,24 @@ export default function AuthMiddleware(roles = []) {
       });
 
 
-console.log("ROLE FROM DB:", user?.role);
-console.log("ROLES REQUIRED:", roles);
-
-
-
-      if (!user || (roles.length && !roles.includes(user.role))) {
-        return res.status(401).json({
-          error: "User not found or unauthorized",
-        });
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
       }
 
+      // FIX: Return 403 (Forbidden) when authenticated but missing required role,
+      // instead of 401 (Unauthenticated). This allows the frontend to distinguish
+      // "not logged in" from "logged in but not allowed".
       if (roles.length && !roles.includes(user.role)) {
         return res.status(403).json({
-          error:
-            "Permission denied, you are not authorized to access this resource",
+          error: "Permission denied, you are not authorized to access this resource",
         });
       }
 
-      req.user = {
-      id: user.id_user,
-      role: user.role
-}
       req.user = user;
       return next();
+
     } catch (error) {
       return res.status(401).json({ error: error.message });
     }
-  }
+  };
 }

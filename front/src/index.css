@@ -8,12 +8,13 @@ body {
 	margin: 0;
 	font-family: 'Arimo', sans-serif;
 	background-color: #000;
+  overflow-X: hidden;
 }
 
 
 @layer utilities {
   .scrollbar-thin-dark::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   .scrollbar-thin-dark::-webkit-scrollbar-track {
@@ -71,7 +72,30 @@ body {
 
 
 
-/* video display */
+/* login display */
+@keyframes sway {
+  0%, 100% { transform: translateX(0) rotate(12deg); }
+  50% { transform: translateX(30px) rotate(12deg); }
+}
 
 
 
+/* Correction pour l'autofill des navigateurs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white;
+  transition: background-color 5000s ease-in-out 0s;
+  background-color: transparent !important;
+}
+
+
+
+/* Select option background — cannot be done with Tailwind utilities.
+   Required for dark-theme selects in ProducerHome form. */
+select option {
+  background-color: #0f1014;
+  color: white;
+}

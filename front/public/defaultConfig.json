@@ -1,0 +1,74 @@
+{
+  "general": {
+    "festivalName": "MARS AI",
+    "edition": "2026",
+    "colors": {
+      "primary": "#7c3aed",
+      "accent": "#a78bfa",
+      "background": "#000000",
+      "text": "#ffffff"
+    }
+  },
+  "hero": {
+    "visible": true,
+    "badge": "Festival International",
+    "titleMain": "MARS",
+    "titleAccent": "AI",
+    "description": "Le premier festival dédié à l'intelligence artificielle dans le cinéma et les arts numériques.",
+    "backgroundImage": ""
+  },
+  "reassure": {
+    "visible": true
+  },
+  "goals": {
+    "visible": true,
+    "titleMain": "Nos",
+    "titleAccent": "Objectifs"
+  },
+  "protocole": {
+    "visible": true,
+    "titleMain": "Le",
+    "titleAccent": "Protocole"
+  },
+  "program": {
+    "visible": true,
+    "titleMain": "Le",
+    "titleAccent": "Programme",
+    "badge": "Édition 2026"
+  },
+  "party": {
+    "visible": true,
+    "title": "La Soirée de Gala",
+    "date": "15 Mars 2026",
+    "description": "Une nuit inoubliable pour célébrer l'excellence et l'innovation dans l'IA créative."
+  },
+  "promoters": {
+    "visible": true
+  },
+  "localisation": {
+    "visible": true,
+    "titleMain": "Le",
+    "titleAccent": "Lieu",
+    "subtitle": "Au cœur de Marseille",
+    "description": "Le festival se tient dans un cadre exceptionnel au cœur de la ville.",
+    "mapUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2903.123456789!2d5.369780!3d43.296482"
+  },
+  "statistics": {
+    "visible": true,
+    "titleMain": "Les",
+    "titleAccent": "Chiffres"
+  },
+  "sponsors": {
+    "visible": true
+  },
+  "footer": {
+    "visible": true,
+    "description": "Le festival international dédié à l'intelligence artificielle dans les arts."
+  },
+  "navbar": {
+    "showJury": true,
+    "showProgram": true,
+    "showSponsors": true,
+    "showInfos": true
+  }
+}

@@ -1,220 +1,250 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "../../api/users";
-import { getVideos } from "../../api/videos";
-import { getVotes } from "../../api/votes";
-import { getAwards } from "../../api/awards";
+import { useNavigate } from "react-router";
+import { getAdminStats } from "../../api/dashboard";
 
+import DashboardHero from "../../components/admin/DashboardHero.jsx";
+import StatsGrid from "../../components/admin/StatsGrid.jsx";
+import VotesChart from "../../components/admin/VotesChart.jsx";
+import VoteDistribution from "../../components/admin/VoteDistribution.jsx";
+
+/* ─── Actions rapides ─────────────────────────────────── */
+const QUICK_ACTIONS = [
+  {
+    icon: "🎬",
+    label: "Films",
+    description: "Consulter, filtrer et gérer tous les films soumis",
+    path: "/admin/movies",
+    color: "from-violet-600/20 to-purple-600/20",
+    border: "hover:border-violet-500/40",
+    glow: "hover:shadow-violet-500/20",
+  },
+  {
+    icon: "⚖️",
+    label: "Distribution & jury",
+    description: "Assigner les films aux membres du jury",
+    path: "/admin/jury",
+    color: "from-blue-600/20 to-cyan-600/20",
+    border: "hover:border-blue-500/40",
+    glow: "hover:shadow-blue-500/20",
+  },
+  {
+    icon: "🏆",
+    label: "Prix & récompenses",
+    description: "Attribuer et gérer les prix du festival",
+    path: "/admin/awards",
+    color: "from-yellow-600/20 to-amber-600/20",
+    border: "hover:border-yellow-500/40",
+    glow: "hover:shadow-yellow-500/20",
+  },
+  {
+    icon: "📂",
+    label: "Catégories",
+    description: "Créer et organiser les catégories de films",
+    path: "/admin/categories",
+    color: "from-emerald-600/20 to-green-600/20",
+    border: "hover:border-emerald-500/40",
+    glow: "hover:shadow-emerald-500/20",
+  },
+  {
+    icon: "👥",
+    label: "Utilisateurs",
+    description: "Gérer les comptes producteurs et membres du jury",
+    path: "/admin/users",
+    color: "from-pink-600/20 to-rose-600/20",
+    border: "hover:border-pink-500/40",
+    glow: "hover:shadow-pink-500/20",
+  },
+  {
+    icon: "📊",
+    label: "Résultats",
+    description: "Consulter les classements, scores et statistiques",
+    path: "/admin/results",
+    color: "from-orange-600/20 to-red-600/20",
+    border: "hover:border-orange-500/40",
+    glow: "hover:shadow-orange-500/20",
+  },
+  {
+    icon: "⚙️",
+    label: "Configuration",
+    description: "Paramétrer le festival, les couleurs et les textes",
+    path: "/admin/settings",
+    color: "from-slate-600/20 to-gray-600/20",
+    border: "hover:border-slate-500/40",
+    glow: "hover:shadow-slate-500/20",
+  },
+  {
+    icon: "🤝",
+    label: "Sponsors",
+    description: "Gérer les partenaires et sponsors du festival",
+    path: "/admin/sponsors",
+    color: "from-teal-600/20 to-cyan-600/20",
+    border: "hover:border-teal-500/40",
+    glow: "hover:shadow-teal-500/20",
+  },
+];
+
+/* ─── Composant ───────────────────────────────────────── */
 export default function Dashboard() {
-  const { data: usersData, isLoading: loadingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: getUsers,
+  const navigate = useNavigate();
+
+  const { data: stats, isLoading, error } = useQuery({
+    queryKey: ["adminStats"],
+    queryFn: getAdminStats,
+    refetchInterval: 30_000,
+    staleTime: 20_000,
   });
-  const { data: videosData, isLoading: loadingVideos } = useQuery({
-    queryKey: ["listVideos"],
-    queryFn: getVideos,
-  });
-
-  const { data: votesData, isLoading: loadingVotes } = useQuery({
-    queryKey: ["votes"],
-    queryFn: getVotes,
-  });
-
-  const { data: awardsData, isLoading: loadingAwards } = useQuery({
-    queryKey: ["awards"],
-    queryFn: getAwards,
-  });
-
-  const users = usersData?.data || [];
-  const videos = videosData?.data || [];
-  const votes = votesData?.data || [];
-  const awards = awardsData?.data || [];
-
-  const isLoading = loadingUsers || loadingVideos || loadingVotes || loadingAwards;
-
-  // Calcoli statistiche
-  const totalProducers = users.filter(u => u.role === "PRODUCER").length;
-  const totalJuries = users.filter(u => u.role === "JURY").length;
-  const totalMovies = videos.length;
-  const approvedMovies = videos.filter(v => v.selection_status === "selected").length;
-  const refusedMovies = videos.filter(v => v.selection_status === "refused").length;
-  const pendingMovies = videos.filter(v => !v.selection_status || v.selection_status === "submitted").length;
-  const totalVotes = votes.length;
-  const totalAwards = awards.length;
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center h-64 sm:h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#AD46FF] mx-auto mb-4"></div>
-          <p className="text-gray-400">Chargement des statistiques...</p>
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-violet-500 mx-auto mb-4" />
+          <p className="text-sm sm:text-base text-gray-400">
+            Chargement des statistiques…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64 sm:h-screen">
+        <div className="text-center px-4">
+          <p className="text-base sm:text-xl text-red-500 mb-2">
+            ❌ Erreur de chargement
+          </p>
+          <p className="text-xs sm:text-sm text-gray-400 break-words">
+            {error.message}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
-          Dashboard Admin
-        </h1>
-        <p className="text-gray-400 mt-2">Vue d'ensemble du festival Mars AI</p>
-      </div>
+    <div className="space-y-6 sm:space-y-6">
+      {/* En-tête */}
+      <DashboardHero />
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Utilisateurs */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              </svg>
-            </div>
-            <span className="text-3xl font-bold text-white">{users.length}</span>
-          </div>
-          <h3 className="text-gray-400 text-sm mb-2">Utilisateurs totaux</h3>
-          <div className="flex gap-3 text-xs">
-            <span className="text-gray-500">{totalProducers} Producteurs</span>
-            <span className="text-gray-500">{totalJuries} Jurys</span>
-          </div>
+      {/* Statistiques globales */}
+      <StatsGrid stats={stats} />
+
+      {/* Graphiques */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-4">
+        <div>
+          <VotesChart votesData={stats?.votes} />
         </div>
-
-        {/* Films */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-              </svg>
-            </div>
-            <span className="text-3xl font-bold text-white">{totalMovies}</span>
-          </div>
-          <h3 className="text-gray-400 text-sm mb-2">Films totaux</h3>
-          <div className="flex gap-3 text-xs">
-            <span className="text-green-500">{approvedMovies} Approuvés</span>
-            <span className="text-yellow-500">{pendingMovies} En attente</span>
-            <span className="text-red-500">{refusedMovies} Refusés</span>
-          </div>
-        </div>
-
-        {/* Votes */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-pink-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <span className="text-3xl font-bold text-white">{totalVotes}</span>
-          </div>
-          <h3 className="text-gray-400 text-sm mb-2">Votes totaux</h3>
-          <p className="text-xs text-gray-500">Évaluations des jurys</p>
-        </div>
-
-        {/* Prix */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </div>
-            <span className="text-3xl font-bold text-white">{totalAwards}</span>
-          </div>
-          <h3 className="text-gray-400 text-sm mb-2">Prix attribués</h3>
-          <p className="text-xs text-gray-500">Récompenses du festival</p>
+        <div>
+          <VoteDistribution
+            distribution={stats?.votes?.distribution}
+            total={stats?.votes?.total}
+          />
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Actions rapides</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="/admin/movies"
-            className="flex items-center gap-3 p-4 bg-gray-950 border border-gray-800 rounded-lg hover:border-[#AD46FF] transition"
-          >
-            <svg className="w-8 h-8 text-[#AD46FF]" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
-            <div>
-              <h3 className="font-semibold text-white">Gérer les films</h3>
-              <p className="text-xs text-gray-400">Évaluer et approuver</p>
-            </div>
-          </a>
-
-          <a
-            href="/admin/categories"
-            className="flex items-center gap-3 p-4 bg-gray-950 border border-gray-800 rounded-lg hover:border-[#AD46FF] transition"
-          >
-            <svg className="w-8 h-8 text-[#F6339A]" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-            </svg>
-            <div>
-              <h3 className="font-semibold text-white">Catégories</h3>
-              <p className="text-xs text-gray-400">Gérer les catégories</p>
-            </div>
-          </a>
-
-          <a
-            href="/admin/awards"
-            className="flex items-center gap-3 p-4 bg-gray-950 border border-gray-800 rounded-lg hover:border-[#AD46FF] transition"
-          >
-            <svg className="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            <div>
-              <h3 className="font-semibold text-white">Attribuer des prix</h3>
-              <p className="text-xs text-gray-400">Récompenses</p>
-            </div>
-          </a>
-        </div>
-      </div>
-
-      {/* Liste simple des films (Gestion des films) */}
-      {videos.length > 0 && (
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Gestion des films</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-800">
-              <thead>
-                <tr>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Titre</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Statut</th>
-                  <th className="px-3 py-2"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {videos.map((video) => (
-                  <tr key={video.id_movie} className="hover:bg-gray-800/60">
-                    <td className="px-3 py-2 text-white text-sm">{video.title}</td>
-                    <td className="px-3 py-2">
-                      <span className={`text-xs px-3 py-1 rounded-full ${
-                        video.selection_status === "selected"
-                          ? "bg-green-900/40 text-green-300"
-                          : video.selection_status === "refused"
-                          ? "bg-red-900/40 text-red-300"
-                          : "bg-yellow-900/40 text-yellow-300"
-                      }`}>
-                        {video.selection_status === "selected"
-                          ? "Approuvé"
-                          : video.selection_status === "refused"
-                          ? "Refusé"
-                          : "En attente"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2">
-                      <a href="/admin/videos" className="text-xs text-[#AD46FF] hover:underline">Gérer</a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Actions rapides */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base sm:text-lg font-semibold text-white">
+              Actions rapides
+            </h2>
+            <p className="text-xs text-white/40 mt-0.5">
+              Accédez directement aux principales sections de gestion
+            </p>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4">
+          {QUICK_ACTIONS.map((action) => (
+            <button
+              key={action.path}
+              onClick={() => navigate(action.path)}
+              className={`
+                group relative
+                bg-gradient-to-br ${action.color}
+                backdrop-blur-xl
+                border border-white/10 ${action.border}
+                rounded-xl sm:rounded-2xl
+                p-4 sm:p-5
+                shadow-xl shadow-black/30
+                hover:shadow-2xl ${action.glow}
+                transition-all duration-300
+                hover:scale-[1.03] hover:-translate-y-0.5
+                text-left overflow-hidden
+                cursor-pointer
+              `}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+              <span className="text-2xl sm:text-3xl mb-3 block group-hover:scale-110 transition-transform duration-300">
+                {action.icon}
+              </span>
+              <p className="text-sm sm:text-base font-semibold text-white mb-1">
+                {action.label}
+              </p>
+              <p className="text-[10px] sm:text-xs text-white/50 leading-relaxed">
+                {action.description}
+              </p>
+              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Pipeline des films */}
+      {stats?.movies?.pipeline && (
+        <section className="space-y-4">
+          <h2 className="text-base sm:text-lg font-semibold text-white">
+            Pipeline de sélection
+          </h2>
+          <FilmPipeline pipeline={stats.movies.pipeline} total={stats.movies.total} />
+        </section>
       )}
+    </div>
+  );
+}
+
+/* ─── Pipeline de sélection ───────────────────────────── */
+const PIPELINE_STAGES = [
+  { key: "submitted",  label: "Soumis",        color: "bg-gray-500",   icon: "📥" },
+  // { key: "assigned",   label: "En évaluation", color: "bg-blue-500",   icon: "🔍" },
+    { key: "assigned",   label: "Phase 1", color: "bg-blue-500",   icon: "🔍" },
+  // { key: "to_discuss", label: "À discuter",     color: "bg-yellow-500", icon: "💬" },
+  { key: "to_discuss", label: "Phase 2",     color: "bg-yellow-500", icon: "🔍" },
+  { key: "candidate",  label: "Candidat",       color: "bg-purple-500", icon: "⭐" },
+  { key: "selected",   label: "Sélectionné",    color: "bg-green-500",  icon: "✅" },
+  { key: "finalist",   label: "Finaliste",      color: "bg-orange-500", icon: "🎖️" },
+  { key: "awarded",    label: "Primé",          color: "bg-yellow-400", icon: "🏆" },
+];
+
+function FilmPipeline({ pipeline, total }) {
+  return (
+    <div className="bg-white/[0.04] border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+        {PIPELINE_STAGES.map((stage) => {
+          const count = pipeline[stage.key] || 0;
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+          return (
+            <div key={stage.key} className="text-center space-y-2">
+              <span className="text-xl">{stage.icon}</span>
+              <p className="text-lg sm:text-2xl font-bold text-white">{count}</p>
+              <p className="text-[10px] text-white/50 leading-tight">{stage.label}</p>
+              <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${stage.color} transition-all duration-700`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <p className="text-[9px] text-white/30">{pct}%</p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

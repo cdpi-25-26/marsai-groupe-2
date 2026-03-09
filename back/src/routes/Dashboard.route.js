@@ -1,24 +1,14 @@
 import express from "express";
 import { getAdminStats } from "../controllers/DashboardController.js";
+import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]), getAdminStats);
+/**
+ * GET /admin/dashboard
+ * Retourne les statistiques globales pour le tableau de bord admin.
+ * Protégé : ADMIN uniquement.
+ */
+router.get("/", AuthMiddleware(["ADMIN"]), getAdminStats);
 
 export default router;
-
-
-// import express from "express";
-// import getAdminStats from "../controllers/DashboardController.js";
-// import AuthMiddleware from "../middlewares/AuthMiddleware.js";
- 
-// const router = express.Router();
-
-// router.get(
-//   "/admin",
-//   (req, res, next) => AuthMiddleware(req, res, next, ["ADMIN"]),
-//   getAdminStats
-// );
-
-// export default router;
-

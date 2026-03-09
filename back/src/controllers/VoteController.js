@@ -2,6 +2,9 @@ import db from "../models/index.js";
 
 const { Vote, VoteHistory, MovieJury, User, Movie } = db;
 
+/**
+ * GET /votes — Récupère tous les votes (ADMIN)
+ */
 async function getVote(req, res) {
     try {
         const votes = await Vote.findAll({
@@ -18,12 +21,15 @@ async function getVote(req, res) {
     }
 }
 
+/**
+ * POST /:id_movie/:id_user — Crée un vote (ADMIN uniquement)
+ */
 function createVote(req, res) {
     if (!req.body) {
         return res.status(400).json({ error: "Données manquantes" });
     }
 
-    let { note, comments } = req.body;
+    const { note, comments } = req.body;
     const { id_movie, id_user } = req.params;
 
     Vote.findOne({ where: { id_movie, id_user } })
@@ -31,12 +37,7 @@ function createVote(req, res) {
             if (existingVote) {
                 return res.status(409).json({ message: "Vote déjà existant", existingVote });
             }
-            // return Vote.create({ note, comments, id_movie, id_user });
-            const noteFloat = parseFloat(note);
-            if (Number.isNaN(noteFloat)) {
-                return res.status(400).json({ error: "Note invalide" });
-            }
-            return Vote.create({ note: noteFloat, comments, id_movie, id_user });
+            return Vote.create({ note, comments, id_movie, id_user });
         })
         .then(newVote => {
             if (newVote) res.status(201).json({ message: "Vote créé", newVote });
@@ -44,6 +45,9 @@ function createVote(req, res) {
         .catch(err => res.status(500).json({ error: err.message }));
 }
 
+/**
+ * GET /votes/mine — Récupère les votes du jury connecté
+ */
 async function getMyVotes(req, res) {
     try {
         const id_user = req.user.id_user;
@@ -87,16 +91,14 @@ async function createOrUpdateMyVote(req, res) {
     try {
         const id_user = req.user.id_user;
         const { id_movie } = req.params;
-        let { note, comments } = req.body || {};
+        const { note, comments } = req.body || {};
 
-        // Convertisci note in float
-        const noteFloat = parseFloat(note);
-        if (isNaN(noteFloat)) {
-            return res.status(400).json({ error: "Note invalide" });
+        if (!["YES", "NO", "TO DISCUSS"].includes(note)) {
+            return res.status(400).json({ error: "Note invalide (YES, NO ou TO DISCUSS attendu)" });
         }
 
         if (!comments || !String(comments).trim()) {
-            return res.status(400).json({ error: "Commento richiesto" });
+            return res.status(400).json({ error: "Commentaire requis" });
         }
 
         const assigned = await MovieJury.findOne({ where: { id_movie, id_user } });
@@ -119,28 +121,13 @@ async function createOrUpdateMyVote(req, res) {
         const existingVote = await Vote.findOne({ where: { id_movie, id_user } });
 
         if (existingVote) {
-            const isSecondRound = status === 'to_discuss';
+            // movie and status already fetched above — no second DB call needed
 
-            if (!isSecondRound) {
-                return res.status(409).json({
-                    error: "Le second vote n'est pas encore ouvert pour ce film"
-                });
-            }
-
-            if ((existingVote.modification_count || 0) >= 1) {
-                return res.status(409).json({
-                    error: "Le second vote a déjà été utilisé"
-                });
-            }
-
-            if (isSecondRound) {
-                existingVote.modification_count = (existingVote.modification_count || 0) + 1;
-            }
-            
             const normalizedComment = String(comments || "");
             const existingComment = String(existingVote.comments || "");
-            const hasChanges = Number(existingVote.note) !== noteFloat || existingComment !== normalizedComment;
+            const hasChanges = existingVote.note !== note || existingComment !== normalizedComment;
 
+            // Save history snapshot before updating
             if (hasChanges) {
                 await VoteHistory.create({
                     id_vote: existingVote.id_vote,
@@ -149,33 +136,38 @@ async function createOrUpdateMyVote(req, res) {
                     note: existingVote.note,
                     comments: existingVote.comments
                 });
+
+                // FIX 1: Only increment modification_count when there are actual changes.
+                // FIX 2: Increment during BOTH to_discuss (2nd round) AND selected stages,
+                //        not only when selected. This ensures canPromote in the frontend
+                //        can detect that the jury has voted in round 2.
+                const isPostFirstRound = ["to_discuss", "selected", "finalist"].includes(status);
+                if (isPostFirstRound) {
+                    existingVote.modification_count = (existingVote.modification_count || 0) + 1;
+                }
             }
 
-            existingVote.note = noteFloat;
+            existingVote.note = note;
             existingVote.comments = normalizedComment;
             await existingVote.save();
-            return res.json({ 
-                message: "Vote mis à jour", 
+
+            return res.json({
+                message: "Vote mis à jour",
                 vote: existingVote,
                 isModified: existingVote.modification_count > 0,
-                isApproved: isSecondRound
+                isApproved: movie.selection_status === "selected"
             });
         }
 
-        if (status !== 'assigned') {
-            return res.status(409).json({
-                error: "Le premier vote n'est autorisé qu'en phase assigned"
-            });
-        }
-
-        const newVote = await Vote.create({ 
-            note: noteFloat, 
-            comments, 
-            id_movie, 
+        const newVote = await Vote.create({
+            note,
+            comments,
+            id_movie,
             id_user,
             modification_count: 0
         });
         return res.status(201).json({ message: "Vote créé", vote: newVote });
+
     } catch (err) {
         console.error("createOrUpdateMyVote error:", err);
         return res.status(500).json({ error: err.message });
@@ -208,17 +200,14 @@ function deleteVotesByMovie(req, res) {
 
 function updateVote(req, res) {
     const { id_vote } = req.params;
-    let { note, comments } = req.body;
+    const { note, comments } = req.body;
 
     Vote.findOne({ where: { id_vote } })
         .then(vote => {
             if (!vote) return res.status(404).json({ error: "Vote non trouvé" });
 
-            // if (note) vote.note = note;
-            // if (comments) vote.comments = comments;
             if (note !== undefined) {
-                const noteFloat = parseFloat(note);
-                if (!Number.isNaN(noteFloat)) vote.note = noteFloat;
+                if (["YES", "NO", "TO DISCUSS"].includes(note)) vote.note = note;
             }
             if (comments) vote.comments = comments;
 
@@ -241,10 +230,6 @@ function getVoteById(req, res) {
         .catch(err => res.status(500).json({ error: err.message }));
 }
 
-function findVoteByNote(note) {
-    return Vote.findOne({ where: { note } });
-}
-
 export default {
     getVote,
     createVote,
@@ -254,6 +239,5 @@ export default {
     deleteVote,
     updateVote,
     getVoteById,
-    findVoteByNote,
     deleteVotesByMovie
 };
