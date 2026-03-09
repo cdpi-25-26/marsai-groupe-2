@@ -127,7 +127,7 @@ export default function AdminLayout() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5a1 1 0 011-1h4a1 1 0 011 1V6h3a1 1 0 011 1v2a5 5 0 01-4 4.9V18h2a1 1 0 110 2H7a1 1 0 110-2h2v-4.1A5 5 0 015 9V7a1 1 0 011-1h3V4.5z" />
         </svg>
       ),
-      label: "Films premiés"
+      label: "Gestion des Films Nominés"
     },
     {
       path: "/admin/users",

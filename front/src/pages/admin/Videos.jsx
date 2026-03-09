@@ -2,14 +2,29 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  deleteMovie,
   getCategories,
   getVideos,
   updateMovie,
   updateMovieCategories,
   updateMovieStatus
 } from "../../api/videos";
-import { deleteVotesByMovie, getVotes } from "../../api/votes";
+import { getVotes } from "../../api/votes";
 import Pagination from "../../components/admin/Pagination.jsx";
+
+function getStatusLabel(status) {
+  const labels = {
+    submitted: "Soumis",
+    assigned: "Assigné",
+    to_discuss: "En Discussion",
+    candidate: "Nominé",
+    awarded: "Gagnant du Prix",
+    refused: "Refusé",
+    selected: "Sélectionné",
+    finalist: "Finaliste"
+  };
+  return labels[status] || status;
+}
 
 function Videos() {
   const queryClient = useQueryClient();
@@ -29,7 +44,8 @@ function Videos() {
     title: "",
     synopsis: "",
     synopsis_anglais: "",
-    admin_comment: ""
+    admin_comment: "",
+    selection_status: "submitted"
   });
 
   const { data } = useQuery({
@@ -107,8 +123,8 @@ function Videos() {
     mutationFn: async ({ id, categoryIds }) => updateMovieCategories(id, categoryIds)
   });
 
-  const resetVotesMutation = useMutation({
-    mutationFn: async (id_movie) => deleteVotesByMovie(id_movie)
+  const deleteMovieMutation = useMutation({
+    mutationFn: async (id) => deleteMovie(id)
   });
 
   const refreshMovies = async (successMessage) => {
@@ -138,7 +154,8 @@ function Videos() {
       title: movie.title || "",
       synopsis: movie.synopsis || movie.description || "",
       synopsis_anglais: movie.synopsis_anglais || "",
-      admin_comment: movie.admin_comment || movie.jury_comment || ""
+      admin_comment: movie.admin_comment || movie.jury_comment || "",
+      selection_status: movie.selection_status || "submitted"
     });
     setShowDetailsModal(true);
   }
@@ -192,6 +209,29 @@ function Videos() {
     }
   }
 
+  async function handleDeleteSelectedMovies() {
+    if (selectedMovieIds.length === 0) {
+      setMessage("Sélectionnez au moins un film.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Supprimer définitivement ${selectedMovieIds.length} film(s) sélectionné(s) ?`
+    );
+    if (!confirmed) return;
+
+    try {
+      await Promise.all(selectedMovieIds.map((id) => deleteMovieMutation.mutateAsync(id)));
+      await refreshMovies("Films sélectionnés supprimés.");
+      setSelectedMovieIds([]);
+      if (editingMovie && selectedMovieIds.includes(editingMovie.id_movie)) {
+        closeDetailsModal();
+      }
+    } catch {
+      setMessage("Erreur lors de la suppression des films sélectionnés.");
+    }
+  }
+
   async function handleSaveTexts() {
     if (!editingMovie) return;
 
@@ -226,76 +266,21 @@ function Videos() {
     }
   }
 
-  async function handleRejectMovie() {
+  async function handleSaveStatus() {
     if (!editingMovie) return;
 
     try {
       await updateStatusMutation.mutateAsync({
         id: editingMovie.id_movie,
-        selection_status: "refused",
+        selection_status: formData.selection_status,
         payload: {
           jury_comment: formData.admin_comment,
           force_transition: true
         }
       });
-      await refreshMovies("Film refusé.");
+      await refreshMovies("Statut du film mis à jour.");
     } catch {
-      setMessage("Erreur lors du refus du film.");
-    }
-  }
-
-  async function handleLaunchVoting() {
-    if (!editingMovie) return;
-
-    try {
-      await updateStatusMutation.mutateAsync({
-        id: editingMovie.id_movie,
-        selection_status: "assigned",
-        payload: {
-          jury_comment: formData.admin_comment,
-          force_transition: true
-        }
-      });
-      await refreshMovies("Film lancé en votation.");
-    } catch {
-      setMessage("Erreur lors du lancement en votation.");
-    }
-  }
-
-  async function handleNominateFinalist() {
-    if (!editingMovie) return;
-
-    try {
-      await updateStatusMutation.mutateAsync({
-        id: editingMovie.id_movie,
-        selection_status: "finalist",
-        payload: {
-          jury_comment: formData.admin_comment,
-          force_transition: true
-        }
-      });
-      await refreshMovies("Film nommé finaliste.");
-    } catch {
-      setMessage("Erreur lors de la nomination finaliste.");
-    }
-  }
-
-  async function handleResetVotesAndRelaunch() {
-    if (!editingMovie) return;
-
-    try {
-      await resetVotesMutation.mutateAsync(editingMovie.id_movie);
-      await updateStatusMutation.mutateAsync({
-        id: editingMovie.id_movie,
-        selection_status: "assigned",
-        payload: {
-          jury_comment: formData.admin_comment,
-          force_transition: true
-        }
-      });
-      await refreshMovies("Votes réinitialisés et votation relancée.");
-    } catch {
-      setMessage("Erreur lors de la réinitialisation des votes.");
+      setMessage("Erreur lors de la mise à jour du statut.");
     }
   }
 
@@ -329,19 +314,11 @@ function Videos() {
           </button>
           <button
             type="button"
-            onClick={() => bulkUpdateSelectionStatus("refused", "Films refusés.")}
-            disabled={selectedMovieIds.length === 0 || updateStatusMutation.isPending}
-            className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 disabled:opacity-50 text-xs"
+            onClick={handleDeleteSelectedMovies}
+            disabled={selectedMovieIds.length === 0 || deleteMovieMutation.isPending}
+            className="px-3 py-2 bg-red-800 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 text-xs"
           >
-            Refuser la sélection
-          </button>
-          <button
-            type="button"
-            onClick={() => bulkUpdateSelectionStatus("assigned", "Films envoyés en votation.")}
-            disabled={selectedMovieIds.length === 0 || updateStatusMutation.isPending}
-            className="px-3 py-2 bg-[#AD46FF] text-white rounded-lg hover:bg-[#9536e6] disabled:opacity-50 text-xs"
-          >
-            Sélectionner pour votation
+            Supprimer la sélection
           </button>
         </div>
       </div>
@@ -406,7 +383,7 @@ function Videos() {
                   </td>
                   <td className="px-3 py-2 align-top">
                     <span className="inline-flex px-2 py-1 rounded-full text-[11px] bg-white/10 text-white">
-                      {movie.selection_status || "submitted"}
+                      {getStatusLabel(movie.selection_status || "submitted")}
                     </span>
                   </td>
                 </tr>
@@ -433,7 +410,7 @@ function Videos() {
 
       {showDetailsModal && editingMovie && createPortal(
         <div className="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center p-4">
-          <div className="relative z-[10000] bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-6xl max-h-[92vh] overflow-auto p-5">
+          <div className="relative z-[10000] bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-4xl p-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">Détails du film</h2>
               <button
@@ -445,15 +422,15 @@ function Videos() {
               </button>
             </div>
 
-            <div className="grid grid-cols-12 gap-4 text-sm">
-              <div className="col-span-12 lg:col-span-7 space-y-3">
+            <div className="grid grid-cols-12 gap-3 text-sm">
+              <div className="col-span-12 lg:col-span-6 space-y-3">
                 <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3">
                   <h3 className="text-xs uppercase text-gray-400 mb-2">Média</h3>
                   {getPoster(editingMovie) && (
                     <img
                       src={getPoster(editingMovie)}
                       alt={editingMovie.title}
-                      className="w-full max-h-56 object-cover rounded border border-gray-800"
+                      className="w-full max-h-40 object-cover rounded border border-gray-800"
                     />
                   )}
                   {getTrailer(editingMovie) && (
@@ -484,7 +461,7 @@ function Videos() {
                     <p><span className="text-gray-400">Nom:</span> {editingMovie?.Producer ? `${editingMovie.Producer.first_name || ""} ${editingMovie.Producer.last_name || ""}`.trim() : "-"}</p>
                     <p><span className="text-gray-400">ID user:</span> {editingMovie?.Producer?.id_user || "-"}</p>
                     <p><span className="text-gray-400">Film ID:</span> {editingMovie.id_movie}</p>
-                    <p><span className="text-gray-400">Statut:</span> {editingMovie.selection_status || "submitted"}</p>
+                    <p><span className="text-gray-400">Statut:</span> {getStatusLabel(editingMovie.selection_status || "submitted")}</p>
                   </div>
                 </div>
 
@@ -504,41 +481,10 @@ function Videos() {
                       </p>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={handleRejectMovie}
-                      className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-500"
-                    >
-                      Refuser le film
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleLaunchVoting}
-                      className="px-3 py-2 bg-[#AD46FF] text-white rounded hover:bg-[#9536e6]"
-                    >
-                      Lancer la votation
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleNominateFinalist}
-                      className="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500"
-                    >
-                      Nommer finaliste
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleResetVotesAndRelaunch}
-                      className="px-3 py-2 bg-amber-600 text-white rounded hover:bg-amber-500"
-                    >
-                      Reset vote + relancer
-                    </button>
-                  </div>
                 </div>
               </div>
 
-              <div className="col-span-12 lg:col-span-5 space-y-3">
+              <div className="col-span-12 lg:col-span-6 space-y-3">
                 <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3 space-y-3">
                   <h3 className="text-xs uppercase text-gray-400">Textes & commentaire</h3>
                   <div>
@@ -552,7 +498,7 @@ function Videos() {
                   <div>
                     <label className="block text-gray-300 mb-1">Synopsis FR</label>
                     <textarea
-                      rows={4}
+                      rows={2}
                       value={formData.synopsis}
                       onChange={(e) => setFormData((prev) => ({ ...prev, synopsis: e.target.value }))}
                       className="bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded w-full"
@@ -561,7 +507,7 @@ function Videos() {
                   <div>
                     <label className="block text-gray-300 mb-1">Synopsis EN</label>
                     <textarea
-                      rows={3}
+                      rows={2}
                       value={formData.synopsis_anglais}
                       onChange={(e) => setFormData((prev) => ({ ...prev, synopsis_anglais: e.target.value }))}
                       className="bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded w-full"
@@ -570,7 +516,7 @@ function Videos() {
                   <div>
                     <label className="block text-gray-300 mb-1">Commentaire admin</label>
                     <textarea
-                      rows={3}
+                      rows={2}
                       value={formData.admin_comment}
                       onChange={(e) => setFormData((prev) => ({ ...prev, admin_comment: e.target.value }))}
                       className="bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded w-full"
@@ -583,15 +529,34 @@ function Videos() {
                   >
                     Enregistrer les textes
                   </button>
+                  <div>
+                    <label className="block text-gray-300 mb-1">Statut</label>
+                    <select
+                      value={formData.selection_status}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, selection_status: e.target.value }))}
+                      className="bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded w-full"
+                    >
+                      <option value="assigned">Assigné (Votation)</option>
+                      <option value="candidate">Nominé (Pré-Récompense)</option>
+                      <option value="refused">Refusé</option>
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveStatus}
+                    className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500"
+                  >
+                    Enregistrer le statut
+                  </button>
                 </div>
 
                 <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3">
                   <h3 className="text-xs uppercase text-gray-400 mb-2">Catégories</h3>
-                  <div className="space-y-2 max-h-52 overflow-auto">
+                  <div className="grid grid-cols-2 gap-2">
                     {categories.map((category) => {
                       const checked = categorySelection.includes(category.id_categorie);
                       return (
-                        <label key={category.id_categorie} className="flex items-center gap-2 text-gray-200 text-sm">
+                        <label key={category.id_categorie} className="flex items-center gap-2 text-gray-200 text-xs">
                           <input
                             type="checkbox"
                             checked={checked}
@@ -616,15 +581,6 @@ function Videos() {
                   >
                     Changer catégorie
                   </button>
-                </div>
-
-                <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3 text-xs text-gray-300 space-y-1">
-                  <p><span className="text-gray-400">Langue:</span> {editingMovie.main_language || "-"}</p>
-                  <p><span className="text-gray-400">Durée:</span> {editingMovie.duration || "-"}</p>
-                  <p><span className="text-gray-400">Année:</span> {editingMovie.release_year || "-"}</p>
-                  <p><span className="text-gray-400">Nationalité:</span> {editingMovie.nationality || "-"}</p>
-                  <p><span className="text-gray-400">AI Tool:</span> {editingMovie.ai_tool || "-"}</p>
-                  <p><span className="text-gray-400">Production:</span> {editingMovie.production || "-"}</p>
                 </div>
               </div>
             </div>

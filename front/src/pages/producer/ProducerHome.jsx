@@ -1253,15 +1253,18 @@ export default function ProducerHome() {
                                 e.preventDefault();
                                 const formData = new FormData();
                                 if (editMovieFiles.filmFile) formData.append("filmFile", editMovieFiles.filmFile);
-                                editMovieFiles.thumbnails.forEach((file) => {
-                                  if (file) formData.append("thumbnails", file);
+                                editMovieFiles.thumbnails.forEach((file, idx) => {
+                                  if (file) formData.append(`thumbnail${idx + 1}`, file);
                                 });
                                 try {
-                                  await fetch(`/api/movies/${selectedMovie.id_movie}`, {
+                                  const res = await fetch(`/api/movies/${selectedMovie.id_movie}`, {
                                     method: "PUT",
                                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                                     body: formData,
                                   });
+                                  if (!res.ok) {
+                                    throw new Error("Erreur lors de la mise à jour du film.");
+                                  }
                                   setShowEditMovieModal(false);
                                   setSelectedMovie(null);
                                   const moviesRes = await getMyMovies();

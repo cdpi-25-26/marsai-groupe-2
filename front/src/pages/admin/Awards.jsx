@@ -15,7 +15,6 @@ function Awards() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [awardName, setAwardName] = useState("");
-  const [statusTarget, setStatusTarget] = useState("candidate");
   const [feedback, setFeedback] = useState(null);
   const [activeTab, setActiveTab] = useState("create"); // "create" ou "awarded"
 
@@ -38,14 +37,14 @@ function Awards() {
   const movies = moviesData?.data || [];
   const votes = votesData?.data || [];
 
-  // Films candidats (status: candidate, selected, finalist) qui peuvent recevoir un prix
+  // Films nominés (status: candidate, selected, finalist) qui peuvent recevoir un prix
   const candidateMovies = useMemo(() => {
     return movies.filter((movie) => 
       ["candidate", "selected", "finalist"].includes(movie.selection_status)
     );
   }, [movies]);
 
-  // Films déjà primés (status: awarded)
+  // Films déjà Gagnants du Prix (status: awarded)
   const awardedMovies = useMemo(() => {
     return movies.filter((movie) => movie.selection_status === "awarded");
   }, [movies]);
@@ -101,7 +100,7 @@ function Awards() {
     mutationFn: (id_movie) => updateMovieStatus(id_movie, "awarded"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-      setFeedback({ type: "success", message: "Film marqué comme primé" });
+      setFeedback({ type: "success", message: "Film marqué comme Gagnant du Prix" });
       setTimeout(() => setFeedback(null), 3000);
     },
     onError: () => {
@@ -132,7 +131,7 @@ function Awards() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listVideos"] });
-      setFeedback({ type: "success", message: "Films réinitialisés en candidats" });
+      setFeedback({ type: "success", message: "Films réinitialisés en nominés" });
       setTimeout(() => setFeedback(null), 3000);
     },
     onError: () => {
@@ -162,7 +161,6 @@ function Awards() {
     setSelectedMovie(movie);
     setShowModal(true);
     setAwardName("");
-    setStatusTarget(movie.selection_status || "candidate");
   };
 
   const handleSubmit = (e) => {
@@ -176,13 +174,13 @@ function Awards() {
   };
 
   const handleAwardMovie = (movieId) => {
-    if (window.confirm("Marquer ce film comme primé et le retirer de la votation ?")) {
+    if (window.confirm("Marquer ce film comme Gagnant du Prix et le retirer de la votation ?")) {
       markAsAwardedMutation.mutate(movieId);
     }
   };
 
   const handleResetAwardedMovies = () => {
-    if (window.confirm(`Réinitialiser ${awardedMovies.length} films primés en candidats pour les tests ?`)) {
+    if (window.confirm(`Réinitialiser ${awardedMovies.length} films Gagnants en nominés pour les tests ?`)) {
       resetAwardedMoviesMutation.mutate();
     }
   };
@@ -259,10 +257,10 @@ function Awards() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
-            Gestion des Prix
+            Gestion des Films Nominés
           </h1>
           <p className="text-gray-400 mt-2">
-            Cliquez sur un film candidat pour créer un nouveau prix
+            Cliquez sur un film nominé pour créer un nouveau prix
           </p>
         </div>
         
@@ -281,7 +279,7 @@ function Awards() {
               onClick={handleResetAwardedMovies}
               className="px-4 py-2 bg-yellow-600/80 text-white rounded-lg hover:bg-yellow-600 text-sm font-semibold"
             >
-              Réinitialiser films primés ({awardedMovies.length})
+              Réinitialiser films Gagnants ({awardedMovies.length})
             </button>
           )}
         </div>
@@ -310,7 +308,7 @@ function Awards() {
               : "text-gray-400 hover:text-white"
           }`}
         >
-          Films Candidats ({candidateMovies.length})
+          Films Nominés ({candidateMovies.length})
         </button>
         <button
           onClick={() => setActiveTab("awarded")}
@@ -320,7 +318,7 @@ function Awards() {
               : "text-gray-400 hover:text-white"
           }`}
         >
-          Films Primés ({awardedMovies.length})
+          Gagnants du Prix ({awardedMovies.length})
         </button>
       </div>
 
@@ -333,20 +331,20 @@ function Awards() {
               <p className="text-3xl font-bold text-white mt-1">{awards.length}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <p className="text-gray-400 text-sm">Films candidats</p>
+              <p className="text-gray-400 text-sm">Films nominés</p>
               <p className="text-3xl font-bold text-white mt-1">{candidateMovies.length}</p>
             </div>
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <p className="text-gray-400 text-sm">Films primés</p>
+              <p className="text-gray-400 text-sm">Gagnants du Prix</p>
               <p className="text-3xl font-bold text-white mt-1">{awardedMovies.length}</p>
             </div>
           </div>
 
-          {/* Liste candidats */}
+          {/* Liste nominés */}
           <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-            <h2 className="text-xl font-semibold mb-4">Films candidats - Cliquez pour créer un prix</h2>
+            <h2 className="text-xl font-semibold mb-4">Films nominés - Cliquez pour créer un prix</h2>
             {candidateMovies.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">Aucun film candidat.</p>
+              <p className="text-gray-400 text-center py-8">Aucun film nominé.</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
                 {candidateMovies.map((movie) => {
@@ -410,7 +408,7 @@ function Awards() {
                             disabled={markAsAwardedMutation.isPending}
                             className="w-full mt-2 px-2 py-1 bg-green-600/80 text-white rounded text-[10px] hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Passer en films primés
+                            Passer en Gagnants du Prix
                           </button>
                         )}
                       </div>
@@ -426,7 +424,7 @@ function Awards() {
 
       {activeTab === "awarded" && (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <h2 className="text-xl font-semibold mb-3">Films proposés à la candidature</h2>
+          <h2 className="text-xl font-semibold mb-3">Films proposés à la nomination</h2>
           {proposedMovies.length === 0 ? (
             <p className="text-gray-500 text-sm mb-6">Aucun film proposé pour le moment.</p>
           ) : (
@@ -440,9 +438,9 @@ function Awards() {
             </div>
           )}
 
-          <h2 className="text-xl font-semibold mb-4">Films primés</h2>
+          <h2 className="text-xl font-semibold mb-4">Gagnants du Prix</h2>
           {awardedMovies.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">Aucun film primé pour le moment.</p>
+            <p className="text-gray-400 text-center py-8">Aucun Gagnant du Prix pour le moment.</p>
           ) : (
             <div className="space-y-3">
               {awardedMovies.map((movie) => {
@@ -519,6 +517,18 @@ function Awards() {
 
             <div className="grid grid-cols-12 gap-3 text-[12px]">
               <div className="col-span-12 xl:col-span-7 space-y-3">
+                {/* Film & Producer Info */}
+                <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3 space-y-2">
+                  <h4 className="text-xs uppercase text-gray-400 font-semibold mb-2">Informations Producteur</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div><span className="text-gray-400">Nom:</span> <span className="text-white">{selectedMovie.Producer ? `${selectedMovie.Producer.first_name || ""} ${selectedMovie.Producer.last_name || ""}`.trim() : "-"}</span></div>
+                    <div><span className="text-gray-400">Email:</span> <span className="text-white">{selectedMovie.Producer?.email || "-"}</span></div>
+                    <div><span className="text-gray-400">Téléphone:</span> <span className="text-white">{selectedMovie.Producer?.phone || "-"}</span></div>
+                    <div><span className="text-gray-400">Pays:</span> <span className="text-white">{selectedMovie.Producer?.country || "-"}</span></div>
+                  </div>
+                </div>
+
+                {/* Film Basic Info */}
                 <div className="flex items-center gap-3 p-3 bg-gray-900/60 border border-gray-800 rounded-lg">
                   <div className="w-16 h-16 bg-gray-800 rounded overflow-hidden flex-shrink-0">
                     {(() => {
@@ -542,6 +552,19 @@ function Awards() {
                         </span>
                       ))}
                     </div>
+                  </div>
+                </div>
+
+                {/* Film Details */}
+                <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3">
+                  <h4 className="text-xs uppercase text-gray-400 font-semibold mb-2">Détails du Film</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
+                    <div><span className="text-gray-400">Durée:</span> {selectedMovie.duration ? `${selectedMovie.duration}s` : "-"}</div>
+                    <div><span className="text-gray-400">Année:</span> {selectedMovie.release_year || "-"}</div>
+                    <div><span className="text-gray-400">Langue:</span> {selectedMovie.main_language || "-"}</div>
+                    <div><span className="text-gray-400">Nationalité:</span> {selectedMovie.nationality || "-"}</div>
+                    <div><span className="text-gray-400">Soumis:</span> {selectedMovie.createdAt ? new Date(selectedMovie.createdAt).toLocaleDateString("fr-FR") : "-"}</div>
+                    <div><span className="text-gray-400">Production:</span> {selectedMovie.production || "-"}</div>
                   </div>
                 </div>
 
@@ -596,18 +619,20 @@ function Awards() {
                   </div>
 
                   {(votesByMovie[selectedMovie.id_movie] || []).length === 0 ? (
-                    <p className="text-gray-500">Aucun vote pour ce film.</p>
+                    <p className="text-gray-500 text-xs">Aucun vote pour ce film.</p>
                   ) : (
-                    <div className="space-y-2 max-h-52 overflow-auto pr-1">
+                    <div className="space-y-2 max-h-64 overflow-auto pr-1">
+                      <p className="text-xs text-gray-400 font-semibold mb-2">Détails des votes:</p>
                       {(votesByMovie[selectedMovie.id_movie] || []).map((vote) => (
-                        <div key={vote.id_vote} className="bg-gray-950 border border-gray-800 rounded-lg p-2">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-300">
+                        <div key={vote.id_vote} className="bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 font-semibold">
                               {vote.User ? `${vote.User.first_name || ""} ${vote.User.last_name || ""}`.trim() : `Jury #${vote.id_user}`}
                             </span>
                             <span className="text-white font-semibold">Note: {vote.note}</span>
                           </div>
-                          {vote.comments && <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">{vote.comments}</p>}
+                          {vote.comments && <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">Commentaire: {vote.comments}</p>}
+                          {vote.createdAt && <p className="text-[10px] text-gray-500 mt-1">Voté le: {new Date(vote.createdAt).toLocaleDateString("fr-FR")}</p>}
                         </div>
                       ))}
                     </div>
@@ -617,79 +642,40 @@ function Awards() {
 
               <div className="col-span-12 xl:col-span-5 space-y-3">
                 <div className="bg-gray-900/60 border border-gray-800 rounded-lg p-3">
-                  <h4 className="text-sm font-semibold text-white mb-2">Changer statut votation</h4>
-                  <div className="flex gap-2">
-                    <select
-                      value={statusTarget}
-                      onChange={(e) => setStatusTarget(e.target.value)}
-                      className="w-full bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded"
-                    >
-                      <option value="submitted">submitted</option>
-                      <option value="assigned">assigned</option>
-                      <option value="to_discuss">to_discuss</option>
-                      <option value="candidate">candidate</option>
-                      <option value="selected">selected</option>
-                      <option value="finalist">finalist</option>
-                      <option value="awarded">awarded</option>
-                      <option value="refused">refused</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => updateStatusMutation.mutate({ id_movie: selectedMovie.id_movie, selection_status: statusTarget })}
-                      className="px-4 py-2 bg-[#AD46FF] text-white rounded hover:bg-[#9536e6]"
-                    >
-                      Appliquer
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                    <button
-                      type="button"
-                      onClick={() => updateStatusMutation.mutate({ id_movie: selectedMovie.id_movie, selection_status: "candidate" })}
-                      className="px-3 py-2 bg-blue-600/80 text-white rounded hover:bg-blue-600"
-                    >
-                      Candidater
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateStatusMutation.mutate({ id_movie: selectedMovie.id_movie, selection_status: "awarded" })}
-                      className="px-3 py-2 bg-green-600/80 text-white rounded hover:bg-green-600"
-                    >
-                      Marquer primé
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleSubmit} className="bg-gray-900/60 border border-gray-800 rounded-lg p-3 space-y-3 mt-3">
-                    <label className="block text-sm text-gray-400">Nom du prix *</label>
-
-                    <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+                  <h4 className="text-sm font-semibold text-white mb-3">Attribuer une récompense</h4>
+                  <form onSubmit={handleSubmit} className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Nom de la récompense *</label>
                       <input
                         type="text"
                         value={awardName}
                         onChange={(e) => setAwardName(e.target.value)}
                         placeholder="Ex: Meilleur Film, Grand Prix, Mention Spéciale..."
-                        className="flex-1 bg-gray-950 border border-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AD46FF]"
+                        className="w-full bg-gray-950 border border-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AD46FF] text-xs"
                         autoFocus
                       />
-                      <button
-                        type="submit"
-                        disabled={!awardName.trim()}
-                        className="px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                      >
-                        Créer le prix
-                      </button>
                     </div>
 
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => setShowModal(false)}
-                        className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-semibold"
-                      >
-                        Annuler
-                      </button>
-                    </div>
+                    <button
+                      type="submit"
+                      disabled={!awardName.trim()}
+                      className="w-full px-4 py-2 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    >
+                      ✓ Attribuer la récompense
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-semibold text-sm"
+                    >
+                      Annuler
+                    </button>
                   </form>
+                  
+                  <p className="text-xs text-gray-400 mt-3 p-2 bg-gray-950 rounded border border-gray-800">
+                    <span className="font-semibold">Note:</span> Une fois la récompense attribuée et la modale fermée, le film passera automatiquement en "Gagnant du Prix".
+                  </p>
                 </div>
               </div>
             </div>

@@ -357,7 +357,7 @@ async function createMovie(req, res) {
 
 
 
-///////////////////////////////////////////////////////////////////////// Modifier un film (ADMIN uniquement)
+///////////////////////////////////////////////////////////////////////// Modifier un film (ADMIN ou PRODUCER propriétaire)
 
 async function updateMovie(req, res) {
   try {
@@ -369,10 +369,10 @@ async function updateMovie(req, res) {
       return res.status(404).json({ error: "Film non trouvé" });
     }
 
-    // Sécurité : uniquement ADMIN
-    if (req.user.role !== "ADMIN") {
+    // Sécurité : ADMIN peut tout modifier, PRODUCER seulement ses films
+    if (req.user.role !== "ADMIN" && movie.id_user !== req.user.id_user) {
       return res.status(403).json({
-        error: "Seul un administrateur peut modifier un film"
+        error: "Vous n'êtes pas autorisé à modifier ce film"
       });
     }
 
@@ -485,7 +485,7 @@ async function updateMovieStatus(req, res) {
       candidate: ["awarded", "refused"],
       selected: ["candidate", "awarded", "refused"],
       finalist: ["candidate", "awarded", "refused"],
-      awarded: [],
+      awarded: [\"candidate\", \"refused\"],
       refused: []
     };
 

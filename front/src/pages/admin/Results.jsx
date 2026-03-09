@@ -120,7 +120,7 @@ export default function Results() {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
           Results
         </h1>
-        <p className="text-gray-400 mt-1">Films les plus votés, primés, moyenne des votes et statuts acceptés/refusés.</p>
+        <p className="text-gray-400 mt-1">Films les plus votés, Gagnants du Prix, moyenne des votes et statuts acceptés/refusés.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -129,7 +129,7 @@ export default function Results() {
           <p className="text-white text-2xl font-bold">{movies.length}</p>
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-sm">Films primés</p>
+          <p className="text-gray-400 text-sm">Gagnants du Prix</p>
           <p className="text-white text-2xl font-bold">{awardedMovies.length}</p>
         </div>
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
@@ -193,7 +193,7 @@ export default function Results() {
       </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 overflow-x-auto">
-        <h2 className="text-white font-semibold mb-3">Films primés</h2>
+        <h2 className="text-white font-semibold mb-3">Gagnants du Prix</h2>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-400 border-b border-gray-800">
@@ -204,7 +204,7 @@ export default function Results() {
               <th className="px-3 py-2">Prix</th>
             </tr>
           </thead>
-          <tbody>{renderRows(awardedMovies, "Aucun film primé")}</tbody>
+          <tbody>{renderRows(awardedMovies, "Aucun Gagnant du Prix")}</tbody>
         </table>
       </div>
     </div>

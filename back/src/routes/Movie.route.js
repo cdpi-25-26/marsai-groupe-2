@@ -70,10 +70,10 @@ movieRouter.post("/",
 // Supprimer un film (ADMIN peut tout supprimer, PRODUCER seulement les siens)
 movieRouter.delete("/:id", AuthMiddleware(["ADMIN", "PRODUCER"]),MovieController.deleteMovie);
 
-// Modifier un film (ADMIN)
+// Modifier un film (ADMIN + PRODUCER propriétaire)
 movieRouter.put(
   "/:id",
-  AuthMiddleware(["ADMIN"]),
+  AuthMiddleware(["ADMIN", "PRODUCER"]),
   upload.fields([
     { name: "filmFile", maxCount: 1 },
     { name: "thumbnail1", maxCount: 1 },
