@@ -49,7 +49,7 @@ Email de support
 
 Email développeur
 
-# Ajouter les scopes
+# Ajouter les scopes (pour le projet les scopes sont déja définis dans le fichier googleAuth.route.js)
 
 **Les scopes définissent les permissions demandées à l’utilisateur.**
 
