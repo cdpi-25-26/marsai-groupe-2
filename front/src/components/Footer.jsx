@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import React from "react";
 import Social from "../components/Social";
-import Newletter from "./Newletter";
+import Newsletter from "./Newsletter";
 
 export default function Footer() {
 const { t } = useTranslation();
@@ -46,7 +46,7 @@ AI</span></h2>
 
         {/* Colonne droite : formulaire */}
         <div className="flex justify-end">
-        <Newletter />
+        <Newsletter />
         </div>
   </div>
       {/* Bas de page */}
