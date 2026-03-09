@@ -84,7 +84,7 @@ async function processQueue() {
     } else {
       EmailController.sendMail(
         userEmail,
-        "Your video accepted",
+        "Your video has been accepted.",
         VIDEO_ACCEPT_TEMPLATE,
       );
     }

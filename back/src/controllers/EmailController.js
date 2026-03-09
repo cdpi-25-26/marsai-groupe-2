@@ -125,7 +125,7 @@ const transporter = nodemailer.createTransport({
 
 async function sendMail(to, subject, html) {
   let info = await transporter.sendMail({
-    from: '"contact" <contact@marsai.com>', // sender address, add YOUR NAME & YOUR MAIL
+    from: '"contact marsAi" <contact@marsai.com>', // sender address, add YOUR NAME & YOUR MAIL
     to, // list of receivers
     subject, // Subject line
     html,
