@@ -1,5 +1,5 @@
 
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useRef } from "react";
@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 
 export default function Navbar() {
   const { i18n } = useTranslation();
+  const location = useLocation();
   const firstName = localStorage.getItem("firstName");
   const lastName = localStorage.getItem("lastName");
   const role = localStorage.getItem("role");
@@ -17,6 +18,9 @@ export default function Navbar() {
     JURY: "/jury",
   };
   const userHomePath = role ? roleHomePath[role] : null;
+  
+  // Nascondi il bottone "Retour" quando siamo sulla pagina Producer
+  const showRetourButton = userHomePath && location.pathname !== "/producer";
 
   /*rend la navbar invisible pendant le scroll et la fait réapparaître après 300ms d'inactivité de scroll*/
 
@@ -53,7 +57,7 @@ useEffect(() => {
       <Link to="/">
         <div className=" ml-3 flex gap-2.5 items-center">
           <div className="text-white text-3xl uppercase font-bold">Mars</div> 
-          <div className="text-3xl font-boldtext-3xl uppercase font-bold bg-linear-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">AI</div>
+          <div className="text-3xl uppercase font-bold bg-gradient-to-b from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">AI</div>
         </div>
       </Link>
 
@@ -220,7 +224,7 @@ useEffect(() => {
                 {lastName && ` ${lastName}`}
               </span>
               <div className="inline-flex items-center gap-2">
-                {userHomePath && (
+                {showRetourButton && (
                   <Link to={userHomePath}>
                     <button className="px-3 py-1 text-sm font-semibold border border-white/40 rounded-full hover:text-[#F6339A] hover:border-[#F6339A] transition-colors">
                       Retour
