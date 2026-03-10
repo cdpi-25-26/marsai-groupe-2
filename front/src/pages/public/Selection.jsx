@@ -1,60 +1,49 @@
-import MoviesCard from "../../components/MoviesCard";
+import { useEffect, useState } from "react";
+import { VideoPreview } from "../../components/VideoPreview";
+import { UPLOAD_BASE } from "../../utils/constants";
 
-export default function DisplayVideos() {
+export default function Selection() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/movies/phase2")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("MOVIES:", data);
+        if (Array.isArray(data)) setMovies(data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   return (
-    <div id="display-videos" className="pt-16 flex justify-center px-4 py-10">
-      <div className="w-full flex justify-center px-4 py-10"
-    >
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-2
-          gap-10
-          max-w-8xl
-        "
-      >
-        <MoviesCard
-          videoSrc="https://youtu.be/LSzzUe6oK0I"
-          poster="/src/assets/images/movies/philippe.png"
-          title="Titre de la vidéo"
-          author="Les vipères"
-          category="fiction"
-          prize="Prix du jury"
-          sponsorLogo=""
-        />
-
-        <MoviesCard
-          videoSrc="https://youtu.be/LSzzUe6oK0I"
-          poster="/src/assets/images/movies/philippe.png"
-          title="Titre de la vidéo"
-          author="Les vipères"
-          category="fiction"
-          prize="Prix du jury"
-          sponsorLogo=""
-        />
-
-        <MoviesCard
-          videoSrc="https://youtu.be/LSzzUe6oK0I"
-          poster="/src/assets/images/movies/philippe.png"
-          title="Titre de la vidéo"
-          author="Les vipères"
-          category="fiction"
-          prize="Prix du jury"
-          sponsorLogo=""
-        />
-
-        <MoviesCard
-          videoSrc="https://youtu.be/LSzzUe6oK0I"
-          poster="/src/assets/images/movies/philippe.png"
-          title="Titre de la vidéo"
-          author="Les vipères"
-          category="fiction"
-          prize="Prix du jury"
-          sponsorLogo=""
-        />
+    <div className="p-6">
+      {movies.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {movies.map(
+            (movie) =>
+              movie?.trailer &&
+              movie?.thumbnail && (
+                <div
+                  key={movie.id_movie}
+                  className="bg-gray-900 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <VideoPreview
+                    src={`${UPLOAD_BASE}/${movie.trailer}`}
+                    poster={`${UPLOAD_BASE}/${movie.thumbnail}`}
+                    title={movie.title}
+                  />
+                  <div className="p-4 bg-gray-800">
+                    <h3 className="text-white text-lg font-semibold text-center">
+                      {movie.title}
+                    </h3>
+                  </div>
+                </div>
+              )
+          )}
         </div>
-      </div>
+      ) : (
+        <p className="text-white text-center">Loading movies...</p>
+      )}
     </div>
   );
 }
