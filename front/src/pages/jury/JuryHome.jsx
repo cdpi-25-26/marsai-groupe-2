@@ -672,14 +672,13 @@ export default function JuryHome() {
 
                     <div>
                       <label className="text-xs uppercase text-gray-400 block mb-1">
-                        Commentaire *
-                        <span className="normal-case text-gray-600 ml-1 font-normal">(confidentiel)</span>
+                        Commentaire
+                        <span className="normal-case text-gray-600 ml-1 font-normal">(recommandé — confidentiel)</span>
                       </label>
                       <textarea
                         name="commentaire"
                         value={voteForm.commentaire}
                         onChange={handleVoteChange}
-                        required
                         rows={3}
                         disabled={!voteAllowed}
                         placeholder="Justifiez votre décision…"

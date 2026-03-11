@@ -14,6 +14,7 @@ const {
 } = db;
 
 const uploadDir = path.join(process.cwd(), "uploads");
+const uploadedDir = path.join(uploadDir, "uploaded");
 
 function generatePosterFromVideo(videoFilename) {
   if (!videoFilename) return Promise.resolve(null);
@@ -34,9 +35,8 @@ function generatePosterFromVideo(videoFilename) {
   });
 }
 
-
 //////////////////////////////////////////////////////////// Récupérer tous les films
- 
+
 async function getMovies(req, res) {
   try {
     const movies = await Movie.findAll({
@@ -101,7 +101,7 @@ async function getMyMovies(req, res) {
 
     res.json(movies);
   } catch (error) {
-    console.error("createMovie error:", error);
+    console.error("getMyMovies error:", error);
     res.status(500).json({
       error: error.message,
       name: error.name,
@@ -119,11 +119,11 @@ async function getMovieById(req, res) {
 
     const movie = await Movie.findByPk(id, {
       include: [
-        { model: Categorie, 
-          through: { attributes: [] } 
+        { model: Categorie,
+          through: { attributes: [] }
         },
         { model: Collaborator,
-          through: { attributes: [] } 
+          through: { attributes: [] }
          },
         { model: Award, required: false },
         { model: User, as: "Producer", attributes: ["id_user", "first_name", "last_name"] },
@@ -149,9 +149,8 @@ async function getMovieById(req, res) {
 
 
 /////////////////////////////////////////////////////////////////////////////// Soumettre un film
- 
+
 async function createMovie(req, res) {
-    // ...
   try {
 
     // -1- Récupérer utilisateur connecté
@@ -238,15 +237,7 @@ async function createMovie(req, res) {
       });
     }
 
-    // -3.5- Mettre à jour l'origine de connaissance du festival si fournie
-    // if (knownByMarsAi) {
-    //   await User.update(
-    //     { known_by_mars_ai: knownByMarsAi },
-    //     { where: { id_user } }
-    //   );
-    // }
-
-    // -4-Création du film
+    // -4- Création du film
     const newMovie = await Movie.create({
       title: movieTitle,
       description: movieDescription,
@@ -269,7 +260,6 @@ async function createMovie(req, res) {
       picture3: thumb3 || req.body.picture3 || null,
       thumbnail: movieThumbnail,
       id_user
-      // selection_status = 'submitted' automatiquement
     });
 
     if (!movieThumbnail && filmFile) {
@@ -287,7 +277,7 @@ async function createMovie(req, res) {
       }
     }
 
-    // -5-Associer les catégories (N–N)
+    // -5- Associer les catégories (N–N)
     let parsedCategories = categories;
     if (typeof categories === "string") {
       try {
@@ -377,7 +367,6 @@ async function updateMovie(req, res) {
       });
     }
 
-
     // Gestion fichiers uploadés (film, vignettes, SRT)
     const files = req.files || {};
     const filmFile = files.filmFile?.[0]?.filename || null;
@@ -407,10 +396,32 @@ async function updateMovie(req, res) {
 }
 
 
-
+// FIX B-04: helper pour supprimer un fichier en cherchant dans uploads/ ET uploads/uploaded/
+// Le watcher YouTube déplace les vidéos dans uploaded/ avec un préfixe timestamp,
+// donc il faut chercher aux deux endroits pour garantir la suppression.
+function unlinkUploadFile(filename) {
+  if (!filename) return;
+  const candidates = [
+    path.join(uploadDir, filename),
+    path.join(uploadedDir, filename),
+    // Si filename contient déjà "uploaded/" comme préfixe (chemin relatif stocké en DB)
+    path.join(uploadDir, filename.replace(/^uploaded\//, ""))
+  ];
+  for (const filePath of candidates) {
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (err) {
+      if (err.code !== "ENOENT") {
+        console.error(`Failed to delete file ${filePath}:`, err.message);
+      }
+    }
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////// Supprimer un film
- 
+
 async function deleteMovie(req, res) {
   try {
     const { id } = req.params;
@@ -421,18 +432,10 @@ async function deleteMovie(req, res) {
       return res.status(404).json({ error: "Film non trouvé" });
     }
 
-    // Delete associated files from disk
+    // FIX B-04: Utilise unlinkUploadFile qui cherche dans uploads/ ET uploads/uploaded/
     const fileFields = ["trailer", "display_picture", "picture1", "picture2", "picture3", "thumbnail", "subtitle"];
     for (const field of fileFields) {
-      const filename = movie[field];
-      if (filename) {
-        const filePath = path.join(uploadDir, filename);
-        fs.unlink(filePath, (err) => {
-          if (err && err.code !== "ENOENT") {
-            console.error(`Failed to delete file ${filePath}:`, err.message);
-          }
-        });
-      }
+      unlinkUploadFile(movie[field]);
     }
 
     await movie.destroy();
@@ -482,15 +485,21 @@ async function updateMovieStatus(req, res) {
 
     const previousStatus = movie.selection_status;
 
+    // FIX B-02: transitionMap complétée avec toutes les transitions manquantes :
+    //   • to_discuss  → selected, finalist  (étaient absentes → "Passer en Sélection/Finaliste" bloqué)
+    //   • selected    → finalist            (manquait → "Passer Finaliste" bloqué depuis Sélectionné)
+    //   • candidate   → finalist            (manquait → cohérence avec selected)
+    //   • awarded     → finalist            (manquait → "Retirer du palmarès" bloqué)
+    //   • refused     → submitted           (manquait → "Remettre en attente" bloqué)
     const transitionMap = {
-      submitted: ["assigned", "candidate", "refused"],
-      assigned: ["to_discuss", "candidate", "refused"],
-      to_discuss: ["candidate", "refused"],
-      candidate: ["awarded", "refused"],
-      selected: ["candidate", "finalist", "awarded", "refused"],
-      finalist: ["candidate", "awarded", "refused"],
-      awarded: [],
-      refused: []
+      submitted:  ["assigned", "candidate", "refused"],
+      assigned:   ["to_discuss", "candidate", "refused"],
+      to_discuss: ["selected", "finalist", "candidate", "refused"],
+      candidate:  ["finalist", "awarded", "refused"],
+      selected:   ["finalist", "candidate", "awarded", "refused"],
+      finalist:   ["awarded", "candidate", "refused"],
+      awarded:    ["finalist"],
+      refused:    ["submitted"]
     };
 
     const allowedTargets = transitionMap[previousStatus] || [];
@@ -707,6 +716,13 @@ async function updateMovieJuries(req, res) {
 
     await movie.setJuries(juries);
 
+    // Si au moins un jury est assigné et le statut n'est pas encore avancé → passer à "assigned"
+    const advancedStatuses = ["to_discuss", "candidate", "selected", "finalist", "awarded", "refused"];
+    if (juries.length > 0 && !advancedStatuses.includes(movie.selection_status)) {
+      movie.selection_status = "assigned";
+      await movie.save();
+    }
+
     const updatedMovie = await Movie.findByPk(id, {
       include: [
         {
@@ -782,7 +798,11 @@ async function updateMovieCollaborators(req, res) {
 
     await movie.setCollaborators(collaboratorRecords);
 
-    // Gestione file upload (ADMIN o owner)
+    // FIX B-01: Le bloc ci-dessous (gestion des fichiers + mise à jour du film) contenait
+    // du code orphelin copié depuis updateMovieJuries qui référençait une variable "juries"
+    // inexistante dans ce contexte → ReferenceError à chaque appel.
+    // Correction : le code orphelin (movie.setJuries / advancedStatuses) est supprimé.
+    // Seule la gestion légitime des fichiers uploadés est conservée.
     if (req.user.role === "ADMIN" || movie.id_user === req.user.id_user) {
       const files = req.files || {};
       const filmFile = files.filmFile?.[0]?.filename || null;
@@ -792,19 +812,16 @@ async function updateMovieCollaborators(req, res) {
       const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
 
       const updateData = { ...req.body };
+      // Supprimer les champs non-colonne qui viendraient du body pour éviter les erreurs Sequelize
+      delete updateData.collaborators;
+
       if (filmFile) updateData.trailer = filmFile;
       if (thumb1) updateData.picture1 = thumb1;
       if (thumb2) updateData.picture2 = thumb2;
       if (thumb3) updateData.picture3 = thumb3;
       if (thumb1) updateData.thumbnail = thumb1;
-              await movie.setJuries(juries);
+      if (subtitleFile) updateData.subtitle = subtitleFile;
 
-              // Se almeno un jury è assegnato e lo status non è già avanzato, aggiorna lo status a 'assigned'
-              const advancedStatuses = ["to_discuss", "candidate", "selected", "finalist", "awarded", "refused"];
-              if (juries.length > 0 && !advancedStatuses.includes(movie.selection_status)) {
-                movie.selection_status = "assigned";
-                await movie.save();
-              }
       await movie.update(updateData);
     }
 

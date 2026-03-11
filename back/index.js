@@ -21,10 +21,16 @@ const PORT = process.env.PORT || 3000;
 /**
  * Configuration des middlewares
  */
+// FIX B-05: Expose Content-Range, Accept-Ranges et Content-Length dans les réponses CORS.
+// Sans ces headers, le navigateur ne peut pas lire les réponses HTTP 206 Partial Content
+// envoyées par Express lors du streaming vidéo — la durée reste à 0 s et la vidéo gèle.
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  credentials: true
+  credentials: true,
+  exposedHeaders: ["Content-Range", "Accept-Ranges", "Content-Length"]
 }));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
@@ -50,8 +56,7 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("✓ Connexion à la base de données MySQL établie avec succès");
 
-    // Initialise le token YouTube 
-    // await youtubeController.initYoutubeAuth();
+    // Initialise le token YouTube
     try {
       await youtubeController.initYoutubeAuth();
       console.log("✓ Auth YouTube initialisée");

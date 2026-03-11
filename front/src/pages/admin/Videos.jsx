@@ -7,8 +7,12 @@
  *   to_discuss → jury vote Phase 2 → Promouvoir (→ selected) | Finaliste | Refuser
  *   selected   → Finaliste | Primer (→ awarded) | Refuser
  *   finalist   → Primer (→ awarded) | Refuser
- *   awarded    → Retirer du palmarès
+ *   awarded    → Retirer du palmarès (→ finalist)
  *   refused    → Remettre en attente (→ submitted)
+ *
+ * FIXES :
+ *   B-07 — Le panneau "Forcer un statut" passe désormais force_transition:true au backend.
+ *   B-08 — Confirmation visuelle affichée après la suppression définitive d'un film.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -74,8 +78,8 @@ function contextualActions(status, hasVotes, juriesCount) {
     case "assigned":
       return {
         primary: [{
-          to: "to_discuss", cls: hasVotes 
-            ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20" 
+          to: "to_discuss", cls: hasVotes
+            ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20"
             : "bg-amber-500/10 text-amber-400/40 border border-amber-500/10 cursor-not-allowed",
           label: "💬 Ouvrir la Phase 2 (délibération)",
           tip: !hasVotes ? "En attente des votes Phase 1. Au moins un jury doit avoir voté." : null,
@@ -126,9 +130,6 @@ function contextualActions(status, hasVotes, juriesCount) {
       return { primary: [], danger: [], info: null };
   }
 }
-
-/* ─── Utilitaires — importés depuis movieUtils.js ─────── */
-// getPoster et getTrailer sont importés depuis ../../utils/movieUtils.js
 
 /* ════════════════════════════════════════════════════════
    COMPOSANT PRINCIPAL
@@ -207,16 +208,27 @@ export default function Videos() {
   }, [allMovies]);
 
   function inv() { qc.invalidateQueries({ queryKey: ["listVideos"] }); qc.invalidateQueries({ queryKey: ["votes"] }); }
-  const NOTE = { assigned:"✓ Film accepté — Phase 1 lancée.", refused:"Film refusé.", to_discuss:"Phase 2 ouverte.", selected:"Film promu.", finalist:"Film finaliste.", awarded:"🏆 Film primé !", submitted:"Film remis en attente." };
+  const NOTE = { assigned:"✓ Film accepté — Phase 1 lancée.", refused:"Film refusé.", to_discuss:"Phase 2 ouverte.", selected:"Film promu.", finalist:"Film finaliste.", awarded:"🏆 Film primé !", submitted:"Film remis en attente.", candidate:"Statut mis à jour." };
 
   const statusM = useMutation({
-    mutationFn: ({ id, status }) => updateMovieStatus(id, status),
+    mutationFn: ({ id, status, force }) => updateMovieStatus(id, status, force ? { force_transition: true } : {}),
     onSuccess: (_,v) => { inv(); setModalNotice(NOTE[v.status] || "Statut mis à jour."); },
     onError: () => setModalNotice("❌ Erreur lors de la mise à jour."),
   });
   const commentM  = useMutation({ mutationFn: ({ id, c }) => updateMovie(id, { admin_comment: c }), onSuccess: () => { inv(); setModalNotice("✓ Note enregistrée."); }, onError: () => setModalNotice("❌ Erreur lors de la sauvegarde de la note.") });
   const catM      = useMutation({ mutationFn: ({ id, cats }) => updateMovieCategories(id, cats),   onSuccess: () => { inv(); setModalNotice("Catégories mises à jour."); } });
-  const deleteM   = useMutation({ mutationFn: (id) => deleteMovie(id), onSuccess: () => { inv(); setSelectedMovie(null); } });
+
+  // FIX B-08: onSuccess affiche une notice de confirmation AVANT de fermer la modale.
+  // L'utilisateur voit "✓ Film supprimé." pendant 1.5 s puis la modale se ferme.
+  const deleteM = useMutation({
+    mutationFn: (id) => deleteMovie(id),
+    onSuccess: () => {
+      inv();
+      setModalNotice("✓ Film supprimé définitivement.");
+      setTimeout(() => setSelectedMovie(null), 1500);
+    },
+    onError: () => setModalNotice("❌ Erreur lors de la suppression."),
+  });
 
   async function batchStatus(s) {
     if (!selectedIds.length) return;
@@ -230,7 +242,7 @@ export default function Videos() {
       <p className="text-[9px] tracking-[0.18em] uppercase text-white/25 font-medium">Chargement</p>
     </div>
   );
-  
+
   if (isError) return (
     <div className="m-6 px-5 py-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm flex items-center gap-3 backdrop-blur-sm">
       <span>!</span>
@@ -273,7 +285,7 @@ export default function Videos() {
           <div className="flex flex-wrap border-t border-white/5">
             {TABS.map((tab) => (
               <button key={tab.key} onClick={() => { setActiveTab(tab.key); setSelectedIds([]); }}
-                className={`relative flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all duration-300 ${  
+                className={`relative flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all duration-300 ${
                   activeTab === tab.key
                     ? "text-amber-400 after:absolute after:bottom-0 after:inset-x-0 after:h-0.5 after:bg-amber-400 after:rounded-t"
                     : "text-white/35 hover:text-white/60"
@@ -458,6 +470,7 @@ export default function Videos() {
           notice={modalNotice}
           onClose={() => setSelectedMovie(null)}
           onStatus={(id, s) => statusM.mutate({ id, status: s })}
+          onForceStatus={(id, s) => statusM.mutate({ id, status: s, force: true })}
           onComment={(id) => commentM.mutate({ id, c: adminComment })}
           onCategories={(id) => catM.mutate({ id, cats: catSel[id] || [] })}
           onDelete={(id) => { if (window.confirm("Supprimer définitivement ? Action irréversible.")) deleteM.mutate(id); }}
@@ -471,7 +484,7 @@ export default function Videos() {
    MODAL
 ══════════════════════════════════════════════════════ */
 function FilmModal({ movie, summary, categories, catSel, setCatSel,
-  adminComment, setAdminComment, notice, onClose, onStatus, onComment, onCategories, onDelete }) {
+  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete }) {
 
   const status   = movie.selection_status || "submitted";
   const meta     = scfg(status);
@@ -518,7 +531,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 🏆 {movie.Awards.length} prix
               </span>
             )}
-            {/* Pipeline — inline in header */}
+            {/* Pipeline */}
             {status !== "refused" && (
               <div className="hidden lg:flex items-center gap-0.5 overflow-x-auto flex-shrink-0 scrollbar-thin-dark">
                 {PIPELINE.map((step, i) => {
@@ -557,7 +570,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
             {/* ── COL 1: Visual + checks ── */}
             <div className="p-4 flex flex-col gap-4">
 
-              {/* Poster thumbnail — click = fullscreen */}
               <div>
                 <div
                   className="relative group w-full aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer"
@@ -583,7 +595,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                   )}
                 </div>
 
-                {/* File links */}
                 <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
                   {trailer && (
                     <a href={`${UPLOAD_BASE}/${trailer}`} target="_blank" rel="noreferrer"
@@ -600,7 +611,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 </div>
               </div>
 
-              {/* Quick stats */}
               <div className="grid grid-cols-2 gap-2">
                 {[
                   ["Durée", movie.duration ? `${movie.duration}s` : "—"],
@@ -615,7 +625,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 ))}
               </div>
 
-              {/* Checks */}
               <CheckStrip movie={movie} />
 
             </div>
@@ -623,7 +632,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
             {/* ── COL 2: Info + synopsis + votes ── */}
             <div className="p-4 overflow-y-auto max-h-[75vh] space-y-5 scrollbar-thin-dark">
 
-              {/* Producer info */}
               <div>
                 <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-3">Informations</p>
                 <div className="grid grid-cols-2 gap-x-5 gap-y-3">
@@ -642,7 +650,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 </div>
               </div>
 
-              {/* Synopsis */}
               <div>
                 <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Synopsis</p>
                 <div className="grid grid-cols-2 gap-3">
@@ -657,12 +664,10 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 </div>
               </div>
 
-              {/* Votes */}
               {(summary?.votes?.length || 0) > 0 && (
                 <div>
-                  <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Votes Phase 1 — {summary.total} réponse{summary.total > 1 ? "s" : ""}</p>
+                  <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Votes Phase 1 — {summary.total} réponse{summary.total > 1 ? "s" : ""}</p>
 
-                  {/* Stats + bar */}
                   <div className="flex items-center gap-3 mb-3">
                     {[["Validé","YES","text-emerald-400","bg-emerald-500/10 border-emerald-500/20"],
                       ["À discuter","TO DISCUSS","text-amber-400","bg-amber-500/10 border-amber-500/20"],
@@ -681,7 +686,6 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                     )}
                   </div>
 
-                  {/* Jury list */}
                   <div className="space-y-1 max-h-36 overflow-y-auto scrollbar-thin-dark">
                     {summary.votes.map((v) => (
                       <div key={v.id_vote} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300">
@@ -803,6 +807,9 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
               </div>
 
               {/* Forcer un statut */}
+              {/* FIX B-07 : les boutons de ce panneau appellent onForceStatus au lieu de onStatus.
+                  onForceStatus passe { force_transition: true } au backend via l'API,
+                  ce qui bypass la transitionMap et autorise n'importe quelle transition. */}
               <div className="p-4">
                 <button onClick={() => setManual((p) => !p)}
                   className="w-full flex items-center justify-between text-[11px] text-white/30 hover:text-white/50 transition-all duration-300">
@@ -812,7 +819,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 {manual && (
                   <div className="mt-3 grid grid-cols-2 gap-1.5 pt-3 border-t border-white/10">
                     {Object.entries(S).filter(([s]) => s !== status).map(([s, m]) => (
-                      <button key={s} type="button" onClick={() => onStatus(movie.id_movie, s)}
+                      <button key={s} type="button" onClick={() => onForceStatus(movie.id_movie, s)}
                         className="flex items-center gap-1.5 px-2 py-2 bg-white/5 border border-white/10 text-white/40 text-[10px] rounded-xl hover:bg-white/10 hover:text-white/65 hover:border-white/20 transition-all duration-300">
                         <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${m.dot}`} />
                         {m.label}

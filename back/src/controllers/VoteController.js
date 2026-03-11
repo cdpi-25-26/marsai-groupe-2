@@ -97,9 +97,10 @@ async function createOrUpdateMyVote(req, res) {
             return res.status(400).json({ error: "Note invalide (YES, NO ou TO DISCUSS attendu)" });
         }
 
-        if (!comments || !String(comments).trim()) {
-            return res.status(400).json({ error: "Commentaire requis" });
-        }
+        // FIX B-03: Le commentaire est maintenant OPTIONNEL.
+        // La validation obligatoire a été supprimée — le jury peut voter YES/NO/TO DISCUSS
+        // sans rédiger de commentaire. Le champ reste visible et "recommandé" côté front.
+        // Aucune erreur 400 n'est levée si comments est vide.
 
         const assigned = await MovieJury.findOne({ where: { id_movie, id_user } });
         if (!assigned) {
@@ -112,23 +113,27 @@ async function createOrUpdateMyVote(req, res) {
         }
 
         const status = movie.selection_status;
-        if (!['assigned', 'to_discuss'].includes(status)) {
+        if (!["assigned", "to_discuss"].includes(status)) {
             return res.status(400).json({
                 error: "Vote non autorisé pour ce statut de film"
             });
         }
 
         const existingVote = await Vote.findOne({ where: { id_movie, id_user } });
+        const normalizedComment = String(comments || "").trim();
 
         if (existingVote) {
-            // movie and status already fetched above — no second DB call needed
-
-            const normalizedComment = String(comments || "");
-            const existingComment = String(existingVote.comments || "");
+            const existingComment = String(existingVote.comments || "").trim();
             const hasChanges = existingVote.note !== note || existingComment !== normalizedComment;
 
-            // Save history snapshot before updating
-            if (hasChanges) {
+            // FIX B-09: En phase 2 (to_discuss), on archive TOUJOURS l'état précédent dans
+            // l'historique et on incrémente modification_count — même si le jury re-soumet
+            // exactement le même vote. Cela garantit que le badge "2ème vote enregistré"
+            // s'affiche dès la première soumission en phase 2, indépendamment du changement.
+            const isSecondVote = ["to_discuss", "selected", "finalist"].includes(status);
+
+            if (isSecondVote) {
+                // Toujours créer une entrée historique en phase 2
                 await VoteHistory.create({
                     id_vote: existingVote.id_vote,
                     id_movie,
@@ -136,15 +141,16 @@ async function createOrUpdateMyVote(req, res) {
                     note: existingVote.note,
                     comments: existingVote.comments
                 });
-
-                // FIX 1: Only increment modification_count when there are actual changes.
-                // FIX 2: Increment during BOTH to_discuss (2nd round) AND selected stages,
-                //        not only when selected. This ensures canPromote in the frontend
-                //        can detect that the jury has voted in round 2.
-                const isPostFirstRound = ["to_discuss", "selected", "finalist"].includes(status);
-                if (isPostFirstRound) {
-                    existingVote.modification_count = (existingVote.modification_count || 0) + 1;
-                }
+                existingVote.modification_count = (existingVote.modification_count || 0) + 1;
+            } else if (hasChanges) {
+                // En phase 1 : archiver uniquement si changement réel
+                await VoteHistory.create({
+                    id_vote: existingVote.id_vote,
+                    id_movie,
+                    id_user,
+                    note: existingVote.note,
+                    comments: existingVote.comments
+                });
             }
 
             existingVote.note = note;
@@ -161,7 +167,7 @@ async function createOrUpdateMyVote(req, res) {
 
         const newVote = await Vote.create({
             note,
-            comments,
+            comments: normalizedComment,
             id_movie,
             id_user,
             modification_count: 0

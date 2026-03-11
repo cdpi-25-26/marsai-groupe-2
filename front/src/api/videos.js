@@ -3,11 +3,6 @@ import instance from "./config.js";
 /**
  * Récupère la liste de tous les films/vidéos
  * Endpoint: GET /movies
- * @returns {Promise<Object>} Array de tous les films disponibles
- * 
- * @example
- * const response = await getVideos();
- * const films = response.data;
  */
 async function getVideos() {
   return await instance.get("movies");
@@ -32,9 +27,18 @@ async function promoteMovieToCandidateByJury(id, jury_comment = "") {
 /**
  * Met à jour le statut d'un film
  * Endpoint: PUT /movies/:id/status
+ *
+ * FIX B-07: Accepte un 3ème paramètre `options` pour passer force_transition: true
+ * depuis le panneau "Forcer un statut" de la modale admin.
+ * Sans ce flag, le panneau obéissait quand même à la transitionMap backend
+ * et retournait 400 pour les transitions inhabituelles.
+ *
+ * @param {number|string} id          - ID du film
+ * @param {string}        status      - Nouveau statut cible
+ * @param {object}        [options]   - Options supplémentaires (ex: { force_transition: true })
  */
-async function updateMovieStatus(id, selection_status, payload = {}) {
-  return await instance.put(`movies/${id}/status`, { selection_status, ...payload });
+async function updateMovieStatus(id, selection_status, options = {}) {
+  return await instance.put(`movies/${id}/status`, { selection_status, ...options });
 }
 
 /**
