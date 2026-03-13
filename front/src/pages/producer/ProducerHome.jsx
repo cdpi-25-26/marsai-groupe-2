@@ -1287,7 +1287,7 @@ export default function ProducerHome() {
           const badge = getStatusBadge(selectedMovie.selection_status);
           return (
             <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 backdrop-blur-sm">
-              <div className="bg-[#0e1017] border border-white/8 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/60">
+              <div className="bg-[#0e1017] border border-white/8 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/60 scrollbar-thin-dark">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-5 border-b border-white/6">
                   <h3 className="text-base font-bold text-white">
