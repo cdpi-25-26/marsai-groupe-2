@@ -282,74 +282,84 @@ export function Login() {
   }
   
   return (
-       <>
-          <Navbar />
-    <div className="min-h-screen bg-black text-white font-light pt-40 pb-20 px-4 md:pt-48">
-      <div className="max-w-xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold mb-2">{t('forms.login.title')}</h1>
-          <p className="text-gray-400">{t('forms.login.subtitle')}</p>
-        </div>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-[#06080d] text-white flex items-center justify-center px-4 py-24">
+        <div className="w-full max-w-md">
 
-        <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 shadow-2xl">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <input type="hidden" id="id" {...register("id")} />
+          {/* ── En-tête ── */}
+          <div className="mb-10 text-center">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[#AD46FF]/50 mb-3 font-medium">Festival MARS AI</p>
+            <h1 className="text-3xl font-bold tracking-tight text-white">{t('forms.login.title')}</h1>
+            <p className="text-white/30 text-sm mt-2">{t('forms.login.subtitle')}</p>
+          </div>
 
-            <div className="flex flex-col">
-              <label htmlFor="email" className="text-white font-semibold mb-2 text-sm uppercase">
-                {t('forms.login.email')}
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder={t('forms.login.placeholders.email')}
-                {...register("email")}
-                className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                required
-              />
-              {errors.email && (
-                <p className="text-red-400 text-sm mt-1">{t(errors.email.message)}</p>
-              )}
-            </div>
+          {/* ── Card ── */}
+          <div className="bg-white/3 border border-white/6 rounded-2xl p-8 shadow-2xl shadow-black/40">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <input type="hidden" id="id" {...register("id")} />
 
-            <div className="flex flex-col">
-              <label htmlFor="password" className="text-white font-semibold mb-2 text-sm uppercase">
-                {t('forms.login.password')}
-              </label>
-              <input
-                id="password"
-                type="password"
-                placeholder={t('forms.login.placeholders.password')}
-                {...register("password")}
-                className="bg-gray-800 border border-gray-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#AD46FF] transition"
-                required
-              />
-              {errors.password && (
-                <p className="text-red-400 text-sm mt-1">{t(errors.password.message)}</p>
-              )}
-            </div>
+              {/* Email */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="email" className="text-[9px] uppercase tracking-widest text-white/25 font-medium">
+                  {t('forms.login.email')}
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder={t('forms.login.placeholders.email')}
+                  {...register("email")}
+                  required
+                  className={`w-full bg-white/3 border ${errors.email ? "border-red-500/40 bg-red-500/5" : "border-white/8"} text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 placeholder:text-white/15 transition-all duration-200`}
+                />
+                {errors.email && (
+                  <p className="text-[11px] text-red-400/80">{t(errors.email.message)}</p>
+                )}
+              </div>
 
-            <button
-              type="submit"
-              disabled={loginMutation.isPending}
-              className="w-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-bold py-4 rounded-lg uppercase hover:opacity-90 transition disabled:opacity-50"
-            >
-              {loginMutation.isPending ? `${t('forms.login.buttons.submit')}...` : t('forms.login.buttons.submit')}
-            </button>
+              {/* Mot de passe */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="password" className="text-[9px] uppercase tracking-widest text-white/25 font-medium">
+                  {t('forms.login.password')}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder={t('forms.login.placeholders.password')}
+                  {...register("password")}
+                  required
+                  className={`w-full bg-white/3 border ${errors.password ? "border-red-500/40 bg-red-500/5" : "border-white/8"} text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 placeholder:text-white/15 transition-all duration-200`}
+                />
+                {errors.password && (
+                  <p className="text-[11px] text-red-400/80">{t(errors.password.message)}</p>
+                )}
+              </div>
 
-            <p className="text-center text-gray-400">
-              {t('forms.login.links.noAccount')} {" "}
-              <Link
-                to="/auth/register"
-                className="text-[#AD46FF] hover:text-[#F6339A] font-semibold transition"
+              {/* Soumettre */}
+              <button
+                type="submit"
+                disabled={loginMutation.isPending}
+                className="w-full py-3 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white font-semibold rounded-xl text-sm tracking-wide hover:brightness-110 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed mt-2"
               >
-                {t('forms.login.links.register')}
-              </Link>
-            </p>
-          </form>
+                {loginMutation.isPending
+                  ? <span className="flex items-center justify-center gap-2">
+                      <span className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                      {t('forms.login.buttons.submit')}…
+                    </span>
+                  : t('forms.login.buttons.submit')}
+              </button>
+
+              {/* Inscription */}
+              <p className="text-center text-sm text-white/25 pt-1">
+                {t('forms.login.links.noAccount')}{" "}
+                <Link to="/auth/register" className="text-[#AD46FF]/80 hover:text-[#AD46FF] font-medium transition-colors">
+                  {t('forms.login.links.register')}
+                </Link>
+              </p>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }
