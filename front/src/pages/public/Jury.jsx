@@ -21,13 +21,13 @@ export default function JuryPublic() {
     <>
  <div className="w-full pt-8">
       {/* PRESIDENT */}
-      <div className="flex flex-col md:flex-row items-center justify-center gap-5 pt-16 md:pt-20 px-4">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-5 pt-16 md:pt-20 px-4 text-white" >
         <div className="bg-[#252525] rounded-full border-[#2B7FFF] border-2 h-16 w-16 md:h-20 md:w-20 flex items-center justify-center hover:shadow-[0_0_20px_rgba(2,183,255,0.8)] transition-shadow duration-200">
           <svg height="40" width="40" viewBox="0 0 32 32">
             <path d="M20.77 12.364s.85-3.51 0-4.7c-.85-1.188-1.188-1.98-3.057-2.547s-1.188-.454-2.547-.396c-1.36.058-2.492.793-2.492 1.19c0 0-.85.056-1.188.396c-.34.34-.906 1.924-.906 2.32s.283 3.06.566 3.625l-.337.114c-.284 3.283 1.13 3.68 1.13 3.68c.51 3.058 1.02 1.756 1.02 2.548s-.51.51-.51.51s-.452 1.245-1.584 1.698c-1.132.452-7.416 2.886-7.927 3.396c-.512.51-.454 2.888-.454 2.888h26.947s.06-2.377-.452-2.888c-.51-.51-6.795-2.944-7.927-3.396c-1.132-.453-1.584-1.698-1.584-1.698s-.51.282-.51-.51s.51.51 1.02-2.548c0 0 1.413-.397 1.13-3.68h-.34z" fill="#2B7FFF"/>
           </svg>
         </div>
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center md:text-left">{t("pages.juryPublic.presidentTitle")}</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center md:text-left text-white">{t("pages.juryPublic.presidentTitle")}</h1>
       </div>
 
       <section className="flex flex-col lg:flex-row justify-center items-center mt-6 md:mt-8 mb-8 gap-6 px-4 md:px-8">
@@ -39,7 +39,7 @@ export default function JuryPublic() {
           />
         </div>
 
-        <div className="bg-[#101828] border-[#364153] border-2 rounded-xl w-full lg:w-[30rem] m-4 md:m-5 p-4 md:p-8 text-center flex flex-col justify-center items-center">
+        <div className="bg-[#101828] border-[#364153] border-2 rounded-xl w-full lg:w-120 m-4 md:m-5 p-4 md:p-8 text-center flex flex-col justify-center items-center">
           <h1 className="text-pink-500 text-2xl sm:text-2xl md:text-3xl">Pierre Schoeller</h1>
           <h2 className="text-white text-xl sm:text-xl md:text-2xl font-bold mt-2">{t("pages.juryPublic.presidentRole")}</h2>
           <p className="text-white text-sm sm:text-sm md:text-base mt-4">{t("pages.juryPublic.presidentBio")}</p>
@@ -48,13 +48,13 @@ export default function JuryPublic() {
 
       {/* MEMBRES DU JURY */}
 
-      <div className="flex flex-col md:flex-row justify-center items-center pt-10 pb-4 text-center ">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold">{t("pages.juryPublic.membersTitle1")}</h1>
+      <div className="flex flex-col md:flex-row justify-center items-center pt-10 pb-4 text-center  text-white">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white">{t("pages.juryPublic.membersTitle1")}</h1>
         <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold md:ml-3 text-[#F6339A]">{t("pages.juryPublic.membersTitle2")}</h1>
       </div>
 
       <div className="flex justify-center items-center mt-5 px-6">
-        <p className="text-lg text-center pb-10">{t("pages.juryPublic.membersSubtitle")}</p>
+        <p className="text-lg text-center pb-10 text-white">{t("pages.juryPublic.membersSubtitle")}</p>
       </div>
 
       <section className="text-[#355670cc] w-full flex justify-center items-center pt-10 pb-20 px-4 md:px-8">
@@ -95,7 +95,7 @@ membersstitle={t("pages.juryPublic.members.tina.role")} />
       </section>
 
       {/* CHARTE DE NOTATION */}
-      <div className="flex flex-col md:flex-row justify-center items-center pt-16 md:pt-20 font-bold text-2xl sm:text-3xl md:text-5xl uppercase text-center">
+      <div className="flex flex-col md:flex-row justify-center items-center pt-16 md:pt-20 font-bold text-2xl sm:text-3xl md:text-5xl uppercase text-center text-white">
         <h2>{t("pages.juryPublic.charter.title1")}</h2>
         <h2 className="md:ml-4 text-[#F6339A]">{t("pages.juryPublic.charter.title2")}</h2>
       </div>
