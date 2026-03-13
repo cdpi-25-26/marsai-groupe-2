@@ -459,7 +459,7 @@ export default function ProducerHome() {
                 <h1 className="text-4xl font-bold tracking-tight text-white">
                   Espace Producteur
                 </h1>
-                <p className="text-white/35 mt-1 text-sm">
+                <p className="text-white/55 mt-1 text-sm font-medium uppercase tracking-wide">
                   {user.first_name} {user.last_name}
                   <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-[#AD46FF]/15 text-[#AD46FF]/80 border border-[#AD46FF]/20 font-medium tracking-wide uppercase">
                     Producteur
