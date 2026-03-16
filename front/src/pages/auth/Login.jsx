@@ -174,6 +174,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useTranslation } from "react-i18next";
 import Navbar from "../../components/Navbar.jsx";
+import { showAppAlert } from "../../utils/appAlert";
 
 
 /**
@@ -194,24 +195,12 @@ const loginSchema = z.object({
 export function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const storedEmail = localStorage.getItem("email");
 
   // Configuration du formulaire avec react-hook-form et Zod
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
   });
-
-  // Si déjà connecté, afficher un message
-  const storedEmail = localStorage.getItem("email");
-  if (storedEmail && storedEmail !== "undefined" && storedEmail !== "null") {
-    return (
-      <>
-        <h1 className="text-2xl">
-          {t('common.alreadyLoggedIn', { email: localStorage.getItem("email") })}
-        </h1>
-        <Link to="/">{t('common.goHome')}</Link>
-      </>
-    );
-  }
 
   if (storedEmail === "undefined" || storedEmail === "null") {
     localStorage.removeItem("email");
@@ -239,7 +228,11 @@ export function Login() {
         localStorage.removeItem("lastName");
         localStorage.removeItem("role");
         localStorage.removeItem("token");
-        alert(t('forms.login.errors.missingUserData'));
+        showAppAlert({
+          title: t('forms.login.title'),
+          message: t('forms.login.errors.missingUserData'),
+          tone: 'error',
+        });
         return;
       }
       localStorage.setItem("email", userData?.email);
@@ -265,11 +258,19 @@ export function Login() {
     },
     onError: (error) => {
       if (error?.response?.status === 401) {
-        alert(t('forms.login.errors.invalidCredentials'));
+        showAppAlert({
+          title: t('forms.login.title'),
+          message: t('forms.login.errors.invalidCredentials'),
+          tone: 'warning',
+        });
         return;
       }
 
-      alert(error?.response?.data?.error || t('forms.login.errors.loginFailed'));
+      showAppAlert({
+        title: t('forms.login.title'),
+        message: error?.response?.data?.error || t('forms.login.errors.loginFailed'),
+        tone: 'error',
+      });
     },
   });
 
@@ -279,6 +280,18 @@ export function Login() {
    */
   function onSubmit(data) {
     return loginMutation.mutate(data);
+  }
+
+  // Si déjà connecté, afficher un message (après déclaration des hooks)
+  if (storedEmail && storedEmail !== "undefined" && storedEmail !== "null") {
+    return (
+      <>
+        <h1 className="text-2xl">
+          {t('common.alreadyLoggedIn', { email: storedEmail })}
+        </h1>
+        <Link to="/">{t('common.goHome')}</Link>
+      </>
+    );
   }
   
   return (

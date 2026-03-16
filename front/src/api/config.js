@@ -1,4 +1,5 @@
 import axios from "axios";
+import { showAppAlert } from "../utils/appAlert";
 
 /**
  * Instance Axios configurée pour communiquer avec le backend
@@ -45,7 +46,11 @@ instance.interceptors.response.use(
       localStorage.removeItem("firstName");
       localStorage.removeItem("lastName");
       localStorage.removeItem("role");
-      alert("Session expirée ou non autorisé. Veuillez vous reconnecter.");
+      showAppAlert({
+        title: "Session expirée",
+        message: "Session expirée ou non autorisé. Veuillez vous reconnecter.",
+        tone: "warning",
+      });
       if (window.location.pathname !== "/auth/login") {
         window.location.href = "/auth/login";
       }

@@ -177,6 +177,7 @@ export default function ProducerHome() {
   const [collabDrafts, setCollabDrafts] = useState({});
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [validationModal, setValidationModal] = useState(null);
 
   /* ── États formulaire multi-étapes ── */
   const [formStep, setFormStep] = useState(1);
@@ -364,12 +365,50 @@ export default function ProducerHome() {
 
   function handleNextStep() {
     if (!isStep1Valid()) {
-      setMovieError("Veuillez remplir le titre, la durée (≤ 120 s) et le synopsis.");
-      setTimeout(() => setMovieError(null), 4000);
+      setValidationModal({
+        title: "Étape 1 incomplète",
+        message:
+          "Veuillez remplir le titre, la durée (≤ 120 s) et le synopsis avant de continuer.",
+      });
       return;
     }
     setMovieError(null);
     setFormStep(2);
+  }
+
+  function handleInvalidMovieSubmit(formErrors) {
+    if (formErrors?.categoryId) {
+      setFormStep(1);
+      setValidationModal({
+        title: "Catégorie obligatoire",
+        message:
+          "La catégorie est obligatoire et se trouve à l'étape 1. Nous vous y avons redirigé.",
+      });
+      return;
+    }
+
+    if (formErrors?.acceptTerms) {
+      setValidationModal({
+        title: "Conditions requises",
+        message: "Vous devez accepter les conditions pour soumettre le film.",
+      });
+      return;
+    }
+
+    if (formErrors?.filmTitleOriginal || formErrors?.durationSeconds || formErrors?.synopsisOriginal) {
+      setFormStep(1);
+      setValidationModal({
+        title: "Champs obligatoires manquants",
+        message:
+          "Vérifiez le titre, la durée et le synopsis dans l'étape 1. Nous vous y avons redirigé.",
+      });
+      return;
+    }
+
+    setValidationModal({
+      title: "Formulaire incomplet",
+      message: "Veuillez vérifier les champs marqués en erreur avant de soumettre.",
+    });
   }
 
   /* ── Profil ── */
@@ -713,8 +752,9 @@ export default function ProducerHome() {
               )}
 
               <form
-                onSubmit={handleSubmit((data) =>
-                  createMovieMutation.mutate(data),
+                onSubmit={handleSubmit(
+                  (data) => createMovieMutation.mutate(data),
+                  (formErrors) => handleInvalidMovieSubmit(formErrors),
                 )}
                 className="space-y-5"
               >
@@ -1069,7 +1109,7 @@ export default function ProducerHome() {
                         </button>
                         <button
                           type="submit"
-                          disabled={createMovieMutation.isPending || !acceptTerms || !filmFileName}
+                          disabled={createMovieMutation.isPending}
                           className={tw.primaryBtn}
                         >
                           {createMovieMutation.isPending ? (
@@ -1078,7 +1118,7 @@ export default function ProducerHome() {
                               Envoi...
                             </span>
                           ) : !filmFileName ? (
-                            "Sélectionnez une vidéo"
+                            "Soumettre"
                           ) : (
                             "Soumettre"
                           )}
@@ -1092,6 +1132,26 @@ export default function ProducerHome() {
           )}
         </div>
       </div>
+
+      {/* ── Modale collaborateurs ── */}
+      {validationModal && (
+        <Modal
+          title={validationModal.title}
+          onClose={() => setValidationModal(null)}
+          maxW="max-w-md"
+        >
+          <p className="text-white/80 text-sm leading-relaxed">{validationModal.message}</p>
+          <div className="mt-5 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setValidationModal(null)}
+              className={tw.primaryBtn}
+            >
+              Compris
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {/* ── Modale collaborateurs ── */}
       {showCollaboratorsModal && (

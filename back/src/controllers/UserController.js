@@ -138,7 +138,7 @@ function createUser(req, res) {
   // Vérifier que l'email n'existe pas déjà
   User.findOne({ where: { email } }).then(async (user) => {
     if (user) {
-      res.json({ message: "Cet utilisateur existe déjà", user });
+      return res.status(409).json({ error: "Cet utilisateur existe déjà" });
     } else {
       // Hacher le mot de passe avec bcrypt
       const hash = await hashPassword(password);

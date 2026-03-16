@@ -33,7 +33,6 @@ const filmUpload = upload.fields([
 
 // PUBLIC
 movieRouter.get("/", MovieController.getMovies);
-movieRouter.get("/:id", MovieController.getMovieById);
 
 // PRODUCER
 movieRouter.get("/mine", AuthMiddleware(["PRODUCER"]), MovieController.getMyMovies);
@@ -52,5 +51,8 @@ movieRouter.put("/:id/collaborators", AuthMiddleware(["ADMIN", "PRODUCER"]), Mov
 movieRouter.put("/:id/status", AuthMiddleware(["ADMIN"]), MovieController.updateMovieStatus);
 movieRouter.put("/:id/categories", AuthMiddleware(["ADMIN"]), MovieController.updateMovieCategories);
 movieRouter.put("/:id/juries", AuthMiddleware(["ADMIN"]), MovieController.updateMovieJuries);
+
+// Keep dynamic route last so it does not shadow static endpoints like /mine and /assigned.
+movieRouter.get("/:id", MovieController.getMovieById);
 
 export default movieRouter;

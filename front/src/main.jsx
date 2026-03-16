@@ -32,6 +32,7 @@ import Results from "./pages/admin/Results.jsx";
 import FestivalConfig from "./pages/admin/FestivalConfig.jsx";
 import { FestivalConfigProvider } from "./hooks/useFestivalConfig.jsx";
 import AdminSponsors from "./pages/admin/AdminSponsors.jsx";
+import AlertModalHost from "./components/AlertModalHost.jsx";
 /**
  * Fixed: removed staleTime: Infinity which prevented any data from ever refreshing.
  * Each query now controls its own staleTime as needed.
@@ -50,6 +51,7 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <FestivalConfigProvider>
+          <AlertModalHost />
           <Routes>
             {/* ========================================
                 ROUTES PUBLIQUES

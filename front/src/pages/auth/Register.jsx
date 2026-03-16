@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
 import Navbar from "../../components/Navbar.jsx";
+import { showAppAlert } from "../../utils/appAlert";
 
 /**
  * Schéma de validation pour le formulaire d'enregistrement
@@ -44,24 +45,13 @@ const registerSchema = z.object({
 export function Register() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const alreadyLoggedInEmail = localStorage.getItem("email");
 
   // Configuration du formulaire avec react-hook-form et Zod
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: "PRODUCER", job: "PRODUCER" },
   });
-
-  // Si déjà connecté, afficher un message
-  if (localStorage.getItem("email")) {
-    return (
-      <>
-        <h1 className="text-2xl">
-          {t('common.alreadyLoggedIn', { email: localStorage.getItem("email") })}
-        </h1>
-        <Link to="/">{t('common.goHome')}</Link>
-      </>
-    );
-  }
 
   /**
    * Mutation pour envoyer les données d'enregistrement au backend
@@ -107,7 +97,11 @@ export function Register() {
           localStorage.removeItem("lastName");
           localStorage.removeItem("role");
           localStorage.removeItem("token");
-          alert(t('messages.registrationSuccessButLoginFailed'));
+          showAppAlert({
+            title: t('forms.register.title'),
+            message: t('messages.registrationSuccessButLoginFailed'),
+            tone: 'warning',
+          });
           navigate("/auth/login");
           return;
         }
@@ -121,15 +115,43 @@ export function Register() {
         // Redirection vers le tableau de bord du producteur
         navigate("/producer");
       } catch (err) {
-        alert(t('messages.registrationError'));
+        showAppAlert({
+          title: t('forms.register.title'),
+          message: t('messages.registrationError'),
+          tone: 'error',
+        });
         navigate("/auth/login");
       }
+    },
+    onError: (err) => {
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        t('messages.registrationError');
+      showAppAlert({
+        title: t('forms.register.title'),
+        message,
+        tone: 'error',
+      });
     },
   });
 
   function onSubmit(data) {
     return registerMutation.mutate(data);
   }
+
+  // Si déjà connecté, afficher un message (après déclaration des hooks)
+  if (alreadyLoggedInEmail) {
+    return (
+      <>
+        <h1 className="text-2xl">
+          {t('common.alreadyLoggedIn', { email: alreadyLoggedInEmail })}
+        </h1>
+        <Link to="/">{t('common.goHome')}</Link>
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
