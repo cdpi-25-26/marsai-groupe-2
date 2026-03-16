@@ -1,12 +1,13 @@
 /**
  * Constantes globales de l'application MarsAI
  *
- * UPLOAD_BASE : URL de base pour accéder aux fichiers uploadés (affiches, vidéos).
- * En développement, pointe vers le serveur local.
- * En production, définir la variable d'environnement VITE_UPLOAD_BASE dans .env.production
- *
- * Exemple .env.production :
- *   VITE_UPLOAD_BASE=https://mondomaine.com/uploads
+ * API_BASE : URL de base du backend.
+ * UPLOAD_BASE : URL de base pour accéder aux fichiers uploadés.
  */
+export const API_BASE =
+  import.meta.env.VITE_API_URL
+  || import.meta.env.VITE_API_BASE_URL
+  || "http://127.0.0.1:3000";
+
 export const UPLOAD_BASE =
-  import.meta.env.VITE_UPLOAD_BASE || "http://localhost:3000/uploads";
+  import.meta.env.VITE_UPLOAD_BASE || `${API_BASE}/uploads`;

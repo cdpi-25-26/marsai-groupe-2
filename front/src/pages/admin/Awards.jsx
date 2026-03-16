@@ -9,6 +9,7 @@ import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
 import { getVotes } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import { UPLOAD_BASE } from "../../utils/constants.js";
 
 function Awards() {
   const queryClient = useQueryClient();
@@ -248,13 +249,12 @@ function Awards() {
   };
 
   const getPoster = (movie) => {
-    const uploadBase = "http://localhost:3000/uploads";
     return movie.thumbnail
-      ? `${uploadBase}/${movie.thumbnail}`
+      ? `${UPLOAD_BASE}/${movie.thumbnail}`
       : movie.display_picture
-        ? `${uploadBase}/${movie.display_picture}`
+        ? `${UPLOAD_BASE}/${movie.display_picture}`
         : movie.picture1
-          ? `${uploadBase}/${movie.picture1}`
+          ? `${UPLOAD_BASE}/${movie.picture1}`
           : null;
   };
 
@@ -645,7 +645,7 @@ function Awards() {
                       {getTrailer(selectedMovie) ? (
                         <VideoPreview
                           title={selectedMovie.title}
-                          src={`http://localhost:3000/uploads/${getTrailer(selectedMovie)}`}
+                          src={`${UPLOAD_BASE}/${getTrailer(selectedMovie)}`}
                           poster={getPoster(selectedMovie) || undefined}
                           openMode="fullscreen"
                           modalPlacement="bottom"

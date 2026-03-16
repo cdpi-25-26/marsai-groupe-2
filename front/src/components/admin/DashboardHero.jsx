@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import instance from "../../api/config";
+import { API_BASE } from "../../utils/constants.js";
 
 function useGoogleStatus() {
   return useQuery({
@@ -16,8 +17,7 @@ export default function DashboardHero() {
   const active = data?.active === true;
 
   function handleConnect() {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-    window.open(`${apiBase}/google/auth`, "_blank");
+    window.open(`${API_BASE}/google/auth`, "_blank");
     setTimeout(() => refetch(), 5000);
     setTimeout(() => refetch(), 12000);
   }

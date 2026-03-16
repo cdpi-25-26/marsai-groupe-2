@@ -6,6 +6,8 @@ const colors = [
   "#F7B801"
 ];
 
+import { API_BASE } from "../utils/constants.js";
+
 let colorIndex = 0;
 
 export default function PartenaireCard({ name, logo, color, url }) {
@@ -31,7 +33,7 @@ export default function PartenaireCard({ name, logo, color, url }) {
     >
       <div className="w-full h-40 flex items-center justify-center mb-3">
         <img
-          src={`http://localhost:3000${logo}`}
+          src={`${API_BASE}${logo}`}
           alt={name}
           className="max-h-full object-contain"
         />

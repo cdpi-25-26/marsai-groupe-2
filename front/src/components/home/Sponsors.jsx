@@ -4,6 +4,7 @@ import Carousel from "./Caroussel";
 import OneCardWithImage from "./cards/OneCardWithImage";
 import TitleInBox from "../TitleInBox.jsx";
 import { getSponsors } from "../../api/sponsors";
+import { API_BASE } from "../../utils/constants.js";
 
 export default function Sponsors() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function Sponsors() {
   const cards = sponsors.map((sponsor, index) => (
     <OneCardWithImage
       key={index}
-      image={`http://localhost:3000${sponsor.logo}`}
+      image={`${API_BASE}${sponsor.logo}`}
       url={sponsor.url}
       accentColor={sponsor.accentColor || "#F6339A"}
       borderColor={sponsor.borderColor || "#F6339A"}

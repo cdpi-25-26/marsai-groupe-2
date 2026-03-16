@@ -10,6 +10,7 @@ import { getCurrentUser } from "../../api/users";
 import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/videos";
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import { UPLOAD_BASE } from "../../utils/constants.js";
 
 export default function JuryHome() {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export default function JuryHome() {
       return [];
     }
   });
-  const uploadBase = "http://localhost:3000/uploads";
+  const uploadBase = UPLOAD_BASE;
 
   const getPoster = (movie) => (
     movie.thumbnail
