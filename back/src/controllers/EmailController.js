@@ -110,6 +110,7 @@
 
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { VIDEO_REJECT_TEMPLATE } from "../constants/VideoRejectTemplate.js";
 
 dotenv.config();
 
@@ -133,4 +134,13 @@ async function sendMail(to, subject, html) {
   return info.response;
 }
 
-export default { sendMail };
+async function sendVideoRejectedEmail({ to, movieTitle, firstName, juryComment }) {
+  const safeMovieTitle = movieTitle || "votre film";
+  const safeFirstName = firstName || "Créateur";
+  const safeComment = juryComment || "";
+
+  const html = `${VIDEO_REJECT_TEMPLATE}\n<p>Bonjour ${safeFirstName},</p>\n<p>Film: <strong>${safeMovieTitle}</strong></p>\n${safeComment ? `<p>Commentaire du jury: ${safeComment}</p>` : ""}`;
+  return sendMail(to, `MarsAI Festival - Statut de votre film: ${safeMovieTitle}`, html);
+}
+
+export default { sendMail, sendVideoRejectedEmail };

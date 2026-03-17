@@ -1504,7 +1504,16 @@ export default function ProducerHome() {
             {/* Vidéo */}
             {(getTrailer(selectedMovie) || selectedMovie.youtube_link) && (
               <div>
-                {getTrailer(selectedMovie) ? (
+                {selectedMovie.youtube_link ? (
+                  <a
+                    href={selectedMovie.youtube_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[#AD46FF] hover:text-[#F6339A] text-base"
+                  >
+                    ▶ Ouvrir la vidéo YouTube ↗
+                  </a>
+                ) : getTrailer(selectedMovie) ? (
                   <div className="rounded-lg overflow-hidden border border-white/[0.07]">
                     <VideoPreview
                       title={selectedMovie.title}

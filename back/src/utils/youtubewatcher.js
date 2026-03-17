@@ -16,6 +16,25 @@ const queue = [];
 let isUploading = false;
 const Movie = db.Movie;
 
+async function findMovieByTrailerWithRetry(filename, retries = 6, delayMs = 1200) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const movie = await Movie.findOne({
+      where: { trailer: filename },
+      include: [{
+        model: db.User,
+        as: "Producer",
+        attributes: ["email", "first_name"],
+      }],
+    });
+
+    if (movie && movie.Producer) return movie;
+    if (attempt < retries) {
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
+  }
+  return null;
+}
+
 // Tentative de upload (si erreur reseau ou server -> retries n fois)
 async function uploadWithRetry(filePath, filename, id_user, retries = 3) {
   // filePath: chemin vers le fichier à upload
@@ -59,7 +78,7 @@ async function processQueue() {
   // booléen qui indique si un uload est en cours
   if (isUploading || queue.length === 0) return;
   // extraction du premier fichier, retire le premier élément de la queue et le retourne
-  const { filePath, filename, id_user, userEmail } = queue.shift();
+  const { filePath, filename, id_user, userEmail, movieId } = queue.shift();
   isUploading = true;
 
   try {
@@ -72,33 +91,64 @@ async function processQueue() {
     console.log(`URL YouTube : https://www.youtube.com/watch?v=${data.id}`);
     console.log(`ID USER ${id_user}`);
 
-    // Appelle de la fonction de s3.js pour upload dans Scaleway
-    await uploadFile(filePath);
+    // Persiste les métadonnées YouTube côté DB pour pouvoir consulter la vidéo depuis l'app.
+    await Movie.update(
+      {
+        youtube_movie_id: data.id,
+        youtube_link: `https://www.youtube.com/watch?v=${data.id}`,
+        youtube_status: "uploaded",
+      },
+      { where: { id_movie: movieId } }
+    );
 
-    if (data.licensedContent === true) {
-      EmailController.sendMail(
-        userEmail,
-        "Video rejected, content under license",
-        VIDEO_REJECT_TEMPLATE,
-      );
-    } else {
-      EmailController.sendMail(
-        userEmail,
-        "Your video has been accepted.",
-        VIDEO_ACCEPT_TEMPLATE,
-      );
+    // Appelle de la fonction de s3.js pour upload dans Scaleway
+    try {
+      await uploadFile(filePath);
+    } catch (s3Error) {
+      // S3 est secondaire: ne pas casser le pipeline principal si les credentials/bucket sont invalides.
+      console.warn(`S3 upload ignoré pour ${filename}: ${s3Error.message}`);
     }
 
-    console.log(`Envoyé à ${userEmail}`);
+    try {
+      if (data.licensedContent === true) {
+        await EmailController.sendMail(
+          userEmail,
+          "Video rejected, content under license",
+          VIDEO_REJECT_TEMPLATE,
+        );
+      } else {
+        await EmailController.sendMail(
+          userEmail,
+          "Your video has been accepted.",
+          VIDEO_ACCEPT_TEMPLATE,
+        );
+      }
+      console.log(`Envoyé à ${userEmail}`);
+    } catch (mailError) {
+      console.warn(`Email non envoyé à ${userEmail}: ${mailError.message}`);
+    }
 
     // déplace le fichier uploader vers back/uploads/uploaded
     if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
-    const destPath = path.join(uploadedFolder, `${Date.now()}-${filename}`);
+    const archivedName = `${Date.now()}-${filename}`;
+    const destPath = path.join(uploadedFolder, archivedName);
     fs.renameSync(filePath, destPath);
     console.log(`Fichier déplacé dans /uploaded : ${destPath}`);
 
+    // Le fichier ayant changé de chemin, on met à jour trailer pour conserver la lecture dans l'UI.
+    await Movie.update(
+      { trailer: `uploaded/${archivedName}` },
+      { where: { id_movie: movieId } }
+    );
+
   } catch (err) {
     console.error(`Erreur upload pour ${filename} : ${err.message}`);
+    if (movieId) {
+      await Movie.update(
+        { youtube_status: "failed" },
+        { where: { id_movie: movieId } }
+      );
+    }
   } finally {
     // on continue la queue
     isUploading = false;
@@ -134,14 +184,7 @@ function startYoutubeWatcher() {
     console.log(`Nouvelle vidéo détectée : ${filename}`);
 
     try {
-      const movie = await Movie.findOne({
-        where: { trailer: filename },
-        include: [{ 
-          model: db.User,
-          as: 'Producer',
-          attributes: ['email', 'first_name']
-         }]
-      });
+      const movie = await findMovieByTrailerWithRetry(filename);
 
       if (!movie || !movie.Producer) {
         console.warn(`Aucun film ou producteur trouvé pour ${filename}`);
@@ -150,8 +193,9 @@ function startYoutubeWatcher() {
 
       const id_user = movie.id_user;
       const userEmail = movie.Producer.email;
+      const movieId = movie.id_movie;
 
-      queue.push({ filePath, filename, id_user, userEmail });
+      queue.push({ filePath, filename, id_user, userEmail, movieId });
       processQueue();
     } catch (err) {
       console.error("Erreur récupération film :", err.message);
