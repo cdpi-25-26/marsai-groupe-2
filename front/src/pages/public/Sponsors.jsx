@@ -19,6 +19,7 @@ export default function Partenaires() {
       try {
         const res = await getSponsors();
         const sponsors = res.data;
+        console.log(res.data);
 
         const grouped = {
           officiels: [],

@@ -3,7 +3,7 @@ import { VideoPreview } from "../../components/VideoPreview";
 import { UPLOAD_BASE } from "../../utils/constants";
 import { getPoster, getTrailer } from "../../utils/movieUtils";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = import.meta.env.VITE_API_URL || "https://nonephemeral-marge-empties.ngrok-free.dev";
 
 export default function Selection() {
   const [movies,  setMovies]  = useState([]);
