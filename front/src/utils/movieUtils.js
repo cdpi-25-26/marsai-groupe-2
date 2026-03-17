@@ -31,6 +31,9 @@ export const getPoster = (movie) => {
  */
 export const getTrailer = (movie) => {
   if (!movie) return null;
+  if (typeof movie.youtube_link === "string" && movie.youtube_link.trim()) {
+    return null;
+  }
   return (
     movie.trailer ||
     movie.trailer_video ||
