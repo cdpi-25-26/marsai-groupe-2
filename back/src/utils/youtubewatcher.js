@@ -50,9 +50,8 @@ async function uploadWithRetry(filePath, filename, id_user, retries = 3) {
       return await youtubeController.uploadVideo(
         filePath,
         titleWithoutExt,
-        id_user,
-        "unlisted",
-        "unlisted"
+        `Film soumis par le producteur #${id_user}`,
+        "public"
       );
     } catch (err) {
       // Déterminer si l'erreur est "retryable" (réexécuter l'opération après erreur)
