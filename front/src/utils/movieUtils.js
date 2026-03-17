@@ -54,13 +54,10 @@ export const getPoster = (movie) => {
 
 /**
  * Returns the local video filename for a movie if one exists.
- * Returns null to signal the caller should fall back to youtube_link.
+ * Returns null if no local file — caller should fall back to youtube_link.
  */
 export const getTrailer = (movie) => {
   if (!movie) return null;
-  if (typeof movie.youtube_link === "string" && movie.youtube_link.trim()) {
-    return null;
-  }
   return (
     movie.trailer ||
     movie.trailer_video ||

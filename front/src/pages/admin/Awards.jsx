@@ -263,9 +263,7 @@ function Awards() {
   };
 
   const getTrailer = (movie) => (
-    (typeof movie?.youtube_link === "string" && movie.youtube_link.trim())
-      ? null
-      : movie?.trailer || movie?.trailer_video || movie?.trailerVideo || movie?.filmFile || movie?.video || null
+    movie?.trailer || movie?.trailer_video || movie?.trailerVideo || movie?.filmFile || movie?.video || null
   );
 
   const votesByMovie = useMemo(() => {
