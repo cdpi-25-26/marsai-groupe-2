@@ -1,6 +1,4 @@
 import db from "../models/index.js";
-const User = db.User;
-const Movie = db.Movie;
 const Collaborator = db.Collaborator;
 import { comparePassword } from "../utils/password.js";
 import { hashPassword } from "../utils/password.js";
@@ -21,7 +19,7 @@ function login(req, res) {
   const { email, password } = req.body;
 
   // Chercher l'utilisateur par son email
-  User.findOne({ where: { email } }).then((user) => {
+  db.User.findOne({ where: { email } }).then((user) => {
     if (!user) {
       return res.status(401).json({ error: "Identifiants invalides" });
     }
@@ -126,30 +124,30 @@ async function registerWithFilm(req, res) {
     const userRole = role || "PRODUCER";
 
     if (!userFirstName || !userLastName || !email || !password) {
-      await transaction.rollback();
+      if (transaction) await transaction.rollback();
       return res.status(400).json({ error: "Champs utilisateur obligatoires manquants" });
     }
 
     const durationNumber = Number(durationSeconds);
-    if (!filmTitleOriginal || !durationSeconds || Number.isNaN(durationNumber)) {
-      await transaction.rollback();
+    if (!filmTitleOriginal || durationSeconds == null|| Number.isNaN(durationNumber)) {
+      if (transaction) await transaction.rollback();
       return res.status(400).json({ error: "Le titre du film et la durée sont obligatoires" });
     }
 
     if (durationNumber > 120) {
-      await transaction.rollback();
+      if (transaction) await transaction.rollback();
       return res.status(400).json({ error: "La durée maximale est de 120 secondes" });
     }
 
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await db.User.findOne({ where: { email } });
     if (existingUser) {
-      await transaction.rollback();
+      if (transaction) await transaction.rollback();
       return res.status(409).json({ error: "Cet utilisateur existe déjà" });
     }
 
     const hashedPassword = await hashPassword(password);
 
-    const newUser = await User.create({
+    const newUser = await db.User.create({
       first_name: userFirstName,
       last_name: userLastName,
       email,
@@ -180,7 +178,7 @@ async function registerWithFilm(req, res) {
     const thumb3 = files.thumbnail3?.[0]?.filename || null;
     const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
 
-    const newMovie = await Movie.create({
+    const newMovie = await db.Movie.create({
       title: filmTitleOriginal,
       description: synopsisOriginal,
       duration: durationNumber,
@@ -298,7 +296,7 @@ async function registerWithFilm(req, res) {
     });
   } catch (error) {
     console.error("registerWithFilm error:", error);
-    await transaction.rollback();
+    if (transaction) await transaction.rollback();
     return res.status(500).json({
       error: error.message,
       details: error?.original?.message || error?.errors?.[0]?.message || null
