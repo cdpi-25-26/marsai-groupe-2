@@ -178,8 +178,7 @@ function Leaderboard() {
     if (!movie) return null;
     const field = movie.thumbnail || movie.display_picture || movie.picture1 || movie.picture2 || movie.picture3 || null;
     if (field) {
-      // Ensure uploaded/ prefix for local files (those without http)
-      return field.startsWith("http") ? field : (field.startsWith("uploaded/") ? field : `uploaded/${field}`);
+      return field;
     }
     return movie.youtube_movie_id ? `https://img.youtube.com/vi/${movie.youtube_movie_id}/hqdefault.jpg` : null;
   }

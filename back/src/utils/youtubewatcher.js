@@ -1,6 +1,7 @@
 import chokidar from "chokidar";
 import fs from "fs";
 import path from "path";
+import { Op } from "sequelize";
 import youtubeController from "../controllers/YoutubeController.js";
 import { uploadFile } from "./s3.js";
 import db from "../models/index.js";
@@ -10,16 +11,21 @@ import EmailController from "../controllers/EmailController.js";
 
 // défini le chemin absolu du dossier ou les fichiers vidéo sont placés avant d'être traités
 const uploadFolder = path.join(process.cwd(), "uploads");
-const uploadedFolder = path.join(uploadFolder, "uploaded");
+const mediaFolder = path.join(uploadFolder, "medias");
 const allowedExtensions = [".mp4", ".avi", ".m4v", ".mov", ".mpg", ".mpeg", ".wmv"];
 const queue = [];
 let isUploading = false;
 const Movie = db.Movie;
 
 async function findMovieByTrailerWithRetry(filename, retries = 6, delayMs = 1200) {
+  const mediasPath = `medias/${filename}`;
   for (let attempt = 1; attempt <= retries; attempt++) {
     const movie = await Movie.findOne({
-      where: { trailer: filename },
+      where: {
+        trailer: {
+          [Op.in]: [filename, mediasPath],
+        },
+      },
       include: [{
         model: db.User,
         as: "Producer",
@@ -127,18 +133,8 @@ async function processQueue() {
       console.warn(`Email non envoyé à ${userEmail}: ${mailError.message}`);
     }
 
-    // déplace le fichier uploader vers back/uploads/uploaded
-    if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
-    const archivedName = `${Date.now()}-${filename}`;
-    const destPath = path.join(uploadedFolder, archivedName);
-    fs.renameSync(filePath, destPath);
-    console.log(`Fichier déplacé dans /uploaded : ${destPath}`);
-
-    // Le fichier ayant changé de chemin, on met à jour trailer pour conserver la lecture dans l'UI.
-    await Movie.update(
-      { trailer: `uploaded/${archivedName}` },
-      { where: { id_movie: movieId } }
-    );
+    // Keep files in uploads/medias so Admin/Jury can stream via ngrok/Vercel.
+    console.log(`Fichier conservé dans /medias : ${filePath}`);
 
   } catch (err) {
     console.error(`Erreur upload pour ${filename} : ${err.message}`);
@@ -159,14 +155,12 @@ async function processQueue() {
 function startYoutubeWatcher() {
   // vérifie présence des dossiers et créé si besoin
   if (!fs.existsSync(uploadFolder)) fs.mkdirSync(uploadFolder, { recursive: true });
-  if (!fs.existsSync(uploadedFolder)) fs.mkdirSync(uploadedFolder, { recursive: true });
+  if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder, { recursive: true });
 
-  // surveille les fichiers dans uploads
-  const watcher = chokidar.watch(uploadFolder, {
+  // surveille les fichiers dans uploads/medias
+  const watcher = chokidar.watch(mediaFolder, {
     // ignore les fichiers présents au démarrage
     ignoreInitial: true,
-    // ignore tous les fichiers dans /back/uploads
-    ignored: /\/uploaded\//,
     // verif de la stabilité du file avant de add
     awaitWriteFinish: { stabilityThreshold: 3000, pollInterval: 100 },
   });
@@ -201,7 +195,7 @@ function startYoutubeWatcher() {
     }
   });
 
-  console.log("✓ youtubewatcher on back/uploads :", uploadFolder);
+  console.log("✓ youtubewatcher on back/uploads/medias :", mediaFolder);
 }
 
 export default startYoutubeWatcher;

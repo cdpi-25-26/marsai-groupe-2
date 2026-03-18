@@ -251,8 +251,7 @@ function Awards() {
   const getPoster = (movie) => {
     const field = movie.thumbnail || movie.display_picture || movie.picture1 || null;
     if (field) {
-      const withPrefix = field.startsWith("http") || field.startsWith("uploaded/") ? field : `uploaded/${field}`;
-      return withPrefix.startsWith("http") ? withPrefix : `${UPLOAD_BASE}/${withPrefix}`;
+      return field.startsWith("http") ? field : `${UPLOAD_BASE}/${field}`;
     }
     const youtubeId = movie?.youtube_movie_id || movie?.youtube_link?.trim?.().match?.(/[?&]v=([^&]+)/)?.[1] || null;
     return youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null;

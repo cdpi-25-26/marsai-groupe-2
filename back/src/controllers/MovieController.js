@@ -14,6 +14,7 @@ const {
 } = db;
 
 const uploadDir = path.join(process.cwd(), "uploads");
+const mediasPrefix = "medias/";
 
 function generatePosterFromVideo(videoFilename) {
   if (!videoFilename) return Promise.resolve(null);
@@ -209,6 +210,7 @@ async function createMovie(req, res) {
 
     const files = req.files || {};
     const filmFile = files.filmFile?.[0]?.filename || null;
+    const filmFilePath = filmFile ? `${mediasPrefix}${filmFile}` : null;
     const thumb1 = files.thumbnail1?.[0]?.filename || null;
     const thumb2 = files.thumbnail2?.[0]?.filename || null;
     const thumb3 = files.thumbnail3?.[0]?.filename || null;
@@ -267,7 +269,7 @@ async function createMovie(req, res) {
       release_year: movieReleaseYear,
       nationality,
       display_picture: movieDisplayPicture,
-      trailer: (filmFile ? `uploaded/${filmFile}` : null) || req.body.trailer || req.body.trailer_video || null,
+      trailer: filmFilePath || req.body.trailer || req.body.trailer_video || null,
       youtube_link: movieYoutubeLink,
       production: movieProduction,
       workshop: movieWorkshop,
@@ -284,9 +286,9 @@ async function createMovie(req, res) {
       // selection_status = 'submitted' automatiquement
     });
 
-    if (!movieThumbnail && filmFile) {
+    if (!movieThumbnail && filmFilePath) {
       try {
-        const generatedPoster = await generatePosterFromVideo(filmFile);
+        const generatedPoster = await generatePosterFromVideo(filmFilePath);
         if (generatedPoster) {
           await newMovie.update({
             thumbnail: generatedPoster,
@@ -393,13 +395,14 @@ async function updateMovie(req, res) {
     // Gestion fichiers uploadés (film, vignettes, SRT)
     const files = req.files || {};
     const filmFile = files.filmFile?.[0]?.filename || null;
+    const filmFilePath = filmFile ? `${mediasPrefix}${filmFile}` : null;
     const thumb1 = files.thumbnail1?.[0]?.filename || null;
     const thumb2 = files.thumbnail2?.[0]?.filename || null;
     const thumb3 = files.thumbnail3?.[0]?.filename || null;
     const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
 
     const updateData = { ...req.body };
-    if (filmFile) updateData.trailer = filmFile;
+    if (filmFilePath) updateData.trailer = filmFilePath;
     if (thumb1) updateData.picture1 = thumb1;
     if (thumb2) updateData.picture2 = thumb2;
     if (thumb3) updateData.picture3 = thumb3;
@@ -813,13 +816,14 @@ async function updateMovieCollaborators(req, res) {
     if (req.user.role === "ADMIN" || movie.id_user === req.user.id_user) {
       const files = req.files || {};
       const filmFile = files.filmFile?.[0]?.filename || null;
+      const filmFilePath = filmFile ? `${mediasPrefix}${filmFile}` : null;
       const thumb1 = files.thumbnail1?.[0]?.filename || null;
       const thumb2 = files.thumbnail2?.[0]?.filename || null;
       const thumb3 = files.thumbnail3?.[0]?.filename || null;
       const subtitleFile = files.subtitlesSrt?.[0]?.filename || null;
 
       const updateData = { ...req.body };
-      if (filmFile) updateData.trailer = filmFile;
+      if (filmFilePath) updateData.trailer = filmFilePath;
       if (thumb1) updateData.picture1 = thumb1;
       if (thumb2) updateData.picture2 = thumb2;
       if (thumb3) updateData.picture3 = thumb3;

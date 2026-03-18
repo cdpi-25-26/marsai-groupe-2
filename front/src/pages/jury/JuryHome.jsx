@@ -47,8 +47,7 @@ export default function JuryHome() {
   const getPoster = (movie) => {
     const field = movie?.thumbnail || movie?.display_picture || movie?.picture1 || movie?.picture2 || movie?.picture3 || null;
     if (field) {
-      const withPrefix = field.startsWith("http") || field.startsWith("uploaded/") ? field : `uploaded/${field}`;
-      return withPrefix.startsWith("http") ? withPrefix : `${uploadBase}/${withPrefix}`;
+      return field.startsWith("http") ? field : `${uploadBase}/${field}`;
     }
     const youtubeId = movie?.youtube_movie_id || movie?.youtube_link?.trim?.().match?.(/[?&]v=([^&]+)/)?.[1] || null;
     return youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null;

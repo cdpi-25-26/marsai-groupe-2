@@ -47,9 +47,8 @@ export const getPoster = (movie) => {
     movie.picture3 ||
     null;
   if (field) {
-    // Ensure uploaded/ prefix for local files
-    const withPrefix = field.startsWith("uploaded/") ? field : `uploaded/${field}`;
-    return `${UPLOAD_BASE}/${withPrefix}`;
+    if (field.startsWith("http")) return field;
+    return `${UPLOAD_BASE}/${field}`;
   }
 
   const youtubeVideoId = getYoutubeVideoId(movie);
