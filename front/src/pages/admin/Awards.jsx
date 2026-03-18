@@ -9,6 +9,7 @@ import { getAwards, createAward, deleteAward } from "../../api/awards.js";
 import { getVideos, updateMovieStatus } from "../../api/videos.js";
 import { getVotes } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import { SafeImage } from "../../components/SafeImage.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
 
 function Awards() {
@@ -416,7 +417,7 @@ function Awards() {
                       >
                       <div className="relative aspect-[3/4] bg-gray-800">
                         {poster ? (
-                          <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+                          <SafeImage src={poster} alt={movie.title} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">?</div>
                         )}
@@ -525,7 +526,7 @@ function Awards() {
                       <div className="relative flex-shrink-0">
                         <div className="w-16 h-16 bg-gray-800 rounded overflow-hidden">
                           {poster ? (
-                            <img src={poster} alt={movie.title} className="w-full h-full object-cover" />
+                            <SafeImage src={poster} alt={movie.title} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
                           )}
@@ -603,7 +604,7 @@ function Awards() {
                     {(() => {
                       const poster = getPoster(selectedMovie);
                       return poster ? (
-                        <img src={poster} alt={selectedMovie.title} className="w-full h-full object-cover" />
+                        <SafeImage src={poster} alt={selectedMovie.title} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">?</div>
                       );

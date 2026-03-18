@@ -17,11 +17,59 @@ export function VideoPreview({
   const [fullscreenError, setFullscreenError] = useState(false);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
   const [resolvedSrc, setResolvedSrc] = useState(src);
+  const [resolvedPoster, setResolvedPoster] = useState(poster || "");
 
   useEffect(() => {
     setInlineError(false);
     setFullscreenError(false);
   }, [src]);
+
+  useEffect(() => {
+    let objectUrl = null;
+    let isDisposed = false;
+    const controller = new AbortController();
+
+    async function resolvePoster() {
+      if (!poster) {
+        setResolvedPoster("");
+        return;
+      }
+
+      const isRemoteUrl = /^https?:\/\//i.test(poster);
+      const isNgrokMedia = isRemoteUrl && /ngrok-free\.dev/i.test(poster);
+
+      if (!isNgrokMedia) {
+        setResolvedPoster(poster);
+        return;
+      }
+
+      try {
+        const response = await fetch(poster, {
+          method: "GET",
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) throw new Error(`Poster HTTP ${response.status}`);
+
+        const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
+        if (!isDisposed) setResolvedPoster(objectUrl);
+      } catch {
+        if (!isDisposed) setResolvedPoster(poster);
+      }
+    }
+
+    resolvePoster();
+
+    return () => {
+      isDisposed = true;
+      controller.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [poster]);
 
   useEffect(() => {
     let objectUrl = null;
@@ -140,7 +188,7 @@ export function VideoPreview({
               ref={fullscreenVideoRef}
               className="w-full h-auto max-h-[80vh] bg-black rounded-lg"
               src={resolvedSrc}
-              poster={poster || undefined}
+              poster={resolvedPoster || undefined}
               controls
               playsInline
               autoPlay
@@ -194,7 +242,7 @@ export function VideoPreview({
             ref={previewVideoRef}
             className="w-full h-full object-cover"
             src={resolvedSrc}
-            poster={poster || undefined}
+            poster={resolvedPoster || undefined}
             controls
             playsInline
             preload="metadata"

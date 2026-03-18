@@ -11,6 +11,7 @@ import {
 } from "../../api/videos";
 import { getVotes } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview";
+import { SafeImage } from "../../components/SafeImage.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
 
 function Leaderboard() {
@@ -275,10 +276,11 @@ function Leaderboard() {
               className="absolute top-2 left-2"
             />
             <div className="flex gap-3">
-              <img 
-                src={getPosterSrc(movie) || undefined} 
-                alt="Vignette" 
+              <SafeImage
+                src={getPosterSrc(movie) || undefined}
+                alt="Vignette"
                 className="w-24 h-16 object-cover rounded bg-gray-800"
+                fallback={<div className="w-24 h-16 rounded bg-gray-800" />}
               />
               <div className="flex-1">
                 <h2 className="font-bold text-lg">{movie.title}</h2>
@@ -381,11 +383,12 @@ function Leaderboard() {
                       <p className="text-gray-500 text-xs col-span-4">Aucune vignette disponible.</p>
                     ) : (
                       getThumbnails(movieToView).map((thumb) => (
-                        <img
+                        <SafeImage
                           key={thumb}
                           src={`${uploadBase}/${thumb}`}
                           alt="Vignette film"
                           className="w-full h-16 object-cover rounded border border-gray-800 bg-gray-950"
+                          fallback={<div className="w-full h-16 rounded border border-gray-800 bg-gray-950" />}
                         />
                       ))
                     )}

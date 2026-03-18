@@ -10,6 +10,7 @@ import { getCurrentUser } from "../../api/users";
 import { getAssignedMovies, promoteMovieToCandidateByJury } from "../../api/videos";
 import { getMyVotes, submitMyVote } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import { SafeImage } from "../../components/SafeImage.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
 
 export default function JuryHome() {
@@ -375,7 +376,7 @@ export default function JuryHome() {
                         )}
                         <div className="aspect-video bg-gray-800 relative">
                           {poster ? (
-                            <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                            <SafeImage src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
                               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -437,7 +438,7 @@ export default function JuryHome() {
                         )}
                         <div className="aspect-video bg-gray-800 relative">
                           {poster ? (
-                            <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                            <SafeImage src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
                               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -496,7 +497,7 @@ export default function JuryHome() {
                         </div>
                         <div className="aspect-video bg-gray-800 relative">
                           {poster ? (
-                            <img src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
+                            <SafeImage src={poster} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
                               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
