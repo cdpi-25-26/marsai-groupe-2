@@ -15,6 +15,68 @@ export function VideoPreview({
   const [isOpen, setIsOpen] = useState(false);
   const [inlineError, setInlineError] = useState(false);
   const [fullscreenError, setFullscreenError] = useState(false);
+  const [isLoadingMedia, setIsLoadingMedia] = useState(false);
+  const [resolvedSrc, setResolvedSrc] = useState(src);
+
+  useEffect(() => {
+    setInlineError(false);
+    setFullscreenError(false);
+  }, [src]);
+
+  useEffect(() => {
+    let objectUrl = null;
+    let isDisposed = false;
+    const controller = new AbortController();
+
+    async function resolveSource() {
+      if (!src) {
+        setResolvedSrc("");
+        return;
+      }
+
+      const isRemoteUrl = /^https?:\/\//i.test(src);
+      const isNgrokMedia = isRemoteUrl && /ngrok-free\.dev/i.test(src);
+
+      if (!isNgrokMedia) {
+        setResolvedSrc(src);
+        return;
+      }
+
+      try {
+        setIsLoadingMedia(true);
+        const response = await fetch(src, {
+          method: "GET",
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Media HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        objectUrl = URL.createObjectURL(blob);
+        if (!isDisposed) setResolvedSrc(objectUrl);
+      } catch (error) {
+        if (!isDisposed) {
+          // Fallback to direct URL if blob loading fails.
+          setResolvedSrc(src);
+        }
+      } finally {
+        if (!isDisposed) setIsLoadingMedia(false);
+      }
+    }
+
+    resolveSource();
+
+    return () => {
+      isDisposed = true;
+      controller.abort();
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [src]);
 
   useEffect(() => {
     if (!isOpen && fullscreenVideoRef.current) {
@@ -69,11 +131,15 @@ export function VideoPreview({
                 <a className="underline" href={src} target="_blank" rel="noreferrer">Ouvrir le fichier video</a>
               </div>
             </div>
+          ) : isLoadingMedia ? (
+            <div className="w-full h-[240px] bg-black rounded-lg flex items-center justify-center text-white/70 text-sm">
+              Chargement de la video...
+            </div>
           ) : (
             <video
               ref={fullscreenVideoRef}
               className="w-full h-auto max-h-[80vh] bg-black rounded-lg"
-              src={src}
+              src={resolvedSrc}
               poster={poster || undefined}
               controls
               playsInline
@@ -119,11 +185,15 @@ export function VideoPreview({
               </div>
             </div>
           </div>
+        ) : isLoadingMedia ? (
+          <div className="w-full h-full flex items-center justify-center text-xs text-white/70">
+            Chargement de la video...
+          </div>
         ) : (
           <video
             ref={previewVideoRef}
             className="w-full h-full object-cover"
-            src={src}
+            src={resolvedSrc}
             poster={poster || undefined}
             controls
             playsInline
