@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import axios from "axios";
 
 export function VideoPreview({
   src,
@@ -44,17 +45,19 @@ export function VideoPreview({
       }
 
       try {
-        const response = await fetch(poster, {
-          method: "GET",
+        const response = await axios.get(poster, {
+          responseType: "blob",
           headers: {
             "ngrok-skip-browser-warning": "true",
           },
           signal: controller.signal,
         });
 
-        if (!response.ok) throw new Error(`Poster HTTP ${response.status}`);
+        if (response.status < 200 || response.status >= 300) {
+          throw new Error(`Poster HTTP ${response.status}`);
+        }
 
-        const blob = await response.blob();
+        const blob = response.data;
         objectUrl = URL.createObjectURL(blob);
         if (!isDisposed) setResolvedPoster(objectUrl);
       } catch {
@@ -92,19 +95,19 @@ export function VideoPreview({
 
       try {
         setIsLoadingMedia(true);
-        const response = await fetch(src, {
-          method: "GET",
+        const response = await axios.get(src, {
+          responseType: "blob",
           headers: {
             "ngrok-skip-browser-warning": "true",
           },
           signal: controller.signal,
         });
 
-        if (!response.ok) {
+        if (response.status < 200 || response.status >= 300) {
           throw new Error(`Media HTTP ${response.status}`);
         }
 
-        const blob = await response.blob();
+        const blob = response.data;
         objectUrl = URL.createObjectURL(blob);
         if (!isDisposed) setResolvedSrc(objectUrl);
       } catch (error) {

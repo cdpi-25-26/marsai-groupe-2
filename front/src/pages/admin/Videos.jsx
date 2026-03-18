@@ -19,6 +19,7 @@ import {
 } from "../../api/videos.js";
 import { getVotes } from "../../api/votes.js";
 import { VideoPreview } from "../../components/VideoPreview.jsx";
+import { SafeImage } from "../../components/SafeImage.jsx";
 import { UPLOAD_BASE } from "../../utils/constants.js";
 import { getPoster, getTrailer } from "../../utils/movieUtils.js";
 
@@ -360,7 +361,11 @@ export default function Videos() {
                     <button type="button" onClick={() => setSelectedMovie(movie)}
                       className="w-16 h-12 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 group cursor-pointer">
                       {poster
-                        ? <img src={poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        ? <SafeImage
+                            src={poster}
+                            alt={movie.title}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
                         : <div className="w-full h-full flex items-center justify-center text-white/10 text-xl">🎬</div>}
                     </button>
 
@@ -564,7 +569,11 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                   onClick={() => (trailer || movie.youtube_link) && setFsVideo(true)}
                 >
                   {poster
-                    ? <img src={poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    ? <SafeImage
+                        src={poster}
+                        alt={movie.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
                     : <div className="w-full h-full flex items-center justify-center text-white/10 text-3xl">🎬</div>}
                   {(trailer || movie.youtube_link) && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

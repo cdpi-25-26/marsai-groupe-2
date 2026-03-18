@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 export function SafeImage({ src, alt, className, fallback = null }) {
   const [resolvedSrc, setResolvedSrc] = useState(src || "");
@@ -26,17 +27,19 @@ export function SafeImage({ src, alt, className, fallback = null }) {
       }
 
       try {
-        const response = await fetch(src, {
-          method: "GET",
+        const response = await axios.get(src, {
+          responseType: "blob",
           headers: {
             "ngrok-skip-browser-warning": "true",
           },
           signal: controller.signal,
         });
 
-        if (!response.ok) throw new Error(`Image HTTP ${response.status}`);
+        if (response.status < 200 || response.status >= 300) {
+          throw new Error(`Image HTTP ${response.status}`);
+        }
 
-        const blob = await response.blob();
+        const blob = response.data;
         objectUrl = URL.createObjectURL(blob);
         if (!disposed) setResolvedSrc(objectUrl);
       } catch {
