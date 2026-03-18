@@ -53,8 +53,12 @@ export function setPhase(req, res) {
   }
 
   const data = { phase: Number(phase), updatedAt: new Date().toISOString() };
-  writePhase(data);
-  res.json({ message: "Phase mise à jour", ...data });
+  try {
+    writePhase(data);
+    res.json({ message: "Phase mise à jour", ...data });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur lors de la sauvegarde de phase"});
+  }
 }
 
 export default { getPhase, setPhase };

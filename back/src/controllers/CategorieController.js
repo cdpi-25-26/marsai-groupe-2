@@ -1,13 +1,10 @@
 import db from "../models/index.js";
 
-const Categorie = db.Categorie;
-
-
 //-1- Voir toutes les catégories (public)
  
 async function getCategories(req, res) {
   try {
-    const categories = await Categorie.findAll();
+    const categories = await db.Categorie.findAll();
     res.json(categories);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -21,7 +18,7 @@ async function getCategorieById(req, res) {
   try {
     const { id } = req.params;
 
-    const categorie = await Categorie.findByPk(id);
+    const categorie = await db.Categorie.findByPk(id);
 
     if (!categorie) {
       return res.status(404).json({ error: "Catégorie non trouvée" });
@@ -44,13 +41,13 @@ async function createCategorie(req, res) {
       return res.status(400).json({ error: "Le nom est obligatoire" });
     }
 
-    const existing = await Categorie.findOne({ where: { name } });
+    const existing = await db.Categorie.findOne({ where: { name } });
 
     if (existing) {
       return res.status(400).json({ error: "Catégorie déjà existante" });
     }
 
-    const categorie = await Categorie.create({ name });
+    const categorie = await db.Categorie.create({ name });
 
     res.status(201).json({
       message: "Catégorie créée avec succès",
@@ -70,7 +67,7 @@ async function updateCategorie(req, res) {
     const { id } = req.params;
     const { name } = req.body;
 
-    const categorie = await Categorie.findByPk(id);
+    const categorie = await db.Categorie.findByPk(id);
 
     if (!categorie) {
       return res.status(404).json({ error: "Catégorie non trouvée" });
@@ -97,7 +94,7 @@ async function deleteCategorie(req, res) {
   try {
     const { id } = req.params;
 
-    const categorie = await Categorie.findByPk(id);
+    const categorie = await db.Categorie.findByPk(id);
 
     if (!categorie) {
       return res.status(404).json({ error: "Catégorie non trouvée" });

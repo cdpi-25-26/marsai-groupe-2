@@ -8,10 +8,12 @@ let tokenData;
 
 //Initialise le client OAuth2
 async function initYoutubeAuth() {
+  const REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI || "http://localhost:3000/google/oauth2callback";
+  
   oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    "http://localhost:3000/google/oauth2callback"
+    REDIRECT_URI
   );
 
   if (!fs.existsSync(TOKEN_PATH)) {

@@ -1,24 +1,13 @@
 import db from "../models/index.js";
-const Event = db.Event;
-
 
 function getEvents(req, res) {
-    Event.findAll().then((event) => {
-        res.json(event);
-    });
-    console.log({
-  method: req.method,
-  url: req.url,
-  params: req.params,
-  query: req.query,
-  body: req.body,
-  user: req.user
-});
-
-}
+    db.Event.findAll()
+    .then((event) => { res.json(event);
+    })
+    .catch(err => res.status(500).json( { error: err.message }));
+};
 
 function createEvent(req, res) {
-    console.log(req.body);
 
     if (!req.body) {
         return res.status(400).json({ error: "Données manquantes "});
@@ -30,30 +19,24 @@ function createEvent(req, res) {
         return res.status(400).json({ error: "Tous les champs doivent être remplis "});
     }
 
-    Event.findOne({ where: { name } })
+    db.Event.findOne({ where: { name } })
     .then((event) => {
         if (event) {
-            res.json({ message: "Evenement déjà existant", event});
-        } else {
-            Event.create({
-                name: name,
-                description: description,
-                start_date: start_date,
-                end_date: end_date,
-                location: location,
-                event_type: event_type
-            }).then(
-                (newEvent) => {
-                    res.status(201).json({ message: "Evenment créée", newEvent });
-                },
-            )
+            return res.json({ message: "Evenement déjà existant", event});
         }
-    });
+        
+        return db.Event.create({name: name, description: description,start_date: start_date, end_date: end_date, location: location,event_type: event_type})
+
+        .then((newEvent) => 
+                res.status(201).json({ message: "Evenément créé", newEvent }))
+            })
+        .catch(err => res.status(500).json({ error: err.message }));
 }
 
 function deleteEvent(req, res) {
     const { id_event } = req.params;
-    Event.destroy({ where: { id_event }}).then(() => {
+    db.Event.destroy({ where: { id_event }})
+        .then(() => {
         res.status(200).json({ message: "Evenement supprimé" });
     });
 }
@@ -66,7 +49,7 @@ function updateEvent(req, res) {
         return res.status(400).json({ error: "ID manquant dans l'URL" });
     }
 
-    Event.findOne({ where: { id_event } })
+    db.Event.findOne({ where: { id_event } })
         .then((event) => {
             if (!event) {
                 return res.status(404).json({ error: "Evenement non trouvé" });
@@ -82,7 +65,6 @@ function updateEvent(req, res) {
             return event.save();
         })
         .then((updatedEvent) => {
-            // This will only run if save() succeeded
             res.status(200).json({
                 message: "Evenement mis à jour",
                 updatedEvent
@@ -97,7 +79,7 @@ function updateEvent(req, res) {
 function getEventById(req, res) {
     const { id_event } = req.params;
 
-    Event.findOne({ where: { id_event } }).then((event) => {
+    db.Event.findOne({ where: { id_event } }).then((event) => {
         if (event) {
             res.json(event);
         } else {
@@ -107,7 +89,7 @@ function getEventById(req, res) {
 }
 
 function findEventByName(name) {
-    return Event.findOne({ where: { name }});
+    return db.Event.findOne({ where: { name }});
 }
 
 export default {

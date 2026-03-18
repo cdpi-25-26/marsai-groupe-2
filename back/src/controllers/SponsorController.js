@@ -2,37 +2,7 @@ import db from "../models/index.js";
 import fs from "fs";
 import path from "path";
 
-const Sponsor = db.Sponsor;
-
-
- //*******************************************************/ CREATE
-
-/*export const createSponsor = async (req, res) => {
-  try {
-    const { name, logo, url, category } = req.body;
-
-    if (!name || !logo) {
-      return res.status(400).json({
-        error: "Name and logo are required"
-      });
-    }
-
-    const sponsor = await Sponsor.create({
-      name,
-      logo,
-      url,
-      category
-    });
-
-    return res.status(201).json(sponsor);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};*/
-
-////////////////////////////////////////////////////////////////////////////// CREATE AVEC UPLOAD LOGO
-
-export const createSponsor = async (req, res) => {
+async function createSponsor(req, res){
   try {
     const { name, url, category } = req.body;
 
@@ -44,7 +14,7 @@ export const createSponsor = async (req, res) => {
 
     const logoPath = `/uploads/sponsors/${req.file.filename}`;
 
-    const sponsor = await Sponsor.create({
+    const sponsor = await db.Sponsor.create({
       name,
       logo: logoPath,
       url,
@@ -58,12 +28,11 @@ export const createSponsor = async (req, res) => {
   }
 };
 
-
- //*********************************************************/ GET ALL
+ // GET ALL
  
-export const getAllSponsors = async (req, res) => {
+async function getAllSponsors(req, res){
   try {
-    const sponsors = await Sponsor.findAll({
+    const sponsors = await db.Sponsor.findAll({
       order: [["createdAt", "DESC"]]
     });
 
@@ -74,13 +43,13 @@ export const getAllSponsors = async (req, res) => {
 };
 
 
- //**********************************************************/ GET ONE
+ // GET ONE
  
-export const getSponsorById = async (req, res) => {
+async function getSponsorById(req, res){
   try {
     const { id } = req.params;
 
-    const sponsor = await Sponsor.findByPk(id);
+    const sponsor = await db.Sponsor.findByPk(id);
 
     if (!sponsor) {
       return res.status(404).json({
@@ -95,13 +64,13 @@ export const getSponsorById = async (req, res) => {
 };
 
 
- //********************************************************/ UPDATE
+ // UPDATE
 
 /*export const updateSponsor = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const sponsor = await Sponsor.findByPk(id);
+    const sponsor = await db.Sponsor.findByPk(id);
 
     if (!sponsor) {
       return res.status(404).json({
@@ -117,13 +86,13 @@ export const getSponsorById = async (req, res) => {
   }
 };*/
 
-////////////////////////////////////////////////////////////////////////////// UPDATE AVEC UPLOAD LOGO
+// UPDATE AVEC UPLOAD LOGO
 
-export const updateSponsor = async (req, res) => {
+async function updateSponsor(req, res){
   try {
     const { id } = req.params;
 
-    const sponsor = await Sponsor.findByPk(id);
+    const sponsor = await db.Sponsor.findByPk(id);
 
     if (!sponsor) {
       return res.status(404).json({
@@ -150,16 +119,13 @@ export const updateSponsor = async (req, res) => {
   }
 };
 
-/**
- //******************************************************* DELETE
- */
+ //DELETE
 
-
-export const deleteSponsor = async (req, res) => {
+async function deleteSponsor(req, res){
   try {
     const { id } = req.params;
 
-    const sponsor = await Sponsor.findByPk(id);
+    const sponsor = await db.Sponsor.findByPk(id);
 
     if (!sponsor) {
       return res.status(404).json({
@@ -187,11 +153,6 @@ export const deleteSponsor = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
-
-
-
-
-
 
 export default {
   createSponsor,

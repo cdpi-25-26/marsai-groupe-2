@@ -1,14 +1,6 @@
 import db from "../models/index.js";
-const User = db.User;
 import { hashPassword } from "../utils/password.js";
 
-/**
- * Récupère le profil de l'utilisateur actuellement authentifié
- * Utilise le JWT pour identifier l'utilisateur
- * @param {Object} req - La requête contenant req.user (mis par AuthMiddleware)
- * @param {Object} res - La réponse HTTP
- * @returns {Object} Les données utilisateur sans le mot de passe
- */
 function getCurrentUser(req, res) {
   try {
     const user = req.user;  // Mis à disposition par AuthMiddleware
@@ -24,13 +16,6 @@ function getCurrentUser(req, res) {
   }
 }
 
-/**
- * Met à jour le profil de l'utilisateur actuellement authentifié
- * Permet à un utilisateur de modifier son propre profil
- * @param {Object} req - La requête contenant les champs à mettre à jour
- * @param {Object} res - La réponse HTTP
- * @returns {Object} L'utilisateur mis à jour
- */
 async function updateCurrentUser(req, res) {
   try {
     const user = req.user;  // Récupéré par AuthMiddleware
@@ -61,24 +46,12 @@ async function updateCurrentUser(req, res) {
   }
 }
 
-/**
- * Récupère la liste de tous les utilisateurs
- * Accessible uniquement par les administrateurs
- * @param {Object} req - La requête HTTP
- * @param {Object} res - La réponse HTTP contenant tous les utilisateurs
- */
 function getUsers(req, res) {
-  User.findAll().then((users) => {
+  db.User.findAll().then((users) => {
     res.json(users);
   });
 }
 
-/**
- * Crée un nouvel utilisateur en base de données
- * Effectue le hachage du mot de passe et la validation des données
- * @param {Object} req - La requête contenant les données d'enregistrement
- * @param {Object} res - La réponse HTTP avec le nouvel utilisateur créé
- */
 function createUser(req, res) {
   if (!req.body) {
     return res.status(400).json({ error: "Données manquantes" });
@@ -136,7 +109,7 @@ function createUser(req, res) {
   }
 
   // Vérifier que l'email n'existe pas déjà
-  User.findOne({ where: { email } }).then(async (user) => {
+  db.User.findOne({ where: { email } }).then(async (user) => {
     if (user) {
       res.json({ message: "Cet utilisateur existe déjà", user });
     } else {
@@ -144,7 +117,7 @@ function createUser(req, res) {
       const hash = await hashPassword(password);
       
       // Créer l'utilisateur en base de données
-      User.create({
+      db.User.create({
         first_name,
         last_name,
         email,
@@ -177,25 +150,13 @@ function createUser(req, res) {
   });
 }
 
-/**
- * Supprime un utilisateur de la base de données
- * Accessible uniquement par les administrateurs
- * @param {Object} req - La requête contenant l'ID de l'utilisateur à supprimer
- * @param {Object} res - La réponse HTTP (204 No Content si succès)
- */
 function deleteUser(req, res) {
   const id_user = req.params.id;
-  User.destroy({ where: { id_user } }).then(() => {
+  db.User.destroy({ where: { id_user } }).then(() => {
     res.status(204).json({ message: "Utilisateur supprimé avec succès" });
   });
 }
 
-/**
- * Met à jour les données d'un utilisateur existant
- * Accessible uniquement par les administrateurs
- * @param {Object} req - La requête contenant l'ID et les données à mettre à jour
- * @param {Object} res - La réponse HTTP avec l'utilisateur mis à jour
- */
 function updateUser(req, res) {
   const id_user = req.params.id;
   
@@ -215,7 +176,7 @@ function updateUser(req, res) {
   last_name = last_name || lastName;
 
   // Récupérer l'utilisateur et le mettre à jour
-  User.findOne({ where: { id_user } }).then(async (user) => {
+  db.User.findOne({ where: { id_user } }).then(async (user) => {
     if (user) {
       // Mettre à jour les champs fournis (garder l'ancien si non fourni)
       user.first_name = first_name || user.first_name;
@@ -243,15 +204,9 @@ function updateUser(req, res) {
   });
 }
 
-/**
- * Récupère un utilisateur spécifique par son ID
- * Accessible uniquement par les administrateurs
- * @param {Object} req - La requête contenant l'ID de l'utilisateur
- * @param {Object} res - La réponse HTTP contenant les données de l'utilisateur
- */
 function getUserById(req, res) {
   const id_user = req.params.id;
-  User.findOne({ where: { id_user } }).then((user) => {
+  db.User.findOne({ where: { id_user } }).then((user) => {
     if (user) {
       res.json(user);
     } else {
@@ -260,13 +215,8 @@ function getUserById(req, res) {
   });
 }
 
-/**
- * Fonction utilitaire pour chercher un utilisateur par son email
- * @param {string} email - L'adresse email de l'utilisateur
- * @returns {Promise<Object>} L'utilisateur trouvé ou null
- */
 function findUserByEmail(email) {
-  return User.findOne({ where: { email } });
+  return db.User.findOne({ where: { email } });
 }
 
 

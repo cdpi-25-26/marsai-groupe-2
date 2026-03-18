@@ -6,6 +6,7 @@ function getAward(req, res) {
     Award.findAll().then((award) => {
         res.json(award);
     })
+    .catch((err) => res.status(500).json({ error: err.message }));
 };
 
 function createAward(req, res) {
@@ -24,10 +25,11 @@ function createAward(req, res) {
         return res.status(400).json({ error: "L'identifiant du film est requis" });
     }
 
-    Award.findOne({ where: { award_name } }).then(async (award) => {
+    Award.findOne({ where: { award_name } })
+        .then(async (award) => {
         if (award) {
-            res.json({ message: "Award déjà existant", award});
-        } else {
+            return res.json({ message: "Award déjà existant", award});
+        } 
             const movie = await Movie.findByPk(id_movie);
             if (!movie) {
                 return res.status(404).json({ error: "Film non trouvé" });
@@ -42,9 +44,12 @@ function createAward(req, res) {
             await movie.update({ selection_status: "awarded" });
 
             res.status(201).json({ message: "Award créé", newAward});
-        }
-    });
-}
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: err.message });
+        });
+};
+
 
 function deleteAward(req, res) {
     const { id } = req.params;
