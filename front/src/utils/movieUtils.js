@@ -58,20 +58,18 @@ export const getPoster = (movie) => {
 
 /**
  * Returns the local video path for a movie if one exists.
- * Ensures the path includes the 'uploaded/' prefix for files stored in back/uploads/uploaded/.
- * Returns null if no local file — caller should fall back to youtube_link.
+ * Files uploaded before the fix are in /back/uploads/
+ * Files uploaded after the fix are in /back/uploads/uploaded/
+ * The function returns the raw path from the DB, which Express.static will handle correctly.
  */
 export const getTrailer = (movie) => {
   if (!movie) return null;
-  const fileName =
+  return (
     movie.trailer ||
     movie.trailer_video ||
     movie.trailerVideo ||
     movie.filmFile ||
     movie.video ||
-    null;
-
-  if (!fileName) return null;
-  // If file doesn't already start with 'uploaded/', prepend it
-  return fileName.startsWith("uploaded/") ? fileName : `uploaded/${fileName}`;
+    null
+  );
 };

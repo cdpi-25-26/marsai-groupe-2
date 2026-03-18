@@ -192,9 +192,7 @@ function Leaderboard() {
 
   function getTrailer(movie) {
     if (!movie) return null;
-    const fileName = movie.trailer || movie.trailer_video || movie.trailerVideo || movie.filmFile || movie.video || null;
-    if (!fileName) return null;
-    return fileName.startsWith("uploaded/") ? fileName : `uploaded/${fileName}`;
+    return movie.trailer || movie.trailer_video || movie.trailerVideo || movie.filmFile || movie.video || null;
   }
 
   function getStatusStepMeta(status) {

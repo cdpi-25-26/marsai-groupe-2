@@ -56,8 +56,7 @@ export default function JuryHome() {
 
   const getTrailer = (movie) => {
     const fileName = movie?.trailer || movie?.trailer_video || movie?.trailerVideo || movie?.filmFile || movie?.video || null;
-    if (!fileName) return null;
-    return fileName.startsWith("uploaded/") ? fileName : `uploaded/${fileName}`;
+    return fileName || null;
   };
 
   useEffect(() => {
