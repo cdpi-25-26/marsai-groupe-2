@@ -17,6 +17,83 @@ const queue = [];
 let isUploading = false;
 const Movie = db.Movie;
 
+function isAlreadyQueued(movieId) {
+  return queue.some((item) => item.movieId === movieId);
+}
+
+async function enqueueMovieUpload(movie) {
+  if (!movie || !movie.id_movie) return false;
+  if (isAlreadyQueued(movie.id_movie)) return false;
+
+  const trailer = movie.trailer || "";
+  const filename = path.basename(trailer);
+  const ext = path.extname(filename).toLowerCase();
+  const filePath = path.join(mediaFolder, filename);
+
+  if (!filename || !allowedExtensions.includes(ext)) return false;
+  if (!fs.existsSync(filePath)) {
+    console.warn(`Fichier introuvable pour film ${movie.id_movie}: ${filePath}`);
+    return false;
+  }
+
+  const userEmail = movie.Producer?.email;
+  if (!userEmail) {
+    console.warn(`Email producteur manquant pour film ${movie.id_movie}`);
+    return false;
+  }
+
+  queue.push({
+    filePath,
+    filename,
+    id_user: movie.id_user,
+    userEmail,
+    movieId: movie.id_movie,
+  });
+
+  await Movie.update(
+    { youtube_status: "processing" },
+    { where: { id_movie: movie.id_movie } }
+  );
+
+  processQueue();
+  return true;
+}
+
+async function recoverPendingMovies() {
+  try {
+    const pendingMovies = await Movie.findAll({
+      where: {
+        trailer: { [Op.ne]: null },
+        [Op.or]: [
+          { youtube_status: null },
+          { youtube_status: "pending" },
+          { youtube_status: "failed" },
+        ],
+      },
+      include: [{
+        model: db.User,
+        as: "Producer",
+        attributes: ["email", "first_name"],
+      }],
+      order: [["id_movie", "ASC"]],
+    });
+
+    if (!pendingMovies.length) return;
+
+    let enqueued = 0;
+    for (const movie of pendingMovies) {
+      const queued = await enqueueMovieUpload(movie);
+      if (queued) enqueued += 1;
+    }
+
+    if (enqueued > 0) {
+      console.log(`✓ Recover pending uploads: ${enqueued} film(s) ajouté(s) à la queue`);
+    }
+  } catch (error) {
+    console.warn(`Recover pending uploads failed: ${error.message}`);
+  }
+}
+
 async function findMovieByTrailerWithRetry(filename, retries = 6, delayMs = 1200) {
   const mediasPath = `medias/${filename}`;
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -184,16 +261,13 @@ function startYoutubeWatcher() {
         return;
       }
 
-      const id_user = movie.id_user;
-      const userEmail = movie.Producer.email;
-      const movieId = movie.id_movie;
-
-      queue.push({ filePath, filename, id_user, userEmail, movieId });
-      processQueue();
+      await enqueueMovieUpload(movie);
     } catch (err) {
       console.error("Erreur récupération film :", err.message);
     }
   });
+
+  recoverPendingMovies();
 
   console.log("✓ youtubewatcher on back/uploads/medias :", mediaFolder);
 }
