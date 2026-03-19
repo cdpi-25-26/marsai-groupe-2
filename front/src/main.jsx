@@ -23,6 +23,8 @@ import InfosPublic from "./pages/public/Infos.jsx";
 import ProgramPublic from "./pages/public/Program.jsx";
 import SponsorsPublic from "./pages/public/Sponsors.jsx";
 import JuryPublic from "./pages/public/Jury.jsx";
+import Contact from "./pages/public/Contact.jsx";
+import Legal from "./pages/public/Legal.jsx";
 import Selection from "./pages/public/Selection.jsx";
 import Users from "./pages/admin/Users.jsx";
 import Videos from "./pages/admin/Videos.jsx";
@@ -62,6 +64,8 @@ createRoot(document.getElementById("root")).render(
               <Route path="sponsors" element={<SponsorsPublic />} />
               <Route path="juryPublic" element={<JuryPublic />} />
               <Route path="selection" element={<Selection />} />
+              <Route path="contact" element={<Contact />} />
+              <Route path="legal" element={<Legal/>} />
             </Route>
 
             {/* Authentification */}

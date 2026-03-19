@@ -39,7 +39,7 @@ AI</span></h2>
             <ul className="space-y-2 text-gray-300">
               <li><a href="/sponsors" className="hover:text-white transition">{t("footer.legal.partners")}</a></li>
               <li><a href="/infos" className="hover:text-white transition">{t("footer.legal.faq")}</a></li>
-              <li><a href="/infos" className="hover:text-white transition">{t("footer.legal.contact")}</a></li>
+              <li><a href="/contact" className="hover:text-white transition">{t("footer.legal.contact")}</a></li>
             </ul>
           </div>
         </div>
@@ -53,7 +53,7 @@ AI</span></h2>
       <div className="w-full border-t border-gray-800 px-8 py-6 text-center text-sm text-gray-400 leading-relaxed grid grid-cols-1 md:grid-cols-3 gap-16">
         <div>{t("footer.bottom.copyright")}</div>
         <div>{t("footer.bottom.design")}</div>
-        <div><a href="#" className="hover:text-white transition">{t("footer.bottom.legal")}</a></div>
+        <div><a href="/legal" className="hover:text-white transition">{t("footer.bottom.legal")}</a></div>
       </div>
     </footer>
   );
