@@ -14,7 +14,7 @@
  *   B-07 — Le panneau "Forcer un statut" passe désormais force_transition:true au backend.
  *   B-08 — Confirmation visuelle affichée après la suppression définitive d'un film.
  */
-
+import instance from "../../api/config";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -22,7 +22,8 @@ import {
   updateMovie, updateMovieCategories, updateMovieStatus
 } from "../../api/videos.js";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = import.meta.env.VITE_API_URL || instance.defaults.baseURL;
+
 
 async function getFestivalPhase() {
   const r = await fetch(`${API}/festival/phase`);

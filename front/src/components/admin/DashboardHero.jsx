@@ -16,7 +16,7 @@ export default function DashboardHero() {
   const active = data?.active === true;
 
   function handleConnect() {
-    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const apiBase = import.meta.env.VITE_API_BASE_URL || instance.defaults.baseURL;
     window.open(`${apiBase}/google/auth`, "_blank");
     setTimeout(() => refetch(), 5000);
     setTimeout(() => refetch(), 12000);
