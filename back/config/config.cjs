@@ -7,13 +7,7 @@
  * - test: Environnement pour les tests
  * - production: Environnement de production (serveur distant)
  * 
- * Toutes les configurations lisent les variables d'environnement du fichier .env
- * Exemple .env:
- * DB_USER=marsai
- * DB_PASSWORD=Mars2026!
- * DB_NAME=marsai_db
- * DB_HOST=localhost
- * DB_PORT=3306
+ * Toutes les configurations lisent les variables 
  */
 
 require("dotenv").config();

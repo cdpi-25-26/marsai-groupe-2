@@ -20,7 +20,7 @@ const registerSchema = z.object({
   mobile: z.string().optional(),
   birthDate: z.string().optional(),
   street: z.string().optional(),
-  postalCode: z.string().optional(),
+  postalCode: z.string().max(10, "validation.postalCode.maxLength") .optional(),
   city: z.string().optional(),
   country: z.string().optional(),
   biography: z.string().optional(),
@@ -35,12 +35,6 @@ const registerSchema = z.object({
   role: z.string().optional().default("PRODUCER"),
 });
 
-/**
- * Composant Register (Page d'enregistrement)
- * Formulaire complet d'enregistrement pour les nouveaux utilisateurs
- * Après enregistrement réussi, auto-login automatique
- * @returns {JSX.Element} La page d'enregistrement
- */
 export function Register() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -193,9 +187,8 @@ export function Register() {
                     className={input(false)} />
                 </Field>
 
-                <Field label={t('forms.register.labels.postalCode')}>
-                  <input id="postalCode" type="text" placeholder={t('forms.register.placeholders.postalCode')} {...register("postalCode")}
-                    className={input(false)} />
+                <Field label={t('forms.register.labels.postalCode')}  error={errors.postalCode?.message && t(errors.postalCode.message)}>
+                  <input id="postalCode" type="text" placeholder={t('forms.register.placeholders.postalCode')} {...register("postalCode")} maxLength={10} className={input(!!errors.postalCode)} />
                 </Field>
 
                 <Field label={t('forms.register.labels.country')}>

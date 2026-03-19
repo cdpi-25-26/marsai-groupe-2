@@ -53,28 +53,6 @@ function normalizeToRecipients(to) {
   return [];
 }
 
-// async function sendEmail({ to, subject, html, text }) {
-//   if (!isMailerConfigured()) {
-//     throw new Error("Mailer non configuré (SMTP)");
-//   }
-
-//   const senderName = getSenderName();
-//   const senderEmail = getSenderEmail();
-//   const recipients = normalizeToRecipients(to);
-
-//   if (!recipients.length) {
-//     throw new Error("Destinataire email manquant");
-//   }
-
-//   return await getTransporter().sendMail({
-//     from: `${senderName} <${senderEmail}>`,
-//     to: recipients.map((recipient) => recipient.email).join(", "),
-//     subject,
-//     html,
-//     text,
-//   });
-// }
-
 async function sendEmail(userEmail, subject, html) {
     const transporter = nodemailer.createTransport({
         host: env.SMTP_HOST,
@@ -87,11 +65,10 @@ async function sendEmail(userEmail, subject, html) {
     await transporter.sendMail({
         from: env.FROM_EMAIL,
         to: userEmail,
-        subject, subject,
+        subject: subject,
         html: html
     })
 }
-
 
 async function sendTemplateEmail({ to, templateId, params = {}, subject }) {
   const paramsText = Object.entries(params)

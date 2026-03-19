@@ -27,7 +27,6 @@ function login(req, res) {
       { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
     );
 
-    // Ritornare il token e le info utente con wrapper data
       const responseData = {
         message: "Connexion réussie",
         data: {
