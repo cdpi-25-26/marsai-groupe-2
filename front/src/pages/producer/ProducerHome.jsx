@@ -186,13 +186,7 @@ export default function ProducerHome() {
   /* FIX PRINCIPAL: thumbnails = 3 slots nommés (backend attend thumbnail1/2/3) */
   const [thumbFiles, setThumbFiles] = useState([null, null, null]);
   const [thumbNames, setThumbNames] = useState(["", "", ""]);
-  // FIX (Rules of Hooks): useRef ne peut pas être appelé dans un tableau.
-  // Déclaration en trois refs séparées puis regroupées en array constant.
-  const thumbRef0 = useRef(null);
-  const thumbRef1 = useRef(null);
-  const thumbRef2 = useRef(null);
-  // thumbRefs est un array stable (référence fixe) — pas un hook lui-même.
-  const thumbRefs = [thumbRef0, thumbRef1, thumbRef2];
+  const thumbRefs = [useRef(null), useRef(null), useRef(null)];
 
   /* ── React Hook Form ── */
   const {
@@ -365,18 +359,6 @@ export default function ProducerHome() {
       });
   }, []);
 
-  // FIX (fuite mémoire): nettoyer l'intervalle de polling si le composant est démonté
-  // avant que le watcher ait fini de traiter la vidéo. Sans ce cleanup, setMovies()
-  // serait appelé sur un composant démonté → avertissement React + fuite mémoire.
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-        pollIntervalRef.current = null;
-      }
-    };
-  }, []);
-
   /* ── Helpers ── */
   function resetForm() {
     setFormStep(1);
@@ -508,37 +490,58 @@ export default function ProducerHome() {
 
           {/* ── En-tête ── */}
           <div className="mb-12">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-[#AD46FF]/50 mb-2 font-medium">
-              Festival MARS AI
-            </p>
-            <div className="flex items-end justify-between flex-wrap gap-6">
+            <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.35em] uppercase text-[#AD46FF]/60 font-medium mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/60 animate-pulse" />
+              Festival MARS AI · Édition 2026
+            </span>
+
+            <div className="flex items-center justify-between flex-wrap gap-6">
+              {/* Left — title + name */}
               <div>
-                <h1 className="text-4xl font-bold tracking-tight text-white">
-                  Espace Producteur
-                </h1>
-                <p className="text-white/55 mt-1 text-sm font-medium uppercase tracking-wide">
-                  {user.first_name} {user.last_name}
-                  <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-[#AD46FF]/15 text-[#AD46FF]/80 border border-[#AD46FF]/20 font-medium tracking-wide uppercase">
+                <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-none">
+                  Espace{" "}
+                  <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
                     Producteur
                   </span>
+                </h1>
+                <p className="text-white/45 mt-2 text-sm font-medium tracking-wide">
+                  {user.first_name} {user.last_name}
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-[10px] tracking-widest uppercase text-white/50 mb-0.5">
-                    Films soumis
-                  </p>
-                  <p className="text-2xl font-bold text-white leading-none">
-                    {movies.length}
-                  </p>
+
+              {/* Right — films count + bar + avatar (identical layout to JuryHome) */}
+              <div className="flex items-center gap-5">
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-black text-white tabular-nums leading-none">{movies.length}</span>
+                    <span className="text-white/25 text-base font-normal">/∞</span>
+                  </div>
+                  <div className="flex flex-col gap-1 items-end">
+                    <div className="w-32 h-1.5 bg-white/8 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] transition-all duration-700"
+                        style={{ width: movies.length > 0 ? "100%" : "0%" }}
+                      />
+                    </div>
+                    <span className="text-[9px] text-white/25 tracking-wider">
+                      {movies.length} film{movies.length !== 1 ? "s" : ""} soumis
+                    </span>
+                  </div>
                 </div>
+
                 <div className="w-px h-10 bg-white/10" />
-                <div className="w-10 h-10 rounded-2xl bg-[#AD46FF]/10 text-[#AD46FF]/70 border border-[#AD46FF]/50 flex items-center justify-center font-bold text-sm shadow-lg shadow-[#AD46FF]/20">
-                    {user.first_name?.[0]}{user.last_name?.[0]} {/* FIX: ordre prénom + nom */}
+
+                {/* Avatar with glow — identical to JuryHome */}
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#AD46FF] to-[#F6339A] blur-md opacity-40" />
+                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#AD46FF]/20 to-[#F6339A]/20 border border-[#AD46FF]/40 flex items-center justify-center font-black text-lg text-white shadow-lg">
+                    {user.first_name?.[0]}{user.last_name?.[0]}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="mt-8 h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+
+            <div className="mt-8 h-px bg-gradient-to-r from-[#AD46FF]/20 via-white/5 to-transparent" />
           </div>
 
           <div className="space-y-5">
@@ -575,13 +578,13 @@ export default function ProducerHome() {
                     { name: "first_name", label: "Prénom", type: "text" },
                     { name: "last_name", label: "Nom", type: "text" },
                     { name: "phone", label: "Téléphone", type: "text" },
-                    { name: "country", label: "Pays", type: "text" },
+                    { name: "nationality", label: "Nationalité", type: "text" },
                     {
                       name: "biography",
                       label: "Biographie",
                       type: "textarea",
                     },
-                    { name: "portfolio", label: "Site web", type: "text" },
+                    { name: "website", label: "Site web", type: "text" },
                   ].map(({ name, label, type }) => (
                     <div
                       key={name}
@@ -1269,8 +1272,7 @@ export default function ProducerHome() {
                             disabled={
                               createMovieMutation.isPending ||
                               !acceptTerms ||
-                              // FIX: vérifier le ref directement (source de vérité) au lieu du state filmFileName
-                              !filmFileRef.current?.files?.[0]
+                              !filmFileName
                             }
                             className="px-5 py-2 bg-gradient-to-r from-[#AD46FF]/80 to-[#F6339A]/80 hover:from-[#AD46FF] hover:to-[#F6339A] text-white rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                           >
@@ -1435,224 +1437,139 @@ export default function ProducerHome() {
         (() => {
           const badge = getStatusBadge(selectedMovie.selection_status);
           return (
-            <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 backdrop-blur-sm">
-              <div className="bg-[#0e1017] border border-white/8 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/60">
+            <div
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-md"
+              onClick={() => { setSelectedMovieId(null); setEditingMovieId(null); }}
+            >
+              <div
+                className="bg-[#0d0f14] border border-white/8 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-5 border-b border-white/6">
-                  <h3 className="text-base font-bold text-white">
-                    {selectedMovie.title}
-                  </h3>
+                <div className="flex items-center justify-between px-8 py-5 border-b border-white/6 flex-shrink-0">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <h3 className="text-lg font-black text-white tracking-tight truncate">
+                      {selectedMovie.title}
+                    </h3>
+                    <span className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${badge.color}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                      {badge.label}
+                    </span>
+                  </div>
                   <button
-                    onClick={() => {
-                      setSelectedMovieId(null);
-                      setEditingMovieId(null);
-                    }}
-                    className="text-white/55 hover:text-white transition-colors text-lg leading-none"
+                    onClick={() => { setSelectedMovieId(null); setEditingMovieId(null); }}
+                    className="flex-shrink-0 w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all duration-200 ml-4 text-sm"
                   >
                     ✕
                   </button>
                 </div>
 
                 {/* Body */}
-                <div className="p-8 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
-                  {/* ── Colonne gauche ── */}
-                  <div className="space-y-6">
-                    {/* Statut */}
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-sm text-white/40">Statut :</span>
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider border ${badge.color}`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}
-                        />
-                        {badge.label}
-                      </span>
-                    </div>
+                <div className="p-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10">
 
-                    {/* Champs techniques */}
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+                  {/* Left column */}
+                  <div className="flex flex-col gap-6">
+
+                    {/* Technical fields as cards */}
+                    <div className="grid grid-cols-2 gap-3">
                       {[
-                        [
-                          "Durée",
-                          selectedMovie.duration
-                            ? `${selectedMovie.duration}s`
-                            : "—",
-                        ],
-                        ["Langue", selectedMovie.main_language || "—"],
-                        ["Nationalité", selectedMovie.nationality || "—"],
-                        ["Outil IA", selectedMovie.ai_tool || "—"],
-                      ].map(([label, value]) => (
-                        <div key={label}>
-                          <p className="text-[10px] tracking-widest uppercase text-white/55 mb-1 font-medium">
-                            {label}
-                          </p>
-                          <p className="text-sm text-white/80">{value}</p>
+                        { label: "Durée",       value: selectedMovie.duration ? `${selectedMovie.duration}s` : "—" },
+                        { label: "Langue",       value: selectedMovie.main_language || "—" },
+                        { label: "Nationalité",  value: selectedMovie.nationality || "—"   },
+                        { label: "Outil IA",     value: selectedMovie.ai_tool || "—"       },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex flex-col gap-1.5 bg-white/[0.03] border border-white/6 rounded-2xl px-5 py-4">
+                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">{label}</p>
+                          <p className="text-sm font-semibold text-white/80">{value}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Synopsis */}
                     {(selectedMovie.synopsis || selectedMovie.description) && (
-                      <div>
-                        <p className="text-[10px] tracking-widest uppercase text-white/55 mb-2 font-medium">
-                          Synopsis
-                        </p>
-                        <p className="text-sm text-white/60 leading-relaxed">
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-3">
+                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">Synopsis</p>
+                          <div className="flex-1 h-px bg-white/6" />
+                        </div>
+                        <p className="text-sm text-white/55 leading-relaxed">
                           {selectedMovie.synopsis || selectedMovie.description}
                         </p>
                       </div>
                     )}
 
-                    {/* Liens */}
-                    <div className="flex flex-wrap gap-4">
-                      {selectedMovie.subtitle?.endsWith?.(".srt") && (
-                        <a
-                          href={`${UPLOAD_BASE}/${selectedMovie.subtitle}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          download
-                          className="inline-flex items-center gap-1.5 text-sm text-[#AD46FF] hover:text-[#F6339A] transition-colors font-medium"
-                        >
-                          ↓ Sous-titres
-                        </a>
-                      )}
-                    </div>
+                    {/* Subtitle download */}
+                    {selectedMovie.subtitle?.endsWith?.(".srt") && (
+                      <a href={`${UPLOAD_BASE}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer" download
+                        className="inline-flex items-center gap-2 text-sm text-[#AD46FF] hover:text-[#F6339A] transition-colors font-medium w-fit">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Télécharger les sous-titres
+                      </a>
+                    )}
 
                     {/* Collaborateurs */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-[10px] tracking-widest uppercase text-white/55 font-medium">
-                          Collaborateurs
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => startEditCollaborators(selectedMovie)}
-                          className="text-sm text-[#AD46FF] hover:text-[#F6339A] transition-colors font-medium"
-                        >
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">Collaborateurs</p>
+                          <div className="h-px bg-white/6 w-16" />
+                        </div>
+                        <button type="button" onClick={() => startEditCollaborators(selectedMovie)}
+                          className="text-[11px] text-[#AD46FF]/70 hover:text-[#AD46FF] transition-colors font-semibold px-2 py-1 rounded-lg hover:bg-[#AD46FF]/10">
                           Modifier
                         </button>
                       </div>
+
                       {selectedMovie.Collaborators?.length ? (
-                        <ul className="space-y-1.5">
+                        <ul className="flex flex-col gap-2">
                           {selectedMovie.Collaborators.map((c) => (
-                            <li
-                              key={c.id_collaborator}
-                              className="flex items-center gap-2 text-sm text-white/60"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/50 flex-shrink-0" />
-                              {c.first_name} {c.last_name}
-                              {c.job && (
-                                <span className="text-white/55">— {c.job}</span>
-                              )}
+                            <li key={c.id_collaborator} className="flex items-center gap-3 bg-white/[0.03] border border-white/6 rounded-xl px-4 py-2.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/60 flex-shrink-0" />
+                              <span className="text-sm text-white/70 font-medium">{c.first_name} {c.last_name}</span>
+                              {c.job && <span className="text-white/30 text-sm">— {c.job}</span>}
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm text-white/50">
-                          Aucun collaborateur.
-                        </p>
+                        <p className="text-sm text-white/25 italic">Aucun collaborateur renseigné.</p>
                       )}
 
                       {editingMovieId === selectedMovie.id_movie && (
-                        <div className="mt-4 space-y-2 border-t border-white/6 pt-4">
-                          {(collabDrafts[selectedMovie.id_movie] || []).map(
-                            (c, idx) => (
-                              <div
-                                key={idx}
-                                className="grid grid-cols-2 gap-2 bg-white/3 border border-white/6 p-3 rounded-xl"
-                              >
-                                {[
-                                  "first_name",
-                                  "last_name",
-                                  "email",
-                                  "job",
-                                ].map((field) => (
-                                  <input
-                                    key={field}
-                                    type={field === "email" ? "email" : "text"}
-                                    placeholder={
-                                      {
-                                        first_name: "Prénom",
-                                        last_name: "Nom",
-                                        email: "E-mail",
-                                        job: "Rôle",
-                                      }[field]
-                                    }
-                                    value={c[field]}
-                                    onChange={(e) =>
-                                      updateDraftField(
-                                        selectedMovie.id_movie,
-                                        idx,
-                                        field,
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="w-full bg-white/3 border border-white/8 text-white px-3 py-2 rounded-lg text-xs outline-none hover:border-[#AD46FF]/25 focus:border-[#AD46FF]/40 placeholder:text-white/15 transition-all duration-200"
-                                  />
-                                ))}
-                                <div className="col-span-2 flex justify-end">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setCollabDrafts((p) => {
-                                        const list = [
-                                          ...(p[selectedMovie.id_movie] || []),
-                                        ];
-                                        list.splice(idx, 1);
-                                        return {
-                                          ...p,
-                                          [selectedMovie.id_movie]: list,
-                                        };
-                                      })
-                                    }
-                                    className="text-red-400/60 hover:text-red-400 text-xs transition-colors"
-                                  >
-                                    ✕ Supprimer
-                                  </button>
-                                </div>
+                        <div className="mt-2 space-y-2 border-t border-white/6 pt-4">
+                          {(collabDrafts[selectedMovie.id_movie] || []).map((c, idx) => (
+                            <div key={idx} className="grid grid-cols-2 gap-2 bg-white/[0.03] border border-white/6 p-3 rounded-xl">
+                              {["first_name", "last_name", "email", "job"].map((field) => (
+                                <input key={field} type={field === "email" ? "email" : "text"}
+                                  placeholder={{ first_name: "Prénom", last_name: "Nom", email: "E-mail", job: "Rôle" }[field]}
+                                  value={c[field]}
+                                  onChange={(e) => updateDraftField(selectedMovie.id_movie, idx, field, e.target.value)}
+                                  className="w-full bg-white/[0.03] border border-white/8 text-white px-3 py-2 rounded-lg text-xs outline-none hover:border-[#AD46FF]/25 focus:border-[#AD46FF]/40 placeholder:text-white/15 transition-all duration-200"
+                                />
+                              ))}
+                              <div className="col-span-2 flex justify-end">
+                                <button type="button"
+                                  onClick={() => setCollabDrafts((p) => { const list = [...(p[selectedMovie.id_movie] || [])]; list.splice(idx, 1); return { ...p, [selectedMovie.id_movie]: list }; })}
+                                  className="text-red-400/60 hover:text-red-400 text-xs transition-colors">
+                                  ✕ Supprimer
+                                </button>
                               </div>
-                            ),
-                          )}
+                            </div>
+                          ))}
                           <div className="flex gap-2 pt-1">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setCollabDrafts((p) => ({
-                                  ...p,
-                                  [selectedMovie.id_movie]: [
-                                    ...(p[selectedMovie.id_movie] || []),
-                                    {
-                                      first_name: "",
-                                      last_name: "",
-                                      email: "",
-                                      job: "",
-                                    },
-                                  ],
-                                }))
-                              }
-                              className="px-3 py-1.5 text-xs bg-white/4 border border-white/8 text-white/50 rounded-lg hover:bg-white/6 hover:text-white/70 transition-all duration-200"
-                            >
+                            <button type="button"
+                              onClick={() => setCollabDrafts((p) => ({ ...p, [selectedMovie.id_movie]: [...(p[selectedMovie.id_movie] || []), { first_name: "", last_name: "", email: "", job: "" }] }))}
+                              className="px-3 py-1.5 text-xs bg-white/[0.04] border border-white/8 text-white/50 rounded-lg hover:bg-white/[0.06] hover:text-white/70 transition-all duration-200">
                               + Ajouter
                             </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                updateCollabMutation.mutate({
-                                  id: selectedMovie.id_movie,
-                                  collaborators:
-                                    collabDrafts[selectedMovie.id_movie] || [],
-                                })
-                              }
-                              className="px-3 py-1.5 text-xs bg-[#AD46FF]/10 text-[#AD46FF]/80 border border-[#AD46FF]/20 rounded-lg hover:bg-[#AD46FF]/15 hover:text-[#AD46FF] transition-all duration-200 font-medium"
-                            >
+                            <button type="button"
+                              onClick={() => updateCollabMutation.mutate({ id: selectedMovie.id_movie, collaborators: collabDrafts[selectedMovie.id_movie] || [] })}
+                              className="px-3 py-1.5 text-xs bg-[#AD46FF]/10 text-[#AD46FF]/80 border border-[#AD46FF]/20 rounded-lg hover:bg-[#AD46FF]/15 hover:text-[#AD46FF] transition-all duration-200 font-medium">
                               Enregistrer
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setEditingMovieId(null)}
-                              className="px-3 py-1.5 text-xs border border-white/8 text-white/55 rounded-lg hover:bg-white/4 transition-all duration-200"
-                            >
+                            <button type="button" onClick={() => setEditingMovieId(null)}
+                              className="px-3 py-1.5 text-xs border border-white/8 text-white/55 rounded-lg hover:bg-white/[0.04] transition-all duration-200">
                               Annuler
                             </button>
                           </div>
@@ -1661,27 +1578,30 @@ export default function ProducerHome() {
                     </div>
                   </div>
 
-                  {/* ── Colonne droite : vidéo ── */}
-                  <div>
-                    {isPending(selectedMovie) ? (
-                      <PendingVideoPlaceholder accepted={false} />
-                    ) : getTrailer(selectedMovie) ? (
-                      <VideoPreview
-                        title={selectedMovie.title}
-                        label="MarsAI Festival"
-                        src={`${UPLOAD_BASE}/${getTrailer(selectedMovie)}`}
-                        poster={getPoster(selectedMovie) || undefined}
-                      />
-                    ) : (
-                      <div className="w-full aspect-video rounded-xl border border-white/6 bg-white/3 flex items-center justify-center text-white/15 text-xs">
-                        Pas de média
-                      </div>
-                    )}
+                  {/* Right column: video + thumbnails */}
+                  <div className="flex flex-col gap-3">
+                    <div className="rounded-2xl overflow-hidden border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+                      {isPending(selectedMovie) ? (
+                        <PendingVideoPlaceholder accepted={false} />
+                      ) : getTrailer(selectedMovie) ? (
+                        <VideoPreview
+                          title={selectedMovie.title}
+                          label="MarsAI Festival"
+                          src={`${UPLOAD_BASE}/${getTrailer(selectedMovie)}`}
+                          poster={getPoster(selectedMovie) || undefined}
+                        />
+                      ) : (
+                        <div className="w-full aspect-video bg-white/[0.03] flex flex-col items-center justify-center gap-2 text-white/15">
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                            <path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                          </svg>
+                          <p className="text-xs">Aucun média disponible</p>
+                        </div>
+                      )}
+                    </div>
 
-                    {/* ── Vignettes ── */}
                     {(() => {
                       const imgs = [
-                        selectedMovie.thumbnail,  // FIX: décommenté — champ prioritaire de getPoster()
                         selectedMovie.display_picture,
                         selectedMovie.picture1,
                         selectedMovie.picture2,
@@ -1689,22 +1609,16 @@ export default function ProducerHome() {
                       ].filter(Boolean);
                       if (!imgs.length) return null;
                       return (
-                        <div className="mt-3 grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                           {imgs.map((img, i) => (
-                            <button
-                              key={i}
-                              type="button"
+                            <button key={i} type="button"
                               onClick={() => setLightboxImg(`${UPLOAD_BASE}/${img}`)}
-                              className="group relative aspect-video rounded-lg overflow-hidden border border-white/8 hover:border-[#AD46FF]/50 transition-all duration-200"
-                            >
-                              <img
-                                src={`${UPLOAD_BASE}/${img}`}
-                                alt={`Vignette ${i + 1}`}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center">
-                                <svg className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                              className="group relative aspect-video rounded-xl overflow-hidden border border-white/8 hover:border-[#AD46FF]/40 transition-all duration-200 hover:shadow-[0_0_16px_rgba(173,70,255,0.2)]">
+                              <img src={`${UPLOAD_BASE}/${img}`} alt={`Vignette ${i + 1}`}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                               </div>
                             </button>

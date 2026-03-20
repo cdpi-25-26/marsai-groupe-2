@@ -1,11 +1,13 @@
 /**
  * JuryHome — Espace jury
  *
- * FIXES appliqués :
- *  - canReject : ne force plus le revisionnage si un vote existant est déjà enregistré
- *  - confirmedWatched reset : conservé uniquement si aucun vote n'existe pour le film
- *  - Dead code supprimé : FlatRow, MetaCard, MetaRow (jamais rendus)
- *  - Dead code supprimé : GRAIN_INSIDE = null dans MovieGrid
+ * Corrections ciblées sur le fichier original :
+ *  - Dossier "À voter" séparé en "1ère Votation" et "2ème Votation"
+ *  - "Votes enregistrés" : filtre corrigé (tous les films ayant un vote)
+ *  - Options de vote : emojis → SVG inline
+ *  - Après fin de vidéo : mini-modale rapide (3 boutons Accepter / Discuter / Rejeter)
+ *  - Badge "Mode second vote" → "2ème Votation"
+ *  - Libellé du bouton submit contextuel (1er vote / 2e vote)
  */
 
 import { useState } from "react";
@@ -43,7 +45,7 @@ function IconChat() {
   );
 }
 
-/* ─── Grain texture ───────────────────────────────────── */
+/* ─── Correspondance ENUM → libellé ──────────────────── */
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const VOTE_LABELS = {
@@ -160,12 +162,7 @@ export default function JuryHome() {
       commentaire: existingVote?.comments || "",
     });
     setHasWatched(false);
-    // FIX: ne reset confirmedWatched que si aucun vote n'existe encore pour ce film.
-    // Si un vote existe déjà, le juré a forcément déjà confirmé avoir regardé le film —
-    // l'obliger à re-cocher la case à chaque réouverture de modale est inutile et frustrant.
-    if (!existingVote) {
-      setConfirmedWatched(false);
-    }
+    setConfirmedWatched(false);
     setSelectedMovie(movie);
   }
 
@@ -189,15 +186,13 @@ export default function JuryHome() {
   const selectedVote     = selectedMovie ? getVote(selectedMovie) : null;
   const isSecondVoteOpen = selectedMovie?.selection_status === "to_discuss";
   const canEditVote      = selectedMovie ? !selectedVote || isSecondVoteOpen : false;
-  const watchedOk  = selectedMovie ? (getTrailer(selectedMovie) ? hasWatched : confirmedWatched) : false;
   const voteAllowed =
     selectedMovie
-      ? watchedOk && canEditVote
+      ? (getTrailer(selectedMovie) ? hasWatched : confirmedWatched) && canEditVote
       : false;
+  const watchedOk  = selectedMovie ? (getTrailer(selectedMovie) ? hasWatched : confirmedWatched) : false;
   const canPromote = isSecondVoteOpen && watchedOk;
-  // FIX: canReject ne force plus le revisionnage si un vote existe déjà.
-  // Un juré qui a déjà voté (phase 1 ou 2) peut rejeter sans re-visionner.
-  const canReject  = isSecondVoteOpen && (watchedOk || !!selectedVote);
+  const canReject  = isSecondVoteOpen && watchedOk;
 
   /* ── Statistiques de progression ── */
   const totalAssigned = assignedMovies.length;
@@ -232,7 +227,8 @@ export default function JuryHome() {
      RENDU
   ════════════════════════════════════════════════ */
   return (
-    <div className="min-h-screen bg-[#06080d] text-white pt-28 pb-24 px-4 md:pt-32">
+    <div className="min-h-screen text-white pt-28 pb-24 px-4 md:pt-32">
+      {/* <div className="min-h-screen bg-[#06080d] text-white pt-28 pb-24 px-4 md:pt-32"> */}
       <div className="max-w-6xl mx-auto">
 
         {/* ── Toast notifications ── */}
@@ -250,40 +246,57 @@ export default function JuryHome() {
 
         {/* ── En-tête ── */}
         <div className="mb-12">
-          <p className="text-[10px] tracking-[0.3em] uppercase text-[#AD46FF]/50 mb-2 font-medium">Festival MARS AI</p>
-          <div className="flex items-end justify-between flex-wrap gap-6">
+          <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.35em] uppercase text-[#AD46FF]/60 font-medium mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/60 animate-pulse" />
+            Festival MARS AI · Édition 2026
+          </span>
+
+          <div className="flex items-center justify-between flex-wrap gap-6">
+            {/* Left — title */}
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-white">Espace Jury</h1>
-              <p className="text-white/55 mt-1 text-sm font-medium uppercase tracking-wide">
+              <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-none">
+                Espace{" "}
+                <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
+                  Jury
+                </span>
+              </h1>
+              <p className="text-white/45 mt-2 text-sm font-medium tracking-wide">
                 {user.first_name} {user.last_name}
-                <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-[#AD46FF]/15 text-[#AD46FF]/80 border border-[#AD46FF]/20 font-medium tracking-wide uppercase">Jury</span>
               </p>
             </div>
 
-            {/* Progression compacte */}
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-[10px] tracking-widest uppercase text-white/25 mb-0.5">Progression</p>
-                <p className="text-2xl font-bold text-white leading-none">
-                  {totalVoted}<span className="text-white/20 text-base font-normal">/{totalAssigned}</span>
-                </p>
-              </div>
-              <div className="w-px h-10 bg-white/10" />
-              <div className="w-32">
-                <div className="flex justify-between text-[10px] text-white/25 mb-1.5">
-                  <span>films évalués</span>
-                  <span className="text-white/50 font-medium">{progressPct}%</span>
+            {/* Right — progress + avatar */}
+            <div className="flex items-center gap-5">
+              {/* Progress block */}
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-black text-white tabular-nums leading-none">{totalVoted}</span>
+                  <span className="text-white/25 text-base font-normal">/{totalAssigned}</span>
                 </div>
-                <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] transition-all duration-700"
-                    style={{ width: `${progressPct}%` }}
-                  />
+                <div className="flex flex-col gap-1 items-end">
+                  <div className="w-32 h-1.5 bg-white/8 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A] transition-all duration-700"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-white/25 tracking-wider">{progressPct}% évalués</span>
+                </div>
+              </div>
+
+              <div className="w-px h-10 bg-white/10" />
+
+              {/* Avatar */}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#AD46FF] to-[#F6339A] blur-md opacity-40" />
+                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#AD46FF]/20 to-[#F6339A]/20 border border-[#AD46FF]/40 flex items-center justify-center font-black text-lg text-white shadow-lg">
+                  {user.first_name?.[0]}{user.last_name?.[0]}
                 </div>
               </div>
             </div>
           </div>
-          <div className="mt-8 h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+
+          <div className="mt-8 h-px bg-gradient-to-r from-[#AD46FF]/20 via-white/5 to-transparent" />
         </div>
 
         {/* ── Dossiers (vue accueil) ── */}
@@ -330,28 +343,30 @@ export default function JuryHome() {
             <div className="mb-8 flex items-center justify-between">
               <button
                 onClick={() => setActiveFolder(null)}
-                className="flex items-center gap-2 text-white/40 hover:text-white/80 transition-all duration-200 text-sm group"
+                className="flex items-center gap-2 text-white/35 hover:text-white/80 transition-all duration-200 text-sm group"
               >
                 <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Retour
+                <span className="text-[11px] tracking-widest uppercase font-medium">Retour</span>
               </button>
-              <div className="text-center">
-                <h2 className="text-lg font-semibold text-white">
+
+              <div className="text-center flex flex-col items-center gap-1">
+                <h2 className="text-xl font-black tracking-tight text-white">
                   {activeFolder === "first"    && "1ère Votation"}
                   {activeFolder === "second"   && "2ème Votation"}
                   {activeFolder === "voted"    && "Votes enregistrés"}
                   {activeFolder === "approved" && "Films candidats"}
                 </h2>
-                <p className="text-[11px] text-white/25 mt-0.5">
+                <span className="text-[9px] tracking-[0.3em] uppercase text-white/25 font-medium">
                   {activeFolder === "first"    && `${firstVoteMovies.length} film${firstVoteMovies.length !== 1 ? "s" : ""}`}
                   {activeFolder === "second"   && `${secondVoteMovies.length} film${secondVoteMovies.length !== 1 ? "s" : ""}`}
                   {activeFolder === "voted"    && `${votedMovies.length} film${votedMovies.length !== 1 ? "s" : ""}`}
                   {activeFolder === "approved" && `${candidateMovies.length} film${candidateMovies.length !== 1 ? "s" : ""}`}
-                </p>
+                </span>
               </div>
-              <div className="w-16" />
+
+              <div className="w-20" />
             </div>
 
             {activeFolder === "first" && (
@@ -378,16 +393,22 @@ export default function JuryHome() {
           <div className="bg-[#0d0f14] border border-white/8 rounded-3xl w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl shadow-black/60 overflow-hidden">
 
             {/* ── Header ── */}
-            <div className="flex-shrink-0 flex items-center justify-between px-5 py-2.5 border-b border-white/6">
+            <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-white/6 bg-white/[0.02]">
               <div className="flex items-center gap-2.5 min-w-0">
-                <h3 className="text-sm font-semibold text-white truncate">{selectedMovie.title}</h3>
+                <h3 className="text-sm font-bold text-white truncate">{selectedMovie.title}</h3>
                 {isSecondVoteOpen ? (
-                  <span className="flex-shrink-0 text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/20 px-2.5 py-1 rounded-full font-medium">2ème Votation</span>
+                  <span className="flex-shrink-0 inline-flex items-center gap-1.5 text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/20 px-2.5 py-1 rounded-full font-semibold">
+                    <span className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
+                    2ème Votation
+                  </span>
                 ) : (
-                  <span className="flex-shrink-0 text-[10px] bg-sky-500/15 text-sky-300 border border-sky-500/20 px-2.5 py-1 rounded-full font-medium">1ère Votation</span>
+                  <span className="flex-shrink-0 inline-flex items-center gap-1.5 text-[10px] bg-sky-500/15 text-sky-300 border border-sky-500/20 px-2.5 py-1 rounded-full font-semibold">
+                    <span className="w-1 h-1 rounded-full bg-sky-400" />
+                    1ère Votation
+                  </span>
                 )}
                 {(selectedMovie.Awards || []).length > 0 && (
-                  <span className="flex-shrink-0 text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/25 px-2.5 py-1 rounded-full font-medium">🏆 {(selectedMovie.Awards || []).length}</span>
+                  <span className="flex-shrink-0 text-[10px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/25 px-2.5 py-1 rounded-full font-semibold">🏆 {(selectedMovie.Awards || []).length}</span>
                 )}
                 {modalNotice && (
                   <span className="flex-shrink-0 flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full text-[10px]">
@@ -585,23 +606,34 @@ export default function JuryHome() {
                     )}
 
                     <form onSubmit={handleVoteSubmit} className="space-y-3">
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         {[
                           { value: "YES",        icon: <IconThumbUp />,   label: "Valider",    color: "emerald" },
                           { value: "TO DISCUSS", icon: <IconChat />,      label: "À discuter", color: "amber"   },
                           { value: "NO",         icon: <IconThumbDown />, label: "Rejeter",    color: "red"     },
                         ].map((opt) => {
                           const sel = voteForm.note === opt.value;
-                          const cls = {
-                            emerald: sel ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "bg-white/3 border-white/8 text-white/40 hover:border-white/15 hover:text-white/70",
-                            amber:   sel ? "bg-amber-500/15 border-amber-500/30 text-amber-300"       : "bg-white/3 border-white/8 text-white/40 hover:border-white/15 hover:text-white/70",
-                            red:     sel ? "bg-red-500/15 border-red-500/30 text-red-300"             : "bg-white/3 border-white/8 text-white/40 hover:border-white/15 hover:text-white/70",
-                          }[opt.color];
+                          const cfgs = {
+                            emerald: {
+                              sel: "bg-emerald-500/20 border-emerald-500/40 text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.15)]",
+                              idle: "bg-white/[0.03] border-white/8 text-white/40 hover:border-white/15 hover:text-white/70 hover:bg-white/[0.05]",
+                            },
+                            amber: {
+                              sel: "bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-[0_0_16px_rgba(245,158,11,0.15)]",
+                              idle: "bg-white/[0.03] border-white/8 text-white/40 hover:border-white/15 hover:text-white/70 hover:bg-white/[0.05]",
+                            },
+                            red: {
+                              sel: "bg-red-500/20 border-red-500/40 text-red-300 shadow-[0_0_16px_rgba(239,68,68,0.15)]",
+                              idle: "bg-white/[0.03] border-white/8 text-white/40 hover:border-white/15 hover:text-white/70 hover:bg-white/[0.05]",
+                            },
+                          };
+                          const cls = sel ? cfgs[opt.color].sel : cfgs[opt.color].idle;
                           return (
-                            <label key={opt.value} className={`flex items-center gap-3 border rounded-xl px-3 py-2 transition-all duration-200 ${!voteAllowed ? "opacity-35 cursor-not-allowed" : "cursor-pointer"} ${cls}`}>
+                            <label key={opt.value} className={`flex items-center gap-3 border rounded-xl px-3 py-2.5 transition-all duration-200 ${!voteAllowed ? "opacity-35 cursor-not-allowed" : "cursor-pointer"} ${cls}`}>
                               <input type="radio" name="note" value={opt.value} checked={sel} onChange={handleVoteChange} required disabled={!voteAllowed} className="sr-only" />
                               <span className="flex-shrink-0">{opt.icon}</span>
-                              <span className="text-xs font-medium">{opt.label}</span>
+                              <span className="text-xs font-semibold tracking-wide">{opt.label}</span>
+                              {sel && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-current opacity-80" />}
                             </label>
                           );
                         })}
@@ -613,8 +645,13 @@ export default function JuryHome() {
                       />
 
                       <button type="submit" disabled={!voteAllowed || voteMutation.isPending}
-                        className="w-full py-2 rounded-xl text-xs font-semibold transition-all duration-200 bg-gradient-to-r from-[#AD46FF]/80 to-[#F6339A]/80 hover:from-[#AD46FF] hover:to-[#F6339A] text-white disabled:opacity-30 disabled:cursor-not-allowed">
-                        {voteMutation.isPending ? "Enregistrement…" : "Enregistrer le 1er vote"}
+                        className="w-full py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 bg-gradient-to-r from-[#AD46FF] to-[#F6339A] text-white disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-[0_0_20px_rgba(173,70,255,0.35)] hover:scale-[1.01] active:scale-[0.99]">
+                        {voteMutation.isPending ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                            Enregistrement…
+                          </span>
+                        ) : "Enregistrer le 1er vote"}
                       </button>
                     </form>
                   </div>
@@ -675,10 +712,10 @@ export default function JuryHome() {
 /* ─── Sous-composants ─────────────────────────────────── */
 
 const ACCENT_CLASSES = {
-  sky:    { border: "border-sky-500/20",    hover: "hover:border-sky-400/40",    num: "text-sky-300",    dot: "bg-sky-400"    },
-  amber:  { border: "border-amber-500/20",  hover: "hover:border-amber-400/40",  num: "text-amber-300",  dot: "bg-amber-400"  },
-  violet: { border: "border-violet-500/20", hover: "hover:border-violet-400/40", num: "text-violet-300", dot: "bg-violet-400" },
-  pink:   { border: "border-pink-500/20",   hover: "hover:border-pink-400/40",   num: "text-pink-300",   dot: "bg-pink-400"   },
+  sky:    { border: "border-sky-500/20",    hover: "hover:border-sky-400/50 hover:shadow-[0_0_40px_rgba(14,165,233,0.12)]",    num: "text-sky-300",    bar: "bg-sky-400",    dot: "bg-sky-400",    bg: "bg-sky-500/10"    },
+  amber:  { border: "border-amber-500/20",  hover: "hover:border-amber-400/50 hover:shadow-[0_0_40px_rgba(245,158,11,0.12)]",  num: "text-amber-300",  bar: "bg-amber-400",  dot: "bg-amber-400",  bg: "bg-amber-500/10"  },
+  violet: { border: "border-violet-500/20", hover: "hover:border-violet-400/50 hover:shadow-[0_0_40px_rgba(139,92,246,0.12)]", num: "text-violet-300", bar: "bg-violet-400", dot: "bg-violet-400", bg: "bg-violet-500/10" },
+  pink:   { border: "border-pink-500/20",   hover: "hover:border-pink-400/50 hover:shadow-[0_0_40px_rgba(236,72,153,0.12)]",   num: "text-pink-300",   bar: "bg-pink-400",   dot: "bg-pink-400",   bg: "bg-pink-500/10"   },
 };
 
 function FolderCard({ icon, label, sublabel, count, accentColor, onClick, highlight }) {
@@ -686,18 +723,28 @@ function FolderCard({ icon, label, sublabel, count, accentColor, onClick, highli
   return (
     <button
       onClick={onClick}
-      className={`group relative bg-white/3 border ${ac.border} ${ac.hover} rounded-2xl p-6 text-left transition-all duration-300 hover:bg-white/5 ${
-        highlight ? "ring-1 ring-amber-500/20" : ""
+      className={`group relative bg-white/[0.03] border ${ac.border} ${ac.hover} rounded-2xl p-6 text-left transition-all duration-300 hover:bg-white/[0.05] hover:-translate-y-0.5 ${
+        highlight ? "ring-1 ring-amber-500/25" : ""
       }`}
     >
+      {/* Highlight pulse dot */}
       {highlight && (
         <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
       )}
-      <div className="mb-4 text-white/50 group-hover:text-white/80 transition-colors duration-300">
-        {icon}
+
+      {/* Icon in rounded square */}
+      <div className={`w-11 h-11 rounded-xl ${ac.bg} border ${ac.border} flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-105`}>
+        <div className={`${ac.num}`}>{icon}</div>
       </div>
-      <div className={`text-3xl font-bold tabular-nums mb-1 ${ac.num}`}>{count}</div>
-      <p className="text-sm font-medium text-white/70 group-hover:text-white/90 transition-colors">{label}</p>
+
+      {/* Count */}
+      <div className={`text-4xl font-black tabular-nums leading-none mb-2 ${ac.num}`}>{count}</div>
+
+      {/* Animated underbar */}
+      <div className={`h-0.5 w-6 rounded-full ${ac.bar} mb-3 transition-all duration-500 group-hover:w-full`} />
+
+      {/* Labels */}
+      <p className="text-sm font-semibold text-white/70 group-hover:text-white/90 transition-colors">{label}</p>
       <p className="text-[11px] text-white/25 mt-0.5">{sublabel}</p>
     </button>
   );
@@ -706,12 +753,18 @@ function FolderCard({ icon, label, sublabel, count, accentColor, onClick, highli
 function MovieGrid({ movies, votesByMovie, emptyText, onSelect, showVoteBadge, showCandidateBadge, showSecondVoteBadge }) {
   if (movies.length === 0) {
     return (
-      <div className="flex items-center justify-center py-20 text-white/20 text-sm">
-        {emptyText}
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/8 flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="text-white/20">
+            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+          </svg>
+        </div>
+        <p className="text-white/20 text-sm text-center max-w-xs leading-relaxed">{emptyText}</p>
       </div>
     );
   }
 
+  const GRAIN_INSIDE = null; // moved to module level
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
       {movies.map((movie) => {
@@ -825,6 +878,15 @@ function VotePill({ note, tiny }) {
   );
 }
 
+function FlatRow({ label, value }) {
+  return (
+    <div className="flex gap-1.5">
+      <span className="text-[10px] text-white/20 shrink-0 w-14">{label}</span>
+      <span className="text-[10px] text-white/50 truncate">{value}</span>
+    </div>
+  );
+}
+
 function ModalBlock({ title, children }) {
   return (
     <div className="bg-white/3 border border-white/6 rounded-xl p-2">
@@ -838,6 +900,24 @@ function ModalRow({ label, value }) {
   return (
     <div className="flex gap-1.5 mb-0.5 last:mb-0">
       <span className="text-white/20 text-[11px] shrink-0">{label} :</span>
+      <span className="text-white/50 text-[11px] truncate">{value}</span>
+    </div>
+  );
+}
+
+function MetaCard({ title, children }) {
+  return (
+    <div className="bg-white/3 border border-white/6 rounded-2xl p-4">
+      <p className="text-[10px] tracking-widest uppercase text-white/20 font-medium mb-3">{title}</p>
+      {children}
+    </div>
+  );
+}
+
+function MetaRow({ label, value }) {
+  return (
+    <div className="flex gap-1.5 mb-1.5 last:mb-0">
+      <span className="text-white/25 text-xs shrink-0 w-24">{label}</span>
       <span className="text-white/50 text-[11px] truncate">{value}</span>
     </div>
   );

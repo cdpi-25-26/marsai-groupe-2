@@ -11,7 +11,11 @@ export default function Selection() {
   const [phase,   setPhase]   = useState(null);
   const [loading, setLoading] = useState(true);
   const [active,  setActive]  = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const videoRef = useRef(null);
+  const gridRef  = useRef(null);
+
+  const MOVIES_PER_PAGE = 10;
 
   /* ── Logic inchangée ── */
   useEffect(() => {
@@ -46,7 +50,7 @@ export default function Selection() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#06080d] flex items-center justify-center">
+      <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-white/10 border-t-[#AD46FF] rounded-full animate-spin" />
           <p className="text-white/25 text-xs tracking-widest uppercase">Chargement</p>
@@ -58,7 +62,7 @@ export default function Selection() {
   /* ── Phase 0 — before festival ── */
   if (phase === 0 || phase === null || movies.length === 0) {
     return (
-      <div className="min-h-screen bg-[#06080d] text-white flex items-center justify-center px-6">
+      <div className="flex items-center justify-center py-32 px-6">
         <div className="text-center flex flex-col items-center gap-5">
           {/* Same hero style, no movies yet */}
           <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.35em] uppercase text-[#AD46FF]/60 font-medium">
@@ -92,11 +96,23 @@ export default function Selection() {
   const activeTrailer = active ? getTrailer(active) : null;
   const activePoster  = active ? getPoster(active)  : null;
 
+  /* ── Pagination ── */
+  const totalPages     = Math.ceil(movies.length / MOVIES_PER_PAGE);
+  const paginatedMovies = movies.slice(
+    (currentPage - 1) * MOVIES_PER_PAGE,
+    currentPage * MOVIES_PER_PAGE,
+  );
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <div className="min-h-screen bg-[#06080d] text-white overflow-x-hidden">
+    <div className="text-white overflow-x-hidden">
 
       {/* ── HERO ────────────────────────────── */}
-      <section className="relative flex flex-col items-center justify-center pt-30 pb-18 px-6 text-center overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center pt-40 pb-28 px-6 text-center overflow-hidden">
 
         {/* Giant ghost text */}
         <span className="absolute inset-0 flex items-center justify-center text-[18vw] font-black tracking-tighter text-white/[0.025] select-none pointer-events-none uppercase leading-none">
@@ -140,9 +156,9 @@ export default function Selection() {
       </section>
 
       {/* ── POSTER GRID ─────────────────────── */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-32">
+      <div ref={gridRef} className="max-w-6xl mx-auto px-4 sm:px-6 pb-32">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-          {movies.map((movie) => {
+          {paginatedMovies.map((movie) => {
             const trailer  = getTrailer(movie);
             const poster   = getPoster(movie);
             const hasVideo = !!(trailer || movie.youtube_link);
@@ -225,6 +241,70 @@ export default function Selection() {
             );
           })}
         </div>
+
+        {/* ── Pagination ── */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex flex-col items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/8 w-16" />
+              <span className="text-[9px] tracking-[0.3em] uppercase text-white/20 font-medium">
+                {movies.length} films · page {currentPage}/{totalPages}
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/8 w-16" />
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              {/* First */}
+              <button
+                onClick={() => goToPage(1)}
+                disabled={currentPage === 1}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg border text-xs transition-all duration-200 ${currentPage === 1 ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+              </button>
+              {/* Prev */}
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg border text-xs transition-all duration-200 ${currentPage === 1 ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+              </button>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg border text-xs font-medium transition-all duration-200 ${
+                    currentPage === page
+                      ? "border-[#AD46FF]/50 bg-gradient-to-b from-[#AD46FF]/20 to-[#AD46FF]/10 text-[#C179FB] shadow-[0_0_12px_rgba(173,70,255,0.2)]"
+                      : "border-white/8 text-white/35 hover:border-[#AD46FF]/30 hover:text-[#AD46FF]/70 hover:bg-[#AD46FF]/5"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              {/* Next */}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg border text-xs transition-all duration-200 ${currentPage === totalPages ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+              </button>
+              {/* Last */}
+              <button
+                onClick={() => goToPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg border text-xs transition-all duration-200 ${currentPage === totalPages ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── LIGHTBOX ────────────────────────── */}
