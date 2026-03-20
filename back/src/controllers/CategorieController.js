@@ -12,7 +12,7 @@ async function getCategories(req, res) {
 }
 
 
- //-2️- Voir une catégorie par ID (public)
+//-2️- Voir une catégorie par ID (public)
 
 async function getCategorieById(req, res) {
   try {

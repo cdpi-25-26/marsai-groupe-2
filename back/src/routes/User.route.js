@@ -2,8 +2,6 @@ import express from "express";
 import UserController from "../controllers/UserController.js";
 import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
-
-
 const userRouter = express.Router();
 
 /**
@@ -18,7 +16,6 @@ const userRouter = express.Router();
  * Response: Données utilisateur (sans mot de passe)
  * Accessible par tous les rôles authentifiés (ADMIN, JURY, PRODUCER)
  */
-// Applica il middleware per autenticazione a tutti i ruoli per le route /me
 userRouter.get(
 	"/me",AuthMiddleware(["ADMIN", "JURY", "PRODUCER"]),
 	UserController.getCurrentUser
@@ -48,7 +45,6 @@ userRouter.post("/", UserController.createUser);
 
 // Applica il middleware solo per ADMIN alle route seguenti
 userRouter.use(AuthMiddleware(["ADMIN"]));
-
 
 /**
  * GET /users

@@ -1,5 +1,4 @@
 import express from "express";
-
 import userRouter from "./User.route.js";
 import movieRouter from "./Movie.route.js";
 import authRouter from "./Auth.route.js";
@@ -14,7 +13,6 @@ import youtubeRouter from "./Youtube.route.js";
 import sponsorRouter from "./Sponsor.route.js";
 import newsletterRouter from "./Newsletter.route.js";
 import festivalRouter from "./Festival.route.js";
-
 
 const router = express.Router();
 

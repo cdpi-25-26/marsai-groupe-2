@@ -4,7 +4,6 @@ import AuthMiddleware from "../middlewares/AuthMiddleware.js";
 
 const reservationRouter = express.Router();
 
-
 reservationRouter.use(AuthMiddleware(["ADMIN"]));
 
 reservationRouter.get("/", ReservationController.getReservations);

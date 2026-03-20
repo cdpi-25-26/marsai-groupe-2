@@ -9,7 +9,6 @@ categorieRouter.get("/", CategorieController.getCategories);
 
 categorieRouter.get("/:id", CategorieController.getCategorieById);
 
-
 // ADMIN uniquement
 categorieRouter.use(AuthMiddleware(["ADMIN"]));
 
@@ -21,3 +20,4 @@ categorieRouter.delete("/:id",CategorieController.deleteCategorie
 );
 
 export default categorieRouter;
+""
