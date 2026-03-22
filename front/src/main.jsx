@@ -33,6 +33,7 @@ import Results from "./pages/admin/Results.jsx";
 import FestivalConfig from "./pages/admin/FestivalConfig.jsx";
 import { FestivalConfigProvider } from "./hooks/useFestivalConfig.jsx";
 import AdminSponsors from "./pages/admin/AdminSponsors.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 /**
  * Fixed: removed staleTime: Infinity which prevented any data from ever refreshing.
  * Each query now controls its own staleTime as needed.
@@ -49,6 +50,7 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
+    <ScrollToTop />
       <QueryClientProvider client={queryClient}>
         <FestivalConfigProvider>
           <Routes>

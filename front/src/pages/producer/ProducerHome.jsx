@@ -1561,14 +1561,14 @@ export default function ProducerHome() {
           const badge = getStatusBadge(selectedMovie.selection_status);
           return (
             <div
-              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-md"
+              className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-md  "
               onClick={() => {
                 setSelectedMovieId(null);
                 setEditingMovieId(null);
               }}
             >
               <div
-                className="bg-[#0d0f14] border border-white/8 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
+                className="bg-[#0d0f14] border border-white/8 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_32px_80px_rgba(0,0,0,0.8)] scrollbar-thin-dark"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
