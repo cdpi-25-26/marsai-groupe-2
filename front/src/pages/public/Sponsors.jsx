@@ -116,7 +116,7 @@ export default function Partenaires() {
           </h1>
 
           <p className="max-w-lg text-white/40 text-sm sm:text-base leading-relaxed mt-1">
-            Ils soutiennent la création et l'innovation cinématographique par l'intelligence artificielle.
+           {t("pages.sponsors.subtitle") || "They support cinematic creation and innovation through artificial intelligence."}
           </p>
 
           <div className="flex items-center gap-3 mt-3">

@@ -176,16 +176,16 @@
     },
 
     "status": {
-  "submitted": "Soumis",
-  "assigned": "En cours d'évaluation",
-  "to_discuss": "En discussion",
-  "candidate": "Candidat",
-  "selected": "Sélectionné ✓",
-  "finalist": "Finaliste ⭐",
-  "refused": "Non retenu",
-  "awarded": "Primé 🏆",
-  "pending": "En attente"
-},
+      "submitted": "Soumis",
+      "assigned": "En cours d'évaluation",
+      "to_discuss": "En discussion",
+      "candidate": "Candidat",
+      "selected": "Sélectionné ✓",
+      "finalist": "Finaliste ⭐",
+      "refused": "Non retenu",
+      "awarded": "Primé 🏆",
+      "pending": "En attente"
+    },
 
     "filmSubmission": {
       "placeholders": {
@@ -319,32 +319,31 @@
       "email": "E-mail",
       "job": "Rôle"
     },
-    
-    "terms": {
-  "title": "Conditions Générales de Participation",
-  "understood": "J’accepte et je reconnais",
-  "section1Title": "1. Conditions d’éligibilité et de participation",
-  "section2Title": "2. Droits d’auteur et Propriété intellectuelle",
-  "section3Title": "3. Obligations de transparence concernant l’IA",
-  "section4Title": "4. Contact",
-  "section1": [
-    "Votre film doit constituer une œuvre originale réalisée à l’aide de technologies d’intelligence artificielle.",
-    "La durée maximale autorisée est de 2 minutes (120 secondes).",
-    "Vous devez détenir l’ensemble des droits, licences et autorisations nécessaires relatifs à votre œuvre.",
-    "Le festival se réserve le droit d’utiliser des extraits de votre film à des fins de communication et de promotion.",
-    "Les décisions rendues par le jury sont définitives, exécutoires et ne peuvent faire l’objet d’aucun recours."
-  ],
-  "section2": [
-    "Vous conservez l’intégralité de vos droits d’auteur et de propriété intellectuelle sur votre film. Le festival obtient uniquement une licence non exclusive et libre de redevances pour diffuser votre œuvre dans le cadre de l’événement et de ses actions promotionnelles."
-  ],
-  "section3": [
-    "Vous êtes tenu de divulguer de manière claire, complète et exacte l’ensemble des outils, modèles et méthodologies d’IA utilisés dans la création de votre film. Tout manquement à cette obligation de transparence pourra entraîner une disqualification."
-  ],
-  "section4": [
-    "Pour toute demande d’information : contact@marsaifestival.com"
-  ]
-}
 
+    "terms": {
+      "title": "Conditions Générales de Participation",
+      "understood": "J’accepte et je reconnais",
+      "section1Title": "1. Conditions d’éligibilité et de participation",
+      "section2Title": "2. Droits d’auteur et Propriété intellectuelle",
+      "section3Title": "3. Obligations de transparence concernant l’IA",
+      "section4Title": "4. Contact",
+      "section1": [
+        "Votre film doit constituer une œuvre originale réalisée à l’aide de technologies d’intelligence artificielle.",
+        "La durée maximale autorisée est de 2 minutes (120 secondes).",
+        "Vous devez détenir l’ensemble des droits, licences et autorisations nécessaires relatifs à votre œuvre.",
+        "Le festival se réserve le droit d’utiliser des extraits de votre film à des fins de communication et de promotion.",
+        "Les décisions rendues par le jury sont définitives, exécutoires et ne peuvent faire l’objet d’aucun recours."
+      ],
+      "section2": [
+        "Vous conservez l’intégralité de vos droits d’auteur et de propriété intellectuelle sur votre film. Le festival obtient uniquement une licence non exclusive et libre de redevances pour diffuser votre œuvre dans le cadre de l’événement et de ses actions promotionnelles."
+      ],
+      "section3": [
+        "Vous êtes tenu de divulguer de manière claire, complète et exacte l’ensemble des outils, modèles et méthodologies d’IA utilisés dans la création de votre film. Tout manquement à cette obligation de transparence pourra entraîner une disqualification."
+      ],
+      "section4": [
+        "Pour toute demande d’information : contact@marsaifestival.com"
+      ]
+    }
   },
   "producerHome": {
     "alertStep1": "Veuillez compléter tous les champs obligatoires de l'Étape 1 avant de continuer.",
@@ -637,6 +636,7 @@
     "sponsors": {
       "title": "PARTENAIRES",
       "titleAccent": "du Festival",
+      "subtitle": " Ils soutiennent la création et l'innovation cinématographique par l'intelligence artificielle.",
       "categories": {
         "officiels": "OFFICIELS",
         "medias": "Médias",
@@ -648,6 +648,7 @@
     "infos": {
       "title": "INFOS",
       "subtitle": "PRATIQUES",
+      "subtitle2": "Tout ce que vous devez savoir pour vivre pleinement l'expérience du festival.",
       "access": "Accès",
       "publicTransport": {
         "title": "Transports en commun",
@@ -665,9 +666,29 @@
         "line1": "155 rue Peyssonnel, 13002 Marseille",
         "line2": "Anciennement Docks des Suds"
       }
-    }
+    },
+
+    "selection": {
+    "badge": "Festival MARS AI · Édition 2026",
+    "title": "Sélection",
+    "titleAccent": "officielle",
+    "titlePhase3": "Palmarès",
+    "titleAccentPhase3": "officiel",
+    "subtitle": "Les films sélectionnés pour la délibération finale",
+    "subtitlePhase3": "Les films primés par le jury",
+    "heroBadge": "Sélection officielle",
+    "heroBadgePhase3": "Palmarès officiel",
+    "comingSoon": "La sélection officielle sera annoncée prochainement.",
+    "loading": "Chargement",
+    "filmCount_one": "{{count}} film",
+    "filmCount_other": "{{count}} films",
+    "page": "page",
+    "watchYoutube": "Regarder sur YouTube"
+  }
+
   },
 
+  
   "footer": {
     "description": "La plateforme mondiale de la narration générative, ancrée dans la lumière de Marseille.",
     "navigation": {

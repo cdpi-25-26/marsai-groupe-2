@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { UPLOAD_BASE } from "../../utils/constants";
 import { getPoster, getTrailer } from "../../utils/movieUtils";
+import { useTranslation } from "react-i18next";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 export default function Selection() {
+   const { t } = useTranslation();
   const [movies,  setMovies]  = useState([]);
   const [phase,   setPhase]   = useState(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ export default function Selection() {
       <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-white/10 border-t-[#AD46FF] rounded-full animate-spin" />
-          <p className="text-white/25 text-xs tracking-widest uppercase">Chargement</p>
+          <p className="text-white/25 text-xs tracking-widest uppercase">{t("pages.selection.loading")}</p>
         </div>
       </div>
     );
@@ -70,11 +72,11 @@ export default function Selection() {
             Festival MARS AI · Édition 2026
           </span>
           <h1 className="text-5xl sm:text-6xl font-black tracking-tight">
-            <span className="text-white">Sélection </span>
-            <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">officielle</span>
+            <span className="text-white">{t("pages.selection.title")} </span>
+            <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">{t("pages.selection.titleAccent")}</span>
           </h1>
           <p className="text-white/30 text-sm max-w-sm leading-relaxed">
-            La sélection officielle sera annoncée prochainement.
+            {t("pages.selection.comingSoon")}.
           </p>
           <div className="flex items-center gap-3 mt-2">
             <div className="h-px w-20 bg-gradient-to-r from-transparent to-[#AD46FF]/40" />
@@ -86,16 +88,14 @@ export default function Selection() {
     );
   }
 
-  const isPhase3      = phase === 3;
-  const heroTitle     = isPhase3 ? "Palmarès" : "Sélection";
-  const heroAccent    = isPhase3 ? "officiel" : "officielle";
-  const heroSubtitle  = isPhase3
-    ? "Les films primés par le jury"
-    : "Les films sélectionnés pour la délibération finale";
-  const heroBadge     = isPhase3 ? "Palmarès officiel" : "Sélection officielle";
+ const isPhase3     = phase === 3;
+  const heroTitle    = isPhase3 ? t("pages.selection.titlePhase3")       : t("pages.selection.title");
+  const heroAccent   = isPhase3 ? t("pages.selection.titleAccentPhase3") : t("pages.selection.titleAccent");
+  const heroSubtitle = isPhase3 ? t("pages.selection.subtitlePhase3")    : t("pages.selection.subtitle");
+  const heroBadge    = isPhase3 ? t("pages.selection.heroBadgePhase3")   : t("pages.selection.heroBadge");
+ 
   const activeTrailer = active ? getTrailer(active) : null;
   const activePoster  = active ? getPoster(active)  : null;
-
   /* ── Pagination ── */
   const totalPages     = Math.ceil(movies.length / MOVIES_PER_PAGE);
   const paginatedMovies = movies.slice(
@@ -247,8 +247,8 @@ export default function Selection() {
           <div className="mt-12 flex flex-col items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/8 w-16" />
-              <span className="text-[9px] tracking-[0.3em] uppercase text-white/20 font-medium">
-                {movies.length} films · page {currentPage}/{totalPages}
+               <span className="text-[9px] tracking-[0.3em] uppercase text-white/20 font-medium">
+                {t("pages.selection.filmCount", { count: movies.length })} · {t("pages.selection.page")} {currentPage}/{totalPages}
               </span>
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/8 w-16" />
             </div>
@@ -375,7 +375,7 @@ export default function Selection() {
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </div>
-                    <span className="text-white/60 text-xs">Regarder sur YouTube</span>
+                    <span className="text-white/60 text-xs">{t("selection.watchOnYouTube")}</span>
                   </a>
                 </div>
               ) : null}

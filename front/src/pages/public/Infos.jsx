@@ -92,7 +92,7 @@ export default function InfosPublic() {
           </h1>
 
           <p className="max-w-lg text-white/40 text-sm sm:text-base leading-relaxed mt-1">
-            Tout ce qu'il vous faut pour venir nous rejoindre.
+            {t("pages.infos.subtitle2") || "Everything you need to fully enjoy the festival experience."}
           </p>
 
           <div className="flex items-center gap-3 mt-3">
