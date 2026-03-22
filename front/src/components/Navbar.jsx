@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 
 /* ─── Nav links ───────────────────────────────────────── */
 const NAV_LINKS = [
-  { label: "Home",     to: "/"          },
-  { label: "Programme", to: "/program"  },
-  { label: "Jury",     to: "/juryPublic"},
-  { label: "Sponsors", to: "/sponsors" },
-  { label: "Infos",    to: "/infos"     },
+  { labelKey: "navbar.links.home",     to: "/"          },
+  { labelKey: "navbar.links.program",  to: "/program"   },
+  { labelKey: "navbar.links.jury",     to: "/juryPublic"},
+  { labelKey: "navbar.links.sponsors", to: "/sponsors"  },
+  { labelKey: "navbar.links.infos",    to: "/infos"     },
 ];
 
 /* ─── Flag SVGs ───────────────────────────────────────── */
@@ -41,7 +41,8 @@ function FlagEN({ size = 18 }) {
    NAVBAR
 ════════════════════════════════════════════════════════ */
 export default function Navbar() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const [lang, setLang] = useState(i18n.language);
   const location = useLocation();
 
   const [scrolled,       setScrolled]       = useState(false);
@@ -97,9 +98,10 @@ export default function Navbar() {
   };
 
   const toggleLanguage = () => {
-    const next = i18n.language === "fr" ? "en" : "fr";
+    const next = lang === "fr" ? "en" : "fr";
     i18n.changeLanguage(next);
     localStorage.setItem("lang", next);
+    setLang(next);
   };
 
   const isActive = (to) =>
@@ -155,7 +157,7 @@ export default function Navbar() {
                 {active && (
                   <span className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/10" />
                 )}
-                <span className="relative">{link.label}</span>
+                <span className="relative">{t(link.labelKey)}</span>
                 {active && (
                   <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2" />
                   // <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A]" />
@@ -177,9 +179,9 @@ export default function Navbar() {
             aria-label={i18n.language === "fr" ? "Switch to English" : "Passer en français"}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full hover:bg-white/[0.08] transition-all duration-200 text-white/60 hover:text-white"
           >
-            {i18n.language === "fr" ? <FlagFR /> : <FlagEN />}
+            {lang === "fr" ? <FlagFR /> : <FlagEN />}
             <span className="text-[11px] font-semibold tracking-wider">
-              {i18n.language === "fr" ? "FR" : "EN"}
+              {lang === "fr" ? "FR" : "EN"}
             </span>
           </button>
 
@@ -270,8 +272,8 @@ export default function Navbar() {
             onClick={toggleLanguage}
             className="flex items-center gap-1 px-2 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-white/60 hover:text-white transition-all duration-200"
           >
-            {i18n.language === "fr" ? <FlagFR size={16} /> : <FlagEN size={16} />}
-            <span className="text-[10px] font-bold">{i18n.language === "fr" ? "FR" : "EN"}</span>
+            {lang === "fr" ? <FlagFR size={16} /> : <FlagEN size={16} />}
+            <span className="text-[10px] font-bold">{lang === "fr" ? "FR" : "EN"}</span>
           </button>
 
           <button
@@ -325,9 +327,9 @@ export default function Navbar() {
                   `}
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
-                  <span className="text-3xl font-black uppercase tracking-tight">
-                    {link.label}
-                  </span>
+                 <span className="text-3xl font-black uppercase tracking-tight">
+  <span>{t(link.labelKey)}</span>
+</span>
                   {active && (
                     <span className="w-2 h-2 rounded-full bg-gradient-to-r from-[#AD46FF] to-[#F6339A]" />
                   )}

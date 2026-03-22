@@ -147,13 +147,47 @@
 
 
   "producer": {
+     "hero": {
+     "title": "Producer",
+      "titleAccent": "Workspace"
+    },
   "profile": {
     "title": "My Profile",
     "editMode": "Edit Mode",
     "viewMode": "View Mode",
     "successUpdate": "Profile updated successfully",
-    "errorUpdate": "Error updating profile"
+    "errorUpdate": "Error updating profile",
+    "phone": "Phone",
+"country": "Country",
+"website": "Website",
+"biography": "Biography",
+"modify": "Edit",
+"save": "Save",
+"cancel": "Cancel",
+"noneValue": "—"
   },
+
+  "modal": {
+  "duration": "Duration",
+  "language": "Language",
+  "nationality": "Nationality",
+  "aiTool": "AI Tool",
+  "synopsis": "Synopsis",
+  "collaborators": "Collaborators"
+},
+
+"status": {
+  "submitted": "Submitted",
+  "assigned": "Under evaluation",
+  "to_discuss": "Under discussion",
+  "candidate": "Candidate",
+  "selected": "Selected ✓",
+  "finalist": "Finalist ⭐",
+  "refused": "Not selected",
+  "awarded": "Awarded 🏆",
+  "pending": "Pending"
+},
+
   "filmSubmission": {
     "placeholders": {
   "filmTitleOriginal": "Original title",
@@ -205,10 +239,127 @@
       "remove": "Remove",
       "chooseFile": "Choose file"
     }
-  }
+  },
+
+
+
+  "header": {
+  "badge": "MARS AI Festival · 2026 Edition",
+  "title": "Producer",
+  "titleAccent": "Space",
+  "filmsSubmitted": "submitted films",
+  "film": "film",
+  "films": "films"
+},
+"auth": {
+  "notAuthenticated": "You are not authenticated.",
+  "loadError": "Unable to load your data.",
+  "userNotFound": "User not found.",
+  "loading": "Loading your space…"
+},
+"movies": {
+  "title": "My films",
+  "submit": "Submit a film",
+  "submitFirst": "Submit your first film",
+  "submitHint": "Video format · max 120 seconds",
+  "noFileSelected": "No file selected",
+  "noFile": "No file",
+  "selectVideo": "Select a video",
+  "submitLabel": "Submit",
+  "submitting": "Uploading…",
+  "selectVideoFirst": "Please select a video file before submitting.",
+  "step1Invalid": "Please fill in the title, duration (≤ 120 s), and synopsis."
+},
+"form": {
+  "newFilm": "New film",
+  "step1": "Film details",
+  "step2": "AI & Files",
+  "originalTitle": "Original title *",
+  "duration": "Duration (s) *",
+  "durationHint": "max 120s",
+  "language": "Language",
+  "year": "Year",
+  "nationality": "Nationality",
+  "howKnown": "How did you hear about us?",
+  "selectOption": "Select an option",
+  "byFriend": "Through a friend",
+  "byAd": "Via an advertisement",
+  "bySite": "Via the website / AI app",
+  "category": "Category *",
+  "categorySelect": "Select a category",
+  "translation": "Translation",
+  "synopsisFr": "Original synopsis * (300 characters)",
+  "synopsisEn": "English synopsis (300 characters)",
+  "aiClassification": "AI classification *",
+  "aiIntegral": "100% generative AI",
+  "aiHybrid": "Hybrid (real + AI)",
+  "aiTools": "AI tools used",
+  "aiMethodology": "Creative methodology",
+  "files": "Files",
+  "videoFile": "Video file",
+  "videoRequired": "*",
+  "thumbnails": "Thumbnails (max 3)",
+  "subtitles": "Subtitles (.srt)",
+  "termsAccept": "I accept the",
+  "termsLink": "terms of participation",
+  "continue": "Continue →",
+  "back": "← Back",
+  "cancel": "Cancel",
+  "cancelRed": "Cancel",
+  "noMedia": "No media available",
+  "downloadSubtitles": "Download subtitles"
+},
+"collaborators": {
+  "title": "Collaborators",
+  "modify": "Edit",
+  "manage": "Manage collaborators (optional)",
+  "add": "+ Add",
+  "save": "Save",
+  "cancel": "Cancel",
+  "none": "No collaborators provided.",
+  "delete": "✕ Delete",
+  "firstName": "First name",
+  "lastName": "Last name",
+  "email": "Email",
+  "job": "Role"
+},
+"terms": {
+  "title": "Participation Terms and Conditions",
+  "understood": "I acknowledge and agree",
+  "section1Title": "1. Eligibility and Participation Requirements",
+  "section2Title": "2. Copyright and Intellectual Property",
+  "section3Title": "3. AI Transparency Obligations",
+  "section4Title": "4. Contact",
+  "section1": [
+    "Your film must constitute an original work created using artificial intelligence.",
+    "The maximum permitted duration is 2 minutes (120 seconds).",
+    "You must hold all rights, licenses, and authorizations necessary for the submission of your work.",
+    "The festival reserves the right to use excerpts of your film for promotional and communication purposes.",
+    "All decisions rendered by the jury are final, binding, and not subject to appeal."
+  ],
+  "section2": [
+    "You retain full copyright and intellectual property rights to your film. The festival is granted a non‑exclusive, royalty‑free license to exhibit and distribute your work solely within the context of the event and its promotional activities."
+  ],
+  "section3": [
+    "You are required to clearly and accurately disclose all AI tools, models, and methodologies used in the creation of your film. Failure to provide transparent disclosure may result in disqualification."
+  ],
+  "section4": [
+    "For any inquiries: contact : contact@marsaifestival.com"
+  ]
+}
+
+
+
+
+
 },
   "producerHome": {
-    "alertStep1": "Please complete all required fields in Step 1 before continuing."
+    "alertStep1": "Please complete all required fields in Step 1 before continuing.",
+    "filmSuccess": "Film successfully submitted!",
+  "profileSuccess": "Profile updated.",
+  "collaboratorAdd": "+ Add a collaborator",
+  "collaboratorNone": "No collaborators added.",
+  "close": "Close"
   },
   "validation": {
     "firstName": {
@@ -219,7 +370,8 @@
     },
     "email": {
       "required": "Email is required",
-      "invalid": "Invalid email format"
+      "invalid": "Invalid email format",
+       "invalid2": "Invalid email address"
     },
     "password": {
       "required": "Password is required",
@@ -233,28 +385,34 @@
     },
     "durationSeconds": {
       "required": "Duration is required",
-      "integer": "Duration must be a whole number",
+      "integer": "Duration must be an integer",
       "min": "Duration must be at least 1",
       "max": "Maximum duration is 120 seconds"
     },
     "synopsisOriginal": {
-      "required": "Original synopsis is required"
+      "required": "Synopsis is required"
     },
     "synopsisEnglish": {
       "required": "English synopsis is required"
     },
     "aiClassification": {
-      "required": "Work classification is required"
+      "required": "AI classification is required"
     },
     "aiStack": {
-      "required": "Technological stack is required"
+      "required": "Technology stack is required"
     },
     "aiMethodology": {
       "required": "Creative methodology is required"
     },
     "termsAccepted": {
-      "required": "You must accept the terms"
-    }
+      "required": "You must accept the terms",
+       "required2": "You must accept the terms of participation"
+    },
+     "categoryId": {
+    "required": "Category is required"
+  },
+  "submissionError": "Error during submission"
+
   },
 
 
@@ -264,8 +422,8 @@
         "subtitle": "THE TEMPORAL PROTOCOL",
         "year": "2026",
         "title1": "IMAGINE",
-        "title2": "FUTURES",
-        "title3": "DESIRABLE",
+        "title2": "DESIRABLE",
+        "title3": "FUTURES",
         "description1": "The festival of 60-second short films created by AI.",
         "description2": "Two days of immersion in the heart of Marseille.",
         "button": "submit your film ➝",
@@ -677,5 +835,16 @@
     "registrationSuccessButLoginFailed": "Registration successful, but automatic login failed. Please log in manually.",
     "loginError": "Login error. Please try again.",
     "submissionError": "Submission error. Please try again."
+  },
+
+   "navbar": {
+    "links": {
+      "home": "Home",
+      "program": "Programme",
+      "jury": "Jury",
+      "sponsors": "Sponsors",
+      "infos": "Infos"
+    }
   }
+  
 }

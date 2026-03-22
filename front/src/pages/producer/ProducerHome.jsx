@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { VideoPreview, PendingVideoPlaceholder } from "../../components/VideoPreview.jsx";
+import {
+  VideoPreview,
+  PendingVideoPlaceholder,
+} from "../../components/VideoPreview.jsx";
 // NOTE: Navbar is rendered by ProducerLayout — no import needed here.
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,45 +19,6 @@ import { getCategories } from "../../api/videos.js";
 import { UPLOAD_BASE } from "../../utils/constants.js";
 import { getPoster, getTrailer, isPending } from "../../utils/movieUtils.js";
 import Pagination from "../../components/admin/Pagination.jsx";
-
-/* ─── Schéma Zod ──────────────────────────────────────── */
-const movieSchema = z.object({
-  filmTitleOriginal: z.string().min(1, "Le titre du film est obligatoire"),
-  durationSeconds: z.coerce
-    .number()
-    .int("La durée doit être un nombre entier")
-    .min(1, "La durée est obligatoire")
-    .max(120, "La durée maximale est de 120 secondes"),
-  filmLanguage: z.string().optional(),
-  releaseYear: z.string().optional(),
-  nationality: z.string().optional(),
-  translation: z.string().optional(),
-  synopsisOriginal: z.string().min(1, "Le synopsis est obligatoire"),
-  synopsisEnglish: z.string().optional(),
-  aiClassification: z.string().min(1, "La classification IA est obligatoire"),
-  aiStack: z.string().optional(),
-  aiMethodology: z.string().optional(),
-  categoryId: z.string().min(1, "La catégorie est obligatoire"),
-  knownByMarsAi: z.string().optional(),
-  collaborators: z
-    .array(
-      z.object({
-        first_name: z.string().optional(),
-        last_name: z.string().optional(),
-        email: z
-          .string()
-          .email("Adresse e-mail invalide")
-          .optional()
-          .or(z.literal("")),
-        job: z.string().optional(),
-      }),
-    )
-    .optional(),
-  subtitlesSrt: z.any().optional(),
-  acceptTerms: z.boolean().refine((v) => v === true, {
-    message: "Vous devez accepter les conditions de participation",
-  }),
-});
 
 /* ─── Balanced Tailwind class constants ───────── */
 const tw = {
@@ -98,25 +62,78 @@ const tw = {
     "bg-white/[0.02] border border-white/[0.06] rounded-lg overflow-hidden hover:border-[#AD46FF]/40 hover:shadow-lg hover:shadow-[#AD46FF]/10 transition-all hover:scale-[1.02] text-left",
 };
 
-const STATUS_MAP = {
-  submitted:  { label: "Soumis",               color: "bg-white/5 border border-white/10 text-white/50",                      dot: "bg-white/30"         },
-  assigned:   { label: "En cours d'évaluation",         color: "bg-sky-500/15 border border-sky-500/25 text-sky-300",                  dot: "bg-sky-400"          },
-  to_discuss: { label: "En discussion",         color: "bg-amber-500/15 border border-amber-500/25 text-amber-300",            dot: "bg-amber-400"        },
-  candidate:  { label: "Candidat",              color: "bg-violet-500/15 border border-violet-500/25 text-violet-300",         dot: "bg-violet-400"       },
-  selected:   { label: "Sélectionné ✓",         color: "bg-emerald-500/15 border border-emerald-500/25 text-emerald-300",      dot: "bg-emerald-400"      },
-  finalist:   { label: "Finaliste ⭐",           color: "bg-orange-500/15 border border-orange-500/25 text-orange-300",        dot: "bg-orange-400"       },
-  refused:    { label: "Non retenu",            color: "bg-red-500/10 border border-red-500/20 text-red-400/70",               dot: "bg-red-400"          },
-  awarded:    { label: "Primé 🏆",              color: "bg-yellow-500/15 border border-yellow-500/25 text-yellow-300",        dot: "bg-yellow-400"       },
+/* ─── Status colours (static — no text) ───────────────── */
+const STATUS_COLORS = {
+  submitted:  { color: "bg-white/5 border border-white/10 text-white/50",                  dot: "bg-white/30"    },
+  assigned:   { color: "bg-sky-500/15 border border-sky-500/25 text-sky-300",              dot: "bg-sky-400"     },
+  to_discuss: { color: "bg-amber-500/15 border border-amber-500/25 text-amber-300",        dot: "bg-amber-400"   },
+  candidate:  { color: "bg-violet-500/15 border border-violet-500/25 text-violet-300",     dot: "bg-violet-400"  },
+  selected:   { color: "bg-emerald-500/15 border border-emerald-500/25 text-emerald-300",  dot: "bg-emerald-400" },
+  finalist:   { color: "bg-orange-500/15 border border-orange-500/25 text-orange-300",     dot: "bg-orange-400"  },
+  refused:    { color: "bg-red-500/10 border border-red-500/20 text-red-400/70",           dot: "bg-red-400"     },
+  awarded:    { color: "bg-yellow-500/15 border border-yellow-500/25 text-yellow-300",     dot: "bg-yellow-400"  },
 };
-const getStatusBadge = (s) =>
-  STATUS_MAP[s] || { label: "En attente", color: "bg-white/5 border border-white/10 text-white/50", dot: "bg-white/30" };
-
 
 /* ════════════════════════════════════════════════════════
    COMPOSANT PRINCIPAL
 ════════════════════════════════════════════════════════ */
 export default function ProducerHome() {
   const { t } = useTranslation();
+
+  /* ── Schéma Zod — recréé uniquement quand la langue change ── */
+  const movieSchema = useMemo(
+    () =>
+      z.object({
+        filmTitleOriginal: z
+          .string()
+          .min(1, t("validation.filmTitleOriginal.required")),
+        durationSeconds: z.coerce
+          .number()
+          .int(t("validation.durationSeconds.integer"))
+          .min(1, t("validation.durationSeconds.required"))
+          .max(120, t("validation.durationSeconds.max")),
+        filmLanguage: z.string().optional(),
+        releaseYear: z.string().optional(),
+        nationality: z.string().optional(),
+        translation: z.string().optional(),
+        synopsisOriginal: z
+          .string()
+          .min(1, t("validation.synopsisOriginal.required")),
+        synopsisEnglish: z.string().optional(),
+        aiClassification: z
+          .string()
+          .min(1, t("validation.aiClassification.required")),
+        aiStack: z.string().optional(),
+        aiMethodology: z.string().optional(),
+        categoryId: z.string().min(1, t("validation.categoryId.required")),
+        knownByMarsAi: z.string().optional(),
+        collaborators: z
+          .array(
+            z.object({
+              first_name: z.string().optional(),
+              last_name: z.string().optional(),
+              email: z
+                .string()
+                .email(t("validation.email.invalid2"))
+                .optional()
+                .or(z.literal("")),
+              job: z.string().optional(),
+            }),
+          )
+          .optional(),
+        subtitlesSrt: z.any().optional(),
+        acceptTerms: z.boolean().refine((v) => v === true, {
+          message: t("validation.termsAccepted.required2"),
+        }),
+      }),
+    [t],
+  );
+
+  /* ── Status badge — labels from i18n, colours static ── */
+  const getStatusBadge = useMemo(() => (s) => ({
+    ...(STATUS_COLORS[s] || { color: "bg-white/5 border border-white/10 text-white/50", dot: "bg-white/30" }),
+    label: t(`producer.status.${s}`, t("producer.status.pending")),
+  }), [t]);
 
   /* États utilisateur */
   const [user, setUser] = useState(null);
@@ -138,7 +155,8 @@ export default function ProducerHome() {
      Previously setSelectedMovie(movie) stored a snapshot → isPending() never saw
      the updated trailer path and the spinner never disappeared. */
   const [selectedMovieId, setSelectedMovieId] = useState(null);
-  const selectedMovie = movies.find((m) => m.id_movie === selectedMovieId) ?? null;
+  const selectedMovie =
+    movies.find((m) => m.id_movie === selectedMovieId) ?? null;
   const [lightboxImg, setLightboxImg] = useState(null);
 
   // ── Pagination ──
@@ -147,13 +165,16 @@ export default function ProducerHome() {
   const totalPages = Math.max(1, Math.ceil(movies.length / moviesPerPage));
   const paginatedMovies = movies.slice(
     (currentPage - 1) * moviesPerPage,
-    currentPage * moviesPerPage
+    currentPage * moviesPerPage,
   );
 
   function goToPage(page) {
     setCurrentPage(page);
     setTimeout(() => {
-      mesFilmsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      mesFilmsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }, 50);
   }
 
@@ -177,7 +198,7 @@ export default function ProducerHome() {
   const filmFileRef = useRef(null);
   const subtitleRef = useRef(null);
   const formSectionRef = useRef(null); // scroll to form
-  const mesFilmsRef = useRef(null);    // scroll to Mes films on page change
+  const mesFilmsRef = useRef(null); // scroll to Mes films on page change
   /* BUG #1 FIX: pollIntervalRef was used but never declared → ReferenceError on submit */
   const pollIntervalRef = useRef(null);
   const [filmFileName, setFilmFileName] = useState("");
@@ -235,7 +256,7 @@ export default function ProducerHome() {
           clearInterval(pollIntervalRef.current);
           pollIntervalRef.current = null;
           // Affiche le message de succès générique et l'efface après 4s
-          setMovieSuccess("Film soumis avec succès !");
+          setMovieSuccess(t("producerHome.filmSuccess"));
           setTimeout(() => setMovieSuccess(null), 4000);
         }
       } catch {
@@ -249,9 +270,7 @@ export default function ProducerHome() {
       /* Guard: un fichier vidéo est obligatoire */
       const filmFileCheck = filmFileRef.current?.files?.[0];
       if (!filmFileCheck) {
-        throw new Error(
-          "Veuillez sélectionner un fichier vidéo avant de soumettre.",
-        );
+        throw new Error(t("producer.movies.selectVideoFirst"));
       }
 
       const fd = new FormData();
@@ -316,7 +335,7 @@ export default function ProducerHome() {
       setMovieError(
         err?.response?.data?.error ||
           err?.message ||
-          "Erreur lors de la soumission.",
+          t("validation.submissionError"),
       );
     },
   });
@@ -335,14 +354,16 @@ export default function ProducerHome() {
       setEditingMovieId(null);
     },
     onError: () =>
-      setMovieError("Erreur lors de la mise à jour des collaborateurs."),
+      setMovieError(
+        t("producer.filmSubmission.placeholders.collaboratorUpdateError"),
+      ),
   });
 
   /* ── Chargement initial ── */
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("Vous n'êtes pas authentifié.");
+      setError(t("producer.auth.notAuthenticated"));
       setLoading(false);
       return;
     }
@@ -354,7 +375,7 @@ export default function ProducerHome() {
         setLoading(false);
       })
       .catch(() => {
-        setError("Impossible de charger vos données.");
+        setError(t("producer.auth.loadError"));
         setLoading(false);
       });
   }, []);
@@ -388,9 +409,7 @@ export default function ProducerHome() {
 
   function handleNextStep() {
     if (!isStep1Valid()) {
-      setMovieError(
-        "Veuillez remplir le titre, la durée (≤ 120 s) et le synopsis.",
-      );
+      setMovieError(t("producer.movies.step1Invalid"));
       setTimeout(() => setMovieError(null), 4000);
       return;
     }
@@ -413,11 +432,11 @@ export default function ProducerHome() {
       const res = await updateCurrentUser(toSend);
       setUser(res.data);
       setEditMode(false);
-      setProfileSuccess("Profil mis à jour.");
+      setProfileSuccess(t("producerHome.profileSuccess"));
       if (res.data.first_name)
         localStorage.setItem("firstName", res.data.first_name);
     } catch {
-      setError("Erreur lors de la mise à jour du profil.");
+      setError(t("producer.profile.errorUpdate"));
     }
   }
 
@@ -453,7 +472,7 @@ export default function ProducerHome() {
       <div className="min-h-screen bg-[#070709] text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-2 border-[#AD46FF]/20 border-t-[#AD46FF] mx-auto mb-3" />
-          <p className="text-white/40 text-sm">Chargement de votre espace…</p>
+          <p className="text-white/40 text-sm">{t("producer.auth.loading")}</p>
         </div>
       </div>
     );
@@ -469,7 +488,9 @@ export default function ProducerHome() {
   if (!user)
     return (
       <div className="min-h-screen bg-[#070709] text-white flex items-center justify-center">
-        <p className="text-white/40 text-sm">Utilisateur introuvable.</p>
+        <p className="text-white/40 text-sm">
+          {t("producer.auth.userNotFound")}
+        </p>
       </div>
     );
 
@@ -492,16 +513,16 @@ export default function ProducerHome() {
           <div className="mb-12">
             <span className="inline-flex items-center gap-2 text-[10px] tracking-[0.35em] uppercase text-[#AD46FF]/60 font-medium mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/60 animate-pulse" />
-              Festival MARS AI · Édition 2026
+              {t("producer.header.badge")}
             </span>
 
             <div className="flex items-center justify-between flex-wrap gap-6">
               {/* Left — title + name */}
               <div>
                 <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-none">
-                  Espace{" "}
+                  {t("producer.hero.title")}{" "}
                   <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent">
-                    Producteur
+                    {t("producer.hero.titleAccent")}
                   </span>
                 </h1>
                 <p className="text-white/45 mt-2 text-sm font-medium tracking-wide">
@@ -513,8 +534,12 @@ export default function ProducerHome() {
               <div className="flex items-center gap-5">
                 <div className="flex flex-col items-end gap-2">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-white tabular-nums leading-none">{movies.length}</span>
-                    <span className="text-white/25 text-base font-normal">/∞</span>
+                    <span className="text-3xl font-black text-white tabular-nums leading-none">
+                      {movies.length}
+                    </span>
+                    <span className="text-white/25 text-base font-normal">
+                      /∞
+                    </span>
                   </div>
                   <div className="flex flex-col gap-1 items-end">
                     <div className="w-32 h-1.5 bg-white/8 rounded-full overflow-hidden">
@@ -524,7 +549,8 @@ export default function ProducerHome() {
                       />
                     </div>
                     <span className="text-[9px] text-white/25 tracking-wider">
-                      {movies.length} film{movies.length !== 1 ? "s" : ""} soumis
+                      {movies.length} film{movies.length !== 1 ? "s" : ""}{" "}
+                      soumis
                     </span>
                   </div>
                 </div>
@@ -535,7 +561,8 @@ export default function ProducerHome() {
                 <div className="relative">
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#AD46FF] to-[#F6339A] blur-md opacity-40" />
                   <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#AD46FF]/20 to-[#F6339A]/20 border border-[#AD46FF]/40 flex items-center justify-center font-black text-lg text-white shadow-lg">
-                    {user.first_name?.[0]}{user.last_name?.[0]}
+                    {user.first_name?.[0]}
+                    {user.last_name?.[0]}
                   </div>
                 </div>
               </div>
@@ -549,16 +576,18 @@ export default function ProducerHome() {
             <div className="bg-white/3 border border-white/6 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                <p className="text-[12px] tracking-widest uppercase text-white/75 font-medium ">
-                  Profil
-                </p>
-                 <div className="mt-1 h-px w-30 bg-gradient-to-r from-white/50 via-white/5 to-transparent" />
+                  <p className="text-[12px] tracking-widest uppercase text-white/75 font-medium ">
+                    {t("producer.profile.title")}
+                  </p>
+                  <div className="mt-1 h-px w-30 bg-gradient-to-r from-white/50 via-white/5 to-transparent" />
                 </div>
                 <button
                   onClick={() => setEditMode((v) => !v)}
                   className="text-[11px] text-[#AD46FF]/70 hover:text-[#AD46FF] transition-colors"
                 >
-                  {editMode ? "Annuler" : "Modifier"}
+                  {editMode
+                    ? t("producer.profile.cancel")
+                    : t("producer.profile.modify")}
                 </button>
               </div>
 
@@ -575,16 +604,36 @@ export default function ProducerHome() {
                   className="grid grid-cols-1 md:grid-cols-2 gap-3"
                 >
                   {[
-                    { name: "first_name", label: "Prénom", type: "text" },
-                    { name: "last_name", label: "Nom", type: "text" },
-                    { name: "phone", label: "Téléphone", type: "text" },
-                    { name: "nationality", label: "Nationalité", type: "text" },
+                    {
+                      name: "first_name",
+                      label: t("forms.register.labels.firstName"),
+                      type: "text",
+                    },
+                    {
+                      name: "last_name",
+                      label: t("forms.register.labels.lastName"),
+                      type: "text",
+                    },
+                    {
+                      name: "phone",
+                      label: t("producer.profile.phone"),
+                      type: "text",
+                    },
+                    {
+                      name: "nationality",
+                      label: t("producer.form.nationality"),
+                      type: "text",
+                    },
                     {
                       name: "biography",
-                      label: "Biographie",
+                      label: t("producer.profile.biography"),
                       type: "textarea",
                     },
-                    { name: "website", label: "Site web", type: "text" },
+                    {
+                      name: "website",
+                      label: t("producer.profile.website"),
+                      type: "text",
+                    },
                   ].map(({ name, label, type }) => (
                     <div
                       key={name}
@@ -622,22 +671,28 @@ export default function ProducerHome() {
                       onClick={() => setEditMode(false)}
                       className="px-4 py-2 border border-white/8 bg-white/3 text-white/50 rounded-xl text-sm font-medium hover:bg-white/6 hover:text-white/70 transition-all duration-200"
                     >
-                      Annuler
+                      {t("producer.profile.cancel")}
                     </button>
                     <button
                       type="submit"
                       className="px-4 py-2 bg-gradient-to-r from-[#AD46FF]/80 to-[#F6339A]/80 hover:from-[#AD46FF] hover:to-[#F6339A] text-white rounded-xl text-sm font-semibold transition-all duration-200"
                     >
-                      Enregistrer
+                      {t("producer.profile.save")}
                     </button>
                   </div>
                 </form>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {[
-                    { label: "Téléphone", value: user.phone },
-                    { label: "Pays", value: user.country },
-                    { label: "Site web", value: user.portfolio },
+                    { label: t("producer.profile.phone"), value: user.phone },
+                    {
+                      label: t("producer.profile.country"),
+                      value: user.country,
+                    },
+                    {
+                      label: t("producer.profile.website"),
+                      value: user.portfolio,
+                    },
                   ].map(({ label, value }) => (
                     <div key={label}>
                       <p className="text-[10px] uppercase tracking-widest text-white/90 mb-1.5 font-medium">
@@ -649,7 +704,7 @@ export default function ProducerHome() {
                   {user.biography && (
                     <div className="md:col-span-3">
                       <p className="text-[10px] uppercase tracking-widest text-white/90 mb-1.5 font-medium">
-                        Biographie
+                        {t("producer.profile.biography")}
                       </p>
                       <p className="text-white/65 text-sm leading-relaxed">
                         {user.biography}
@@ -661,11 +716,14 @@ export default function ProducerHome() {
             </div>
 
             {/* ── Mes films ── */}
-            <div ref={mesFilmsRef} className="bg-white/3 border border-white/6 rounded-2xl p-5">
+            <div
+              ref={mesFilmsRef}
+              className="bg-white/3 border border-white/6 rounded-2xl p-5"
+            >
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <p className="text-[12px] tracking-widest uppercase text-white/70 font-medium">
-                    Mes films
+                    {t("producer.filmSubmission.myFilms")}
                   </p>
                   {movies.length > 0 && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#AD46FF]/10 text-[#AD46FF]/70 border border-[#AD46FF]/50">
@@ -690,8 +748,8 @@ export default function ProducerHome() {
                   }}
                   className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-[#AD46FF]/80 to-[#F6339A]/80 hover:from-[#AD46FF] hover:to-[#F6339A] text-white rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer"
                 >
-                  <span className="text-base leading-none">+</span> Soumettre un
-                  film
+                  <span className="text-base leading-none">+</span>{" "}
+                  {t("producer.movies.submit")}
                 </button>
               </div>
 
@@ -701,155 +759,228 @@ export default function ProducerHome() {
                     🎬
                   </div>
                   <p className="text-sm text-white/50 text-center max-w-xs leading-relaxed">
-                    Aucun film soumis. Cliquez sur « Soumettre un film » pour
+                    {t("producer.movies.submitFirst")}
                     commencer.
                   </p>
                 </div>
               ) : (
                 <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                  {paginatedMovies.map((movie) => {
-                    const badge = getStatusBadge(movie.selection_status);
-                    const poster = getPoster(movie);
-                    const pending = isPending(movie);
-                    return (
-                      <button
-                        key={movie.id_movie}
-                        onClick={() => setSelectedMovieId(movie.id_movie)}
-                        className="group relative text-left focus:outline-none"
-                        style={{ aspectRatio: "2/3" }}
-                      >
-                        {/* Poster frame */}
-                        <div className="relative w-full h-full rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.7)] group-hover:shadow-[0_12px_40px_rgba(173,70,255,0.22)] transition-all duration-500 group-hover:-translate-y-2 cursor-pointer">
-
-                          {/* Background image or fallback */}
-                          {poster ? (
-                            <img
-                              src={poster}
-                              alt={movie.title}
-                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1025] via-[#0d0f14] to-[#1a0a20] flex items-center justify-center">
-                              <span className="text-5xl opacity-20">🎬</span>
-                            </div>
-                          )}
-
-                          {/* Film grain */}
-                          <div
-                            className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
-                            style={{
-                              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-                              backgroundSize: "120px 120px",
-                            }}
-                          />
-
-                          {/* Top vignette */}
-                          <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
-                          {/* Bottom vignette */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-
-                          {/* Corner marks */}
-                          <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t border-l border-white/20" />
-                          <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t border-r border-white/20" />
-                          <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b border-l border-white/20" />
-                          <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b border-r border-white/20" />
-
-                          {/* Status badge */}
-                          <div className="absolute top-3 right-3">
-                            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest backdrop-blur-sm rounded-sm ${badge.color}`}>
-                              <span className={`w-1 h-1 rounded-full ${badge.dot}`} />
-                              {badge.label}
-                            </span>
-                          </div>
-
-                          {/* Pending spinner */}
-                          {pending && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="w-7 h-7 border-2 border-[#AD46FF]/30 border-t-[#AD46FF] rounded-full animate-spin" />
-                            </div>
-                          )}
-
-                          {/* Bottom text */}
-                          <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-1">
-                            <div className="flex items-center gap-1.5 mb-1.5">
-                              <div className="flex-1 h-px bg-white/20" />
-                              <span className="text-[6px] tracking-[0.2em] text-white/35 uppercase font-medium">MarsAI</span>
-                              <div className="flex-1 h-px bg-white/20" />
-                            </div>
-                            <p
-                              className="font-bold uppercase tracking-wide leading-tight text-white group-hover:text-[#C179FB] transition-colors duration-300 line-clamp-2"
-                              style={{ fontSize: "clamp(8px, 1.8vw, 12px)", textShadow: "0 1px 6px rgba(0,0,0,1)" }}
-                            >
-                              {movie.title}
-                            </p>
-                            <div className="flex items-center gap-1 mt-1 text-white/35" style={{ fontSize: "8px" }}>
-                              {movie.main_language && <span className="uppercase tracking-wider">{movie.main_language}</span>}
-                              {movie.duration && movie.main_language && <span>·</span>}
-                              {movie.duration && <span>{movie.duration}s</span>}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* ── Pagination ── */}
-                {totalPages > 1 && (
-                  <div className="mt-6 px-1">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                      <span className="text-[9px] tracking-[0.3em] uppercase text-white/20 font-medium">
-                        {movies.length} films · page {currentPage}/{totalPages}
-                      </span>
-                      <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                    </div>
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        onClick={() => goToPage(1)}
-                        disabled={currentPage === 1}
-                        className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === 1 ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
-                      </button>
-                      <button
-                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                        className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === 1 ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                      </button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                    {paginatedMovies.map((movie) => {
+                      const badge = getStatusBadge(movie.selection_status);
+                      const poster = getPoster(movie);
+                      const pending = isPending(movie);
+                      return (
                         <button
-                          key={page}
-                          onClick={() => goToPage(page)}
-                          className={`w-8 h-8 flex items-center justify-center rounded border text-xs font-medium tracking-wider transition-all duration-300 ${
-                            currentPage === page
-                              ? "border-[#AD46FF]/60 bg-gradient-to-b from-[#AD46FF]/20 to-[#AD46FF]/10 text-[#C179FB] shadow-[0_0_12px_rgba(173,70,255,0.2)]"
-                              : "border-white/8 text-white/35 hover:border-[#AD46FF]/30 hover:text-[#AD46FF]/70 hover:bg-[#AD46FF]/5"
-                          }`}
+                          key={movie.id_movie}
+                          onClick={() => setSelectedMovieId(movie.id_movie)}
+                          className="group relative text-left focus:outline-none"
+                          style={{ aspectRatio: "2/3" }}
                         >
-                          {page}
+                          {/* Poster frame */}
+                          <div className="relative w-full h-full rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.7)] group-hover:shadow-[0_12px_40px_rgba(173,70,255,0.22)] transition-all duration-500 group-hover:-translate-y-2 cursor-pointer">
+                            {/* Background image or fallback */}
+                            {poster ? (
+                              <img
+                                src={poster}
+                                alt={movie.title}
+                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-br from-[#1a1025] via-[#0d0f14] to-[#1a0a20] flex items-center justify-center">
+                                <span className="text-5xl opacity-20">🎬</span>
+                              </div>
+                            )}
+
+                            {/* Film grain */}
+                            <div
+                              className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay"
+                              style={{
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                                backgroundSize: "120px 120px",
+                              }}
+                            />
+
+                            {/* Top vignette */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
+                            {/* Bottom vignette */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+
+                            {/* Corner marks */}
+                            <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t border-l border-white/20" />
+                            <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t border-r border-white/20" />
+                            <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b border-l border-white/20" />
+                            <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b border-r border-white/20" />
+
+                            {/* Status badge */}
+                            <div className="absolute top-3 right-3">
+                              <span
+                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest backdrop-blur-sm rounded-sm ${badge.color}`}
+                              >
+                                <span
+                                  className={`w-1 h-1 rounded-full ${badge.dot}`}
+                                />
+                                {badge.label}
+                              </span>
+                            </div>
+
+                            {/* Pending spinner */}
+                            {pending && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-7 h-7 border-2 border-[#AD46FF]/30 border-t-[#AD46FF] rounded-full animate-spin" />
+                              </div>
+                            )}
+
+                            {/* Bottom text */}
+                            <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-1">
+                              <div className="flex items-center gap-1.5 mb-1.5">
+                                <div className="flex-1 h-px bg-white/20" />
+                                <span className="text-[6px] tracking-[0.2em] text-white/35 uppercase font-medium">
+                                  MarsAI
+                                </span>
+                                <div className="flex-1 h-px bg-white/20" />
+                              </div>
+                              <p
+                                className="font-bold uppercase tracking-wide leading-tight text-white group-hover:text-[#C179FB] transition-colors duration-300 line-clamp-2"
+                                style={{
+                                  fontSize: "clamp(8px, 1.8vw, 12px)",
+                                  textShadow: "0 1px 6px rgba(0,0,0,1)",
+                                }}
+                              >
+                                {movie.title}
+                              </p>
+                              <div
+                                className="flex items-center gap-1 mt-1 text-white/35"
+                                style={{ fontSize: "8px" }}
+                              >
+                                {movie.main_language && (
+                                  <span className="uppercase tracking-wider">
+                                    {movie.main_language}
+                                  </span>
+                                )}
+                                {movie.duration && movie.main_language && (
+                                  <span>·</span>
+                                )}
+                                {movie.duration && (
+                                  <span>{movie.duration}s</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </button>
-                      ))}
-                      <button
-                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                        className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === totalPages ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                      </button>
-                      <button
-                        onClick={() => goToPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                        className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === totalPages ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
-                      </button>
-                    </div>
+                      );
+                    })}
                   </div>
-                )}
+
+                  {/* ── Pagination ── */}
+                  {totalPages > 1 && (
+                    <div className="mt-6 px-1">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                        <span className="text-[9px] tracking-[0.3em] uppercase text-white/20 font-medium">
+                          {movies.length} films · page {currentPage}/
+                          {totalPages}
+                        </span>
+                        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                      </div>
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => goToPage(1)}
+                          disabled={currentPage === 1}
+                          className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === 1 ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+                        >
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === 1 ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+                        >
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                        {Array.from(
+                          { length: totalPages },
+                          (_, i) => i + 1,
+                        ).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => goToPage(page)}
+                            className={`w-8 h-8 flex items-center justify-center rounded border text-xs font-medium tracking-wider transition-all duration-300 ${
+                              currentPage === page
+                                ? "border-[#AD46FF]/60 bg-gradient-to-b from-[#AD46FF]/20 to-[#AD46FF]/10 text-[#C179FB] shadow-[0_0_12px_rgba(173,70,255,0.2)]"
+                                : "border-white/8 text-white/35 hover:border-[#AD46FF]/30 hover:text-[#AD46FF]/70 hover:bg-[#AD46FF]/5"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() =>
+                            goToPage(Math.min(totalPages, currentPage + 1))
+                          }
+                          disabled={currentPage === totalPages}
+                          className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === totalPages ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+                        >
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => goToPage(totalPages)}
+                          disabled={currentPage === totalPages}
+                          className={`w-8 h-8 flex items-center justify-center rounded border text-xs transition-all duration-300 ${currentPage === totalPages ? "border-white/5 text-white/15 cursor-not-allowed" : "border-white/10 text-white/40 hover:border-[#AD46FF]/40 hover:text-[#AD46FF] hover:bg-[#AD46FF]/5"}`}
+                        >
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -863,8 +994,8 @@ export default function ProducerHome() {
                 <div className="mb-7">
                   <div className="flex items-center gap-4">
                     {[
-                      { n: 1, label: "Données du film" },
-                      { n: 2, label: "IA & Fichiers" },
+                      { n: 1, label: t("producer.form.step1") },
+                      { n: 2, label: t("producer.form.step2") },
                     ].map(({ n, label }, i) => (
                       <div key={n} className="flex items-center gap-4">
                         {i > 0 && (
@@ -907,7 +1038,7 @@ export default function ProducerHome() {
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Fld
-                          label="Titre original *"
+                          label={t("producer.form.originalTitle")}
                           error={errors.filmTitleOriginal}
                         >
                           <input
@@ -918,8 +1049,8 @@ export default function ProducerHome() {
                           />
                         </Fld>
                         <Fld
-                          label="Durée (s) *"
-                          hint="max 120s"
+                          label={t("producer.form.duration")}
+                          hint={t("producer.form.durationHint")}
                           error={errors.durationSeconds}
                         >
                           <input
@@ -930,7 +1061,7 @@ export default function ProducerHome() {
                             className={`w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 placeholder:text-white/15 transition-all duration-200 ${errors.durationSeconds ? "border-red-500/40" : ""}`}
                           />
                         </Fld>
-                        <Fld label="Langue">
+                        <Fld label={t("producer.form.language")}>
                           <input
                             type="text"
                             placeholder="Français"
@@ -938,7 +1069,7 @@ export default function ProducerHome() {
                             className="w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 placeholder:text-white/15 transition-all duration-200"
                           />
                         </Fld>
-                        <Fld label="Année">
+                        <Fld label={t("producer.form.year")}>
                           <input
                             type="number"
                             placeholder="2026"
@@ -946,7 +1077,7 @@ export default function ProducerHome() {
                             className="w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 placeholder:text-white/15 transition-all duration-200"
                           />
                         </Fld>
-                        <Fld label="Nationalité">
+                        <Fld label={t("producer.form.nationality")}>
                           <input
                             type="text"
                             placeholder="France"
@@ -954,27 +1085,34 @@ export default function ProducerHome() {
                             className="w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 placeholder:text-white/15 transition-all duration-200"
                           />
                         </Fld>
-                        <Fld label="Comment nous avez-vous connu ?">
+                        <Fld label={t("producer.form.howKnown")}>
                           <select
                             {...reg("knownByMarsAi")}
                             className="w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 transition-all duration-200"
                           >
-                            <option value="">Sélectionner</option>
-                            <option value="Par un ami">Par un ami</option>
+                            <option value="">{t("producer.form.selectOption")}</option>
+                            <option value="Par un ami">
+                              {t("producer.form.byFriend")}
+                            </option>
                             <option value="Vu une publicité du festival">
-                              Via une publicité
+                              {t("producer.form.byAd")}
                             </option>
                             <option value="Via le site internet ou application de l'IA">
-                              Via le site / appli IA
+                              {t("producer.form.bySite")}
                             </option>
                           </select>
                         </Fld>
-                        <Fld label="Catégorie *" error={errors.categoryId}>
+                        <Fld
+                          label={t("producer.form.category")}
+                          error={errors.categoryId}
+                        >
                           <select
                             {...reg("categoryId")}
                             className={`w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 transition-all duration-200 ${errors.categoryId ? "border-red-500/40" : ""}`}
                           >
-                            <option value="">Sélectionner une catégorie</option>
+                            <option value="">
+                              {t("producer.form.categorySelect")}
+                            </option>
                             {categories.map((cat) => (
                               <option
                                 key={cat.id_categorie}
@@ -985,7 +1123,7 @@ export default function ProducerHome() {
                             ))}
                           </select>
                         </Fld>
-                        <Fld label="Traduction">
+                        <Fld label={t("producer.form.translation")}>
                           <input
                             type="text"
                             placeholder="English title"
@@ -995,7 +1133,7 @@ export default function ProducerHome() {
                         </Fld>
                       </div>
                       <Fld
-                        label="Synopsis original * (300 car.)"
+                        label={t("producer.form.synopsisFr")}
                         error={errors.synopsisOriginal}
                       >
                         <textarea
@@ -1006,7 +1144,7 @@ export default function ProducerHome() {
                           className={`w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 resize-none placeholder:text-white/15 transition-all duration-200 ${errors.synopsisOriginal ? "border-red-500/40" : ""}`}
                         />
                       </Fld>
-                      <Fld label="Synopsis anglais (300 car.)">
+                      <Fld label={t("producer.form.synopsisEn")}>
                         <textarea
                           rows={3}
                           maxLength={300}
@@ -1021,7 +1159,7 @@ export default function ProducerHome() {
                           onClick={handleNextStep}
                           className="px-5 py-2.5 bg-gradient-to-r from-[#AD46FF]/80 to-[#F6339A]/80 hover:from-[#AD46FF] hover:to-[#F6339A] text-white rounded-xl text-sm font-semibold transition-all duration-200"
                         >
-                          Continuer →
+                          {t("producer.form.continue")}
                         </button>
                       </div>
                     </div>
@@ -1032,18 +1170,18 @@ export default function ProducerHome() {
                     <div className="space-y-5">
                       <div className="grid grid-cols-1 gap-4">
                         <Fld
-                          label="Classification IA *"
+                          label={t("producer.form.aiClassification")}
                           error={errors.aiClassification}
                         >
                           <div className="flex gap-3">
                             {[
                               {
                                 value: "integrale",
-                                label: "100 % IA générative",
+                                label: t("producer.form.aiIntegral"),
                               },
                               {
                                 value: "hybride",
-                                label: "Hybride (réel + IA)",
+                                label: t("producer.form.aiHybrid"),
                               },
                             ].map((opt) => (
                               <label
@@ -1063,7 +1201,7 @@ export default function ProducerHome() {
                             ))}
                           </div>
                         </Fld>
-                        <Fld label="Outils IA utilisés">
+                        <Fld label={t("producer.form.aiTools")}>
                           <textarea
                             rows={2}
                             maxLength={500}
@@ -1072,7 +1210,7 @@ export default function ProducerHome() {
                             className="w-full bg-white/3 border border-white/8 text-white px-3.5 py-2.5 rounded-xl text-sm outline-none hover:border-[#AD46FF]/30 focus:border-[#AD46FF]/50 focus:bg-white/5 resize-none placeholder:text-white/15 transition-all duration-200"
                           />
                         </Fld>
-                        <Fld label="Méthodologie créative">
+                        <Fld label={t("producer.form.aiMethodology")}>
                           <textarea
                             rows={2}
                             maxLength={500}
@@ -1098,13 +1236,13 @@ export default function ProducerHome() {
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
                           <p className="text-[10px] uppercase tracking-widest text-white/50 font-medium">
-                            Fichiers
+                            {t("producer.form.files")}
                           </p>
                           <div className="flex-1 h-px bg-white/6" />
                         </div>
                         <div className="flex flex-col gap-2">
                           <p className="text-[9px] uppercase tracking-widest text-white/50 font-medium">
-                            Fichier vidéo{" "}
+                            {t("producer.form.videoFile")}{" "}
                             <span className="text-red-400/60">*</span>
                           </p>
                           <div className="flex items-center gap-3">
@@ -1136,13 +1274,14 @@ export default function ProducerHome() {
                               />
                             </label>
                             <span className="text-[11px] text-white/50 truncate max-w-[220px]">
-                              {filmFileName || "Aucun fichier sélectionné"}
+                              {filmFileName ||
+                                t("producer.movies.noFileSelected")}
                             </span>
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
                           <p className="text-[9px] uppercase tracking-widest text-white/50 font-medium">
-                            Vignettes (max 3)
+                            {t("producer.form.thumbnails")}
                           </p>
                           <div className="flex gap-2">
                             {[0, 1, 2].map((i) => (
@@ -1181,7 +1320,7 @@ export default function ProducerHome() {
                         </div>
                         <div className="flex flex-col gap-2">
                           <p className="text-[9px] uppercase tracking-widest text-white/50 font-medium">
-                            Sous-titres (.srt)
+                            {t("producer.form.subtitles")}
                           </p>
                           <div className="flex items-center gap-3">
                             <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#AD46FF]/10 border border-[#AD46FF]/20 text-[#AD46FF]/80 text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 hover:bg-[#AD46FF]/15 hover:border-[#AD46FF]/30 hover:text-[#AD46FF]">
@@ -1212,7 +1351,7 @@ export default function ProducerHome() {
                               />
                             </label>
                             <span className="text-[11px] text-white/50 truncate max-w-[220px]">
-                              {subtitlesName || "Aucun fichier"}
+                              {subtitlesName || t("producer.movies.noFile")}
                             </span>
                           </div>
                         </div>
@@ -1229,7 +1368,7 @@ export default function ProducerHome() {
                           htmlFor="acceptTerms"
                           className="text-xs text-white/65 cursor-pointer leading-relaxed"
                         >
-                          J'accepte les{" "}
+                          {t("producer.form.termsAccept")}  {" "}
                           <button
                             type="button"
                             onClick={(e) => {
@@ -1238,7 +1377,7 @@ export default function ProducerHome() {
                             }}
                             className="text-[#AD46FF]/80 hover:text-[#AD46FF] underline font-medium transition-colors"
                           >
-                            conditions de participation
+                            {t("producer.form.termsLink")}
                           </button>
                         </label>
                       </div>
@@ -1254,7 +1393,7 @@ export default function ProducerHome() {
                           onClick={() => setFormStep(1)}
                           className="px-4 py-2 border border-white/8 bg-white/3 text-white/50 rounded-xl text-sm font-medium hover:bg-white/6 hover:text-white/70 transition-all duration-200"
                         >
-                          ← Retour
+                          {t("producer.form.back")}
                         </button>
                         <div className="flex gap-3">
                           <button
@@ -1265,7 +1404,7 @@ export default function ProducerHome() {
                             }}
                             className="px-4 py-2 border border-red-500/20 bg-red-500/8 text-red-400/70 rounded-xl text-sm font-medium hover:bg-red-500/15 hover:text-red-400 transition-all duration-200"
                           >
-                            Annuler
+                          {t("producer.form.cancel")}
                           </button>
                           <button
                             type="submit"
@@ -1279,12 +1418,12 @@ export default function ProducerHome() {
                             {createMovieMutation.isPending ? (
                               <span className="flex items-center gap-2">
                                 <span className="w-3.5 h-3.5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
-                                Envoi…
+                                {t("producer.movies.submitting")}
                               </span>
                             ) : !filmFileName ? (
-                              "Sélectionnez une vidéo"
+                              t("producer.movies.selectVideo")
                             ) : (
-                              "Soumettre"
+                              t("producer.movies.submitLabel")
                             )}
                           </button>
                         </div>
@@ -1301,7 +1440,7 @@ export default function ProducerHome() {
       {/* ── Modale collaborateurs ── */}
       {showCollaboratorsModal && (
         <Modal
-          title="Collaborateurs"
+          title={t("producer.collaborators.title")}
           onClose={() => setShowCollaboratorsModal(false)}
           maxW="max-w-4xl"
         >
@@ -1317,11 +1456,11 @@ export default function ProducerHome() {
             }
             className="mb-4 px-4 py-2 bg-[#AD46FF]/10 text-[#AD46FF] border border-[#AD46FF]/25 rounded-xl text-sm font-medium hover:bg-[#AD46FF]/15 transition-all duration-200"
           >
-            + Ajouter un collaborateur
+            {t("producerHome.collaboratorAdd")}
           </button>
           {collabFields.length === 0 && (
             <p className="text-white/55 text-center py-8 text-sm">
-              Aucun collaborateur ajouté.
+              {t("producerHome.collaboratorNone")}
             </p>
           )}
           <div className="space-y-3">
@@ -1333,14 +1472,20 @@ export default function ProducerHome() {
                 {[
                   {
                     name: `collaborators.${idx}.first_name`,
-                    placeholder: "Prénom",
+                    placeholder: t("producer.collaborators.firstName"),
                   },
                   {
                     name: `collaborators.${idx}.last_name`,
-                    placeholder: "Nom",
+                    placeholder: t("producer.collaborators.lastName"),
                   },
-                  { name: `collaborators.${idx}.email`, placeholder: "Email" },
-                  { name: `collaborators.${idx}.job`, placeholder: "Rôle" },
+                  {
+                    name: `collaborators.${idx}.email`,
+                    placeholder: t("producer.collaborators.email"),
+                  },
+                  {
+                    name: `collaborators.${idx}.job`,
+                    placeholder: t("producer.collaborators.job"),
+                  },
                 ].map(({ name, placeholder }) => (
                   <input
                     key={name}
@@ -1368,7 +1513,7 @@ export default function ProducerHome() {
               onClick={() => setShowCollaboratorsModal(false)}
               className="px-4 py-2 border border-white/8 bg-white/3 text-white/50 rounded-xl text-sm font-medium hover:bg-white/6 hover:text-white/70 transition-all duration-200"
             >
-              Fermer
+              {t("producerHome.close")}
             </button>
           </div>
         </Modal>
@@ -1377,44 +1522,22 @@ export default function ProducerHome() {
       {/* ── Modale conditions ── */}
       {showTermsModal && (
         <Modal
-          title="Conditions de participation"
+          title={t("producer.terms.title")}
           onClose={() => setShowTermsModal(false)}
           maxW="max-w-4xl"
         >
           <div className="space-y-4 text-white/60 text-sm leading-relaxed">
             {[
-              {
-                title: "1. Conditions de participation",
-                content: [
-                  "Votre film doit être une création originale utilisant l'intelligence artificielle.",
-                  "La durée maximale est de 2 minutes (120 secondes).",
-                  "Vous détenez tous les droits nécessaires sur votre œuvre.",
-                  "Le festival peut utiliser des extraits à des fins promotionnelles.",
-                  "La décision du jury est définitive et sans appel.",
-                ],
-              },
-              {
-                title: "2. Droits d'auteur",
-                content: [
-                  "Vous conservez tous les droits d'auteur sur votre film. Le festival obtient uniquement une licence non exclusive pour diffuser votre œuvre dans le cadre de l'événement et de sa promotion.",
-                ],
-              },
-              {
-                title: "3. Transparence IA",
-                content: [
-                  "Vous devez indiquer de façon transparente les outils d'IA utilisés ainsi que la méthodologie employée. Le non-respect peut entraîner la disqualification.",
-                ],
-              },
-              {
-                title: "4. Contact",
-                content: ["Pour toute question : contact@marsaifestival.com"],
-              },
-            ].map(({ title, content }) => (
-              <div key={title}>
-                <h4 className="text-white font-medium mb-2 text-sm">{title}</h4>
+              { titleKey: "producer.terms.section1Title", contentKey: "producer.terms.section1" },
+              { titleKey: "producer.terms.section2Title", contentKey: "producer.terms.section2" },
+              { titleKey: "producer.terms.section3Title", contentKey: "producer.terms.section3" },
+              { titleKey: "producer.terms.section4Title", contentKey: "producer.terms.section4" },
+            ].map(({ titleKey, contentKey }) => (
+              <div key={titleKey}>
+                <h4 className="text-white font-medium mb-2 text-sm">{t(titleKey)}</h4>
                 <ul className="space-y-1 list-disc list-inside">
-                  {content.map((item) => (
-                    <li key={item}>{item}</li>
+                  {(t(contentKey, { returnObjects: true }) || []).map((item, i) => (
+                    <li key={i}>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -1426,7 +1549,7 @@ export default function ProducerHome() {
               onClick={() => setShowTermsModal(false)}
               className="px-5 py-2.5 bg-gradient-to-r from-[#AD46FF]/80 to-[#F6339A]/80 hover:from-[#AD46FF] hover:to-[#F6339A] text-white rounded-xl text-sm font-semibold transition-all duration-200"
             >
-              J'ai compris
+              {t("producer.terms.understood")}
             </button>
           </div>
         </Modal>
@@ -1439,7 +1562,10 @@ export default function ProducerHome() {
           return (
             <div
               className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-md"
-              onClick={() => { setSelectedMovieId(null); setEditingMovieId(null); }}
+              onClick={() => {
+                setSelectedMovieId(null);
+                setEditingMovieId(null);
+              }}
             >
               <div
                 className="bg-[#0d0f14] border border-white/8 rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_32px_80px_rgba(0,0,0,0.8)]"
@@ -1451,13 +1577,20 @@ export default function ProducerHome() {
                     <h3 className="text-lg font-black text-white tracking-tight truncate">
                       {selectedMovie.title}
                     </h3>
-                    <span className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${badge.color}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                    <span
+                      className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${badge.color}`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}
+                      />
                       {badge.label}
                     </span>
                   </div>
                   <button
-                    onClick={() => { setSelectedMovieId(null); setEditingMovieId(null); }}
+                    onClick={() => {
+                      setSelectedMovieId(null);
+                      setEditingMovieId(null);
+                    }}
                     className="flex-shrink-0 w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 text-white/40 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all duration-200 ml-4 text-sm"
                   >
                     ✕
@@ -1466,21 +1599,40 @@ export default function ProducerHome() {
 
                 {/* Body */}
                 <div className="p-8 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10">
-
                   {/* Left column */}
                   <div className="flex flex-col gap-6">
-
                     {/* Technical fields as cards */}
                     <div className="grid grid-cols-2 gap-3">
                       {[
-                        { label: "Durée",       value: selectedMovie.duration ? `${selectedMovie.duration}s` : "—" },
-                        { label: "Langue",       value: selectedMovie.main_language || "—" },
-                        { label: "Nationalité",  value: selectedMovie.nationality || "—"   },
-                        { label: "Outil IA",     value: selectedMovie.ai_tool || "—"       },
+                        {
+                          label: t("producer.modal.duration"),
+                          value: selectedMovie.duration
+                            ? `${selectedMovie.duration}s`
+                            : "—",
+                        },
+                        {
+                          label: t("producer.modal.language"),
+                          value: selectedMovie.main_language || "—",
+                        },
+                        {
+                          label: t("producer.modal.nationality"),
+                          value: selectedMovie.nationality || "—",
+                        },
+                        {
+                          label: t("producer.modal.aiTool"),
+                          value: selectedMovie.ai_tool || "—",
+                        },
                       ].map(({ label, value }) => (
-                        <div key={label} className="flex flex-col gap-1.5 bg-white/[0.03] border border-white/6 rounded-2xl px-5 py-4">
-                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">{label}</p>
-                          <p className="text-sm font-semibold text-white/80">{value}</p>
+                        <div
+                          key={label}
+                          className="flex flex-col gap-1.5 bg-white/[0.03] border border-white/6 rounded-2xl px-5 py-4"
+                        >
+                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">
+                            {label}
+                          </p>
+                          <p className="text-sm font-semibold text-white/80">
+                            {value}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -1489,7 +1641,9 @@ export default function ProducerHome() {
                     {(selectedMovie.synopsis || selectedMovie.description) && (
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center gap-3">
-                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">Synopsis</p>
+                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">
+                            {t("producer.modal.synopsis")}
+                          </p>
                           <div className="flex-1 h-px bg-white/6" />
                         </div>
                         <p className="text-sm text-white/55 leading-relaxed">
@@ -1500,12 +1654,28 @@ export default function ProducerHome() {
 
                     {/* Subtitle download */}
                     {selectedMovie.subtitle?.endsWith?.(".srt") && (
-                      <a href={`${UPLOAD_BASE}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer" download
-                        className="inline-flex items-center gap-2 text-sm text-[#AD46FF] hover:text-[#F6339A] transition-colors font-medium w-fit">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                      <a
+                        href={`${UPLOAD_BASE}/${selectedMovie.subtitle}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="inline-flex items-center gap-2 text-sm text-[#AD46FF] hover:text-[#F6339A] transition-colors font-medium w-fit"
+                      >
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                        Télécharger les sous-titres
+                        {t("producer.form.downloadSubtitles")}
                       </a>
                     )}
 
@@ -1513,64 +1683,151 @@ export default function ProducerHome() {
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">Collaborateurs</p>
+                          <p className="text-[9px] tracking-[0.25em] uppercase text-white/35 font-semibold">
+                            {t("producer.collaborators.title")}
+                          </p>
                           <div className="h-px bg-white/6 w-16" />
                         </div>
-                        <button type="button" onClick={() => startEditCollaborators(selectedMovie)}
-                          className="text-[11px] text-[#AD46FF]/70 hover:text-[#AD46FF] transition-colors font-semibold px-2 py-1 rounded-lg hover:bg-[#AD46FF]/10">
-                          Modifier
+                        <button
+                          type="button"
+                          onClick={() => startEditCollaborators(selectedMovie)}
+                          className="text-[11px] text-[#AD46FF]/70 hover:text-[#AD46FF] transition-colors font-semibold px-2 py-1 rounded-lg hover:bg-[#AD46FF]/10"
+                        >
+                          {t("producer.collaborators.modify")}
                         </button>
                       </div>
 
                       {selectedMovie.Collaborators?.length ? (
                         <ul className="flex flex-col gap-2">
                           {selectedMovie.Collaborators.map((c) => (
-                            <li key={c.id_collaborator} className="flex items-center gap-3 bg-white/[0.03] border border-white/6 rounded-xl px-4 py-2.5">
+                            <li
+                              key={c.id_collaborator}
+                              className="flex items-center gap-3 bg-white/[0.03] border border-white/6 rounded-xl px-4 py-2.5"
+                            >
                               <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/60 flex-shrink-0" />
-                              <span className="text-sm text-white/70 font-medium">{c.first_name} {c.last_name}</span>
-                              {c.job && <span className="text-white/30 text-sm">— {c.job}</span>}
+                              <span className="text-sm text-white/70 font-medium">
+                                {c.first_name} {c.last_name}
+                              </span>
+                              {c.job && (
+                                <span className="text-white/30 text-sm">
+                                  — {c.job}
+                                </span>
+                              )}
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-sm text-white/25 italic">Aucun collaborateur renseigné.</p>
+                        <p className="text-sm text-white/25 italic">
+                          {t("producer.collaborators.none")}
+                        </p>
                       )}
 
                       {editingMovieId === selectedMovie.id_movie && (
                         <div className="mt-2 space-y-2 border-t border-white/6 pt-4">
-                          {(collabDrafts[selectedMovie.id_movie] || []).map((c, idx) => (
-                            <div key={idx} className="grid grid-cols-2 gap-2 bg-white/[0.03] border border-white/6 p-3 rounded-xl">
-                              {["first_name", "last_name", "email", "job"].map((field) => (
-                                <input key={field} type={field === "email" ? "email" : "text"}
-                                  placeholder={{ first_name: "Prénom", last_name: "Nom", email: "E-mail", job: "Rôle" }[field]}
-                                  value={c[field]}
-                                  onChange={(e) => updateDraftField(selectedMovie.id_movie, idx, field, e.target.value)}
-                                  className="w-full bg-white/[0.03] border border-white/8 text-white px-3 py-2 rounded-lg text-xs outline-none hover:border-[#AD46FF]/25 focus:border-[#AD46FF]/40 placeholder:text-white/15 transition-all duration-200"
-                                />
-                              ))}
-                              <div className="col-span-2 flex justify-end">
-                                <button type="button"
-                                  onClick={() => setCollabDrafts((p) => { const list = [...(p[selectedMovie.id_movie] || [])]; list.splice(idx, 1); return { ...p, [selectedMovie.id_movie]: list }; })}
-                                  className="text-red-400/60 hover:text-red-400 text-xs transition-colors">
-                                  ✕ Supprimer
-                                </button>
+                          {(collabDrafts[selectedMovie.id_movie] || []).map(
+                            (c, idx) => (
+                              <div
+                                key={idx}
+                                className="grid grid-cols-2 gap-2 bg-white/[0.03] border border-white/6 p-3 rounded-xl"
+                              >
+                                {[
+                                  "first_name",
+                                  "last_name",
+                                  "email",
+                                  "job",
+                                ].map((field) => (
+                                  <input
+                                    key={field}
+                                    type={field === "email" ? "email" : "text"}
+                                    placeholder={
+                                      {
+                                        first_name: t(
+                                          "producer.collaborators.firstName",
+                                        ),
+                                        last_name: t(
+                                          "producer.collaborators.lastName",
+                                        ),
+                                        email: t(
+                                          "producer.collaborators.email",
+                                        ),
+                                        job: t("producer.collaborators.job"),
+                                      }[field]
+                                    }
+                                    value={c[field]}
+                                    onChange={(e) =>
+                                      updateDraftField(
+                                        selectedMovie.id_movie,
+                                        idx,
+                                        field,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full bg-white/[0.03] border border-white/8 text-white px-3 py-2 rounded-lg text-xs outline-none hover:border-[#AD46FF]/25 focus:border-[#AD46FF]/40 placeholder:text-white/15 transition-all duration-200"
+                                  />
+                                ))}
+                                <div className="col-span-2 flex justify-end">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setCollabDrafts((p) => {
+                                        const list = [
+                                          ...(p[selectedMovie.id_movie] || []),
+                                        ];
+                                        list.splice(idx, 1);
+                                        return {
+                                          ...p,
+                                          [selectedMovie.id_movie]: list,
+                                        };
+                                      })
+                                    }
+                                    className="text-red-400/60 hover:text-red-400 text-xs transition-colors"
+                                  >
+                                    {t("producer.collaborators.delete")}
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ),
+                          )}
                           <div className="flex gap-2 pt-1">
-                            <button type="button"
-                              onClick={() => setCollabDrafts((p) => ({ ...p, [selectedMovie.id_movie]: [...(p[selectedMovie.id_movie] || []), { first_name: "", last_name: "", email: "", job: "" }] }))}
-                              className="px-3 py-1.5 text-xs bg-white/[0.04] border border-white/8 text-white/50 rounded-lg hover:bg-white/[0.06] hover:text-white/70 transition-all duration-200">
-                              + Ajouter
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCollabDrafts((p) => ({
+                                  ...p,
+                                  [selectedMovie.id_movie]: [
+                                    ...(p[selectedMovie.id_movie] || []),
+                                    {
+                                      first_name: "",
+                                      last_name: "",
+                                      email: "",
+                                      job: "",
+                                    },
+                                  ],
+                                }))
+                              }
+                              className="px-3 py-1.5 text-xs bg-white/[0.04] border border-white/8 text-white/50 rounded-lg hover:bg-white/[0.06] hover:text-white/70 transition-all duration-200"
+                            >
+                              {t("producer.collaborators.add")}
                             </button>
-                            <button type="button"
-                              onClick={() => updateCollabMutation.mutate({ id: selectedMovie.id_movie, collaborators: collabDrafts[selectedMovie.id_movie] || [] })}
-                              className="px-3 py-1.5 text-xs bg-[#AD46FF]/10 text-[#AD46FF]/80 border border-[#AD46FF]/20 rounded-lg hover:bg-[#AD46FF]/15 hover:text-[#AD46FF] transition-all duration-200 font-medium">
-                              Enregistrer
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateCollabMutation.mutate({
+                                  id: selectedMovie.id_movie,
+                                  collaborators:
+                                    collabDrafts[selectedMovie.id_movie] || [],
+                                })
+                              }
+                              className="px-3 py-1.5 text-xs bg-[#AD46FF]/10 text-[#AD46FF]/80 border border-[#AD46FF]/20 rounded-lg hover:bg-[#AD46FF]/15 hover:text-[#AD46FF] transition-all duration-200 font-medium"
+                            >
+                              {t("producer.collaborators.save")}
                             </button>
-                            <button type="button" onClick={() => setEditingMovieId(null)}
-                              className="px-3 py-1.5 text-xs border border-white/8 text-white/55 rounded-lg hover:bg-white/[0.04] transition-all duration-200">
-                              Annuler
+                            <button
+                              type="button"
+                              onClick={() => setEditingMovieId(null)}
+                              className="px-3 py-1.5 text-xs border border-white/8 text-white/55 rounded-lg hover:bg-white/[0.04] transition-all duration-200"
+                            >
+                              {t("producer.collaborators.cancel")}
                             </button>
                           </div>
                         </div>
@@ -1592,10 +1849,20 @@ export default function ProducerHome() {
                         />
                       ) : (
                         <div className="w-full aspect-video bg-white/[0.03] flex flex-col items-center justify-center gap-2 text-white/15">
-                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                            <path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+                          <svg
+                            width="28"
+                            height="28"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                          >
+                            <path d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                           </svg>
-                          <p className="text-xs">Aucun média disponible</p>
+                          <p className="text-xs">
+                            {t("producer.form.noMedia")}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -1611,14 +1878,32 @@ export default function ProducerHome() {
                       return (
                         <div className="grid grid-cols-3 gap-2">
                           {imgs.map((img, i) => (
-                            <button key={i} type="button"
-                              onClick={() => setLightboxImg(`${UPLOAD_BASE}/${img}`)}
-                              className="group relative aspect-video rounded-xl overflow-hidden border border-white/8 hover:border-[#AD46FF]/40 transition-all duration-200 hover:shadow-[0_0_16px_rgba(173,70,255,0.2)]">
-                              <img src={`${UPLOAD_BASE}/${img}`} alt={`Vignette ${i + 1}`}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() =>
+                                setLightboxImg(`${UPLOAD_BASE}/${img}`)
+                              }
+                              className="group relative aspect-video rounded-xl overflow-hidden border border-white/8 hover:border-[#AD46FF]/40 transition-all duration-200 hover:shadow-[0_0_16px_rgba(173,70,255,0.2)]"
+                            >
+                              <img
+                                src={`${UPLOAD_BASE}/${img}`}
+                                alt={`Vignette ${i + 1}`}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center">
-                                <svg className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                <svg
+                                  className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                  />
                                 </svg>
                               </div>
                             </button>
@@ -1642,8 +1927,18 @@ export default function ProducerHome() {
             onClick={() => setLightboxImg(null)}
             className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
           <img
