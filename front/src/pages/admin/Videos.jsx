@@ -747,7 +747,7 @@ export default function Videos() {
    MODAL
 ══════════════════════════════════════════════════════ */
 function FilmModal({ movie, summary, categories, catSel, setCatSel,
-  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete }) {
+  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete, setDeleteConfirm }) {
 
   const status   = movie.selection_status || "submitted";
   const meta     = scfg(status);
@@ -1139,7 +1139,12 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
 
               {/* Delete */}
               <div className="p-4 mt-auto">
-                <button type="button" onClick={() => onDelete(movie.id_movie)}
+                <button type="button" onClick={() => setDeleteConfirm({
+                  title: "Supprimer le film",
+                  message: "Supprimer définitivement ce film ? Action irréversible.",
+                  danger: true,
+                  onConfirm: () => onDelete(movie.id_movie)
+                })}
                   className="w-full px-3 py-2 text-[11px] text-red-300/90 border bg-red-500/10 border-red-900/20 rounded-xl hover:bg-red-500/20 hover:text-red-400/90 hover:border-red-500/30 transition-all duration-300">
                   🗑 Supprimer définitivement
                 </button>
