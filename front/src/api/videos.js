@@ -32,10 +32,6 @@ async function promoteMovieToCandidateByJury(id, jury_comment = "") {
  * depuis le panneau "Forcer un statut" de la modale admin.
  * Sans ce flag, le panneau obéissait quand même à la transitionMap backend
  * et retournait 400 pour les transitions inhabituelles.
- *
- * @param {number|string} id          - ID du film
- * @param {string}        status      - Nouveau statut cible
- * @param {object}        [options]   - Options supplémentaires (ex: { force_transition: true })
  */
 async function updateMovieStatus(id, selection_status, options = {}) {
   return await instance.put(`movies/${id}/status`, { selection_status, ...options });

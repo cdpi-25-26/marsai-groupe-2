@@ -1,10 +1,3 @@
-/**
- * Composant SearchBar réutilisable
- * @param {string} value - La valeur actuelle de la recherche
- * @param {function} onChange - Appelée à chaque modification
- * @param {string} placeholder - Texte de l'espace réservé
- * @param {string} className - Classes Tailwind supplémentaires
- */
 export default function SearchBar({ value, onChange, placeholder = "Rechercher...", className = "" }) {
   return (
     <div className={`relative ${className}`}>

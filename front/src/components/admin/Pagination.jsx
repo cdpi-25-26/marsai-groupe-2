@@ -1,12 +1,5 @@
 /**
  * Composant de pagination réutilisable
- * @param {Object} props - Les propriétés du composant
- * @param {number} props.currentPage - Page actuelle
- * @param {number} props.totalPages - Nombre total de pages
- * @param {number} props.itemsPerPage - Nombre d'éléments par page
- * @param {function} props.onPageChange - Fonction appelée quand la page change
- * @param {function} props.onItemsPerPageChange - Fonction appelée quand le nombre d'éléments par page change
- * @returns {JSX.Element} Le composant de pagination
  */
 function Pagination({ 
   currentPage, 
