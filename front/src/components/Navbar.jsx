@@ -124,7 +124,7 @@ export default function Navbar() {
           px-3 py-2 rounded-full
           border transition-all duration-500 will-change-transform
           ${scrolled
-            ? "bg-[#06080d]/40 backdrop-blur-xl border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
+            ? "bg-[#06080d]/90 backdrop-blur-xl border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.6)]"
             : "bg-white/[0.06] backdrop-blur-md border-white/15 shadow-[0_4px_24px_rgba(0,0,0,0.3)]"
           }
         `}

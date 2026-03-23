@@ -63,20 +63,23 @@ async function getMovies(req, res) {
           required: false
         },
         {
-          // Producteur : prénom + nom uniquement, pas d'email
           model: User,
           as: "Producer",
           attributes: ["id_user", "first_name", "last_name"]
         },
         {
-          // NominatorJury : sans email pour la route publique
           model: User,
           as: "NominatorJury",
           attributes: ["id_user", "first_name", "last_name"],
           required: false
+        },
+        {
+          model: User,
+          as: "Juries",
+          through: { attributes: [] },
+          attributes: ["id_user", "first_name", "last_name", "email", "role"],
+          required: false
         }
-        // FIX: Juries retiré de la réponse publique — emails et rôles ne doivent
-        // pas être exposés sans authentification.
       ]
     });
 

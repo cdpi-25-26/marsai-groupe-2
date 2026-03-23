@@ -181,6 +181,7 @@ export default function Videos() {
   const [phase3Active,  setPhase3Active]  = useState(false);
   const [phaseLoading,  setPhaseLoading]  = useState(false);
   const [catSel,        setCatSel]        = useState({});
+  const [confirmModal,   setConfirmModal]   = useState(null);
 
   useEffect(() => {
     if (!allMovies.length) return;
@@ -283,13 +284,20 @@ export default function Videos() {
     inv(); setSelectedIds([]);
   }
 
-  async function batchDelete() {
+  function batchDelete() {
     if (!selectedIds.length) return;
-    if (!window.confirm(`Supprimer définitivement ${selectedIds.length} film(s) ? Action irréversible.`)) return;
-    await Promise.all(selectedIds.map((id) => deleteMovie(id)));
-    inv();
-    setSelectedIds([]);
-    setSelectedMovie(null);
+    setConfirmModal({
+      title: "Supprimer les films",
+      message: `Supprimer définitivement ${selectedIds.length} film(s) ? Action irréversible.`,
+      danger: true,
+      onConfirm: async () => {
+        setConfirmModal(null);
+        await Promise.all(selectedIds.map((id) => deleteMovie(id)));
+        inv();
+        setSelectedIds([]);
+        setSelectedMovie(null);
+      }
+    });
   }
 
   /* ── Actions batch contextuelles selon l'onglet actif ── */
@@ -306,10 +314,15 @@ export default function Videos() {
           <button
             onClick={async () => {
               if (phase2Active) { setSelectedIds([]); return; }
-              if (window.confirm(`Publier les finalistes comme candidats publics sur le site ?`)) {
-                await handlePhase2Toggle();
-                setSelectedIds([]);
-              }
+              setConfirmModal({
+                title: "Publier les candidats",
+                message: "Publier les finalistes comme candidats publics sur le site ?",
+                onConfirm: async () => {
+                  setConfirmModal(null);
+                  await handlePhase2Toggle();
+                  setSelectedIds([]);
+                }
+              });
             }}
             className={`font-semibold flex items-center gap-1 transition-all duration-300 ${
               phase2Active ? "text-emerald-300 hover:text-emerald-200" : "text-orange-300 hover:text-orange-200"
@@ -337,9 +350,15 @@ export default function Videos() {
           <span className="h-3 w-px bg-white/10" />
           <button
             onClick={async () => {
-              if (!window.confirm(`Publier le palmarès (${count} film${count > 1 ? "s" : ""}) sur le site public ?`)) return;
-              if (!effectiveActive) await handlePhase3Toggle();
-              setSelectedIds([]);
+              setConfirmModal({
+                title: "Publier le palmarès",
+                message: `Publier le palmarès (${count} film${count > 1 ? "s" : ""}) sur le site public ?`,
+                onConfirm: async () => {
+                  setConfirmModal(null);
+                  if (!effectiveActive) await handlePhase3Toggle();
+                  setSelectedIds([]);
+                }
+              });
             }}
             className={`font-semibold flex items-center gap-1 transition-all duration-300 ${
               effectiveActive ? "text-yellow-300 hover:text-yellow-200" : "text-yellow-400 hover:text-yellow-300"
@@ -681,8 +700,44 @@ export default function Videos() {
           onForceStatus={(id, s) => statusM.mutate({ id, status: s, force: true })}
           onComment={(id) => commentM.mutate({ id, c: adminComment })}
           onCategories={(id) => catM.mutate({ id, cats: catSel[id] || [] })}
-          onDelete={(id) => { if (window.confirm("Supprimer définitivement ? Action irréversible.")) deleteM.mutate(id); }}
+          onDelete={(id) => {
+            setConfirmModal({
+              title: "Supprimer le film",
+              message: "Supprimer définitivement ce film ? Action irréversible.",
+              danger: true,
+              onConfirm: () => { setConfirmModal(null); deleteM.mutate(id); }
+            });
+          }}
+          setDeleteConfirm={setConfirmModal}
         />
+      )}
+
+      {/* Modal de confirmation */}
+      {confirmModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setConfirmModal(null)}>
+          <div className="bg-gradient-to-br from-[#1a1c20] to-[#0f1114] border border-white/10 rounded-xl w-full max-w-md shadow-2xl shadow-black/50" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 text-center">
+              <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${confirmModal.danger ? "bg-red-500/20 border border-red-500/30" : "bg-yellow-500/20 border border-yellow-500/30"}`}>
+                <svg className={`w-6 h-6 ${confirmModal.danger ? "text-red-400" : "text-yellow-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold text-white mb-2">{confirmModal.title}</h2>
+              <p className="text-sm text-white/60 mb-6">{confirmModal.message}</p>
+              <div className="flex gap-2">
+                <button onClick={() => setConfirmModal(null)} className="flex-1 px-3 py-1.5 bg-white/5 border border-white/10 text-white/80 text-xs rounded-lg hover:bg-white/10 transition-colors">
+                  Annuler
+                </button>
+                <button
+                  onClick={confirmModal.onConfirm}
+                  className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-colors ${confirmModal.danger ? "bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20" : "bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20"}`}
+                >
+                  Confirmer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -692,7 +747,7 @@ export default function Videos() {
    MODAL
 ══════════════════════════════════════════════════════ */
 function FilmModal({ movie, summary, categories, catSel, setCatSel,
-  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete }) {
+  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete, setDeleteConfirm }) {
 
   const status   = movie.selection_status || "submitted";
   const meta     = scfg(status);
@@ -1084,7 +1139,12 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
 
               {/* Delete */}
               <div className="p-4 mt-auto">
-                <button type="button" onClick={() => onDelete(movie.id_movie)}
+                <button type="button" onClick={() => setDeleteConfirm({
+                  title: "Supprimer le film",
+                  message: "Supprimer définitivement ce film ? Action irréversible.",
+                  danger: true,
+                  onConfirm: () => onDelete(movie.id_movie)
+                })}
                   className="w-full px-3 py-2 text-[11px] text-red-300/90 border bg-red-500/10 border-red-900/20 rounded-xl hover:bg-red-500/20 hover:text-red-400/90 hover:border-red-500/30 transition-all duration-300">
                   🗑 Supprimer définitivement
                 </button>

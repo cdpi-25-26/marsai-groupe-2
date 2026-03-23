@@ -15,6 +15,7 @@ export function VideoModal({
   onJurySave,
   onStatusUpdate,
   onDelete,
+  setDeleteConfirm,
   getPoster,
   uploadBase,
   isUpdatingCategories,
@@ -486,11 +487,12 @@ export function VideoModal({
                   <button
                     type="button"
                     onClick={() => {
-                      if (
-                        window.confirm("Supprimer définitivement ce film ?")
-                      ) {
-                        onDelete(movie.id_movie);
-                      }
+                      setDeleteConfirm({
+                        title: "Supprimer le film",
+                        message: "Supprimer définitivement ce film ? Action irréversible.",
+                        danger: true,
+                        onConfirm: () => onDelete(movie.id_movie)
+                      });
                     }}
                     className="group relative flex-1 lg:w-full px-3 py-1.5 bg-gray-500/10 backdrop-blur-sm border border-white/10 text-gray-300 text-xs font-medium rounded-lg hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-red-500/20 flex items-center justify-center gap-1.5 overflow-hidden cursor-pointer"
                   >
