@@ -1,8 +1,3 @@
-/**
- * Composant Categories (Gestion des Catégories)
- * Page administrateur pour créer, modifier et supprimer les catégories
- * @returns {JSX.Element} La page de gestion des catégories
- */
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../../api/videos.js";

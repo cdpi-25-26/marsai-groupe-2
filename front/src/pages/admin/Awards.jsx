@@ -1,6 +1,3 @@
-// 
-
-
 import { useState, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAwards, createAward, deleteAward } from "../../api/awards.js";
