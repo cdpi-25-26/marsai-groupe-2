@@ -67,10 +67,7 @@ export function Login() {
     <Navbar />
     <div className="min-h-screen bg-[#06080d] text-white flex items-center justify-center px-4 py-24 overflow-hidden relative">
 
-      {/* Ghost text */}
-      <span className="absolute inset-0 flex items-center justify-center pt-25 text-[25vw] font-black tracking-tighter text-white/[0.02] select-none pointer-events-none uppercase leading-none">
-        MARSAI
-      </span>
+      
 
       {/* Ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-gradient-to-r from-[#AD46FF]/8 to-[#F6339A]/8 blur-3xl pointer-events-none" />
