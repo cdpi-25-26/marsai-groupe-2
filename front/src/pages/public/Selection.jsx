@@ -113,10 +113,7 @@ export default function Selection() {
       {/* ── HERO ────────────────────────────── */}
       <section className="relative flex flex-col items-center justify-center pt-40 pb-28 px-6 text-center overflow-hidden">
 
-        {/* Giant ghost text */}
-        <span className="absolute inset-0 flex items-center justify-center text-[18vw] font-black tracking-tighter text-white/[0.025] select-none pointer-events-none uppercase leading-none">
-          {isPhase3 ? "PRIX" : "FILMS"}
-        </span>
+       
 
         {/* Ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] rounded-full bg-gradient-to-r from-[#AD46FF]/8 to-[#F6339A]/8 blur-3xl pointer-events-none" />
