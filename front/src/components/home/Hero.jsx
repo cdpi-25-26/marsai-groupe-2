@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import TitleInBox from "../TitleInBox.jsx";
 import Button from "../Button.jsx";
+import Videoaccueil from "../../assets/videos/accueil_marsai_2.mp4";
+
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -26,7 +28,7 @@ export default function Hero() {
           muted
           playsInline
         >
-          <source src="./src/assets/videos/accueil_marsai_2.mp4" type="video/mp4" />
+          <source src={Videoaccueil} type="video/mp4" />
         </video>
       </div>
 

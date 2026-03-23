@@ -1,3 +1,5 @@
+import instance from "../api/config";
+
 const colors = [
   "#F6339A",
   "#4ECDC4",
@@ -31,7 +33,7 @@ export default function PartenaireCard({ name, logo, color, url }) {
     >
       <div className="w-full h-40 flex items-center justify-center mb-3">
         <img
-          src={`http://localhost:3000${logo}`}
+          src={`${instance.defaults.baseURL}${logo}`}
           alt={name}
           className="max-h-full object-contain"
         />

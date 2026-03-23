@@ -11,6 +11,7 @@ import {
 } from "../../api/videos";
 import { getVotes } from "../../api/votes";
 import { VideoPreview } from "../../components/VideoPreview";
+import instance from "../../api/config";
 
 function Leaderboard() {
   const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ function Leaderboard() {
   const [message, setMessage] = useState("");
   const [showVotesModal, setShowVotesModal] = useState(false);
   const [movieToView, setMovieToView] = useState(null);
-  const uploadBase = "http://localhost:3000/uploads";
+  const uploadBase = instance.defaults.baseURL + "/uploads";
 
   // Fetch all movies
   const { data } = useQuery({
