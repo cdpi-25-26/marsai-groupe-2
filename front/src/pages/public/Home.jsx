@@ -18,7 +18,7 @@ import Localisation from "../../components/home/Localisation";
 import Statistics from "../../components/home/Statistics";
 import Sponsors from "../../components/home/Sponsors";
 import { useFestivalConfig } from "../../hooks/useFestivalConfig";
-import Selection from "./Selection.jsx";
+import Selection from "../public/Selection.jsx";
 import "./Home.css";
 
 import "./Home.css";
