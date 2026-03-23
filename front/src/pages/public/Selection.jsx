@@ -9,32 +9,31 @@ const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http:
 
 export default function Selection() {
    const { t } = useTranslation();
-  const [movies,  setMovies]  = useState([]);
-  const [phase,   setPhase]   = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [active,  setActive]  = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const videoRef = useRef(null);
-  const gridRef  = useRef(null);
+   const [movies,  setMovies]  = useState([]);
+   const [phase,   setPhase]   = useState(null);
+   const [loading, setLoading] = useState(true);
+   const [active,  setActive]  = useState(null);
+   const [currentPage, setCurrentPage] = useState(1);
+   const videoRef = useRef(null);
+   const gridRef  = useRef(null);
 
-  const MOVIES_PER_PAGE = 10;
+   const MOVIES_PER_PAGE = 10;
 
-  /* ── Logic inchangée ── */
-  useEffect(() => {
-    fetch(`${API}/festival/phase`)
-      .then((r) => r.json())
-      .then(async (data) => {
-        const activePhase = data.phase ?? 0;
-        setPhase(activePhase);
-        if (activePhase === 2 || activePhase === 3) {
-          const res = await fetch(`${API}/movies/phase${activePhase}`);
-          const list = await res.json();
-          if (Array.isArray(list)) setMovies(list);
-        }
-      })
-      .catch(() => setPhase(0))
-      .finally(() => setLoading(false));
-  }, []);
+   useEffect(() => {
+     fetch(`${API}/festival/phase`)
+       .then((r) => r.json())
+       .then(async (data) => {
+         const activePhase = data.phase ?? 0;
+         setPhase(activePhase);
+         if (activePhase === 2 || activePhase === 3) {
+           const res = await fetch(`${API}/movies/phase${activePhase}`);
+           const list = await res.json();
+           if (Array.isArray(list)) setMovies(list);
+         }
+       })
+       .catch(() => setPhase(0))
+       .finally(() => setLoading(false));
+   }, []);
 
   useEffect(() => {
     function onKey(e) { if (e.key === "Escape") setActive(null); }

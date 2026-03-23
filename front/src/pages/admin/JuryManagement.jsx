@@ -138,8 +138,8 @@ export default function JuryManagement() {
     () =>
       allMovies.filter(
         (m) =>
-          // !["refused", "awarded"].includes(m.selection_status || "submitted"),
-         !["submitted", "refused", "awarded"].includes(m.selection_status || "submitted"),
+          !["submitted", "refused", "awarded"].includes(m.selection_status || "submitted") &&
+          (!m.Juries || m.Juries.length === 0),
       ),
     [allMovies],
   );
