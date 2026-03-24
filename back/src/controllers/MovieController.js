@@ -878,15 +878,22 @@ async function phase2Movies(req, res) {
 
 async function phase3Movies(req, res) {
   try {
-    const movies = await Movie.findAll({
-      where: {
-        selection_status: "awarded"
-      },
+    // Phase 3: Return both palmares (awarded) AND selection officielle (finalists/candidates)
+    // Order: palmares first, then selection
+    const awarded = await Movie.findAll({
+      where: { selection_status: "awarded" },
       include: [{ model: Award, required: false }],
       order: [["createdAt", "DESC"]],
-      limit: 50
     });
-    res.json(movies);
+    
+    const selection = await Movie.findAll({
+      where: { selection_status: { [Op.in]: ["to_discuss", "selected", "candidate", "finalist"] } },
+      include: [{ model: Award, required: false }],
+      order: [["createdAt", "DESC"]],
+    });
+    
+    // Combine: awarded first, then selection
+    res.json([...awarded, ...selection]);
   } catch (error) {
     console.error("phase3Movies error:", error);
     res.status(500).json({

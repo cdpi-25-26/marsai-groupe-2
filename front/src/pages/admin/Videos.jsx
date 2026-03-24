@@ -37,7 +37,7 @@ async function setFestivalPhase(phase) {
   });
   return r.json();
 }
-import { getVotes } from "../../api/votes.js";
+import { getVotes, setVoteDecision } from "../../api/votes.js";
 import { UPLOAD_BASE } from "../../utils/constants.js";
 import { getPoster, getTrailer } from "../../utils/movieUtils.js";
 
@@ -76,7 +76,7 @@ const PIPELINE = [
 const PIPELINE_ORDER = PIPELINE.map((p) => p.key);
 
 /* ─── Actions contextuelles par statut ───────────────── */
-function contextualActions(status, hasVotes, juriesCount) {
+function contextualActions(status, hasVotes, juriesCount, acceptedCount = 0) {
   switch (status) {
     case "submitted":
       return {
@@ -90,20 +90,21 @@ function contextualActions(status, hasVotes, juriesCount) {
         danger: [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20", label: "✗ Refuser le film" }],
         info: "Vérifiez le film avant d'accepter. Toutes les vérifications doivent être au vert.",
       };
-    case "assigned":
+    case "assigned": {
       return {
         primary: [{
-          to: "to_discuss", cls: hasVotes
+          to: "to_discuss", cls: acceptedCount > 0
             ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20"
             : "bg-amber-500/10 text-amber-400/40 border border-amber-500/10 cursor-not-allowed",
           label: "💬 Ouvrir la Phase 2 (délibération)",
-          tip: !hasVotes ? "En attente des votes Phase 1. Au moins un jury doit avoir voté." : null,
+          tip: acceptedCount === 0 ? "En attente des votes acceptés. Au moins un vote doit être accepté." : null,
         }],
         danger: [{ to: "refused", cls: "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/20", label: "✗ Refuser" }],
-        info: hasVotes
-          ? `${juriesCount} jury(s) assigné(s) — votes reçus. Vous pouvez ouvrir la Phase 2.`
-          : `Phase 1 en cours — ${juriesCount} jury(s) assigné(s). En attente de votes.`,
+        info: acceptedCount > 0
+          ? `${juriesCount} jury(s) assigné(s) — ${acceptedCount} vote(s) accepté(s). Vous pouvez ouvrir la Phase 2.`
+          : `Phase 1 en cours — ${juriesCount} jury(s) assigné(s). En attente de votes acceptés.`,
       };
+    }
     case "to_discuss":
       return {
         primary: [
@@ -163,9 +164,23 @@ export default function Videos() {
   const votes      = votesData?.data || [];
 
   const voteSummary = useMemo(() => votes.reduce((acc, v) => {
-    if (!acc[v.id_movie]) acc[v.id_movie] = { YES: 0, NO: 0, "TO DISCUSS": 0, total: 0, votes: [] };
+    if (!acc[v.id_movie]) {
+      acc[v.id_movie] = { 
+        YES: 0, 
+        NO: 0, 
+        "TO DISCUSS": 0, 
+        total: 0, 
+        accepted: 0,
+        votes: [] 
+      };
+    }
     const s = acc[v.id_movie];
-    if (["YES","NO","TO DISCUSS"].includes(v.note)) s[v.note]++;
+    if (["YES","NO","TO DISCUSS"].includes(v.note)) {
+      s[v.note]++;
+      if (v.decision === "accepted") {
+        s.accepted++;
+      }
+    }
     s.total++;
     s.votes.push(v);
     return acc;
@@ -265,6 +280,14 @@ export default function Videos() {
   });
   const commentM  = useMutation({ mutationFn: ({ id, c }) => updateMovie(id, { admin_comment: c }), onSuccess: () => { inv(); setModalNotice("✓ Note enregistrée."); }, onError: () => setModalNotice("❌ Erreur lors de la sauvegarde de la note.") });
   const catM      = useMutation({ mutationFn: ({ id, cats }) => updateMovieCategories(id, cats),   onSuccess: () => { inv(); setModalNotice("Catégories mises à jour."); } });
+  const voteDecisionM = useMutation({
+    mutationFn: ({ id, decision }) => setVoteDecision(id, decision),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["votes"] });
+      setModalNotice("Décision enregistrée.");
+    },
+    onError: () => setModalNotice("❌ Erreur lors de l'enregistrement."),
+  });
 
   // FIX B-08: onSuccess affiche une notice de confirmation AVANT de fermer la modale.
   // L'utilisateur voit "✓ Film supprimé." pendant 1.5 s puis la modale se ferme.
@@ -709,6 +732,7 @@ export default function Videos() {
             });
           }}
           setDeleteConfirm={setConfirmModal}
+          voteDecisionM={voteDecisionM}
         />
       )}
 
@@ -747,7 +771,7 @@ export default function Videos() {
    MODAL
 ══════════════════════════════════════════════════════ */
 function FilmModal({ movie, summary, categories, catSel, setCatSel,
-  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete, setDeleteConfirm }) {
+  adminComment, setAdminComment, notice, onClose, onStatus, onForceStatus, onComment, onCategories, onDelete, setDeleteConfirm, voteDecisionM }) {
 
   const status   = movie.selection_status || "submitted";
   const meta     = scfg(status);
@@ -755,7 +779,8 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
   const poster   = getPoster(movie);
   const juries   = movie.Juries || [];
   const hasVotes = (summary?.total || 0) > 0;
-  const { primary, danger, info } = contextualActions(status, hasVotes, juries.length);
+  const acceptedCount = summary?.accepted || 0;
+  const { primary, danger, info } = contextualActions(status, hasVotes, juries.length, acceptedCount);
   const pIdx     = PIPELINE_ORDER.indexOf(status);
   const [manual,  setManual]  = useState(false);
   const [fsVideo, setFsVideo] = useState(false);
@@ -974,7 +999,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
 
               {(summary?.votes?.length || 0) > 0 && (
                 <div>
-                  <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Votes Phase 1 — {summary.total} réponse{summary.total > 1 ? "s" : ""}</p>
+                  <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Votes Phase 1 — {summary.accepted} accepté(s) / {summary.total} total</p>
 
                   <div className="flex items-center gap-3 mb-3">
                     {[["Validé","YES","text-emerald-400","bg-emerald-500/10 border-emerald-500/20"],
@@ -994,22 +1019,64 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                     )}
                   </div>
 
-                  <div className="space-y-1 max-h-36 overflow-y-auto scrollbar-thin-dark">
-                    {summary.votes.map((v) => (
-                      <div key={v.id_vote} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500/50 to-pink-500/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
-                          {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                  <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
+                    {summary.votes.map((v) => {
+                      const isAccepted = v.decision === "accepted";
+                      const isRejected = v.decision === "rejected";
+                      return (
+                        <div key={v.id_vote} className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300 ${isRejected ? "opacity-40" : ""}`}>
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500/50 to-pink-500/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
+                            {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                          </div>
+                          <span className="text-white/40 flex-1 truncate text-[11px]">
+                            {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
+                          </span>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${
+                            v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/20" :
+                            v.note === "NO"  ? "bg-red-500/20 text-red-300 border-red-500/20" :
+                            "bg-amber-500/20 text-amber-300 border-amber-500/20"
+                          }`}>{v.note}</span>
+                          
+                          {!isAccepted && !isRejected && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  voteDecisionM.mutate({ id: v.id_vote, decision: "accepted" });
+                                }}
+                                disabled={voteDecisionM.isPending}
+                                className="px-1.5 py-0.5 text-[8px] rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition"
+                                title="Accepter ce vote"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  voteDecisionM.mutate({ id: v.id_vote, decision: "rejected" });
+                                }}
+                                disabled={voteDecisionM.isPending}
+                                className="px-1.5 py-0.5 text-[8px] rounded bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition"
+                                title="Rejeter ce vote"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          )}
+                          
+                          {isAccepted && (
+                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/30 border border-emerald-500/40 text-emerald-300">
+                              Accepté
+                            </span>
+                          )}
+                          {isRejected && (
+                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-red-500/30 border border-red-500/40 text-red-300">
+                              Rejeté
+                            </span>
+                          )}
                         </div>
-                        <span className="text-white/40 flex-1 truncate text-[11px]">
-                          {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
-                        </span>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${
-                          v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/20" :
-                          v.note === "NO"  ? "bg-red-500/20 text-red-300 border-red-500/20" :
-                          "bg-amber-500/20 text-amber-300 border-amber-500/20"
-                        }`}>{v.note}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

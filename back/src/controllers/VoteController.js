@@ -231,6 +231,32 @@ function getVoteById(req, res) {
         .catch(err => res.status(500).json({ error: err.message }));
 }
 
+/**
+ * PUT /:id_vote/decision — Accepte ou rejette un vote (ADMIN)
+ */
+async function setVoteDecision(req, res) {
+    const { id_vote } = req.params;
+    const { decision } = req.body;
+
+    if (!["accepted", "rejected"].includes(decision)) {
+        return res.status(400).json({ error: "Décision invalide (accepted ou rejected attendu)" });
+    }
+
+    try {
+        const vote = await Vote.findOne({ where: { id_vote } });
+        if (!vote) {
+            return res.status(404).json({ error: "Vote non trouvé" });
+        }
+
+        vote.decision = decision;
+        const updatedVote = await vote.save();
+        return res.json({ message: `Vote ${decision}`, vote: updatedVote });
+    } catch (err) {
+        console.error("setVoteDecision error:", err);
+        return res.status(500).json({ error: err.message });
+    }
+}
+
 export default {
     getVote,
     createVote,
@@ -240,5 +266,6 @@ export default {
     deleteVote,
     updateVote,
     getVoteById,
-    deleteVotesByMovie
+    deleteVotesByMovie,
+    setVoteDecision
 };

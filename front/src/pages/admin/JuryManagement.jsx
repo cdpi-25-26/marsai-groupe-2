@@ -129,17 +129,13 @@ export default function JuryManagement() {
     [allUsers],
   );
 
-  /* Films éligibles à l'assignation : tous sauf refused et awarded */
-
-  /* Films éligibles à l'assignation : uniquement les films acceptés par l'admin
-     (statut != submitted, refused, awarded) */
-
+  /* Films éligibles à l'assignation : tous sauf refused, awarded et submitted
+     Un film peut être assigné à plusieurs jurys */
   const assignableMovies = useMemo(
     () =>
       allMovies.filter(
         (m) =>
-          !["submitted", "refused", "awarded"].includes(m.selection_status || "submitted") &&
-          (!m.Juries || m.Juries.length === 0),
+          !["submitted", "refused", "awarded"].includes(m.selection_status || "submitted"),
       ),
     [allMovies],
   );

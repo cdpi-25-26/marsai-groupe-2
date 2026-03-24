@@ -16,5 +16,6 @@ voteRouter.delete("/movie/:id_movie", AuthMiddleware(["ADMIN"]), VoteController.
 voteRouter.get("/:id", AuthMiddleware(["ADMIN"]), VoteController.getVoteById);
 voteRouter.delete("/:id", AuthMiddleware(["ADMIN"]), VoteController.deleteVote);
 voteRouter.put("/:id_vote", AuthMiddleware(["ADMIN"]), VoteController.updateVote);
+voteRouter.put("/:id_vote/decision", AuthMiddleware(["ADMIN"]), VoteController.setVoteDecision);
 
 export default voteRouter;
