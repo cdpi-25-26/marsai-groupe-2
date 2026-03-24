@@ -75,6 +75,7 @@ export default function JuryHome() {
   const [activeFolder, setActiveFolder]         = useState(null);
   const [showPromoteModal, setShowPromoteModal] = useState(false);
   const [promoteComment, setPromoteComment]     = useState("");
+  const [rejectModal, setRejectModal]           = useState(null);
 
   /* ── Données ── */
   const { data: userData, isLoading: userLoading, error: userError } = useQuery({
@@ -571,7 +572,7 @@ export default function JuryHome() {
                         Promouvoir à la candidature
                       </button>
                       <button type="button" disabled={!canReject || voteMutation.isPending}
-                        onClick={() => { if (window.confirm(`Rejeter "${selectedMovie.title}" en 2ème votation ?`)) { voteMutation.mutate({ id_movie: selectedMovie.id_movie, payload: { note: "NO", comments: "Rejeté en 2ème votation." } }); } }}
+                        onClick={() => setRejectModal({ title: "Rejeter le film", message: `Rejeter "${selectedMovie.title}" en 2ème votation ?`, onConfirm: () => { voteMutation.mutate({ id_movie: selectedMovie.id_movie, payload: { note: "NO", comments: "Rejeté en 2ème votation." } }); setRejectModal(null); }})}
                         className="w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/15 hover:border-red-500/25 disabled:opacity-30 disabled:cursor-not-allowed">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                         {voteMutation.isPending ? "Enregistrement…" : "Rejeter ce film"}
@@ -699,6 +700,41 @@ export default function JuryHome() {
                 className="flex-1 px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/25 text-emerald-300 rounded-xl text-sm font-semibold transition-all duration-200 disabled:opacity-40"
               >
                 {promoteMutation.isPending ? "En cours…" : "Confirmer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════════════
+          MODALE REJET
+      ════════════════════════ */}
+      {rejectModal && (
+        <div className="fixed inset-0 z-[60] bg-black/85 flex items-center justify-center p-4 backdrop-blur-xl">
+          <div className="bg-[#0d0f14] border border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-white text-center mb-2">{rejectModal.title}</h3>
+            <p className="text-sm text-white/60 text-center mb-6">{rejectModal.message}</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setRejectModal(null)}
+                className="flex-1 px-4 py-2.5 border border-white/10 text-white/50 rounded-xl text-sm hover:bg-white/5 hover:text-white/80 transition-all duration-200"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={rejectModal.onConfirm}
+                className="flex-1 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/25 text-red-300 rounded-xl text-sm font-semibold transition-all duration-200"
+              >
+                Confirmer
               </button>
             </div>
           </div>
