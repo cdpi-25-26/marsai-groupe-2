@@ -9,32 +9,40 @@ const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http:
 
 export default function Selection() {
    const { t } = useTranslation();
-  const [movies,  setMovies]  = useState([]);
-  const [phase,   setPhase]   = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [active,  setActive]  = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const videoRef = useRef(null);
-  const gridRef  = useRef(null);
+   const [movies,  setMovies]  = useState([]);
+   const [phase,   setPhase]   = useState(null);
+   const [phaseSplit, setPhaseSplit] = useState(0); // Index where palmares ends and selection begins
+   const [loading, setLoading] = useState(true);
+   const [active,  setActive]  = useState(null);
+   const [currentPage, setCurrentPage] = useState(1);
+   const videoRef = useRef(null);
+   const gridRef  = useRef(null);
 
-  const MOVIES_PER_PAGE = 10;
+   const MOVIES_PER_PAGE = 10;
 
-  /* ── Logic inchangée ── */
-  useEffect(() => {
-    fetch(`${API}/festival/phase`)
-      .then((r) => r.json())
-      .then(async (data) => {
-        const activePhase = data.phase ?? 0;
-        setPhase(activePhase);
-        if (activePhase === 2 || activePhase === 3) {
-          const res = await fetch(`${API}/movies/phase${activePhase}`);
-          const list = await res.json();
-          if (Array.isArray(list)) setMovies(list);
-        }
-      })
-      .catch(() => setPhase(0))
-      .finally(() => setLoading(false));
-  }, []);
+   useEffect(() => {
+      fetch(`${API}/festival/phase`)
+        .then((r) => r.json())
+        .then(async (data) => {
+          const activePhase = data.phase ?? 0;
+          setPhase(activePhase);
+          if (activePhase === 2 || activePhase === 3) {
+            const res = await fetch(`${API}/movies/phase${activePhase}`);
+            const list = await res.json();
+            if (Array.isArray(list)) {
+              // Phase 3: split into palmares (first half - awarded) and selection (second half)
+              const awardedCount = list.filter(m => m.selection_status === 'awarded').length;
+              setMovies(list);
+              // Store the split point for rendering
+              if (activePhase === 3) {
+                setPhaseSplit(awardedCount);
+              }
+            }
+          }
+        })
+        .catch(() => setPhase(0))
+        .finally(() => setLoading(false));
+    }, []);
 
   useEffect(() => {
     function onKey(e) { if (e.key === "Escape") setActive(null); }
@@ -88,20 +96,40 @@ export default function Selection() {
     );
   }
 
- const isPhase3     = phase === 3;
-  const heroTitle    = isPhase3 ? t("pages.selection.titlePhase3")       : t("pages.selection.title");
-  const heroAccent   = isPhase3 ? t("pages.selection.titleAccentPhase3") : t("pages.selection.titleAccent");
-  const heroSubtitle = isPhase3 ? t("pages.selection.subtitlePhase3")    : t("pages.selection.subtitle");
+  const isPhase3       = phase === 3;
+  const hasBothSections = isPhase3 && phaseSplit > 0 && phaseSplit < movies.length;
+  
+  // Split movies into palmares and selection for phase 3
+  const palmaresMovies = hasBothSections ? movies.slice(0, phaseSplit) : (isPhase3 ? movies : []);
+  const selectionMovies = hasBothSections ? movies.slice(phaseSplit) : movies;
+  
+  // When both sections are shown, use different titles
+  const heroTitle    = hasBothSections ? "Festival" : (isPhase3 ? t("pages.selection.titlePhase3") : t("pages.selection.title"));
+  const heroAccent   = hasBothSections ? "MARS AI" : (isPhase3 ? t("pages.selection.titleAccentPhase3") : t("pages.selection.titleAccent"));
+  const heroSubtitle = hasBothSections ? "Palmares & Selection Officielle" : (isPhase3 ? t("pages.selection.subtitlePhase3") : t("pages.selection.subtitle"));
   const heroBadge    = isPhase3 ? t("pages.selection.heroBadgePhase3")   : t("pages.selection.heroBadge");
  
   const activeTrailer = active ? getTrailer(active) : null;
   const activePoster  = active ? getPoster(active)  : null;
-  /* ── Pagination ── */
-  const totalPages     = Math.ceil(movies.length / MOVIES_PER_PAGE);
-  const paginatedMovies = movies.slice(
-    (currentPage - 1) * MOVIES_PER_PAGE,
-    currentPage * MOVIES_PER_PAGE,
-  );
+  
+  // For phase 3 with both sections, handle pagination separately
+  const totalPages = hasBothSections 
+    ? Math.ceil(Math.max(palmaresMovies.length, selectionMovies.length) / MOVIES_PER_PAGE)
+    : Math.ceil(movies.length / MOVIES_PER_PAGE);
+    
+  const paginatedMovies = hasBothSections 
+    ? null // Use separate paginated arrays for each section
+    : movies.slice(
+        (currentPage - 1) * MOVIES_PER_PAGE,
+        currentPage * MOVIES_PER_PAGE,
+      );
+      
+  const paginatedPalmares = hasBothSections 
+    ? palmaresMovies.slice((currentPage - 1) * MOVIES_PER_PAGE, currentPage * MOVIES_PER_PAGE)
+    : [];
+  const paginatedSelection = hasBothSections 
+    ? selectionMovies.slice((currentPage - 1) * MOVIES_PER_PAGE, currentPage * MOVIES_PER_PAGE)
+    : [];
 
   const goToPage = (page) => {
     setCurrentPage(page);
@@ -114,10 +142,7 @@ export default function Selection() {
       {/* ── HERO ────────────────────────────── */}
       <section className="relative flex flex-col items-center justify-center pt-40 pb-28 px-6 text-center overflow-hidden">
 
-        {/* Giant ghost text */}
-        <span className="absolute inset-0 flex items-center justify-center text-[18vw] font-black tracking-tighter text-white/[0.025] select-none pointer-events-none uppercase leading-none">
-          {isPhase3 ? "PRIX" : "FILMS"}
-        </span>
+       
 
         {/* Ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] rounded-full bg-gradient-to-r from-[#AD46FF]/8 to-[#F6339A]/8 blur-3xl pointer-events-none" />
@@ -146,100 +171,193 @@ export default function Selection() {
           </div>
 
           {/* Film count badge */}
-          <div className="flex items-center gap-2 mt-2 bg-white/[0.04] border border-white/10 rounded-full px-4 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/70" />
-            <span className="text-[11px] text-white/40 font-medium tracking-wide">
-              {movies.length} film{movies.length > 1 ? "s" : ""}
-            </span>
-          </div>
+          {!hasBothSections && (
+            <div className="flex items-center gap-2 mt-2 bg-white/[0.04] border border-white/10 rounded-full px-4 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/70" />
+              <span className="text-[11px] text-white/40 font-medium tracking-wide">
+                {movies.length} film{movies.length > 1 ? "s" : ""}
+              </span>
+            </div>
+          )}
+          {hasBothSections && (
+            <div className="flex items-center justify-center gap-6 mt-2">
+              <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-4 py-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/70" />
+                <span className="text-[11px] text-yellow-300 font-medium tracking-wide">
+                  🏆 {palmaresMovies.length} film{palmaresMovies.length > 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-[#AD46FF]/10 border border-[#AD46FF]/20 rounded-full px-4 py-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#AD46FF]/70" />
+                <span className="text-[11px] text-[#AD46FF] font-medium tracking-wide">
+                  ⭐ {selectionMovies.length} film{selectionMovies.length > 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* ── POSTER GRID ─────────────────────── */}
-      <div ref={gridRef} className="max-w-6xl mx-auto px-4 sm:px-6 pb-32">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-          {paginatedMovies.map((movie) => {
-            const trailer  = getTrailer(movie);
-            const poster   = getPoster(movie);
-            const hasVideo = !!(trailer || movie.youtube_link);
+      <div ref={gridRef} className="max-w-6xl mx-auto px-4 sm:px-6 pb-32 space-y-16">
+        
+        {/* Palmares Section (Phase 3 with both) */}
+        {hasBothSections && palmaresMovies.length > 0 && (
+          <div>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-yellow-500/40" />
+              <h2 className="text-2xl sm:text-3xl font-black text-yellow-400 tracking-tight">
+                🏆 Palmarès
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-yellow-500/40" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+              {paginatedPalmares.map((movie) => {
+                const trailer  = getTrailer(movie);
+                const poster   = getPoster(movie);
+                const hasVideo = !!(trailer || movie.youtube_link);
 
-            return (
-              <button
-                key={movie.id_movie}
-                onClick={() => hasVideo && setActive(movie)}
-                className={`group relative text-left focus:outline-none ${hasVideo ? "cursor-pointer" : "cursor-default"}`}
-                style={{ aspectRatio: "2/3" }}
-              >
-                <div className="relative w-full h-full border border-white/5 rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.8)] group-hover:shadow-[0_14px_44px_rgba(173,70,255,0.18)] transition-all duration-500 group-hover:-translate-y-2">
-
-                  {/* Poster */}
-                  {poster ? (
-                    <img src={poster} alt={movie.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1a1025] via-[#0d0f14] to-[#1a0a20] flex items-center justify-center">
-                      <span className="text-4xl opacity-15">🎬</span>
-                    </div>
-                  )}
-
-                  {/* Film grain */}
-                  <div className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay" style={{ backgroundImage: GRAIN, backgroundSize: "120px 120px" }} />
-
-                  {/* Vignettes */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
-
-                  {/* Corner marks */}
-                  <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t border-l border-white/20" />
-                  <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t border-r border-white/20" />
-                  <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b border-l border-white/20" />
-                  <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b border-r border-white/20" />
-
-                  {/* Award badges */}
-                  {isPhase3 && movie.Awards?.length > 0 && (
-                    <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
-                      {movie.Awards.map((a) => (
-                        <span key={a.id_award} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest backdrop-blur-sm rounded-sm bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 max-w-[100px] truncate">
-                          🏆 {a.award_name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Play button on hover */}
-                  {hasVideo && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                      <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-xl">
-                        <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
+                return (
+                  <button
+                    key={movie.id_movie}
+                    onClick={() => hasVideo && setActive(movie)}
+                    className={`group relative text-left focus:outline-none ${hasVideo ? "cursor-pointer" : "cursor-default"}`}
+                    style={{ aspectRatio: "2/3" }}
+                  >
+                    <div className="relative w-full h-full border border-white/5 rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.8)] group-hover:shadow-[0_14px_44px_rgba(173,70,255,0.18)] transition-all duration-500 group-hover:-translate-y-2">
+                      {poster ? (
+                        <img src={poster} alt={movie.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#1a1025] via-[#0d0f14] to-[#1a0a20] flex items-center justify-center">
+                          <span className="text-4xl opacity-15">🎬</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay" style={{ backgroundImage: GRAIN, backgroundSize: "120px 120px" }} />
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                      <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t border-l border-white/20" />
+                      <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t border-r border-white/20" />
+                      <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b border-l border-white/20" />
+                      <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b border-r border-white/20" />
+                      {movie.Awards?.length > 0 && (
+                        <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
+                          {movie.Awards.map((a) => (
+                            <span key={a.id_award} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest backdrop-blur-sm rounded-sm bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 max-w-[100px] truncate">
+                              🏆 {a.award_name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {hasVideo && (
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                          <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-xl">
+                            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-1">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <div className="flex-1 h-px bg-white/20" />
+                          <span className="text-[6px] tracking-[0.2em] text-white/35 uppercase font-medium">MarsAI</span>
+                          <div className="flex-1 h-px bg-white/20" />
+                        </div>
+                        <p className="font-bold uppercase tracking-wide leading-tight text-white group-hover:text-[#C179FB] transition-colors duration-300 line-clamp-2" style={{ fontSize: "clamp(8px, 1.8vw, 12px)", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>
+                          {movie.title}
+                        </p>
+                        <div className="flex items-center gap-1 mt-1 text-white/35" style={{ fontSize: "8px" }}>
+                          {movie.main_language && <span className="uppercase tracking-wider">{movie.main_language}</span>}
+                          {movie.duration && movie.main_language && <span>·</span>}
+                          {movie.duration && <span>{movie.duration}s</span>}
+                          {movie.nationality && <><span>·</span><span>{movie.nationality}</span></>}
+                        </div>
                       </div>
                     </div>
-                  )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-                  {/* Bottom info */}
-                  <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-1">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <div className="flex-1 h-px bg-white/20" />
-                      <span className="text-[6px] tracking-[0.2em] text-white/35 uppercase font-medium">MarsAI</span>
-                      <div className="flex-1 h-px bg-white/20" />
-                    </div>
-                    <p
-                      className="font-bold uppercase tracking-wide leading-tight text-white group-hover:text-[#C179FB] transition-colors duration-300 line-clamp-2"
-                      style={{ fontSize: "clamp(8px, 1.8vw, 12px)", textShadow: "0 1px 6px rgba(0,0,0,1)" }}
-                    >
-                      {movie.title}
-                    </p>
-                    <div className="flex items-center gap-1 mt-1 text-white/35" style={{ fontSize: "8px" }}>
-                      {movie.main_language && <span className="uppercase tracking-wider">{movie.main_language}</span>}
-                      {movie.duration && movie.main_language && <span>·</span>}
-                      {movie.duration && <span>{movie.duration}s</span>}
-                      {movie.nationality && <><span>·</span><span>{movie.nationality}</span></>}
+        {/* Selection Officielle Section */}
+        <div>
+          {(hasBothSections ? selectionMovies.length > 0 : movies.length > 0) && (
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#AD46FF]/40" />
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+                {hasBothSections ? "⭐ Sélection Officielle" : heroTitle}
+                <span className="bg-gradient-to-r from-[#AD46FF] to-[#F6339A] bg-clip-text text-transparent ml-2">
+                  {hasBothSections ? "" : heroAccent}
+                </span>
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#F6339A]/40" />
+            </div>
+          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            {(hasBothSections ? paginatedSelection : paginatedMovies).map((movie) => {
+              const trailer  = getTrailer(movie);
+              const poster   = getPoster(movie);
+              const hasVideo = !!(trailer || movie.youtube_link);
+
+              return (
+                <button
+                  key={movie.id_movie}
+                  onClick={() => hasVideo && setActive(movie)}
+                  className={`group relative text-left focus:outline-none ${hasVideo ? "cursor-pointer" : "cursor-default"}`}
+                  style={{ aspectRatio: "2/3" }}
+                >
+                  <div className="relative w-full h-full border border-white/5 rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.8)] group-hover:shadow-[0_14px_44px_rgba(173,70,255,0.18)] transition-all duration-500 group-hover:-translate-y-2">
+                    {poster ? (
+                      <img src={poster} alt={movie.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1025] via-[#0d0f14] to-[#1a0a20] flex items-center justify-center">
+                        <span className="text-4xl opacity-15">🎬</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 opacity-[0.07] pointer-events-none mix-blend-overlay" style={{ backgroundImage: GRAIN, backgroundSize: "120px 120px" }} />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                    <div className="absolute top-2.5 left-2.5 w-3 h-3 border-t border-l border-white/20" />
+                    <div className="absolute top-2.5 right-2.5 w-3 h-3 border-t border-r border-white/20" />
+                    <div className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b border-l border-white/20" />
+                    <div className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b border-r border-white/20" />
+                    {isPhase3 && movie.selection_status === 'awarded' && movie.Awards?.length > 0 && (
+                      <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
+                        {movie.Awards.map((a) => (
+                          <span key={a.id_award} className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-widest backdrop-blur-sm rounded-sm bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 max-w-[100px] truncate">
+                            🏆 {a.award_name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {hasVideo && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                        <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-xl">
+                          <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-1">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <div className="flex-1 h-px bg-white/20" />
+                        <span className="text-[6px] tracking-[0.2em] text-white/35 uppercase font-medium">MarsAI</span>
+                        <div className="flex-1 h-px bg-white/20" />
+                      </div>
+                      <p className="font-bold uppercase tracking-wide leading-tight text-white group-hover:text-[#C179FB] transition-colors duration-300 line-clamp-2" style={{ fontSize: "clamp(8px, 1.8vw, 12px)", textShadow: "0 1px 6px rgba(0,0,0,1)" }}>
+                        {movie.title}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1 text-white/35" style={{ fontSize: "8px" }}>
+                        {movie.main_language && <span className="uppercase tracking-wider">{movie.main_language}</span>}
+                        {movie.duration && movie.main_language && <span>·</span>}
+                        {movie.duration && <span>{movie.duration}s</span>}
+                        {movie.nationality && <><span>·</span><span>{movie.nationality}</span></>}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ── Pagination ── */}
@@ -248,9 +366,12 @@ export default function Selection() {
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/8 w-16" />
                <span className="text-[9px] tracking-[0.3em] uppercase text-white/20 font-medium">
-                {t("pages.selection.filmCount", { count: movies.length })} · {t("pages.selection.page")} {currentPage}/{totalPages}
-              </span>
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/8 w-16" />
+                 {hasBothSections 
+                   ? `${palmaresMovies.length + selectionMovies.length} films · ${t("pages.selection.page")} ${currentPage}/${totalPages}`
+                   : t("pages.selection.filmCount", { count: movies.length }) + ` · ${t("pages.selection.page")} ${currentPage}/${totalPages}`
+                 }
+               </span>
+               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/8 w-16" />
             </div>
 
             <div className="flex items-center gap-1.5">

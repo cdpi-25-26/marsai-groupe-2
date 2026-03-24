@@ -49,4 +49,13 @@ async function deleteVoteById(id) {
   return await instance.delete(`votes/${id}`);
 }
 
-export { getMyVotes, getMyVoteByMovie, submitMyVote, getVotes, deleteVotesByMovie, deleteVoteById };
+/**
+ * Accepte ou rejette un vote (ADMIN)
+ * Endpoint: PUT /votes/:id/decision
+ * Payload attendu: { decision: "accepted" | "rejected" }
+ */
+async function setVoteDecision(id, decision) {
+  return await instance.put(`votes/${id}/decision`, { decision });
+}
+
+export { getMyVotes, getMyVoteByMovie, submitMyVote, getVotes, deleteVotesByMovie, deleteVoteById, setVoteDecision };

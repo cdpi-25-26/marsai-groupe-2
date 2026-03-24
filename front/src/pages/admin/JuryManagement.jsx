@@ -96,6 +96,7 @@ export default function JuryManagement() {
 
   /* ── États ── */
   const [selectedMovieIds, setSelectedMovieIds] = useState([]);
+  const [selectedJuryIds, setSelectedJuryIds] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -129,17 +130,13 @@ export default function JuryManagement() {
     [allUsers],
   );
 
-  /* Films éligibles à l'assignation : tous sauf refused et awarded */
-
-  /* Films éligibles à l'assignation : uniquement les films acceptés par l'admin
-     (statut != submitted, refused, awarded) */
-
+  /* Films éligibles à l'assignation : tous sauf refused, awarded et submitted
+     Un film peut être assigné à plusieurs jurys */
   const assignableMovies = useMemo(
     () =>
       allMovies.filter(
         (m) =>
-          !["submitted", "refused", "awarded"].includes(m.selection_status || "submitted") &&
-          (!m.Juries || m.Juries.length === 0),
+          !["submitted", "refused", "awarded"].includes(m.selection_status || "submitted"),
       ),
     [allMovies],
   );
@@ -189,12 +186,15 @@ export default function JuryManagement() {
   }
 
   const assignMutation = useMutation({
-    mutationFn: async ({ jury, movieIds }) => {
+    mutationFn: async ({ juryIds, movieIds }) => {
       for (const movieId of movieIds) {
         const movie = allMovies.find((m) => m.id_movie === movieId);
-        const currentIds = (movie?.Juries || []).map((j) => j.id_user);
-        if (!currentIds.includes(jury.id_user)) {
-          await updateMovieJuries(movieId, [...currentIds, jury.id_user]);
+        let currentIds = (movie?.Juries || []).map((j) => j.id_user);
+        for (const juryId of juryIds) {
+          if (!currentIds.includes(juryId)) {
+            currentIds = [...currentIds, juryId];
+            await updateMovieJuries(movieId, currentIds);
+          }
         }
         // Passer automatiquement de "submitted" → "assigned"
         if ((movie?.selection_status || "submitted") === "submitted") {
@@ -205,6 +205,7 @@ export default function JuryManagement() {
     onSuccess: () => {
       invalidate();
       setSelectedMovieIds([]);
+      setSelectedJuryIds([]);
       setActiveJury(null);
       setModalMode(null);
       showNotice("Films assignés avec succès.");
@@ -249,6 +250,26 @@ export default function JuryManagement() {
     setSelectedMovieIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
+  }
+
+  function toggleJury(id) {
+    setSelectedJuryIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
+
+  function handleAssignClick() {
+    if (selectedMovieIds.length > 0 && selectedJuryIds.length > 0) {
+      setModalMode("assign");
+    }
+  }
+
+  function toggleAllJuries() {
+    if (selectedJuryIds.length === juryMembers.length) {
+      setSelectedJuryIds([]);
+    } else {
+      setSelectedJuryIds(juryMembers.map((j) => j.id_user));
+    }
   }
 
   function toggleAll() {
@@ -470,9 +491,26 @@ export default function JuryManagement() {
                 </div>
 
                 {selectedMovieIds.length > 0 && (
-                  <div className="mb-3 bg-purple-500/10 border border-purple-500/30 rounded-lg px-3 py-2 text-[10px] text-purple-300">
-                    Cliquer sur un jury pour assigner {selectedMovieIds.length}{" "}
-                    film(s) sélectionné(s)
+                  <div className="mb-3 space-y-2">
+                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg px-3 py-2 text-[10px] text-purple-300">
+                      {selectedJuryIds.length === 0 
+                        ? `Sélectionnez des jurys pour assigner ${selectedMovieIds.length} film(s)`
+                        : selectedJuryIds.length === 1
+                          ? `1 jury sélectionné - ${selectedMovieIds.length} film(s)`
+                          : `${selectedJuryIds.length} jurys sélectionnés - ${selectedMovieIds.length} film(s)`
+                      }
+                    </div>
+                      {selectedJuryIds.length > 0 && (
+                      <button
+                        onClick={handleAssignClick}
+                        className="w-full px-3 py-2 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-500 transition font-semibold"
+                      >
+                        {selectedJuryIds.length === 1 
+                          ? "✓ Assigner au jury" 
+                          : `✓ Assigner aux ${selectedJuryIds.length} jurys`
+                        }
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -482,47 +520,66 @@ export default function JuryManagement() {
                   </p>
                 ) : (
                   <div className="space-y-1.5 max-h-[520px] overflow-y-auto">
+                    <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                      <button
+                        onClick={toggleAllJuries}
+                        className="text-[10px] text-purple-400 hover:text-purple-300 transition"
+                      >
+                        {selectedJuryIds.length === juryMembers.length ? "Tout désélectionner" : "Tout sélectionner"}
+                      </button>
+                      <span className="text-[10px] text-white/40">{selectedJuryIds.length} / {juryMembers.length}</span>
+                    </div>
                     {juryMembers.map((jury) => {
                       const assigned = allMovies.filter((m) =>
                         (m.Juries || []).some(
                           (j) => j.id_user === jury.id_user,
                         ),
                       ).length;
+                      const isSelected = selectedJuryIds.includes(jury.id_user);
 
                       return (
-                        <button
+                        <div
                           key={jury.id_user}
-                          onClick={() => handleJuryClick(jury)}
-                          className={`w-full text-left p-3 rounded-xl border transition-all group ${
-                            selectedMovieIds.length > 0
-                              ? "border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
-                              : "border-white/10 hover:bg-white/5"
+                          onClick={() => toggleJury(jury.id_user)}
+                          className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-purple-500/10 border-purple-500/50"
+                              : selectedMovieIds.length > 0
+                                ? "border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
+                                : "border-white/10 hover:bg-white/5"
                           }`}
                         >
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0">
-                              {jury.first_name?.[0]}
-                              {jury.last_name?.[0]}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-medium text-white truncate group-hover:text-purple-300 transition">
-                                {jury.first_name} {jury.last_name}
-                              </p>
-                              <p className="text-[9px] text-white/40 truncate">
-                                {jury.email}
-                              </p>
-                            </div>
-                            <span
-                              className={`text-xs font-bold flex-shrink-0 ${
-                                assigned > 0
-                                  ? "text-purple-400"
-                                  : "text-white/20"
-                              }`}
-                            >
-                              {assigned}
-                            </span>
+                          <div className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition ${
+                            isSelected ? "bg-purple-500 border-purple-500" : "border-white/30"
+                          }`}>
+                            {isSelected && (
+                              <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
                           </div>
-                        </button>
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-[10px] flex-shrink-0">
+                            {jury.first_name?.[0]}
+                            {jury.last_name?.[0]}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-white truncate">
+                              {jury.first_name} {jury.last_name}
+                            </p>
+                            <p className="text-[9px] text-white/40 truncate">
+                              {jury.email}
+                            </p>
+                          </div>
+                          <span
+                            className={`text-xs font-bold flex-shrink-0 ${
+                              assigned > 0
+                                ? "text-purple-400"
+                                : "text-white/20"
+                            }`}
+                          >
+                            {assigned}
+                          </span>
+                        </div>
                       );
                     })}
                   </div>
@@ -739,20 +796,24 @@ export default function JuryManagement() {
       {/* ════════════════════════════════════════════════════
           MODALE ASSIGNATION
       ════════════════════════════════════════════════════ */}
-      {modalMode === "assign" && activeJury && (
+      {modalMode === "assign" && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#111318] border border-white/10 rounded-2xl w-full max-w-sm shadow-2xl p-6">
-            {/* Jury */}
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                {activeJury.first_name?.[0]}
-                {activeJury.last_name?.[0]}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {activeJury.first_name} {activeJury.last_name}
-                </p>
-                <p className="text-[10px] text-white/40">{activeJury.email}</p>
+            {/* Selected Jurys */}
+            <div className="mb-5">
+              <p className="text-[10px] text-white/40 uppercase tracking-wider mb-2">Jury(s) sélectionné(s)</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedJuryIds.map((juryId) => {
+                  const jury = juryMembers.find((j) => j.id_user === juryId);
+                  return jury ? (
+                    <div key={juryId} className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-lg px-2 py-1">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-[8px]">
+                        {jury.first_name?.[0]}{jury.last_name?.[0]}
+                      </div>
+                      <span className="text-xs text-white">{jury.first_name} {jury.last_name}</span>
+                    </div>
+                  ) : null;
+                })}
               </div>
             </div>
 
@@ -761,7 +822,7 @@ export default function JuryManagement() {
               <span className="text-purple-400 font-bold">
                 {selectedMovieIds.length}
               </span>{" "}
-              film(s) à ce membre du jury.
+              film(s) à {selectedJuryIds.length} {selectedJuryIds.length === 1 ? "jury" : "jurys"}.
             </p>
             <p className="text-white/40 text-[11px] mb-5">
               Seuls les films acceptés par l'admin apparaissent dans cette liste.
@@ -787,7 +848,7 @@ export default function JuryManagement() {
               <button
                 onClick={() => {
                   setModalMode(null);
-                  setActiveJury(null);
+                  setSelectedJuryIds([]);
                 }}
                 className="flex-1 px-3 py-2 bg-white/5 border border-white/10 text-white/70 text-xs rounded-lg hover:bg-white/10 transition"
               >
@@ -796,7 +857,7 @@ export default function JuryManagement() {
               <button
                 onClick={() =>
                   assignMutation.mutate({
-                    jury: activeJury,
+                    juryIds: selectedJuryIds,
                     movieIds: selectedMovieIds,
                   })
                 }
