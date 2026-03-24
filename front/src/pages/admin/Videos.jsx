@@ -671,8 +671,15 @@ export default function Videos() {
                         <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "assigned" })}
                           className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/20">✓ Accepter</button>
                       )}
-                      {status === "assigned" && summary?.total > 0 && (
-                        <button type="button" onClick={() => statusM.mutate({ id: movie.id_movie, status: "to_discuss" })}
+                      {status === "assigned" && (
+                        <button type="button" onClick={() => {
+                          const acceptedCount = summary?.accepted || 0;
+                          if (acceptedCount > 0) {
+                            statusM.mutate({ id: movie.id_movie, status: "to_discuss" });
+                          } else {
+                            window.alert("Vous devez accepter au moins un vote avant d'ouvrir la Phase 2.");
+                          }
+                        }}
                           className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20">Phase 2 →</button>
                       )}
                       {status === "to_discuss" && (
