@@ -1037,103 +1037,115 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 </div>
               </div>
 
-              {/* Votes - Side by Side */}
-              {((summary?.phase1Votes?.length || 0) > 0 || (summary?.phase2Votes?.length || 0) > 0) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Phase 1 Votes */}
-                  {(summary?.phase1Votes?.length || 0) > 0 && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-amber-500/20">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-amber-400">Phase 1</span>
-                        <span className="text-[10px] text-white/30">1ère Votation</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex-1 bg-emerald-500/10 rounded-lg p-2 text-center border border-emerald-500/20">
-                          <p className="text-lg font-bold text-emerald-400">{summary.YES || 0}</p>
-                          <p className="text-[8px] text-emerald-400/60">Validé</p>
-                        </div>
-                        <div className="flex-1 bg-amber-500/10 rounded-lg p-2 text-center border border-amber-500/20">
-                          <p className="text-lg font-bold text-amber-400">{summary["TO DISCUSS"] || 0}</p>
-                          <p className="text-[8px] text-amber-400/60">À disc.</p>
-                        </div>
-                        <div className="flex-1 bg-red-500/10 rounded-lg p-2 text-center border border-red-500/20">
-                          <p className="text-lg font-bold text-red-400">{summary.NO || 0}</p>
-                          <p className="text-[8px] text-red-400/60">Refusé</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1 max-h-40 overflow-y-auto scrollbar-thin-dark">
-                        {summary.phase1Votes.map((v) => {
-                          const isAccepted = v.decision === "accepted";
-                          const isRejected = v.decision === "rejected";
-                          return (
-                            <div key={v.id_vote} className={`flex items-center gap-3 px-3 py-2 rounded-lg bg-black/20 ${isRejected ? "opacity-40" : ""}`}>
-                              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-pink-500/30 flex items-center justify-center text-[9px] font-bold text-white/70">
-                                {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
-                              </div>
-                              <span className="flex-1 text-xs text-white/60 truncate">
-                                {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
-                              </span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                                v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" :
-                                v.note === "NO" ? "bg-red-500/20 text-red-300 border border-red-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                              }`}>
-                                {v.note === "YES" ? "✓" : v.note === "NO" ? "✕" : "?"}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+              {/* Phase 1 Votes - Always show when votes exist */}
+              {(summary?.phase1Votes?.length || 0) > 0 && (
+                <div className="bg-white/5 rounded-xl p-4 border border-amber-500/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold text-amber-400">Phase 1 — Votes des Jurys</span>
+                    <span className="text-[10px] text-white/30">{summary.accepted || 0} accepté(s)</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex-1 bg-emerald-500/10 rounded-lg p-2 text-center border border-emerald-500/20">
+                      <p className="text-lg font-bold text-emerald-400">{summary.YES || 0}</p>
+                      <p className="text-[8px] text-emerald-400/60">Validé</p>
                     </div>
-                  )}
+                    <div className="flex-1 bg-amber-500/10 rounded-lg p-2 text-center border border-amber-500/20">
+                      <p className="text-lg font-bold text-amber-400">{summary["TO DISCUSS"] || 0}</p>
+                      <p className="text-[8px] text-amber-400/60">À disc.</p>
+                    </div>
+                    <div className="flex-1 bg-red-500/10 rounded-lg p-2 text-center border border-red-500/20">
+                      <p className="text-lg font-bold text-red-400">{summary.NO || 0}</p>
+                      <p className="text-[8px] text-red-400/60">Refusé</p>
+                    </div>
+                  </div>
 
-                  {/* Phase 2 Votes */}
-                  {(summary?.phase2Votes?.length || 0) > 0 && (
-                    <div className="bg-white/5 rounded-xl p-4 border border-purple-500/20">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-purple-400">Phase 2</span>
-                        <span className="text-[10px] text-white/30">2ème Votation</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 mb-3">
-                        {(() => {
-                          const promu = summary.phase2Votes.filter(v => v.note === "YES").length;
-                          const reject = summary.phase2Votes.filter(v => v.note === "NO").length;
-                          return (
-                            <>
-                              <div className="flex-1 bg-emerald-500/10 rounded-lg p-2 text-center border border-emerald-500/20">
-                                <p className="text-lg font-bold text-emerald-400">{promu}</p>
-                                <p className="text-[8px] text-emerald-400/60">Promu</p>
-                              </div>
-                              <div className="flex-1 bg-red-500/10 rounded-lg p-2 text-center border border-red-500/20">
-                                <p className="text-lg font-bold text-red-400">{reject}</p>
-                                <p className="text-[8px] text-red-400/60">Rejeté</p>
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </div>
-
-                      <div className="space-y-1 max-h-40 overflow-y-auto scrollbar-thin-dark">
-                        {summary.phase2Votes.map((v) => (
-                          <div key={v.id_vote} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-black/20">
-                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500/30 to-violet-500/30 flex items-center justify-center text-[9px] font-bold text-white/70">
-                              {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
-                            </div>
-                            <span className="flex-1 text-xs text-white/60 truncate">
-                              {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
-                            </span>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                              v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"
-                            }`}>
-                              {v.note === "YES" ? "Promu ✓" : "Rejeté ✕"}
-                            </span>
+                  <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
+                    {summary.phase1Votes.map((v) => {
+                      const isAccepted = v.decision === "accepted";
+                      const isRejected = v.decision === "rejected";
+                      return (
+                        <div key={v.id_vote} className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-black/20 ${isRejected ? "opacity-40" : ""}`}>
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-pink-500/30 flex items-center justify-center text-[9px] font-bold text-white/70 flex-shrink-0">
+                            {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
                           </div>
-                        ))}
+                          <span className="flex-1 text-xs text-white/60 truncate">
+                            {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
+                          </span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                            v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" :
+                            v.note === "NO" ? "bg-red-500/20 text-red-300 border border-red-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          }`}>
+                            {v.note === "YES" ? "✓" : v.note === "NO" ? "✕" : "?"}
+                          </span>
+                          {!isAccepted && !isRejected && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); voteDecisionM.mutate({ id: v.id_vote, decision: "accepted" }); }}
+                                disabled={voteDecisionM.isPending}
+                                className="p-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[10px]"
+                                title="Accepter"
+                              >✓</button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); voteDecisionM.mutate({ id: v.id_vote, decision: "rejected" }); }}
+                                disabled={voteDecisionM.isPending}
+                                className="p-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-400 text-[10px]"
+                                title="Rejeter"
+                              >✕</button>
+                            </div>
+                          )}
+                          {isAccepted && <span className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300">✓</span>}
+                          {isRejected && <span className="text-[8px] px-1.5 py-0.5 rounded bg-red-500/30 text-red-300">✕</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Phase 2 Votes - Only show when Phase 2 votes exist */}
+              {(summary?.phase2Votes?.length || 0) > 0 && (
+                <div className="bg-white/5 rounded-xl p-4 border border-purple-500/20 mt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold text-purple-400">Phase 2 — Votes des Jurys</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    {(() => {
+                      const promu = summary.phase2Votes.filter(v => v.note === "YES").length;
+                      const reject = summary.phase2Votes.filter(v => v.note === "NO").length;
+                      return (
+                        <>
+                          <div className="flex-1 bg-emerald-500/10 rounded-lg p-2 text-center border border-emerald-500/20">
+                            <p className="text-lg font-bold text-emerald-400">{promu}</p>
+                            <p className="text-[8px] text-emerald-400/60">Promu</p>
+                          </div>
+                          <div className="flex-1 bg-red-500/10 rounded-lg p-2 text-center border border-red-500/20">
+                            <p className="text-lg font-bold text-red-400">{reject}</p>
+                            <p className="text-[8px] text-red-400/60">Rejeté</p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
+                    {summary.phase2Votes.map((v) => (
+                      <div key={v.id_vote} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/20">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500/30 to-violet-500/30 flex items-center justify-center text-[9px] font-bold text-white/70 flex-shrink-0">
+                          {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                        </div>
+                        <span className="flex-1 text-xs text-white/60 truncate">
+                          {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
+                        </span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                          v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"
+                        }`}>
+                          {v.note === "YES" ? "✓" : "✕"}
+                        </span>
                       </div>
-                    </div>
-                  )}
+                    ))}
+                  </div>
                 </div>
               )}
 
