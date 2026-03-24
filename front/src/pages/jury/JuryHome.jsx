@@ -124,7 +124,6 @@ export default function JuryHome() {
       setShowPromoteModal(false);
       setPromoteComment("");
       setSelectedMovie(null);
-      setActiveFolder("approved");
       showNotice(setModalNotice, "Film promu à la candidature.");
     },
     onError: (err) => {
@@ -458,7 +457,7 @@ export default function JuryHome() {
                     <ModalRow label="Nationalité" value={selectedMovie.nationality   || "–"} />
                     <ModalRow label="Statut"      value={selectedMovie.selection_status || "–"} />
                   </div>
-                  <div className="mt-1 flex gap-3">
+                  {/* <div className="mt-1 flex gap-3">
                     {selectedMovie.subtitle?.endsWith?.(".srt") && (
                       <a href={`${UPLOAD_BASE}/${selectedMovie.subtitle}`} target="_blank" rel="noreferrer" download
                         className="text-[11px] text-[#AD46FF]/70 hover:text-[#AD46FF] transition-colors font-medium">↓ Sous-titres</a>
@@ -467,7 +466,7 @@ export default function JuryHome() {
                       <a href={selectedMovie.youtube_link} target="_blank" rel="noreferrer"
                         className="text-[11px] text-[#AD46FF]/70 hover:text-[#AD46FF] transition-colors font-medium">Ouvrir sur YouTube</a>
                     )}
-                  </div>
+                  </div> */}
                 </ModalBlock>
 
                 {/* Vidéo */}
