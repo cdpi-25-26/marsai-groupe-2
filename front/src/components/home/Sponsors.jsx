@@ -4,7 +4,7 @@ import Carousel from "./Caroussel";
 import OneCardWithImage from "./cards/OneCardWithImage";
 import { getSponsors } from "../../api/sponsors";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Sponsors() {
   const { t } = useTranslation();

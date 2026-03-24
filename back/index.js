@@ -44,7 +44,7 @@ async function startServer() {
       await youtubeController.initYoutubeAuth();
       console.log("✓ Auth YouTube initialisée");
     } catch (err) {
-      console.warn("X Token YouTube manquant ou non initialisé. Connectez-vous via http://localhost:3000/google/auth ou https://nonephemeral-marge-empties.ngrok-free.dev/auth/google/callback si en prod pour générer le token.");
+      console.warn("X Token YouTube manquant ou non initialisé. Connectez-vous via http://localhost:3000/google/auth ou https://nonephemeral-marge-empties.ngrok-free.dev/google/auth si en prod pour générer le token.");
     }
     // Démarrage du serveur
     app.listen(PORT, () => {

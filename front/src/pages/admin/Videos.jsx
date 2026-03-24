@@ -22,7 +22,7 @@ import {
   updateMovie, updateMovieCategories, updateMovieStatus
 } from "../../api/videos.js";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 async function getFestivalPhase() {
   const r = await fetch(`${API}/festival/phase`);

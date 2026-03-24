@@ -5,7 +5,7 @@
  * FIX: plus de inline styles pour border/boxShadow — Tailwind uniquement
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function PartenaireCard({ name, logo, url }) {
   const logoSrc = logo ? `${API_BASE}${logo}` : null;
