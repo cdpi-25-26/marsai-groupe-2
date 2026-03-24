@@ -16,7 +16,7 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 const scopes = [
-  "https://www.googleapis.com/auth/youtube.upload"
+  "https://www.googleapis.com/auth/youtube.upload",
 ];
 
 // Redirection vers Google

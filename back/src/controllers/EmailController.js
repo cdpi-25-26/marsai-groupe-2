@@ -1,122 +1,13 @@
-// import db from "../models/index.js";
-// import { isMailerConfigured, sendEmail } from "../utils/mailer.js";
-// import {
-//   buildVideoRejectTemplate,
-//   buildVideoRejectText,
-// } from "../constants/VideoRejectTemplate.js";
-
-// const Movie = db.Movie;
-// const User = db.User;
-
-// async function sendMail({ to, subject, html, text }) {
-//   if (!isMailerConfigured()) {
-//     throw new Error("SMTP non configuré");
-//   }
-
-//   return sendEmail({ to, subject, html, text });
-// }
-
-// async function sendVideoRejectedEmail({ to, firstName, movieTitle, juryComment }) {
-//   const safeMovieTitle = movieTitle || "votre film";
-//   const safeFirstName = firstName || "Créateur";
-
-//   return sendMail({
-//     to,
-//     subject: `MarsAI Festival - Mise à jour de candidature: ${safeMovieTitle}`,
-//     text: buildVideoRejectText({
-//       firstName: safeFirstName,
-//       movieTitle: safeMovieTitle,
-//       juryComment,
-//     }),
-//     html: buildVideoRejectTemplate({
-//       firstName: safeFirstName,
-//       movieTitle: safeMovieTitle,
-//       juryComment,
-//     }),
-//   });
-// }
-
-// async function sendRejectTest(req, res) {
-//   try {
-//     const { to, movieTitle, firstName, juryComment } = req.body || {};
-
-//     if (!to) {
-//       return res.status(400).json({ error: "to est requis" });
-//     }
-
-//     await sendVideoRejectedEmail({
-//       to,
-//       firstName,
-//       movieTitle,
-//       juryComment,
-//     });
-
-//     return res.status(200).json({
-//       message: "Email de refus envoyé",
-//       to,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({ error: error.message });
-//   }
-// }
-
-// async function sendRejectForMovie(req, res) {
-//   try {
-//     const { id } = req.params;
-
-//     const movie = await Movie.findByPk(id, {
-//       include: [
-//         {
-//           model: User,
-//           as: "Producer",
-//           attributes: ["email", "first_name"],
-//         },
-//       ],
-//     });
-
-//     if (!movie) {
-//       return res.status(404).json({ error: "Film non trouvé" });
-//     }
-
-//     if (!movie?.Producer?.email) {
-//       return res.status(400).json({
-//         error: "Email du réalisateur introuvable",
-//       });
-//     }
-
-//     await sendVideoRejectedEmail({
-//       to: movie.Producer.email,
-//       firstName: movie.Producer.first_name,
-//       movieTitle: movie.title,
-//       juryComment: movie.jury_comment,
-//     });
-
-//     return res.status(200).json({
-//       message: "Email de refus envoyé au réalisateur",
-//       movieId: movie.id_movie,
-//       to: movie.Producer.email,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({ error: error.message });
-//   }
-// }
-
-// export default {
-//   sendMail,
-//   sendVideoRejectedEmail,
-//   sendRejectTest,
-//   sendRejectForMovie,
-// };
-
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { VIDEO_REJECT_TEMPLATE } from "../constants/VideoRejectTemplate.js";
 
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
-  secure: false, // Use true for port 465, false for port 587
+  secure: false,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -125,19 +16,71 @@ const transporter = nodemailer.createTransport({
 
 async function sendMail(to, subject, html) {
   try {
-     let info = await transporter.sendMail({
-    from: '"contact marsAi" <contact@marsai.com>', // sender address, add YOUR NAME & YOUR MAIL
-    to, // list of receivers
-    subject, // Subject line
-    html,
-  });
-  return info.response;
-
+    let info = await transporter.sendMail({
+      from: '"contact marsAi" <contact@marsai.com>',
+      to,
+      subject,
+      html,
+    });
+    return info.response;
   } catch (error) {
     console.error("Email sending error:", error);
     throw error;
-  } 
- 
+  }
 }
 
-export default { sendMail };
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function buildVideoRejectHtml({ firstName, movieTitle, juryComment }) {
+  const safeFirstName = escapeHtml(firstName || "Producer");
+  const safeMovieTitle = escapeHtml(movieTitle || "your video");
+  const safeJuryComment = juryComment ? escapeHtml(juryComment) : "";
+
+  let html = VIDEO_REJECT_TEMPLATE;
+
+  // Replace the greeting
+  html = html.replace(/<p>Dear Producer,/g, `<p>Dear ${safeFirstName},`);
+  
+  // Replace video title in the content
+  html = html.replace(
+    /your video cannot be accepted,/g,
+    `your video "${safeMovieTitle}" cannot be accepted,`
+  );
+
+  // Add jury comment section if provided
+  if (safeJuryComment) {
+    const commentSection = `
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
+      <tr>
+        <td class="wrapper" style="background: #f4f5f6; border-radius: 8px;">
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; font-weight: bold;">Jury Comment:</p>
+          <p style="margin: 0; font-size: 14px; color: #333;">${safeJuryComment}</p>
+        </td>
+      </tr>
+    </table>`;
+    
+    html = html.replace(
+      /(\s*<p>\s*Best regards,)/,
+      `${commentSection}$1`
+    );
+  }
+
+  return html;
+}
+
+async function sendVideoRejectedEmail({ to, firstName, movieTitle, juryComment }) {
+  return sendMail(
+    to,
+    `MarsAI Festival - Video Submission Update`,
+    buildVideoRejectHtml({ firstName, movieTitle, juryComment })
+  );
+}
+
+export default { sendMail, sendVideoRejectedEmail };

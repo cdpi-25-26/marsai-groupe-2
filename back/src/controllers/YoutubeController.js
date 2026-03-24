@@ -6,7 +6,6 @@ const TOKEN_PATH = path.join(process.cwd(), "config/youtube_token.json");
 let oauth2Client;
 let tokenData;
 
-//Initialise le client OAuth2
 async function initYoutubeAuth() {
   oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -21,12 +20,9 @@ async function initYoutubeAuth() {
   tokenData = JSON.parse(fs.readFileSync(TOKEN_PATH));
   oauth2Client.setCredentials(tokenData);
 
-  // Valide le token au démarrage
   await oauth2Client.getAccessToken();
-  // refresh
   oauth2Client.on("tokens", (tokens) => {
     tokenData = { ...tokenData, ...tokens };
-    // écriture dans le JSON
     fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokenData, null, 2));
     console.log("Token mis à jour dans le JSON");
   });
@@ -34,57 +30,81 @@ async function initYoutubeAuth() {
   console.log("✓ initYoutubeAuth ON");
 }
 
-// Retourne le client OAuth2 déjà initialisé
 function getOAuth2Client() {
   if (!oauth2Client) throw new Error("OAuth2 non initialisé, appelez initYoutubeAuth() au démarrage");
   return oauth2Client;
 }
 
-// Verification que GoogleAuth est actif
 function isGoogleAuthActive() {
-  if (oauth2Client) {
-    return true;
-  } else {
-    return false;
+  return !!oauth2Client;
+}
+
+async function getVideoDetails(videoId) {
+  const client = getOAuth2Client();
+  const youtube = google.youtube({ version: "v3", auth: client });
+
+  try {
+    const response = await youtube.videos.list({
+      id: videoId,
+      part: ["status", "contentDetails", "snippet"]
+    });
+
+    if (!response.data.items?.length) {
+      return null;
+    }
+
+    const video = response.data.items[0];
+    return {
+      id: videoId,
+      licensedContent: video.contentDetails?.licensedContent ?? false,
+      privacyStatus: video.status?.privacyStatus,
+      rejectionReason: video.status?.rejectionReason ?? null,
+      uploadStatus: video.status?.uploadStatus ?? null,
+      publicStatsViewable: video.status?.publicStatsViewable ?? false,
+      embeddable: video.contentDetails?.embeddable ?? false,
+    };
+  } catch (err) {
+    console.warn("Erreur récupération détails vidéo:", err.message);
+    return null;
   }
 }
 
-//Upload vidéo
 async function uploadVideo(filePath, title, description, privacyStatus = "unlisted") {
   if (!fs.existsSync(filePath)) throw new Error("Fichier introuvable");
 
-  // retourne OAuth2 déjà initialisé
   const client = getOAuth2Client();
-  // crée un objet YouTube API prêt à l'emploi
   const youtube = google.youtube({ version: "v3", auth: client });
 
   try {
     const response = await youtube.videos.insert({
-      // défini quelles parties de la ressource seront renvoyées
       part: ["snippet", "status", "contentDetails"],
       requestBody: {
-        // titre et description
         snippet: { title, description },
-        // visibilité
         status: { privacyStatus },
       },
-      // contient le fichier vidéo (envoyé en stream)
       media: { body: fs.createReadStream(filePath) },
     });
 
     if (!response?.data?.id) throw new Error("Réponse YouTube invalide");
 
-    // return response.data;
+    const videoId = response.data.id;
+    
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const videoDetails = await getVideoDetails(videoId);
+
     return {
-      id: response.data.id,
-      licensedContent: response.data.contentDetails?.licensedContent ?? false,
-      privacyStatus: response.data.status?.privacyStatus,
+      id: videoId,
+      licensedContent: videoDetails?.licensedContent ?? response.data.contentDetails?.licensedContent ?? false,
+      privacyStatus: videoDetails?.privacyStatus ?? response.data.status?.privacyStatus,
+      rejectionReason: videoDetails?.rejectionReason ?? null,
+      uploadStatus: videoDetails?.uploadStatus ?? null,
       duration: response.data.contentDetails?.duration
     };
 
   } catch (err) {
     if (err.response?.data?.error?.errors?.[0]?.reason === "quotaExceeded") {
-      throw new Error("Quota YouTube dépassé pour aujourd’hui");
+      throw new Error("Quota YouTube dépassé pour aujourd'hui");
     }
     throw err;
   }
@@ -95,4 +115,5 @@ export default {
   getOAuth2Client,
   isGoogleAuthActive,
   uploadVideo,
+  getVideoDetails,
 };
