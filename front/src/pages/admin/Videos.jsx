@@ -677,7 +677,12 @@ export default function Videos() {
                           if (acceptedCount > 0) {
                             statusM.mutate({ id: movie.id_movie, status: "to_discuss" });
                           } else {
-                            window.alert("Vous devez accepter au moins un vote avant d'ouvrir la Phase 2.");
+                            setConfirmModal({
+                              title: "Vote requis",
+                              message: "Vous devez accepter au moins un vote avant d'ouvrir la Phase 2.",
+                              danger: false,
+                              onConfirm: () => setConfirmModal(null),
+                            });
                           }
                         }}
                           className="px-2 py-1 rounded-lg text-[9px] font-medium transition-all duration-300 whitespace-nowrap bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/20">Phase 2 →</button>
