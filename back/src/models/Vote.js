@@ -32,6 +32,11 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.ENUM('pending', 'accepted', 'rejected'),
       defaultValue: 'pending',
       allowNull: false
+    },
+    phase2_enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
     }
   }, 
   {

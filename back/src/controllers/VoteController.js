@@ -233,6 +233,11 @@ function getVoteById(req, res) {
 
 /**
  * PUT /:id_vote/decision — Accepte ou rejette un vote (ADMIN)
+ * Logique:
+ * - Accept YES → phase2_enabled = true (jury peut voter en Phase 2)
+ * - Accept NO → phase2_enabled = false (jury NE peut PAS voter en Phase 2)
+ * - Accept TO DISCUSS → phase2_enabled = true (jury peut voter en Phase 2)
+ * - Reject → phase2_enabled = false (jury NE peut PAS voter en Phase 2)
  */
 async function setVoteDecision(req, res) {
     const { id_vote } = req.params;
@@ -249,8 +254,22 @@ async function setVoteDecision(req, res) {
         }
 
         vote.decision = decision;
+        
+        if (decision === "accepted") {
+            // Si vote = YES ou TO DISCUSS → peut voter en Phase 2
+            // Si vote = NO → NE peut PAS voter en Phase 2
+            vote.phase2_enabled = (vote.note === "YES" || vote.note === "TO DISCUSS");
+        } else {
+            // Si rejected → ne peut pas voter en Phase 2
+            vote.phase2_enabled = false;
+        }
+
         const updatedVote = await vote.save();
-        return res.json({ message: `Vote ${decision}`, vote: updatedVote });
+        return res.json({ 
+            message: `Vote ${decision}`, 
+            vote: updatedVote,
+            phase2_enabled: updatedVote.phase2_enabled
+        });
     } catch (err) {
         console.error("setVoteDecision error:", err);
         return res.status(500).json({ error: err.message });

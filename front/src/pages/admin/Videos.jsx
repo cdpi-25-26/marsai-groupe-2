@@ -1064,6 +1064,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                     {summary.phase1Votes.map((v) => {
                       const isAccepted = v.decision === "accepted";
                       const isRejected = v.decision === "rejected";
+                      const canVotePhase2 = v.phase2_enabled === true;
                       return (
                         <div key={v.id_vote} className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-black/20 ${isRejected ? "opacity-40" : ""}`}>
                           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-pink-500/30 flex items-center justify-center text-[9px] font-bold text-white/70 flex-shrink-0">
@@ -1094,8 +1095,17 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                               >✕</button>
                             </div>
                           )}
-                          {isAccepted && <span className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300">✓</span>}
+                          {isAccepted && (
+                            <span className={`text-[8px] px-1.5 py-0.5 rounded ${canVotePhase2 ? "bg-emerald-500/30 text-emerald-300" : "bg-red-500/30 text-red-300"}`}>
+                              {canVotePhase2 ? "✓" : "✕"}
+                            </span>
+                          )}
                           {isRejected && <span className="text-[8px] px-1.5 py-0.5 rounded bg-red-500/30 text-red-300">✕</span>}
+                          {(isAccepted || isRejected) && (
+                            <span className={`text-[7px] px-1 py-0.5 rounded ${canVotePhase2 ? "bg-purple-500/20 text-purple-300" : "bg-gray-500/20 text-gray-400"}`}>
+                              {canVotePhase2 ? "Phase 2 ✓" : "Phase 2 ✕"}
+                            </span>
+                          )}
                         </div>
                       );
                     })}

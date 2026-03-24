@@ -174,9 +174,12 @@ export default function JuryHome() {
   const firstVoteMovies = assignedMovies.filter((movie) =>
     movie.selection_status === "assigned" && !getVote(movie)
   );
-  const secondVoteMovies = assignedMovies.filter((movie) =>
-    movie.selection_status === "to_discuss"
-  );
+  // Phase 2: only show movies where user has phase2_enabled = true
+  const secondVoteMovies = assignedMovies.filter((movie) => {
+    if (movie.selection_status !== "to_discuss") return false;
+    const myVote = getVote(movie);
+    return myVote && myVote.phase2_enabled === true;
+  });
   const votedMovies = assignedMovies.filter((movie) => Boolean(getVote(movie)));
   const candidateMovies = assignedMovies.filter((movie) =>
     ["candidate", "selected", "finalist"].includes(movie.selection_status)
