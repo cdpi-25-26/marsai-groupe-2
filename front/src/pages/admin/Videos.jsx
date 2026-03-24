@@ -1042,16 +1042,25 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phase 1 Votes */}
                   {(summary?.phase1Votes?.length || 0) > 0 && (
-                    <div>
-                      <p className="text-[8px] tracking-[0.25em] uppercase text-amber-400 font-semibold mb-2">📊 Phase 1 (1ère Votation)</p>
-
+                    <div className="bg-white/5 rounded-xl p-4 border border-amber-500/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold text-amber-400">Phase 1</span>
+                        <span className="text-[10px] text-white/30">1ère Votation</span>
+                      </div>
+                      
                       <div className="flex items-center gap-2 mb-3">
-                        {[["✓","YES","text-emerald-400"],["?","TO DISCUSS","text-amber-400"],["✕","NO","text-red-400"]].map(([icon,k,col]) => (
-                          <div key={k} className={`bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-center`}>
-                            <p className={`text-sm font-bold ${col}`}>{summary[k] || 0}</p>
-                            <p className="text-[7px] text-white/30">{icon}</p>
-                          </div>
-                        ))}
+                        <div className="flex-1 bg-emerald-500/10 rounded-lg p-2 text-center border border-emerald-500/20">
+                          <p className="text-lg font-bold text-emerald-400">{summary.YES || 0}</p>
+                          <p className="text-[8px] text-emerald-400/60">Validé</p>
+                        </div>
+                        <div className="flex-1 bg-amber-500/10 rounded-lg p-2 text-center border border-amber-500/20">
+                          <p className="text-lg font-bold text-amber-400">{summary["TO DISCUSS"] || 0}</p>
+                          <p className="text-[8px] text-amber-400/60">À disc.</p>
+                        </div>
+                        <div className="flex-1 bg-red-500/10 rounded-lg p-2 text-center border border-red-500/20">
+                          <p className="text-lg font-bold text-red-400">{summary.NO || 0}</p>
+                          <p className="text-[8px] text-red-400/60">Refusé</p>
+                        </div>
                       </div>
 
                       <div className="space-y-1 max-h-40 overflow-y-auto scrollbar-thin-dark">
@@ -1059,16 +1068,19 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                           const isAccepted = v.decision === "accepted";
                           const isRejected = v.decision === "rejected";
                           return (
-                            <div key={v.id_vote} className={`flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5 ${isRejected ? "opacity-40" : ""}`}>
-                              <span className="text-white/40 text-[10px] truncate flex-1">
+                            <div key={v.id_vote} className={`flex items-center gap-3 px-3 py-2 rounded-lg bg-black/20 ${isRejected ? "opacity-40" : ""}`}>
+                              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-pink-500/30 flex items-center justify-center text-[9px] font-bold text-white/70">
                                 {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                              </div>
+                              <span className="flex-1 text-xs text-white/60 truncate">
+                                {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
                               </span>
-                              <span className={`text-[8px] px-1 rounded ${
-                                v.note === "YES" ? "bg-emerald-500/20 text-emerald-300" :
-                                v.note === "NO" ? "bg-red-500/20 text-red-300" : "bg-amber-500/20 text-amber-300"
-                              }`}>{v.note === "YES" ? "✓" : v.note === "NO" ? "✕" : "?"}</span>
-                              {isAccepted && <span className="text-[7px] text-emerald-400">✓</span>}
-                              {isRejected && <span className="text-[7px] text-red-400">✕</span>}
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                                v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" :
+                                v.note === "NO" ? "bg-red-500/20 text-red-300 border border-red-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              }`}>
+                                {v.note === "YES" ? "✓" : v.note === "NO" ? "✕" : "?"}
+                              </span>
                             </div>
                           );
                         })}
@@ -1078,31 +1090,44 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
 
                   {/* Phase 2 Votes */}
                   {(summary?.phase2Votes?.length || 0) > 0 && (
-                    <div>
-                      <p className="text-[8px] tracking-[0.25em] uppercase text-purple-400 font-semibold mb-2">📊 Phase 2 (2ème Votation)</p>
-
+                    <div className="bg-white/5 rounded-xl p-4 border border-purple-500/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-semibold text-purple-400">Phase 2</span>
+                        <span className="text-[10px] text-white/30">2ème Votation</span>
+                      </div>
+                      
                       <div className="flex items-center gap-2 mb-3">
-                        {[["✓","YES","text-emerald-400"],["✕","NO","text-red-400"]].map(([icon,k,col]) => {
-                          const count = summary.phase2Votes.filter(v => v.note === k).length;
+                        {(() => {
+                          const promu = summary.phase2Votes.filter(v => v.note === "YES").length;
+                          const reject = summary.phase2Votes.filter(v => v.note === "NO").length;
                           return (
-                            <div key={k} className={`bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-center`}>
-                              <p className={`text-sm font-bold ${col}`}>{count}</p>
-                              <p className="text-[7px] text-white/30">{icon}</p>
-                            </div>
+                            <>
+                              <div className="flex-1 bg-emerald-500/10 rounded-lg p-2 text-center border border-emerald-500/20">
+                                <p className="text-lg font-bold text-emerald-400">{promu}</p>
+                                <p className="text-[8px] text-emerald-400/60">Promu</p>
+                              </div>
+                              <div className="flex-1 bg-red-500/10 rounded-lg p-2 text-center border border-red-500/20">
+                                <p className="text-lg font-bold text-red-400">{reject}</p>
+                                <p className="text-[8px] text-red-400/60">Rejeté</p>
+                              </div>
+                            </>
                           );
-                        })}
+                        })()}
                       </div>
 
                       <div className="space-y-1 max-h-40 overflow-y-auto scrollbar-thin-dark">
                         {summary.phase2Votes.map((v) => (
-                          <div key={v.id_vote} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5">
-                            <span className="text-white/40 text-[10px] truncate flex-1">
+                          <div key={v.id_vote} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-black/20">
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500/30 to-violet-500/30 flex items-center justify-center text-[9px] font-bold text-white/70">
                               {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                            </div>
+                            <span className="flex-1 text-xs text-white/60 truncate">
+                              {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
                             </span>
-                            <span className={`text-[8px] px-1 rounded ${
-                              v.note === "YES" ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                              v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"
                             }`}>
-                              {v.note === "YES" ? "✓" : "✕"}
+                              {v.note === "YES" ? "Promu ✓" : "Rejeté ✕"}
                             </span>
                           </div>
                         ))}
