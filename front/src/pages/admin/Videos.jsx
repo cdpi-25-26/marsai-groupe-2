@@ -163,28 +163,45 @@ export default function Videos() {
   const categories = catsData?.data || [];
   const votes      = votesData?.data || [];
 
-  const voteSummary = useMemo(() => votes.reduce((acc, v) => {
-    if (!acc[v.id_movie]) {
-      acc[v.id_movie] = { 
-        YES: 0, 
-        NO: 0, 
-        "TO DISCUSS": 0, 
-        total: 0, 
-        accepted: 0,
-        votes: [] 
-      };
-    }
-    const s = acc[v.id_movie];
-    if (["YES","NO","TO DISCUSS"].includes(v.note)) {
-      s[v.note]++;
-      if (v.decision === "accepted") {
-        s.accepted++;
+  const voteSummary = useMemo(() => {
+    const summaries = {};
+    votes.forEach((v) => {
+      if (!summaries[v.id_movie]) {
+        summaries[v.id_movie] = { 
+          YES: 0, 
+          NO: 0, 
+          "TO DISCUSS": 0, 
+          total: 0, 
+          accepted: 0,
+          votes: [],
+          phase1Votes: [],
+          phase2Votes: []
+        };
       }
-    }
-    s.total++;
-    s.votes.push(v);
-    return acc;
-  }, {}), [votes]);
+      const s = summaries[v.id_movie];
+      
+      // Distinguish Phase 1 vs Phase 2 based on vote comments
+      // Phase 2 votes have "2ème votation" in comments
+      const isPhase2 = v.comments && v.comments.includes("2ème votation");
+      
+      if (["YES","NO","TO DISCUSS"].includes(v.note)) {
+        s[v.note]++;
+        if (v.decision === "accepted") {
+          s.accepted++;
+        }
+      }
+      s.total++;
+      s.votes.push(v);
+      
+      // Separate Phase 1 and Phase 2 votes
+      if (isPhase2) {
+        s.phase2Votes.push(v);
+      } else {
+        s.phase1Votes.push(v);
+      }
+    });
+    return summaries;
+  }, [votes]);
 
   const [activeTab,     setActiveTab]     = useState("all");
   const [search,        setSearch]        = useState("");
@@ -1020,9 +1037,10 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 </div>
               </div>
 
-              {(summary?.votes?.length || 0) > 0 && (
-                <div>
-                  <p className="text-[8px] tracking-[0.25em] uppercase text-white/20 font-semibold mb-2.5">Votes Phase 1 — {summary.accepted} accepté(s) / {summary.total} total</p>
+              {/* Phase 1 Votes */}
+              {(summary?.phase1Votes?.length || 0) > 0 && (
+                <div className="mb-6">
+                  <p className="text-[8px] tracking-[0.25em] uppercase text-amber-400 font-semibold mb-2.5">📊 Votes Phase 1 (1ère Votation)</p>
 
                   <div className="flex items-center gap-3 mb-3">
                     {[["Validé","YES","text-emerald-400","bg-emerald-500/10 border-emerald-500/20"],
@@ -1043,7 +1061,7 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                   </div>
 
                   <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
-                    {summary.votes.map((v) => {
+                    {summary.phase1Votes.map((v) => {
                       const isAccepted = v.decision === "accepted";
                       const isRejected = v.decision === "rejected";
                       return (
@@ -1100,6 +1118,31 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+
+              {/* Phase 2 Votes */}
+              {(summary?.phase2Votes?.length || 0) > 0 && (
+                <div>
+                  <p className="text-[8px] tracking-[0.25em] uppercase text-purple-400 font-semibold mb-2.5">📊 Votes Phase 2 (2ème Votation)</p>
+
+                  <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
+                    {summary.phase2Votes.map((v) => (
+                      <div key={v.id_vote} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500/50 to-violet-500/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
+                          {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                        </div>
+                        <span className="text-white/40 flex-1 truncate text-[11px]">
+                          {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
+                        </span>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${
+                          v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/20" : "bg-red-500/20 text-red-300 border-red-500/20"
+                        }`}>
+                          {v.note === "YES" ? "Promu ✓" : "Rejeté ✕"}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
