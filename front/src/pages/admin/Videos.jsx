@@ -761,15 +761,26 @@ export default function Videos() {
               <h2 className="text-lg font-semibold text-white mb-2">{confirmModal.title}</h2>
               <p className="text-sm text-white/60 mb-6">{confirmModal.message}</p>
               <div className="flex gap-2">
-                <button onClick={() => setConfirmModal(null)} className="flex-1 px-3 py-1.5 bg-white/5 border border-white/10 text-white/80 text-xs rounded-lg hover:bg-white/10 transition-colors">
-                  Annuler
-                </button>
-                <button
-                  onClick={confirmModal.onConfirm}
-                  className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-colors ${confirmModal.danger ? "bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20" : "bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20"}`}
-                >
-                  Confirmer
-                </button>
+                {confirmModal.danger ? (
+                  <>
+                    <button onClick={() => setConfirmModal(null)} className="flex-1 px-3 py-1.5 bg-white/5 border border-white/10 text-white/80 text-xs rounded-lg hover:bg-white/10 transition-colors">
+                      Annuler
+                    </button>
+                    <button
+                      onClick={confirmModal.onConfirm}
+                      className="flex-1 px-3 py-1.5 bg-red-500/10 border border-red-500/30 text-red-300 text-xs rounded-lg hover:bg-red-500/20 transition-colors"
+                    >
+                      Confirmer
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={confirmModal.onConfirm}
+                    className="flex-1 px-3 py-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs rounded-lg hover:bg-purple-500/30 transition-colors"
+                  >
+                    Compris
+                  </button>
+                )}
               </div>
             </div>
           </div>
