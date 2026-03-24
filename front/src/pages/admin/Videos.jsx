@@ -1037,113 +1037,78 @@ function FilmModal({ movie, summary, categories, catSel, setCatSel,
                 </div>
               </div>
 
-              {/* Phase 1 Votes */}
-              {(summary?.phase1Votes?.length || 0) > 0 && (
-                <div className="mb-6">
-                  <p className="text-[8px] tracking-[0.25em] uppercase text-amber-400 font-semibold mb-2.5">📊 Votes Phase 1 (1ère Votation)</p>
+              {/* Votes - Side by Side */}
+              {((summary?.phase1Votes?.length || 0) > 0 || (summary?.phase2Votes?.length || 0) > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Phase 1 Votes */}
+                  {(summary?.phase1Votes?.length || 0) > 0 && (
+                    <div>
+                      <p className="text-[8px] tracking-[0.25em] uppercase text-amber-400 font-semibold mb-2">📊 Phase 1 (1ère Votation)</p>
 
-                  <div className="flex items-center gap-3 mb-3">
-                    {[["Validé","YES","text-emerald-400","bg-emerald-500/10 border-emerald-500/20"],
-                      ["À discuter","TO DISCUSS","text-amber-400","bg-amber-500/10 border-amber-500/20"],
-                      ["Refusé","NO","text-red-400","bg-red-500/10 border-red-500/20"]].map(([lbl,k,col,bg]) => (
-                      <div key={k} className={`${bg} border rounded-xl px-3 py-2 text-center min-w-[58px]`}>
-                        <p className={`text-xl font-bold font-['JetBrains_Mono'] leading-none ${col}`}>{summary[k]}</p>
-                        <p className="text-[8px] text-white/25 mt-1">{lbl}</p>
-                      </div>
-                    ))}
-                    {summary.total > 0 && (
-                      <div className="flex-1 h-2 rounded-full flex overflow-hidden bg-white/10">
-                        <div className="bg-emerald-500 h-full transition-all duration-300" style={{ width:`${(summary.YES/summary.total)*100}%` }} />
-                        <div className="bg-amber-500 h-full transition-all duration-300"   style={{ width:`${(summary["TO DISCUSS"]/summary.total)*100}%` }} />
-                        <div className="bg-red-500 h-full transition-all duration-300"     style={{ width:`${(summary.NO/summary.total)*100}%` }} />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
-                    {summary.phase1Votes.map((v) => {
-                      const isAccepted = v.decision === "accepted";
-                      const isRejected = v.decision === "rejected";
-                      return (
-                        <div key={v.id_vote} className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300 ${isRejected ? "opacity-40" : ""}`}>
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500/50 to-pink-500/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
-                            {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                      <div className="flex items-center gap-2 mb-3">
+                        {[["✓","YES","text-emerald-400"],["?","TO DISCUSS","text-amber-400"],["✕","NO","text-red-400"]].map(([icon,k,col]) => (
+                          <div key={k} className={`bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-center`}>
+                            <p className={`text-sm font-bold ${col}`}>{summary[k] || 0}</p>
+                            <p className="text-[7px] text-white/30">{icon}</p>
                           </div>
-                          <span className="text-white/40 flex-1 truncate text-[11px]">
-                            {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
-                          </span>
-                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${
-                            v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/20" :
-                            v.note === "NO"  ? "bg-red-500/20 text-red-300 border-red-500/20" :
-                            "bg-amber-500/20 text-amber-300 border-amber-500/20"
-                          }`}>{v.note}</span>
-                          
-                          {!isAccepted && !isRejected && (
-                            <div className="flex gap-1">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  voteDecisionM.mutate({ id: v.id_vote, decision: "accepted" });
-                                }}
-                                disabled={voteDecisionM.isPending}
-                                className="px-1.5 py-0.5 text-[8px] rounded bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition"
-                                title="Accepter ce vote"
-                              >
-                                ✓
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  voteDecisionM.mutate({ id: v.id_vote, decision: "rejected" });
-                                }}
-                                disabled={voteDecisionM.isPending}
-                                className="px-1.5 py-0.5 text-[8px] rounded bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition"
-                                title="Rejeter ce vote"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          )}
-                          
-                          {isAccepted && (
-                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/30 border border-emerald-500/40 text-emerald-300">
-                              Accepté
-                            </span>
-                          )}
-                          {isRejected && (
-                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-red-500/30 border border-red-500/40 text-red-300">
-                              Rejeté
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Phase 2 Votes */}
-              {(summary?.phase2Votes?.length || 0) > 0 && (
-                <div>
-                  <p className="text-[8px] tracking-[0.25em] uppercase text-purple-400 font-semibold mb-2.5">📊 Votes Phase 2 (2ème Votation)</p>
-
-                  <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin-dark">
-                    {summary.phase2Votes.map((v) => (
-                      <div key={v.id_vote} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-all duration-300">
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500/50 to-violet-500/50 flex items-center justify-center text-[7px] font-bold flex-shrink-0 text-white/60">
-                          {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
-                        </div>
-                        <span className="text-white/40 flex-1 truncate text-[11px]">
-                          {v.User ? `${v.User.first_name} ${v.User.last_name}` : `Jury #${v.id_user}`}
-                        </span>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium border ${
-                          v.note === "YES" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/20" : "bg-red-500/20 text-red-300 border-red-500/20"
-                        }`}>
-                          {v.note === "YES" ? "Promu ✓" : "Rejeté ✕"}
-                        </span>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="space-y-1 max-h-40 overflow-y-auto scrollbar-thin-dark">
+                        {summary.phase1Votes.map((v) => {
+                          const isAccepted = v.decision === "accepted";
+                          const isRejected = v.decision === "rejected";
+                          return (
+                            <div key={v.id_vote} className={`flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5 ${isRejected ? "opacity-40" : ""}`}>
+                              <span className="text-white/40 text-[10px] truncate flex-1">
+                                {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                              </span>
+                              <span className={`text-[8px] px-1 rounded ${
+                                v.note === "YES" ? "bg-emerald-500/20 text-emerald-300" :
+                                v.note === "NO" ? "bg-red-500/20 text-red-300" : "bg-amber-500/20 text-amber-300"
+                              }`}>{v.note === "YES" ? "✓" : v.note === "NO" ? "✕" : "?"}</span>
+                              {isAccepted && <span className="text-[7px] text-emerald-400">✓</span>}
+                              {isRejected && <span className="text-[7px] text-red-400">✕</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Phase 2 Votes */}
+                  {(summary?.phase2Votes?.length || 0) > 0 && (
+                    <div>
+                      <p className="text-[8px] tracking-[0.25em] uppercase text-purple-400 font-semibold mb-2">📊 Phase 2 (2ème Votation)</p>
+
+                      <div className="flex items-center gap-2 mb-3">
+                        {[["✓","YES","text-emerald-400"],["✕","NO","text-red-400"]].map(([icon,k,col]) => {
+                          const count = summary.phase2Votes.filter(v => v.note === k).length;
+                          return (
+                            <div key={k} className={`bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-center`}>
+                              <p className={`text-sm font-bold ${col}`}>{count}</p>
+                              <p className="text-[7px] text-white/30">{icon}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="space-y-1 max-h-40 overflow-y-auto scrollbar-thin-dark">
+                        {summary.phase2Votes.map((v) => (
+                          <div key={v.id_vote} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5">
+                            <span className="text-white/40 text-[10px] truncate flex-1">
+                              {v.User ? `${v.User.first_name?.[0]}${v.User.last_name?.[0]}` : "?"}
+                            </span>
+                            <span className={`text-[8px] px-1 rounded ${
+                              v.note === "YES" ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"
+                            }`}>
+                              {v.note === "YES" ? "✓" : "✕"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
